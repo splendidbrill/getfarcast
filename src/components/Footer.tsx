@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Zap } from "lucide-react";
 
@@ -22,16 +25,37 @@ const footerLinks = {
 };
 
 export function Footer() {
+  const footerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true);
+      },
+      { threshold: 0.1 }
+    );
+
+    if (footerRef.current) observer.observe(footerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <footer id="footer" className="relative border-t border-white/5">
+    <footer id="footer" className="relative border-t border-white/5" ref={footerRef}>
       <div className="absolute inset-0 bg-surface-900" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
           {/* Brand column */}
-          <div className="md:col-span-5">
-            <Link href="/" className="flex items-center gap-2.5 mb-4" id="footer-logo">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center">
+          <div
+            className="md:col-span-5 transition-all duration-700"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "translateY(0)" : "translateY(20px)",
+            }}
+          >
+            <Link href="/" className="flex items-center gap-2.5 mb-4 group" id="footer-logo">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-6">
                 <Zap className="w-4.5 h-4.5 text-white" strokeWidth={2.5} />
               </div>
               <span className="text-lg font-bold tracking-tight text-white">
@@ -63,12 +87,17 @@ export function Footer() {
                     </svg>
                   ),
                 },
-              ].map((social) => (
+              ].map((social, idx) => (
                 <a
                   key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-surface-200/40 hover:text-white hover:bg-white/10 transition-all duration-200"
+                  className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-surface-200/40 hover:text-white hover:bg-white/10 transition-all duration-200 hover:scale-110 hover:-translate-y-0.5"
+                  style={{
+                    transitionDelay: `${(idx + 2) * 100}ms`,
+                    opacity: isVisible ? 1 : 0,
+                    transform: isVisible ? "translateY(0)" : "translateY(10px)",
+                  }}
                 >
                   {social.icon}
                 </a>
@@ -77,17 +106,30 @@ export function Footer() {
           </div>
 
           {/* Link columns */}
-          {Object.entries(footerLinks).map(([category, links]) => (
-            <div key={category} className="md:col-span-2">
+          {Object.entries(footerLinks).map(([category, links], colIdx) => (
+            <div
+              key={category}
+              className="md:col-span-2 transition-all duration-700"
+              style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(20px)",
+                transitionDelay: `${(colIdx + 1) * 150}ms`,
+              }}
+            >
               <h4 className="text-xs font-semibold text-surface-200/60 uppercase tracking-wider mb-4">
                 {category}
               </h4>
               <ul className="space-y-3">
-                {links.map((link) => (
+                {links.map((link, idx) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-surface-200/40 hover:text-white transition-colors duration-200"
+                      className="text-sm text-surface-200/40 hover:text-white transition-all duration-200 hover:translate-x-1 inline-block"
+                      style={{
+                        transitionDelay: `${(colIdx * 4 + idx + 3) * 50}ms`,
+                        opacity: isVisible ? 1 : 0,
+                        transform: isVisible ? "translateX(0)" : "translateX(-10px)",
+                      }}
                     >
                       {link.label}
                     </Link>
@@ -99,7 +141,14 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div
+          className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-700"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? "translateY(0)" : "translateY(10px)",
+            transitionDelay: "600ms",
+          }}
+        >
           <p className="text-xs text-surface-200/30">
             &copy; {new Date().getFullYear()} GetFarcast. All rights reserved.
           </p>

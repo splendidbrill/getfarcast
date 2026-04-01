@@ -87,6 +87,45 @@ const features = [
   },
 ];
 
+function TiltCard({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [transform, setTransform] = useState("");
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
+  };
+
+  const handleMouseLeave = () => {
+    setTransform("perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      className={className}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        ...style,
+        transform,
+        transition: "transform 0.3s ease-out",
+        transformStyle: "preserve-3d",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function FeaturesGrid() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -112,7 +151,7 @@ export function FeaturesGrid() {
       <div className="absolute inset-0 bg-gradient-to-b from-surface-900 via-surface-850 to-surface-900" />
 
       {/* Accent glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-500/3 rounded-full blur-[150px]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-500/3 rounded-full blur-[150px] animate-pulse-soft" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         <div className="text-center mb-16">
@@ -134,27 +173,27 @@ export function FeaturesGrid() {
           {features.map((feature, i) => {
             const Icon = feature.icon;
             return (
-              <div
+              <TiltCard
                 key={feature.title}
-                className={`glass-card rounded-2xl p-5 border border-white/5 ${feature.borderColor} hover:bg-white/[0.03] transition-all duration-500 cursor-default group ${
+                className={`glass-card spotlight-card rounded-2xl p-5 border border-white/5 ${feature.borderColor} hover:bg-white/[0.03] cursor-default group ${
                   isVisible
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-6"
                 }`}
-                style={{ transitionDelay: `${i * 80}ms` }}
+                style={{ transitionDelay: `${i * 80}ms` } as React.CSSProperties}
               >
                 <div
-                  className={`w-10 h-10 rounded-xl ${feature.bgIcon} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+                  className={`w-10 h-10 rounded-xl ${feature.bgIcon} flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
                 >
                   <Icon className={`w-5 h-5 ${feature.color}`} />
                 </div>
-                <h3 className="text-sm font-bold text-white mb-2 leading-snug">
+                <h3 className="text-sm font-bold text-white mb-2 leading-snug group-hover:text-gradient-brand transition-all">
                   {feature.title}
                 </h3>
                 <p className="text-xs text-surface-200/45 leading-relaxed">
                   {feature.description}
                 </p>
-              </div>
+              </TiltCard>
             );
           })}
         </div>

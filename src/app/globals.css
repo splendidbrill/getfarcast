@@ -41,6 +41,20 @@
   --animate-fade-in-up-delay-3: fade-in-up 0.7s ease-out 0.45s forwards;
   --animate-gradient-x: gradient-x 8s ease infinite;
   --animate-scale-in: scale-in 0.5s ease-out forwards;
+  --animate-particle: particle 20s linear infinite;
+  --animate-spin-slow: spin 20s linear infinite;
+  --animate-bounce-slow: bounce 3s ease-in-out infinite;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+  --animate-slide-in-left: slide-in-left 0.6s ease-out forwards;
+  --animate-slide-in-right: slide-in-right 0.6s ease-out forwards;
+  --animate-morph: morph 8s ease-in-out infinite;
+  --animate-ripple: ripple 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-counter: counter 2s ease-out forwards;
+  --animate-reveal: reveal 0.8s ease-out forwards;
+  --animate-marquee: marquee 30s linear infinite;
+  --animate-magnetic: magnetic 0.3s ease-out;
+  --animate-tilt: tilt 0.5s ease-out;
+  --animate-spotlight: spotlight 0.4s ease-out forwards;
 }
 
 :root {
@@ -82,6 +96,48 @@ body {
 @keyframes scale-in {
   0% { opacity: 0; transform: scale(0.9); }
   100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes particle {
+  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 20px rgba(51, 120, 255, 0.3); }
+  100% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.5); }
+}
+
+@keyframes slide-in-left {
+  0% { opacity: 0; transform: translateX(-50px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  0% { opacity: 0; transform: translateX(50px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes morph {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+}
+
+@keyframes ripple {
+  0% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes reveal {
+  0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 /* Scrollbar */
@@ -174,4 +230,120 @@ body {
 /* Pricing toggle */
 .pricing-toggle-active {
   background: linear-gradient(135deg, #3378ff, #8b5cf6);
+}
+
+/* Particle container */
+.particles-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(51, 120, 255, 0.3);
+  border-radius: 50%;
+  animation: particle linear infinite;
+}
+
+.particle:nth-child(odd) {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+.particle:nth-child(3n) {
+  background: rgba(52, 211, 153, 0.2);
+}
+
+/* Spotlight hover effect */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(51, 120, 255, 0.06),
+    transparent 40%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+/* Shimmer border */
+.shimmer-border {
+  position: relative;
+}
+
+.shimmer-border::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(51, 120, 255, 0.5),
+    rgba(139, 92, 246, 0.5),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
+/* Pulse ring effect */
+.pulse-ring {
+  position: relative;
+}
+
+.pulse-ring::before,
+.pulse-ring::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid rgba(51, 120, 255, 0.3);
+  animation: ripple 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.pulse-ring::after {
+  animation-delay: 1s;
+}
+
+/* Marquee */
+.marquee-track {
+  display: flex;
+  animation: marquee 30s linear infinite;
+  width: max-content;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(51, 120, 255, 0.3);
+  color: white;
 }

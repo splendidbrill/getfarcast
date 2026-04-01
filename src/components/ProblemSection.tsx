@@ -37,6 +37,7 @@ const problems = [
 export function ProblemSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -50,6 +51,14 @@ export function ProblemSection() {
     return () => observer.disconnect();
   }, []);
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    });
+  };
+
   return (
     <section
       ref={sectionRef}
@@ -58,7 +67,13 @@ export function ProblemSection() {
     >
       <div className="absolute inset-0 bg-gradient-to-b from-surface-900 via-surface-850 to-surface-900" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6">
+      {/* Animated background accent */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-500/5 rounded-full blur-[120px] animate-pulse-soft" />
+
+      <div
+        className="relative z-10 max-w-6xl mx-auto px-6"
+        onMouseMove={handleMouseMove}
+      >
         <div className="text-center mb-16">
           <p className="text-sm font-semibold text-brand-400 uppercase tracking-widest mb-3">
             The Problem
@@ -78,23 +93,25 @@ export function ProblemSection() {
             return (
               <div
                 key={problem.title}
-                className={`glass-card glass-card-hover rounded-2xl p-6 transition-all duration-500 cursor-default ${
+                className={`glass-card spotlight-card rounded-2xl p-6 transition-all duration-500 cursor-default group hover:-translate-y-1 hover:shadow-lg hover:shadow-red-500/5 ${
                   isVisible
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-8"
                 }`}
                 style={{
                   transitionDelay: `${i * 100}ms`,
-                }}
+                  "--mouse-x": `${mousePos.x}%`,
+                  "--mouse-y": `${mousePos.y}%`,
+                } as React.CSSProperties}
               >
                 <div className="flex items-start gap-4">
                   <div
-                    className={`w-10 h-10 rounded-xl ${problem.bgColor} flex items-center justify-center shrink-0`}
+                    className={`w-10 h-10 rounded-xl ${problem.bgColor} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}
                   >
                     <Icon className={`w-5 h-5 ${problem.color}`} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-1.5">
+                    <h3 className="text-lg font-semibold text-white mb-1.5 group-hover:text-gradient-brand transition-all">
                       {problem.title}
                     </h3>
                     <p className="text-sm text-surface-200/50 leading-relaxed">
@@ -109,9 +126,9 @@ export function ProblemSection() {
 
         {/* Stat callout */}
         <div className="mt-16 text-center">
-          <div className="inline-flex items-center gap-3 glass-card rounded-full px-6 py-3">
+          <div className="inline-flex items-center gap-3 glass-card rounded-full px-6 py-3 hover:scale-105 transition-transform duration-300">
             <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-extrabold text-gradient">90%</span>
+              <span className="text-3xl font-extrabold text-gradient animate-pulse-soft">90%</span>
             </div>
             <span className="text-sm text-surface-200/60">
               of startups fail due to distribution, not the product.

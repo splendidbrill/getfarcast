@@ -7,6 +7,7 @@ import Link from "next/link";
 export function CtaSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -20,26 +21,50 @@ export function CtaSection() {
     return () => observer.disconnect();
   }, []);
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    });
+  };
+
   return (
     <section
       ref={sectionRef}
       id="cta"
       className="relative py-28 sm:py-36 overflow-hidden"
+      onMouseMove={handleMouseMove}
     >
       <div className="absolute inset-0 bg-grid opacity-30" />
 
       {/* Large gradient orbs */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-500/8 rounded-full blur-[150px]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-500/8 rounded-full blur-[150px] animate-pulse-soft" />
       <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-accent-500/6 rounded-full blur-[100px] animate-float" />
+      <div className="absolute bottom-1/3 left-1/4 w-48 h-48 bg-emerald-500/5 rounded-full blur-[80px] animate-float-delayed" />
+
+      {/* Interactive spotlight */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(600px circle at ${mousePos.x}% ${mousePos.y}%, rgba(51, 120, 255, 0.06), transparent 40%)`,
+        }}
+      />
 
       <div
         className={`relative z-10 max-w-4xl mx-auto px-6 text-center transition-all duration-1000 ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}
       >
-        {/* Icon */}
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500 mb-8 shadow-2xl shadow-brand-500/20">
-          <Rocket className="w-7 h-7 text-white" />
+        {/* Icon with pulse rings */}
+        <div className="relative inline-flex mb-8">
+          {/* Pulse rings */}
+          <div className="absolute inset-0 rounded-2xl bg-brand-500/20 animate-ping" style={{ animationDuration: "3s" }} />
+          <div className="absolute inset-0 rounded-2xl bg-brand-500/10 animate-ping" style={{ animationDuration: "3s", animationDelay: "1s" }} />
+          
+          <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center shadow-2xl shadow-brand-500/20 animate-glow">
+            <Rocket className="w-7 h-7 text-white" />
+          </div>
         </div>
 
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-5 leading-tight">
@@ -57,7 +82,7 @@ export function CtaSection() {
           <Link
             href="#pricing"
             id="cta-primary"
-            className="group relative px-10 py-4 rounded-xl bg-gradient-to-r from-brand-500 to-accent-500 text-white font-bold text-base hover:from-brand-400 hover:to-accent-400 transition-all duration-300 shadow-2xl shadow-brand-500/25 flex items-center gap-2"
+            className="group relative px-10 py-4 rounded-xl bg-gradient-to-r from-brand-500 to-accent-500 text-white font-bold text-base hover:from-brand-400 hover:to-accent-400 transition-all duration-300 shadow-2xl shadow-brand-500/25 flex items-center gap-2 hover:scale-105 hover:shadow-brand-500/40"
           >
             Get Your Growth Playbook
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -75,9 +100,17 @@ export function CtaSection() {
             "Ready in minutes",
             "Human-sounding content",
             "Cancel anytime",
-          ].map((signal) => (
-            <div key={signal} className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          ].map((signal, idx) => (
+            <div
+              key={signal}
+              className="flex items-center gap-2 transition-all duration-500"
+              style={{
+                transitionDelay: `${idx * 100}ms`,
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(10px)",
+              }}
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-soft" />
               <span className="text-xs text-surface-200/40 font-medium">
                 {signal}
               </span>
