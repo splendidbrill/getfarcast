@@ -320,6 +320,7 @@ body {
   border-radius: inherit;
   border: 2px solid rgba(51, 120, 255, 0.3);
   animation: ripple 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  pointer-events: none;
 }
 
 .pulse-ring::after {

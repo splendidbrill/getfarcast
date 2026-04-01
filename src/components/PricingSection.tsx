@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Check, Sparkles, Zap, Crown } from "lucide-react";
+import { SignInModal } from "./SignInModal";
 
 type Region = "global" | "india";
 
@@ -141,6 +142,7 @@ const plans = {
 export function PricingSection() {
   const [region, setRegion] = useState<Region>("global");
   const [hoveredPlan, setHoveredPlan] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -167,8 +169,8 @@ export function PricingSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-surface-900 via-surface-850 to-surface-900" />
 
       {/* Accent glow */}
-      <div className="absolute top-1/3 right-0 w-96 h-96 bg-accent-500/5 rounded-full blur-[150px] animate-float" />
-      <div className="absolute bottom-1/3 left-0 w-96 h-96 bg-brand-500/5 rounded-full blur-[150px] animate-float-delayed" />
+      <div className="absolute top-1/3 right-0 w-96 h-96 bg-accent-500/5 rounded-full blur-[150px] animate-float pointer-events-none" />
+      <div className="absolute bottom-1/3 left-0 w-96 h-96 bg-brand-500/5 rounded-full blur-[150px] animate-float-delayed pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         <div className="text-center mb-10">
@@ -322,6 +324,7 @@ export function PricingSection() {
                         ? "bg-gradient-to-r from-brand-500 to-accent-500 text-white shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 hover:scale-105"
                         : "bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 hover:scale-105"
                     }`}
+                    onClick={() => setIsModalOpen(true)}
                   >
                     <span className="relative z-10">{plan.cta}</span>
                     {plan.highlighted && (
@@ -347,6 +350,7 @@ export function PricingSection() {
           })}
         </div>
       </div>
+      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </section>
   );
 }
