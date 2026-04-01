@@ -118,11 +118,11 @@ export function Hero() {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up-delay-3 opacity-0">
           <Link
-            href="#pricing"
+            href="/onboarding"
             id="hero-cta-primary"
             className="group relative px-8 py-3.5 rounded-xl bg-gradient-to-r from-brand-500 to-accent-500 text-white font-semibold text-base hover:from-brand-400 hover:to-accent-400 transition-all duration-300 shadow-2xl shadow-brand-500/25 flex items-center gap-2 hover:scale-105 hover:shadow-brand-500/40"
           >
-            Start Your Free 14-Day Trial
+            Get Your Growth Playbook
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
           <Link

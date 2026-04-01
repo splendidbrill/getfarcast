@@ -86,11 +86,11 @@ export function Navbar() {
 
         <div className="hidden md:flex items-center gap-3">
           <Link
-            href="#pricing"
+            href="/onboarding"
             id="nav-cta-start"
             className="px-5 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-brand-500 to-accent-500 text-white hover:from-brand-400 hover:to-accent-400 transition-all duration-200 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 hover:scale-105"
           >
-            Start Free Trial
+            Get Your Playbook
           </Link>
         </div>
 
@@ -122,11 +122,11 @@ export function Navbar() {
               </Link>
             ))}
             <Link
-              href="#pricing"
+              href="/onboarding"
               onClick={() => setMobileOpen(false)}
               className="block mt-2 px-5 py-2.5 text-sm font-medium rounded-lg bg-gradient-to-r from-brand-500 to-accent-500 text-white text-center"
             >
-              Start Free Trial
+              Get Your Playbook
             </Link>
           </div>
         </div>
