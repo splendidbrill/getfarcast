@@ -90,18 +90,21 @@ export function ProblemSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {problems.map((problem, i) => {
             const Icon = problem.icon;
+            const isLeft = i % 2 === 0;
             return (
               <div
                 key={problem.title}
-                className={`glass-card spotlight-card rounded-2xl p-6 transition-all duration-500 cursor-default group hover:-translate-y-1 hover:shadow-lg hover:shadow-red-500/5 ${
-                  isVisible
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-8"
-                }`}
+                className="glass-card spotlight-card rounded-2xl p-6 cursor-default group hover:-translate-y-1 hover:shadow-lg hover:shadow-red-500/5"
                 style={{
-                  transitionDelay: `${i * 100}ms`,
                   "--mouse-x": `${mousePos.x}%`,
                   "--mouse-y": `${mousePos.y}%`,
+                  opacity: isVisible ? 1 : 0,
+                  transform: isVisible
+                    ? "translateX(0)"
+                    : isLeft
+                      ? "translateX(-100vw)"
+                      : "translateX(100vw)",
+                  transition: `opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.15}s, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.15}s`,
                 } as React.CSSProperties}
               >
                 <div className="flex items-start gap-4">
