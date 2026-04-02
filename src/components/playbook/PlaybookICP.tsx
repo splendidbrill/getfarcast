@@ -145,6 +145,22 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
                 ))}
               </ul>
             </div>
+            {icp.psychographics.spendingHabits && (
+              <div>
+                <p className="text-xs text-surface-200/40 mb-2">Spending Habits</p>
+                <ul className="space-y-1">
+                  {icp.psychographics.spendingHabits.map((sh, i) => (
+                    <li
+                      key={i}
+                      className="text-xs text-surface-200/60 flex items-start gap-2"
+                    >
+                      <span className="text-emerald-400 mt-0.5">$</span>
+                      {sh}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </div>

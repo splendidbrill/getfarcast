@@ -44,6 +44,7 @@ export interface ICPPsychographics {
   values: string[];
   interests: string[];
   frustrations: string[];
+  spendingHabits: string[];
 }
 
 export interface DISCProfile {

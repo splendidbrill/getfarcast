@@ -59,7 +59,8 @@ Return this exact structure:
       "personalityTraits": ["trait1", "trait2", "trait3"],
       "values": ["value1", "value2"],
       "interests": ["interest1", "interest2"],
-      "frustrations": ["frustration1", "frustration2"]
+      "frustrations": ["frustration1", "frustration2"],
+      "spendingHabits": ["Where and how they spend their money"]
     },
     "discProfile": {
       "primaryType": "D|I|S|C",
@@ -152,7 +153,7 @@ export function buildUserPrompt(data: WizardFormData): string {
     `Primary goal: ${data.primaryGoal === "first-100" ? "Get first 100 users" : data.primaryGoal === "launch" ? "Product launch buzz" : "Scale existing growth"}`,
     `Timeline: ${data.timeline === "2-weeks" ? "2 weeks" : data.timeline === "1-month" ? "1 month" : "3 months"}`,
     "",
-    `Generate the complete growth playbook JSON now. Focus channels on Reddit, LinkedIn, and Instagram. Be specific to this product.`,
+    `Generate the complete growth playbook JSON now. Recommend the absolute best 3-5 channels (e.g., Reddit, LinkedIn, Instagram, TikTok, YouTube, X/Twitter, Pinterest) specifically based on where this product's ICP actually hangs out. Be highly specific to this product.`,
   ];
 
   return parts.filter(Boolean).join("\n");
