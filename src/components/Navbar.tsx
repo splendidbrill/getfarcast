@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X, Zap } from "lucide-react";
-
+import { createClient } from "@/lib/supabase/client";
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState("");
+  const [userInitial, setUserInitial] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,7 +29,29 @@ export function Navbar() {
       }
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    // Auth check
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        const name = user.user_metadata?.full_name || user.email || 'U';
+        setUserInitial(name.charAt(0).toUpperCase());
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        const name = session.user.user_metadata?.full_name || session.user.email || 'U';
+        setUserInitial(name.charAt(0).toUpperCase());
+      } else {
+        setUserInitial(null);
+      }
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const navLinks = [
@@ -85,6 +108,11 @@ export function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          {userInitial && (
+            <div className="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center font-semibold text-sm shadow-md shadow-brand-500/20">
+              {userInitial}
+            </div>
+          )}
           <Link
             href="/onboarding"
             id="nav-cta-start"
@@ -121,6 +149,15 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+            
+            {userInitial && (
+              <div className="flex items-center justify-center py-2">
+                <div className="w-10 h-10 rounded-full bg-brand-500 text-white flex items-center justify-center font-semibold text-lg shadow-md shadow-brand-500/20">
+                  {userInitial}
+                </div>
+              </div>
+            )}
+            
             <Link
               href="/onboarding"
               onClick={() => setMobileOpen(false)}
