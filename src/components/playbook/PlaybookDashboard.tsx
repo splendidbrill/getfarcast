@@ -29,18 +29,42 @@ export function PlaybookDashboard({
   const [activeTab, setActiveTab] = useState<"overview" | "icp" | "channels" | "outreach">("overview");
 
   useEffect(() => {
-    const raw = localStorage.getItem(`playbook_${playbookId}`);
-    if (raw) {
-      try {
-        const stored = JSON.parse(raw);
-        setPlaybook(stored.playbook);
-      } catch (e) {
-        console.error("Failed to parse playbook", e);
+    async function loadPlaybook() {
+      // 1. Try local storage first for instant load
+      const raw = localStorage.getItem(`playbook_${playbookId}`);
+      if (raw) {
+        try {
+          const stored = JSON.parse(raw);
+          setPlaybook(stored.playbook);
+          return;
+        } catch (e) {
+          console.error("Failed to parse local playbook", e);
+        }
+      }
+
+      // 2. Fallback to fetching from Supabase Database
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("playbooks")
+        .select("data")
+        .eq("id", playbookId)
+        .single();
+
+      if (data && data.data) {
+        setPlaybook(data.data as Playbook);
+        // Sync it to local storage for speed next time
+        localStorage.setItem(
+          `playbook_${playbookId}`,
+          JSON.stringify({ playbook: data.data as Playbook, formData: {} })
+        );
+      } else {
+        console.error("Playbook not found in DB either", error);
         router.push("/dashboard");
       }
-    } else {
-      router.push("/dashboard");
     }
+
+    loadPlaybook();
   }, [playbookId, router]);
 
   if (!playbook) {

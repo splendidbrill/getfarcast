@@ -9,7 +9,7 @@ import {
   Cpu,
   Copy,
   Check,
-  TrendingRight,
+  TrendingUp,
   Clock,
   Target
 } from "lucide-react";
@@ -85,7 +85,7 @@ function ChannelCard({ channel }: { channel: ChannelStrategy }) {
           {/* Agency Data Bar (The "Anti-Generic" row) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 border-b border-gray-200 bg-white">
             <div className="p-4 flex items-center gap-3">
-              <TrendingRight className="w-4 h-4 text-emerald-500" />
+              <TrendingUp className="w-4 h-4 text-emerald-500" />
               <div>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Expected CAC</p>
                 <p className="text-xs font-semibold text-gray-900">{channel.cac || "Varies by campaign"}</p>
@@ -184,53 +184,71 @@ function ChannelCard({ channel }: { channel: ChannelStrategy }) {
               </div>
             </div>
 
-            {/* Content Templates */}
+            {/* 30-Day Content Timeline */}
             <div>
-              <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4">
-                Ready-to-Post Templates
+              <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-6">
+                30-Day Content Timeline
               </h4>
-              <div className="space-y-4">
-                {channel.contentTemplates.map((tmpl, i) => (
+              <div className="relative border-l-2 border-gray-100 ml-4 space-y-6 pb-4">
+                {channel.contentCalendar?.sort((a, b) => a.day - b.day).map((tmpl, i) => (
                   <div
                     key={i}
-                    className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                    className="relative pl-8"
                   >
-                    <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] px-2.5 py-1 rounded-md bg-[#1a1a2e] text-white uppercase font-bold tracking-wider">
-                          {tmpl.type}
-                        </span>
-                        <h5 className="text-sm font-bold text-[#1a1a2e]">
-                          {tmpl.title}
-                        </h5>
+                    {/* Timeline dot */}
+                    <div className="absolute -left-[11px] top-4 w-5 h-5 rounded-full bg-white border-4 border-blue-500 shadow-sm" />
+                    
+                    <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                      {/* Day Label */}
+                      <div className="absolute top-0 right-0 bg-blue-50 text-blue-600 px-4 py-1.5 rounded-bl-2xl font-black text-sm shadow-sm pointer-events-none group-hover:bg-[#ff6b4e] group-hover:text-white transition-colors">
+                        Day {tmpl.day}
                       </div>
-                      <button
-                        onClick={() => handleCopy(`${tmpl.hook}\n\n${tmpl.body}`, i)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                          copiedIdx === i
-                            ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                            : "bg-white text-gray-500 border border-gray-200 hover:border-[#ff6b4e] hover:text-[#ff6b4e]"
-                        }`}
-                      >
-                        {copiedIdx === i ? (
-                          <>
-                            <Check className="w-3.5 h-3.5" /> Copied
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3.5 h-3.5" /> Copy Let's Go
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <div className="bg-[#ff6b4e]/5 rounded-xl px-4 py-3 mb-3 border-l-4 border-[#ff6b4e]">
-                      <p className="text-sm text-[#ce4a2f] font-semibold leading-relaxed">
-                        {tmpl.hook}
+
+                      <div className="flex items-center justify-between mb-5 border-b border-gray-100 pb-4 pr-20">
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] px-2.5 py-1 rounded-md bg-[#1a1a2e] text-white uppercase font-bold tracking-wider">
+                            {tmpl.type}
+                          </span>
+                          <h5 className="text-base font-bold text-[#1a1a2e]">
+                            {tmpl.title}
+                          </h5>
+                        </div>
+                      </div>
+                      
+                      {/* Hook section */}
+                      <div className="bg-[#ff6b4e]/5 rounded-xl px-5 py-4 mb-4 border-l-4 border-[#ff6b4e]">
+                        <p className="text-sm text-[#ce4a2f] font-bold leading-relaxed">
+                          {tmpl.hook}
+                        </p>
+                      </div>
+                      
+                      {/* Body section */}
+                      <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-medium mb-5">
+                        {tmpl.body}
                       </p>
+
+                      {/* Copy action */}
+                      <div className="flex justify-end pt-4 border-t border-gray-100">
+                        <button
+                          onClick={() => handleCopy(`${tmpl.hook}\n\n${tmpl.body}`, i)}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-95 ${
+                            copiedIdx === i
+                              ? "bg-emerald-500 text-white shadow-emerald-500/20"
+                              : "bg-gray-50 text-gray-600 hover:bg-[#1a1a2e] hover:text-white border border-gray-200 hover:border-[#1a1a2e]"
+                          }`}
+                        >
+                          {copiedIdx === i ? (
+                            <>
+                              <Check className="w-4 h-4" /> Copied to Clipboard
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-4 h-4" /> Copy Post
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-medium">
-                      {tmpl.body}
-                    </p>
                   </div>
                 ))}
               </div>

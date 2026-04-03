@@ -64,7 +64,7 @@ export function CtaSection() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
             <Link
-              href="#pricing"
+              href="/onboarding"
               id="cta-primary"
               className="group relative px-10 py-5 rounded-xl bg-white text-[#ff6b4e] font-bold text-lg hover:bg-gray-50 transition-all duration-300 shadow-xl flex items-center gap-3 hover:-translate-y-1"
             >

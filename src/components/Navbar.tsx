@@ -111,9 +111,9 @@ export function Navbar() {
         {/* CTA */}
         <div className="hidden md:flex items-center gap-4">
           {userInitial ? (
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] text-white flex items-center justify-center font-bold text-sm shadow-md">
+            <Link href="/dashboard" className="w-9 h-9 rounded-full bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] text-white flex items-center justify-center font-bold text-sm shadow-md transition-transform hover:scale-105">
               {userInitial}
-            </div>
+            </Link>
           ) : (
             <Link href="/login" className="text-sm font-semibold text-gray-600 hover:text-[#1a1a2e] transition-colors">
               Log in
@@ -160,12 +160,12 @@ export function Navbar() {
             <hr className="border-gray-100 my-4" />
 
             {userInitial ? (
-              <div className="flex items-center gap-3 px-4 py-2">
+              <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-4 py-2 hover:bg-black/5 rounded-xl transition-colors">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] text-white flex items-center justify-center font-bold text-lg shadow-md">
                   {userInitial}
                 </div>
-                <span className="font-semibold text-[#1a1a2e]">Your Account</span>
-              </div>
+                <span className="font-semibold text-[#1a1a2e]">Your Dashboard</span>
+              </Link>
             ) : (
               <Link
                 href="/login"

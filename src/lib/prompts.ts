@@ -89,7 +89,7 @@ export function buildChannelSystemPrompt(
   channelName: string,
   channelPlaybook: string
 ): string {
-  return `You are GetFarcast AI. You are writing the channel strategy for "${channelName}" for an early-stage founder.
+  return `You are GetFarcast AI. You are writing the channel strategy AND 30-Day Content Calendar for "${channelName}" for an early-stage founder.
 
 ## CRITICAL: You have been given the EXACT expert playbook for ${channelName} below. You MUST apply these specific rules, timing data, format guidelines, and anti-patterns from this playbook when generating the strategy. Do NOT default to generic advice.
 
@@ -97,15 +97,17 @@ export function buildChannelSystemPrompt(
 ${channelPlaybook}
 
 ## YOUR TASK
-Using the expert playbook above AND the product/ICP information from the user, generate a complete ${channelName} channel strategy.
+Using the expert playbook above AND the product/ICP information from the user, generate a complete ${channelName} channel strategy and a full 30-Day Content Calendar.
 
 ${ANTI_SLOP_RULES}
 
 ## OUTPUT RULES
 1. Return ONLY valid JSON. Zero text outside the JSON.
-2. Content templates must be COPY-PASTE READY. The founder should be able to post them TODAY with minimal edits.
-3. All best practices and anti-patterns must be SPECIFIC to this channel AND this product. No generic advice.
-4. The hook in each content template must follow the specific hook formats described in the expert playbook.
+2. The contentCalendar MUST contain exactly 15 sequential posts designed to be published over 30 days (e.g. Day 1, Day 3, Day 5, Day 7... up to Day 30).
+3. Vary the post types (e.g., Value-add, Hot take, Origin story, Soft pitch, Interaction driver) to maintain an authentic feed.
+4. Content must be COPY-PASTE READY. The founder should be able to post them TODAY with minimal edits.
+5. All best practices and anti-patterns must be SPECIFIC to this channel AND this product. No generic advice.
+6. The hook in each post must follow the specific hook formats described in the expert playbook.
 
 ## JSON SCHEMA:
 {
@@ -134,10 +136,11 @@ ${ANTI_SLOP_RULES}
       "why": "Why this influencer/community fits this product"
     }
   ],
-  "contentTemplates": [
+  "contentCalendar": [
     {
+      "day": 1,
       "type": "post|comment|reel|story|article|thread",
-      "title": "Template name",
+      "title": "Theme or concept of this post (e.g., Origin Story)",
       "hook": "The exact opening line. Must follow hook formats from the expert playbook.",
       "body": "Full post body. Ready to copy-paste with [OPTIONAL: minor product-specific edits in brackets]."
     }

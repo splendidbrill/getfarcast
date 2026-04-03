@@ -12,6 +12,7 @@ import {
 import { matchChannels } from "@/lib/channelMatcher";
 import { getChannelPlaybook } from "@/lib/knowledgeBase";
 import type { WizardFormData, ICPProfile, Playbook } from "@/lib/types";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -207,6 +208,26 @@ export async function POST(request: Request) {
           channels: channelStrategies as Playbook["channels"],
           outreach: outreach as Playbook["outreach"],
         };
+
+        // ── Save to Supabase ──────────────────────────────────────────
+        try {
+          const supabase = await createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+
+          if (user) {
+            const { error: dbError } = await supabase.from("playbooks").insert({
+              id: playbook.id,
+              user_id: user.id,
+              product_name: playbook.productName,
+              data: playbook,
+            });
+            if (dbError) {
+              console.error("Supabase insert error:", dbError);
+            }
+          }
+        } catch (dbErr) {
+          console.error("Failed to save playbook to DB:", dbErr);
+        }
 
         // Send the final playbook
         encodeEvent(controller, encoder, "complete", { playbook, formData });

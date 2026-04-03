@@ -75,7 +75,8 @@ export interface MarketSizing {
   trendRationale: string;
 }
 
-export interface ContentTemplate {
+export interface CalendarPost {
+  day: number;
   type: string;
   title: string;
   hook: string;
@@ -98,7 +99,7 @@ export interface ChannelStrategy {
   bestPractices: string[];
   antiPatterns: string[];
   influencerTargets?: { handle: string; platform: string; audienceSize: string; why: string }[];
-  contentTemplates: ContentTemplate[];
+  contentCalendar: CalendarPost[];
 }
 
 export interface EmailStep {
