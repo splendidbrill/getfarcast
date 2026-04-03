@@ -91,9 +91,13 @@ export interface ChannelStrategy {
   audienceSize: string;
   engagementRate: string;
   accessibility: "free" | "freemium" | "paid";
+  cac?: string;
+  timeToRoi?: string;
+  bestPostingTimes?: string[];
   algorithmInsights: string[];
   bestPractices: string[];
   antiPatterns: string[];
+  influencerTargets?: { handle: string; platform: string; audienceSize: string; why: string }[];
   contentTemplates: ContentTemplate[];
 }
 

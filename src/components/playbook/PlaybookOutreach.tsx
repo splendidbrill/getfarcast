@@ -27,73 +27,80 @@ export function PlaybookOutreach({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Email Sequence */}
       <div>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center">
-            <Mail className="w-5 h-5 text-white" />
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20">
+            <Mail className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">
+            <h2 className="text-xl font-bold text-[#1a1a2e]">
               Cold Email Sequence
             </h2>
-            <p className="text-xs text-surface-200/40">
-              {outreach.emailSequence.length}-touch sequence ready to send
+            <p className="text-sm text-gray-500 font-medium">
+              {outreach.emailSequence.length}-touch sequence heavily optimized for founders
             </p>
           </div>
         </div>
 
         {/* Timeline */}
-        <div className="relative">
+        <div className="relative pl-4 sm:pl-0">
           {/* Connecting line */}
-          <div className="absolute left-5 top-0 bottom-0 w-px bg-gradient-to-b from-brand-500/30 via-accent-500/30 to-emerald-500/30 hidden sm:block" />
+          <div className="absolute left-[2.25rem] top-8 bottom-8 w-1 bg-blue-100 rounded-full hidden sm:block" />
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             {outreach.emailSequence.map((email, i) => (
-              <div key={i} className="relative flex gap-4 sm:gap-6">
+              <div key={i} className="relative flex gap-4 sm:gap-8">
                 {/* Day badge */}
-                <div className="shrink-0 relative z-10">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500/20 to-accent-500/20 flex items-center justify-center border border-brand-500/20">
-                    <span className="text-xs font-bold text-brand-400">
-                      D{email.day}
+                <div className="shrink-0 relative z-10 hidden sm:block">
+                  <div className="w-16 h-16 rounded-full bg-white border-4 border-blue-50 flex items-center justify-center shadow-sm relative">
+                    <span className="text-sm font-extrabold text-blue-600">
+                      Day {email.day}
                     </span>
                   </div>
                 </div>
 
                 {/* Email card */}
-                <div className="flex-1 glass-card rounded-xl p-5">
-                  <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 bg-white rounded-3xl border border-gray-200 shadow-sm p-6 sm:p-8 hover:shadow-md transition-shadow relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50/50 rounded-bl-full -z-10" />
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
                     <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <Send className="w-3 h-3 text-brand-400" />
-                        <span className="text-[10px] text-surface-200/30 uppercase tracking-wider font-medium">
-                          Day {email.day} — {email.purpose}
+                      <div className="flex items-center gap-2 mb-2">
+                        <Send className="w-4 h-4 text-blue-500" />
+                        <span className="text-[10px] text-blue-600 uppercase tracking-wider font-extrabold bg-blue-50 px-2 py-0.5 rounded-md">
+                          Phase: {email.purpose}
+                        </span>
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold sm:hidden bg-gray-100 px-2 py-0.5 rounded-md">
+                          Day {email.day}
                         </span>
                       </div>
-                      <h4 className="text-sm font-semibold text-white">
-                        {email.subject}
+                      <h4 className="text-base font-bold text-[#1a1a2e]">
+                        Subject: {email.subject}
                       </h4>
                     </div>
                     <button
                       onClick={() => handleCopyEmail(email, i)}
-                      className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] text-surface-200/40 hover:text-white border border-white/10 hover:border-white/20 transition-all shrink-0"
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 self-start ${
+                        copiedEmail === i
+                          ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                          : "bg-white text-gray-500 border border-gray-200 hover:border-[#ff6b4e] hover:text-[#ff6b4e]"
+                      }`}
                     >
                       {copiedEmail === i ? (
                         <>
-                          <Check className="w-3 h-3 text-emerald-400" />
-                          Copied
+                          <Check className="w-3.5 h-3.5" /> Copied
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3 h-3" />
-                          Copy
+                          <Copy className="w-3.5 h-3.5" /> Copy Email
                         </>
                       )}
                     </button>
                   </div>
-                  <div className="bg-white/[0.02] rounded-lg p-4 border border-white/5">
-                    <p className="text-xs text-surface-200/60 leading-relaxed whitespace-pre-wrap">
+                  <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                    <p className="text-sm text-gray-700 leading-relaxed font-medium whitespace-pre-wrap">
                       {email.body}
                     </p>
                   </div>
@@ -104,52 +111,63 @@ export function PlaybookOutreach({
         </div>
       </div>
 
+      <hr className="border-gray-200" />
+
       {/* DM Templates */}
       <div>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-500 to-emerald-500 flex items-center justify-center">
-            <MessageSquare className="w-5 h-5 text-white" />
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] flex items-center justify-center shadow-md shadow-[#ff6b4e]/20">
+            <MessageSquare className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">DM Templates</h2>
-            <p className="text-xs text-surface-200/40">
-              Platform-specific direct messages
+            <h2 className="text-xl font-bold text-[#1a1a2e]">Direct Messages</h2>
+            <p className="text-sm text-gray-500 font-medium">
+              Short, high-converting DMs per platform
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {outreach.dmTemplates.map((dm, i) => (
-            <div key={i} className="glass-card rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] px-2 py-0.5 rounded bg-accent-500/10 text-accent-400 uppercase font-bold">
+            <div key={i} className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 hover:shadow-md transition-shadow relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-24 h-24 bg-[#ff6b4e]/5 rounded-bl-full -z-10" />
+              <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+                <span className="text-xs px-3 py-1 rounded-lg bg-[#1a1a2e] text-white uppercase font-bold tracking-wider shadow-sm">
                   {dm.platform}
                 </span>
                 <button
                   onClick={() => handleCopyDM(dm.message, i)}
-                  className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] text-surface-200/40 hover:text-white border border-white/10 hover:border-white/20 transition-all"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    copiedDM === i
+                      ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                      : "bg-white text-gray-500 border border-gray-200 hover:border-[#ff6b4e] hover:text-[#ff6b4e]"
+                  }`}
                 >
                   {copiedDM === i ? (
                     <>
-                      <Check className="w-3 h-3 text-emerald-400" />
-                      Copied
+                      <Check className="w-3.5 h-3.5" /> Copied
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3 h-3" />
-                      Copy
+                      <Copy className="w-3.5 h-3.5" /> Copy DM
                     </>
                   )}
                 </button>
               </div>
-              <div className="bg-white/[0.02] rounded-lg p-4 border border-white/5 mb-3">
-                <p className="text-xs text-surface-200/60 leading-relaxed whitespace-pre-wrap">
+              
+              <div className="bg-[#ff6b4e]/5 rounded-xl p-4 border border-[#ff6b4e]/10 mb-4">
+                <p className="text-sm text-gray-800 font-medium leading-relaxed whitespace-pre-wrap">
                   {dm.message}
                 </p>
               </div>
-              <p className="text-[10px] text-surface-200/30">
-                <span className="font-medium">When to send:</span> {dm.context}
-              </p>
+              
+              <div className="flex items-start gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                <span className="text-lg leading-none mt-0.5">💡</span>
+                <p className="text-xs text-gray-600 font-medium leading-relaxed">
+                  <span className="font-bold text-gray-900 block mb-0.5">When to send:</span>
+                  {dm.context}
+                </p>
+              </div>
             </div>
           ))}
         </div>

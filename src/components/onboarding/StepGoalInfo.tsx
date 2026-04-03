@@ -40,12 +40,12 @@ export function StepGoalInfo({ data, onChange }: Props) {
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center">
-            <Target className="w-4 h-4 text-brand-400" />
+          <div className="w-8 h-8 rounded-lg bg-[#ff6b4e]/10 flex items-center justify-center">
+            <Target className="w-4 h-4 text-[#ff6b4e]" />
           </div>
-          <h2 className="text-xl font-bold text-white">What&apos;s your goal?</h2>
+          <h2 className="text-xl font-bold text-[#1a1a2e]">What&apos;s your goal?</h2>
         </div>
-        <p className="text-sm text-surface-200/50 mt-1 ml-11">
+        <p className="text-sm text-gray-500 mt-1 ml-11">
           This shapes the urgency and strategy of your playbook.
         </p>
       </div>
@@ -59,28 +59,28 @@ export function StepGoalInfo({ data, onChange }: Props) {
             onClick={() => onChange({ primaryGoal: goal.value })}
             className={`w-full flex items-center gap-4 p-4 rounded-xl border text-left transition-all duration-200 ${
               data.primaryGoal === goal.value
-                ? "bg-brand-500/10 border-brand-500/30 shadow-lg shadow-brand-500/5"
-                : "bg-white/[0.02] border-white/5 hover:border-white/15"
+                ? "bg-[#ff6b4e]/5 border-[#ff6b4e]/30 shadow-sm"
+                : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
             }`}
           >
             <span className="text-2xl">{goal.emoji}</span>
             <div className="flex-1">
               <p
-                className={`text-sm font-semibold ${
+                className={`text-sm font-bold ${
                   data.primaryGoal === goal.value
-                    ? "text-brand-400"
-                    : "text-white"
+                    ? "text-[#ce4a2f]"
+                    : "text-[#1a1a2e]"
                 }`}
               >
                 {goal.label}
               </p>
-              <p className="text-xs text-surface-200/40 mt-0.5">{goal.desc}</p>
+              <p className="text-xs text-gray-500 mt-0.5 font-medium">{goal.desc}</p>
             </div>
             <div
               className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                 data.primaryGoal === goal.value
-                  ? "border-brand-400 bg-brand-500"
-                  : "border-white/20"
+                  ? "border-[#ff6b4e] bg-[#ff6b4e]"
+                  : "border-gray-200 bg-white"
               }`}
             >
               {data.primaryGoal === goal.value && (
@@ -93,8 +93,8 @@ export function StepGoalInfo({ data, onChange }: Props) {
 
       {/* Timeline */}
       <div className="space-y-3">
-        <label className="flex items-center gap-2 text-sm font-medium text-surface-200/80">
-          <Clock className="w-3.5 h-3.5 text-surface-200/40" />
+        <label className="flex items-center gap-2 text-sm font-bold text-gray-700">
+          <Clock className="w-4 h-4 text-gray-400" />
           Timeline
         </label>
         <div className="flex gap-3">
@@ -103,10 +103,10 @@ export function StepGoalInfo({ data, onChange }: Props) {
               key={t.value}
               type="button"
               onClick={() => onChange({ timeline: t.value })}
-              className={`flex-1 py-3 rounded-xl text-sm font-medium text-center transition-all duration-200 ${
+              className={`flex-1 flex items-center justify-center py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
                 data.timeline === t.value
-                  ? "bg-gradient-to-r from-brand-500 to-accent-500 text-white shadow-lg"
-                  : "bg-white/[0.03] text-surface-200/50 border border-white/5 hover:border-white/15 hover:text-white"
+                  ? "bg-[#1a1a2e] text-white shadow-md border border-[#1a1a2e]"
+                  : "bg-gray-50 text-gray-600 border border-gray-200 hover:border-gray-300 hover:bg-gray-100"
               }`}
             >
               {t.label}
@@ -116,11 +116,11 @@ export function StepGoalInfo({ data, onChange }: Props) {
       </div>
 
       {/* Final note */}
-      <div className="flex items-center gap-3 bg-gradient-to-r from-brand-500/5 to-accent-500/5 rounded-xl px-4 py-3 border border-brand-500/10">
+      <div className="flex items-center gap-3 bg-gradient-to-r from-[#ff6b4e]/10 to-[#ff8c5a]/10 rounded-xl px-4 py-3 border border-[#ff6b4e]/20">
         <span className="text-xl">✨</span>
-        <p className="text-xs text-surface-200/60">
+        <p className="text-xs text-gray-700 font-medium leading-relaxed">
           Almost there! Hit{" "}
-          <span className="text-brand-400 font-semibold">Generate My Playbook</span>{" "}
+          <span className="text-[#ff6b4e] font-bold">Generate My Playbook</span>{" "}
           and our AI will craft a complete growth strategy in under 2 minutes.
         </p>
       </div>

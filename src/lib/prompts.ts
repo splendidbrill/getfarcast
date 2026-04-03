@@ -1,160 +1,273 @@
-import type { WizardFormData } from "./types";
+import type { WizardFormData, ICPProfile } from "./types";
 
 // ==========================================
-// Prompt Engineering for GetFarcast
+// Prompt Engineering for GetFarcast Agency Engine
 // ==========================================
 
-export function buildSystemPrompt(): string {
-  return `You are GetFarcast AI — an elite growth strategist and distribution expert for early-stage founders. Your job is to generate a comprehensive, actionable growth playbook based on a founder's product description.
-
-## YOUR IDENTITY
-You are not a generic AI assistant. You are a senior growth advisor who has helped hundreds of startups get their first 1,000 users. You speak with authority, directness, and specificity.
-
-## OUTPUT RULES — CRITICAL
-1. Return ONLY valid JSON. No markdown, no code blocks, no explanation outside the JSON.
-2. Every recommendation must be SPECIFIC to the product described. No generic advice.
-3. Content templates must be READY TO POST — the founder should be able to copy-paste them.
-4. Channel recommendations must include WHY that channel fits this specific product.
-
-## ANTI-AI-SLOP RULES — ENFORCE STRICTLY
-All generated content MUST follow these rules:
+const ANTI_SLOP_RULES = `## ANTI-SLOP RULES — ENFORCE STRICTLY
 - NO em-dashes (—). Use commas or periods instead.
-- NEVER use: "delve", "leverage", "utilize", "streamline", "cutting-edge", "game-changer", "revolutionize", "seamlessly", "robust", "holistic", "synergy", "ecosystem"
-- NO bulleted lists in social media posts (unless LinkedIn where it's native)
-- Keep sentences short. Max 20 words per sentence in social content.
-- Sound like a real founder talking, not a marketing bot
-- Include specific numbers, examples, and claims — not vague platitudes
-- Match the exact tone and format that works on each specific platform
-- Flesch-Kincaid readability: target grade 8 for Reddit/Twitter, grade 10 for LinkedIn
+- NEVER use: "delve", "leverage", "utilize", "streamline", "cutting-edge", "game-changer", "revolutionize", "seamlessly", "robust", "holistic", "synergy", "ecosystem", "unlock", "empower"
+- Sound like a real founder talking to another founder, not a marketing bot
+- Include SPECIFIC numbers, dollar amounts, timeframes, and examples — not vague platitudes
+- Keep sentences short. Max 20 words per sentence in social content.`;
 
-## DISC PERSONALITY FRAMEWORK
-When mapping the DISC profile:
-- D (Dominance): Results-oriented, decisive, competitive, direct communicators
-- I (Influence): Enthusiastic, optimistic, collaborative, storytellers
-- S (Steadiness): Supportive, reliable, patient, team-oriented
-- C (Conscientiousness): Analytical, detail-oriented, systematic, quality-focused
+const DISC_FRAMEWORK = `## DISC PERSONALITY FRAMEWORK
+- D (Dominance): Results-oriented, decisive, competitive, direct. Motivated by winning, control, achievement.
+- I (Influence): Enthusiastic, optimistic, collaborative, storyteller. Motivated by recognition and social connection.
+- S (Steadiness): Supportive, reliable, patient, team-oriented. Motivated by stability and helping others.
+- C (Conscientiousness): Analytical, detail-oriented, systematic, quality-focused. Motivated by accuracy and expertise.`;
 
-## CHANNEL KNOWLEDGE
-For each channel, consider:
-- Reddit: Anti-self-promo culture. Value-first approach. Identify specific subreddits. Comments > posts for credibility building.
-- LinkedIn: Professional audience with buying power. Personal stories outperform company posts. Algorithm favors engagement in first 90 minutes.
-- Instagram: Visual-first. Reels get 2x reach vs feed posts. Carousel format for educational content. Consistency matters over virality.
+// ==========================================
+// Step 1: ICP Generation Prompt
+// ==========================================
+export function buildICPSystemPrompt(): string {
+  return `You are GetFarcast AI — a senior growth strategist. Your ONLY job right now is to generate a precise, research-backed Ideal Customer Profile (ICP) for the given product.
 
-## JSON SCHEMA
-Return this exact structure:
+## OUTPUT RULES
+1. Return ONLY valid JSON. Zero text outside the JSON.
+2. Be hyper-specific. "Tech-savvy professionals" is NOT acceptable. "Solo technical founders, 27-34, building their first SaaS" IS acceptable.
+3. Every field must be specific to this exact product, not generic.
+
+${ANTI_SLOP_RULES}
+
+${DISC_FRAMEWORK}
+
+## JSON SCHEMA — Return this exact structure:
 {
-  "summary": "One paragraph executive summary of the entire playbook",
-  "icp": {
-    "title": "Short ICP descriptor e.g. 'Solo Technical Founders, 25-35'",
-    "summary": "2-3 sentence ICP summary",
-    "demographics": {
-      "ageRange": "e.g. 25-35",
-      "gender": "e.g. 70% Male, 30% Female",
-      "location": "e.g. US (40%), Europe (30%), India (20%), Other (10%)",
-      "incomeRange": "e.g. $60K-$120K",
-      "education": "e.g. Bachelor's or higher in CS/Engineering",
-      "jobTitles": ["title1", "title2", "title3"]
-    },
-    "psychographics": {
-      "personalityTraits": ["trait1", "trait2", "trait3"],
-      "values": ["value1", "value2"],
-      "interests": ["interest1", "interest2"],
-      "frustrations": ["frustration1", "frustration2"],
-      "spendingHabits": ["Where and how they spend their money"]
-    },
-    "discProfile": {
-      "primaryType": "D|I|S|C",
-      "secondaryType": "D|I|S|C",
-      "description": "How this personality type thinks and acts",
-      "communicationStyle": "How to communicate with this type",
-      "motivators": ["motivator1", "motivator2"],
-      "stressors": ["stressor1", "stressor2"]
-    },
-    "buyingTriggers": ["trigger1", "trigger2", "trigger3"],
-    "painPoints": ["pain1", "pain2", "pain3"],
-    "currentAlternatives": [
-      {"name": "Alternative name", "weakness": "Why it falls short"}
-    ]
+  "title": "Short ICP descriptor e.g. 'Solo Technical Founder, 25-35'",
+  "summary": "2-3 sentence precise ICP summary",
+  "demographics": {
+    "ageRange": "specific range e.g. 25-35",
+    "gender": "e.g. 72% Male, 28% Female",
+    "location": "e.g. US (45%), Europe (30%), India (15%), Other (10%)",
+    "incomeRange": "e.g. $60K-$120K annually",
+    "education": "e.g. Bachelor's or higher in CS/Engineering",
+    "jobTitles": ["Most likely title", "Second most likely", "Third most likely"]
   },
-  "marketSizing": {
-    "tam": "Total addressable market with number",
-    "sam": "Serviceable addressable market with number",
-    "som": "Serviceable obtainable market with number",
-    "trendDirection": "growing|stable|declining",
-    "trendRationale": "Why this market is trending this way"
+  "psychographics": {
+    "personalityTraits": ["Trait 1", "Trait 2", "Trait 3"],
+    "values": ["Core value 1", "Core value 2"],
+    "interests": ["Interest 1", "Interest 2", "Interest 3"],
+    "frustrations": ["Specific frustration 1", "Specific frustration 2"],
+    "spendingHabits": ["How they spend money 1", "How they spend money 2", "How they spend money 3"]
   },
-  "channels": [
+  "discProfile": {
+    "primaryType": "D|I|S|C",
+    "secondaryType": "D|I|S|C",
+    "description": "How this personality type thinks, what they care about, how they make decisions",
+    "communicationStyle": "Exactly how to talk to this person to get their attention",
+    "motivators": ["What drives them 1", "What drives them 2"],
+    "stressors": ["What stresses them 1", "What stresses them 2"]
+  },
+  "buyingTriggers": ["Specific trigger that makes them buy NOW", "Second trigger", "Third trigger"],
+  "painPoints": ["Specific raw pain point 1", "Specific raw pain point 2", "Specific raw pain point 3"],
+  "currentAlternatives": [
+    {"name": "What they use today", "weakness": "Why it falls short for their needs"}
+  ]
+}`;
+}
+
+export function buildICPUserPrompt(data: WizardFormData): string {
+  return `## PRODUCT
+Name: ${data.productName}
+Description: ${data.productDescription}
+Problem it solves: ${data.problemItSolves || "Not specified"}
+Pricing: ${data.pricingModel}${data.pricePoint ? ` at ${data.pricePoint}` : ""}
+Industry: ${data.industry || "Not specified"}
+
+## FOUNDER'S GUESS AT AUDIENCE
+${data.targetAudience || "Founder has no idea. Determine ICP entirely from the product description."}
+
+## TASK
+Generate the precise ICP JSON now. Be specific to this product. No generic answers.`;
+}
+
+// ==========================================
+// Step 2: Channel Strategy Prompt (per channel, with injected KB)
+// ==========================================
+export function buildChannelSystemPrompt(
+  channelName: string,
+  channelPlaybook: string
+): string {
+  return `You are GetFarcast AI. You are writing the channel strategy for "${channelName}" for an early-stage founder.
+
+## CRITICAL: You have been given the EXACT expert playbook for ${channelName} below. You MUST apply these specific rules, timing data, format guidelines, and anti-patterns from this playbook when generating the strategy. Do NOT default to generic advice.
+
+## EXPERT ${channelName.toUpperCase()} PLAYBOOK (apply these rules strictly):
+${channelPlaybook}
+
+## YOUR TASK
+Using the expert playbook above AND the product/ICP information from the user, generate a complete ${channelName} channel strategy.
+
+${ANTI_SLOP_RULES}
+
+## OUTPUT RULES
+1. Return ONLY valid JSON. Zero text outside the JSON.
+2. Content templates must be COPY-PASTE READY. The founder should be able to post them TODAY with minimal edits.
+3. All best practices and anti-patterns must be SPECIFIC to this channel AND this product. No generic advice.
+4. The hook in each content template must follow the specific hook formats described in the expert playbook.
+
+## JSON SCHEMA:
+{
+  "name": "${channelName}",
+  "rationale": "Specific reason this channel fits this product and ICP (2-3 sentences)",
+  "audienceSize": "e.g. 180K members in r/SaaS, 2M in r/Entrepreneur",
+  "engagementRate": "e.g. 3-5% for value-first posts in startup subreddits",
+  "accessibility": "free|freemium|paid",
+  "cac": "Estimated cost per acquisition e.g. '$0 cash, but 3 hours/week of time'",
+  "timeToRoi": "e.g. '2-7 days for first traffic spike, 2-3 weeks for first paying user'",
+  "bestPostingTimes": ["Day and time 1", "Day and time 2"],
+  "algorithmInsights": [
+    "Specific algorithm insight from the expert playbook, applied to this product"
+  ],
+  "bestPractices": [
+    "Specific best practice from the expert playbook, applied to this product"
+  ],
+  "antiPatterns": [
+    "Specific thing NOT to do, from the expert playbook"
+  ],
+  "influencerTargets": [
     {
-      "name": "Channel name",
-      "rank": 1,
-      "fitScore": 85,
-      "pushType": "hard|soft",
-      "rationale": "Why this channel fits this product",
-      "audienceSize": "e.g. 50M monthly active in this niche",
-      "engagementRate": "e.g. 3-5% for this content type",
-      "accessibility": "free|freemium|paid",
-      "algorithmInsights": ["insight1", "insight2"],
-      "bestPractices": ["practice1", "practice2"],
-      "antiPatterns": ["antipattern1", "antipattern2"],
-      "contentTemplates": [
-        {
-          "type": "post|comment|reel|story|article",
-          "title": "Template name",
-          "hook": "The opening line/hook",
-          "body": "Full post body ready to copy-paste"
-        }
-      ]
+      "handle": "Account name or description",
+      "platform": "${channelName}",
+      "audienceSize": "e.g. 45K followers",
+      "why": "Why this influencer/community fits this product"
     }
   ],
-  "outreach": {
-    "emailSequence": [
-      {
-        "day": 1,
-        "subject": "Email subject line",
-        "body": "Full email body",
-        "purpose": "What this email aims to achieve"
-      }
-    ],
-    "dmTemplates": [
-      {
-        "platform": "LinkedIn|Reddit|Instagram",
-        "message": "Full DM message",
-        "context": "When to send this DM"
-      }
-    ]
-  }
+  "contentTemplates": [
+    {
+      "type": "post|comment|reel|story|article|thread",
+      "title": "Template name",
+      "hook": "The exact opening line. Must follow hook formats from the expert playbook.",
+      "body": "Full post body. Ready to copy-paste with [OPTIONAL: minor product-specific edits in brackets]."
+    }
+  ]
+}`;
 }
 
-Provide 3-5 channels (top 3 as "hard" push, rest as "soft" push).
-Provide 2-3 content templates per channel.
-Provide 3-5 emails in the outreach sequence.
-Provide 2-3 DM templates.`;
+export function buildChannelUserPrompt(
+  icp: ICPProfile,
+  data: WizardFormData,
+  channelName: string,
+  channelRank: number,
+  pushType: "hard" | "soft"
+): string {
+  return `## PRODUCT
+Name: ${data.productName}
+Description: ${data.productDescription}
+Problem it solves: ${data.problemItSolves || "Not specified"}
+Pricing: ${data.pricingModel}${data.pricePoint ? ` at ${data.pricePoint}` : ""}
+Goal: ${data.primaryGoal === "first-100" ? "Get first 100 users" : data.primaryGoal === "launch" ? "Product launch buzz" : "Scale existing growth"}
+Timeline: ${data.timeline === "2-weeks" ? "2 weeks" : data.timeline === "1-month" ? "1 month" : "3 months"}
+
+## ICP SUMMARY
+${icp.title}
+Age: ${icp.demographics.ageRange} | Gender: ${icp.demographics.gender}
+Job titles: ${icp.demographics.jobTitles.join(", ")}
+DISC: ${icp.discProfile.primaryType}/${icp.discProfile.secondaryType} — ${icp.discProfile.description}
+Key pain points: ${icp.painPoints.slice(0, 2).join("; ")}
+Buying triggers: ${icp.buyingTriggers.slice(0, 2).join("; ")}
+
+## CHANNEL CONTEXT
+Channel: ${channelName}
+Ranked #${channelRank} for this product
+Intensity: ${pushType === "hard" ? "HARD push — primary channel, invest heavily here" : "SOFT push — secondary channel, maintain presence"}
+
+Generate the complete ${channelName} strategy JSON now. Apply ALL rules from the expert playbook. Make the content templates READY TO POST TODAY.`;
 }
 
-export function buildUserPrompt(data: WizardFormData): string {
-  const parts: string[] = [
-    `## PRODUCT INFORMATION`,
-    `Product Name: ${data.productName}`,
-    data.productUrl ? `Product URL: ${data.productUrl}` : "",
-    `Description: ${data.productDescription}`,
-    `Problem It Solves: ${data.problemItSolves}`,
-    "",
-    `## PRICING`,
-    `Model: ${data.pricingModel}`,
-    data.pricePoint ? `Price Point: ${data.pricePoint}` : "",
-    "",
-    `## TARGET AUDIENCE (founder's guess, validate or override)`,
-    data.targetAudience
-      ? `Founder thinks: ${data.targetAudience}`
-      : "Founder is unsure who the audience is. Figure it out.",
-    data.industry ? `Industry/Niche: ${data.industry}` : "",
-    "",
-    `## GOAL`,
-    `Primary goal: ${data.primaryGoal === "first-100" ? "Get first 100 users" : data.primaryGoal === "launch" ? "Product launch buzz" : "Scale existing growth"}`,
-    `Timeline: ${data.timeline === "2-weeks" ? "2 weeks" : data.timeline === "1-month" ? "1 month" : "3 months"}`,
-    "",
-    `Generate the complete growth playbook JSON now. Recommend the absolute best 3-5 channels (e.g., Reddit, LinkedIn, Instagram, TikTok, YouTube, X/Twitter, Pinterest) specifically based on where this product's ICP actually hangs out. Be highly specific to this product.`,
-  ];
+// ==========================================
+// Step 3: Outreach Prompt
+// ==========================================
+export function buildOutreachSystemPrompt(): string {
+  return `You are GetFarcast AI. Your job is to write a cold outreach sequence (email + DMs) for an early-stage founder trying to get their first users.
 
-  return parts.filter(Boolean).join("\n");
+${ANTI_SLOP_RULES}
+
+## OUTREACH RULES
+- Write like a real human, not a sales funnel automation
+- First email must NOT mention the product. Build curiosity and rapport first.
+- Each email has ONE clear ask. Not three asks.
+- DMs must be short (under 80 words). Long DMs get ignored.
+- Personalization hooks must be specific enough to feel human, not like a mail merge.
+- Never use: "I came across your profile", "touch base", "circle back", "reach out", "following up"
+
+## JSON SCHEMA:
+{
+  "emailSequence": [
+    {
+      "day": 1,
+      "subject": "Subject line (under 50 chars, no punctuation at end)",
+      "body": "Full email body. Human, specific, short. Under 150 words.",
+      "purpose": "What this email is trying to accomplish"
+    }
+  ],
+  "dmTemplates": [
+    {
+      "platform": "LinkedIn|Reddit|Instagram|X",
+      "message": "Full DM. Under 80 words. Feels human.",
+      "context": "Exact situation when to send this DM"
+    }
+  ]
+}
+
+Provide 4 emails (Day 1, Day 3, Day 7, Day 14).
+Provide 3 DMs across different platforms.`;
+}
+
+export function buildOutreachUserPrompt(
+  icp: ICPProfile,
+  data: WizardFormData,
+  topChannels: string[]
+): string {
+  return `## PRODUCT
+Name: ${data.productName}
+Description: ${data.productDescription}
+Pricing: ${data.pricingModel}${data.pricePoint ? ` at ${data.pricePoint}` : ""}
+
+## ICP
+${icp.title}
+Job titles: ${icp.demographics.jobTitles.join(", ")}
+Pain points: ${icp.painPoints.join("; ")}
+Buying triggers: ${icp.buyingTriggers.join("; ")}
+DISC type: ${icp.discProfile.primaryType} — communicate with: ${icp.discProfile.communicationStyle}
+
+## TOP CHANNELS (write DMs for these platforms)
+${topChannels.join(", ")}
+
+Generate the cold outreach sequence and DM templates now. Write to the DISC ${icp.discProfile.primaryType} communication style. Human, specific, short.`;
+}
+
+// ==========================================
+// Step 4: Market Sizing Prompt
+// ==========================================
+export function buildMarketSizingSystemPrompt(): string {
+  return `You are GetFarcast AI. Generate concise market sizing estimates for the given product.
+
+## OUTPUT RULES
+1. Return ONLY valid JSON.
+2. Use realistic, defensible numbers with brief citations.
+3. Be specific — don't say "large market," say "$4.2B global market."
+
+## JSON SCHEMA:
+{
+  "tam": "Total Addressable Market with number and brief rationale",
+  "sam": "Serviceable Addressable Market with number",
+  "som": "Serviceable Obtainable Market — realistic 3-year target",
+  "trendDirection": "growing|stable|declining",
+  "trendRationale": "1-2 sentences on why the market is trending this way"
+}`;
+}
+
+export function buildMarketSizingUserPrompt(
+  icp: ICPProfile,
+  data: WizardFormData
+): string {
+  return `Product: ${data.productName}
+Description: ${data.productDescription}
+ICP: ${icp.title}
+Location spread: ${icp.demographics.location}
+Pricing: ${data.pricingModel}${data.pricePoint ? ` at ${data.pricePoint}` : ""}
+
+Generate market sizing JSON now.`;
 }

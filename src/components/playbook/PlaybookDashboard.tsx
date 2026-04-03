@@ -2,204 +2,154 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
-  Zap,
+  ArrowLeft,
   LayoutDashboard,
   Users,
-  Radio,
+  Share2,
   Mail,
-  ArrowLeft,
   Download,
-  Copy,
-  Check,
+  Share,
+  Zap
 } from "lucide-react";
-import type { StoredPlaybook } from "@/lib/types";
+import type { Playbook } from "@/lib/types";
 import { PlaybookOverview } from "./PlaybookOverview";
 import { PlaybookICP } from "./PlaybookICP";
 import { PlaybookChannels } from "./PlaybookChannels";
 import { PlaybookOutreach } from "./PlaybookOutreach";
+import Link from "next/link";
 
-const TABS = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "icp", label: "ICP", icon: Users },
-  { id: "channels", label: "Channels", icon: Radio },
-  { id: "outreach", label: "Outreach", icon: Mail },
-] as const;
-
-type TabId = (typeof TABS)[number]["id"];
-
-export function PlaybookDashboard({ id }: { id: string }) {
+export function PlaybookDashboard({
+  playbookId,
+}: {
+  playbookId: string;
+}) {
   const router = useRouter();
-  const [stored, setStored] = useState<StoredPlaybook | null>(null);
-  const [activeTab, setActiveTab] = useState<TabId>("overview");
-  const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
+  const [playbook, setPlaybook] = useState<Playbook | null>(null);
+  const [activeTab, setActiveTab] = useState<"overview" | "icp" | "channels" | "outreach">("overview");
 
   useEffect(() => {
-    const raw = localStorage.getItem(`playbook_${id}`);
+    const raw = localStorage.getItem(`playbook_${playbookId}`);
     if (raw) {
       try {
-        setStored(JSON.parse(raw));
-      } catch {
-        console.error("Failed to parse playbook");
+        const stored = JSON.parse(raw);
+        setPlaybook(stored.playbook);
+      } catch (e) {
+        console.error("Failed to parse playbook", e);
+        router.push("/dashboard");
       }
+    } else {
+      router.push("/dashboard");
     }
-    setLoading(false);
-  }, [id]);
+  }, [playbookId, router]);
 
-  const handleCopyAll = async () => {
-    if (!stored) return;
-    await navigator.clipboard.writeText(
-      JSON.stringify(stored.playbook, null, 2)
-    );
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleExport = () => {
-    if (!stored) return;
-    const blob = new Blob([JSON.stringify(stored.playbook, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${stored.playbook.productName.toLowerCase().replace(/\s+/g, "-")}-playbook.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  if (loading) {
+  if (!playbook) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse-soft text-brand-400">
-          <Zap className="w-8 h-8" />
-        </div>
+      <div className="min-h-screen bg-[#faf8f6] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-[#ff6b4e] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  if (!stored) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-lg text-white font-semibold">Playbook not found</p>
-          <p className="text-sm text-surface-200/50">
-            This playbook may have been cleared from your browser.
-          </p>
-          <Link
-            href="/onboarding"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-accent-500 text-white font-medium text-sm hover:scale-105 transition-transform"
-          >
-            <Zap className="w-4 h-4" />
-            Generate a new playbook
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const { playbook } = stored;
+  const tabs = [
+    { id: "overview", label: "Executive Summary", icon: LayoutDashboard },
+    { id: "icp", label: "Audience Profiling", icon: Users },
+    { id: "channels", label: "Distribution Channels", icon: Share2 },
+    { id: "outreach", label: "Outreach & DMs", icon: Mail },
+  ] as const;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#faf8f6] text-[#1a1a2e]">
+      {/* Background grid */}
+      <div
+        className="fixed inset-0 opacity-40 pointer-events-none"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 107, 78, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 107, 78, 0.06) 1px, transparent 1px)
+          `,
+          backgroundSize: "40px 40px",
+        }}
+      />
+      <div
+        className="fixed top-0 inset-x-0 h-96 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,200,170,0.3) 0%, transparent 70%)",
+        }}
+      />
+
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-surface-900/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="flex items-center gap-2.5 group"
-            >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center transition-transform group-hover:scale-110">
-                <Zap className="w-4.5 h-4.5 text-white" strokeWidth={2.5} />
+      <header className="sticky top-0 z-50 border-b border-black/5 bg-white/70 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] flex items-center justify-center shadow-md">
+                <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
               </div>
-              <span className="text-lg font-bold tracking-tight text-white hidden sm:block">
-                Get<span className="text-gradient-brand">Farcast</span>
+              <span className="text-lg font-bold tracking-tight text-[#1a1a2e] hidden sm:block">
+                Get<span className="text-[#ff6b4e]">Farcast</span>
               </span>
             </Link>
-            <div className="h-6 w-px bg-white/10 hidden sm:block" />
-            <div className="hidden sm:block">
-              <p className="text-sm font-semibold text-white">
-                {playbook.productName}
-              </p>
-              <p className="text-xs text-surface-200/40">Growth Playbook</p>
-            </div>
+            <div className="h-6 w-px bg-black/10 hidden sm:block" />
+            <h1 className="text-sm font-semibold text-[#1a1a2e]">
+              {playbook.productName} Playbook
+            </h1>
           </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleCopyAll}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-surface-200/60 hover:text-white border border-white/10 hover:border-white/20 transition-all"
-            >
-              {copied ? (
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-              ) : (
-                <Copy className="w-3.5 h-3.5" />
-              )}
-              {copied ? "Copied!" : "Copy JSON"}
+          <div className="flex items-center gap-3">
+            <button className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5 transition-colors">
+              <Share className="w-4 h-4" />
+              Share
             </button>
-            <button
-              onClick={handleExport}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-surface-200/60 hover:text-white border border-white/10 hover:border-white/20 transition-all"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Export
+            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a2e] text-white text-sm font-medium hover:bg-black transition-colors shadow-sm">
+              <Download className="w-4 h-4" />
+              Export PDF
             </button>
-            <Link
-              href="/onboarding"
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-brand-500 to-accent-500 text-white hover:from-brand-400 hover:to-accent-400 transition-all shadow-lg shadow-brand-500/20"
-            >
-              <Zap className="w-3.5 h-3.5" />
-              New Playbook
-            </Link>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Back link */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs text-surface-200/40 hover:text-white transition-colors mb-6"
-        >
-          <ArrowLeft className="w-3 h-3" />
-          Back to home
-        </Link>
-
-        {/* Tab bar */}
-        <div className="flex items-center gap-1 p-1 bg-white/[0.03] rounded-xl border border-white/5 mb-8 overflow-x-auto">
-          {TABS.map((tab) => {
-            const Icon = tab.icon;
+      <div className="max-w-6xl mx-auto px-6 py-8 relative z-10 flex flex-col md:flex-row gap-8">
+        {/* Sidebar Nav */}
+        <nav className="w-full md:w-64 shrink-0 space-y-1">
+          {tabs.map((t) => {
+            const Icon = t.icon;
+            const isActive = activeTab === t.id;
             return (
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? "bg-gradient-to-r from-brand-500 to-accent-500 text-white shadow-lg"
-                    : "text-surface-200/50 hover:text-white hover:bg-white/5"
+                key={t.id}
+                onClick={() => setActiveTab(t.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
+                  isActive
+                    ? "bg-white text-[#ff6b4e] shadow-sm border border-black/5"
+                    : "text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5"
                 }`}
               >
-                <Icon className="w-4 h-4" />
-                {tab.label}
+                <Icon className={`w-4.5 h-4.5 ${isActive ? "text-[#ff6b4e]" : "text-gray-400"}`} />
+                {t.label}
               </button>
             );
           })}
-        </div>
 
-        {/* Tab Content */}
-        <div>
-          {activeTab === "overview" && <PlaybookOverview playbook={playbook} />}
-          {activeTab === "icp" && <PlaybookICP icp={playbook.icp} />}
-          {activeTab === "channels" && (
-            <PlaybookChannels channels={playbook.channels} />
-          )}
-          {activeTab === "outreach" && (
-            <PlaybookOutreach outreach={playbook.outreach} />
-          )}
-        </div>
+          <div className="mt-8 pt-8 border-t border-black/5">
+            <Link
+              href="/onboarding"
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5 transition-all"
+            >
+              <ArrowLeft className="w-4.5 h-4.5 text-gray-400" />
+              New Playbook
+            </Link>
+          </div>
+        </nav>
+
+        {/* Content Area */}
+        <main className="flex-1 min-w-0">
+          <div className="bg-white rounded-3xl border border-black/5 shadow-sm p-6 sm:p-8">
+            {activeTab === "overview" && <PlaybookOverview playbook={playbook} />}
+            {activeTab === "icp" && <PlaybookICP icp={playbook.icp} />}
+            {activeTab === "channels" && <PlaybookChannels channels={playbook.channels} />}
+            {activeTab === "outreach" && <PlaybookOutreach outreach={playbook.outreach} />}
+          </div>
+        </main>
       </div>
     </div>
   );

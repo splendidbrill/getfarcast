@@ -1,41 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Sparkles, Target, Zap, Users } from "lucide-react";
 import Link from "next/link";
-
-const PARTICLE_COUNT = 30;
-
-function Particles() {
-  const particles = useMemo(() => {
-    return Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      size: Math.random() * 4 + 2,
-      duration: Math.random() * 15 + 15,
-      delay: Math.random() * 20,
-      opacity: Math.random() * 0.4 + 0.1,
-    }));
-  }, []);
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="absolute rounded-full bg-brand-500/30"
-          style={{
-            left: `${p.left}%`,
-            width: `${p.size}px`,
-            height: `${p.size}px`,
-            opacity: p.opacity,
-            animation: `particle ${p.duration}s linear ${p.delay}s infinite`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 export function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -62,57 +29,55 @@ export function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-20"
     >
-      {/* Background layers */}
-      <div className="absolute inset-0 bg-grid" />
+      {/* Subtle mathematical grid background */}
       <div
-        className="absolute inset-0 transition-opacity duration-500"
+        className="absolute inset-0 opacity-40 pointer-events-none"
         style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at var(--mouse-x, 50%) var(--mouse-y, 40%), rgba(51,120,255,0.1) 0%, rgba(139,92,246,0.05) 40%, transparent 70%)",
+          backgroundImage: `
+            linear-gradient(rgba(255, 107, 78, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 107, 78, 0.06) 1px, transparent 1px)
+          `,
+          backgroundSize: "40px 40px",
+        }}
+      />
+      {/* Warm peachy hero gradient */}
+      <div
+        className="absolute top-0 inset-x-0 h-full pointer-events-none transition-opacity duration-700"
+        style={{
+          background: "radial-gradient(ellipse 80% 60% at var(--mouse-x, 50%) var(--mouse-y, 30%), rgba(255,200,170,0.5) 0%, transparent 60%)",
         }}
       />
 
-      {/* Particles */}
-      <Particles />
+      {/* Floating abstract decorative blobls */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-[#ff6b4e]/5 blur-[100px] animate-float pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-blue-500/5 blur-[80px] animate-float-delayed pointer-events-none" />
 
-      {/* Floating orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-brand-500/5 blur-[120px] animate-float" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-accent-500/5 blur-[100px] animate-float-delayed" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-emerald-500/5 blur-[80px] animate-morph" />
-
-      {/* Cursor glow */}
-      <div
-        className="pointer-events-none fixed w-64 h-64 rounded-full bg-brand-500/10 blur-[60px] transition-transform duration-100 z-0"
-        style={{
-          left: mousePos.x - 128,
-          top: mousePos.y - 128,
-        }}
-      />
-
-      {/* Content */}
+      {/* Content Container */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card mb-8 animate-fade-in-up opacity-0">
-          <Sparkles className="w-3.5 h-3.5 text-brand-400 animate-pulse-soft" />
-          <span className="text-xs font-medium text-surface-200/80 tracking-wide uppercase">
-            Vibe Marketing for Founders
+        
+        {/* Animated Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#ff6b4e]/20 shadow-sm mb-8 animate-fade-in-up opacity-0">
+          <Sparkles className="w-3.5 h-3.5 text-[#ff6b4e] animate-pulse-soft" />
+          <span className="text-xs font-bold text-[#1a1a2e] tracking-wide uppercase">
+            The $5K Agency Blueprint, Automated.
           </span>
         </div>
 
         {/* Headline */}
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-6 animate-fade-in-up-delay-1 opacity-0">
-          Your product is built.
+        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-6 animate-fade-in-up-delay-1 opacity-0 text-[#1a1a2e]">
+          Building is done.
           <br />
-          <span className="text-gradient">Now get users.</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a]">
+            Distribution isn't.
+          </span>
         </h1>
 
         {/* Subheadline */}
-        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-surface-200/60 leading-relaxed mb-10 animate-fade-in-up-delay-2 opacity-0">
-          Tell GetFarcast what you built and it generates a complete growth 
-          playbook in minutes. Know your ICP, the channels they hang out on, 
-          and get ready-to-post content for each platform.
+        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-600 font-medium leading-relaxed mb-10 animate-fade-in-up-delay-2 opacity-0">
+          Describe your product, and our AI tells you who your customers are, 
+          where they hangout, and how to reach them - with a complete growth playbook with ready-to-post content in under 2 minutes.
         </p>
 
         {/* CTAs */}
@@ -120,151 +85,172 @@ export function Hero() {
           <Link
             href="/onboarding"
             id="hero-cta-primary"
-            className="group relative px-8 py-3.5 rounded-xl bg-gradient-to-r from-brand-500 to-accent-500 text-white font-semibold text-base hover:from-brand-400 hover:to-accent-400 transition-all duration-300 shadow-2xl shadow-brand-500/25 flex items-center gap-2 hover:scale-105 hover:shadow-brand-500/40"
+            className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center gap-3 hover:-translate-y-1"
           >
-            Get Your Growth Playbook
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            <Zap className="w-5 h-5 fill-white" />
+            Build Your Playbook
+            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
           </Link>
           <Link
             href="#how-it-works"
             id="hero-cta-secondary"
-            className="px-8 py-3.5 rounded-xl text-surface-200/80 font-medium text-base border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all duration-200 hover:scale-105"
+            className="px-8 py-4 rounded-xl text-gray-600 font-bold text-lg border-2 border-gray-200 hover:border-[#1a1a2e] hover:text-[#1a1a2e] hover:bg-black/5 transition-all duration-200"
           >
             See How It Works
           </Link>
         </div>
 
-        {/* Social proof */}
-        <div className="mt-16 flex items-center justify-center gap-8 animate-fade-in-up-delay-3 opacity-0">
-          <div className="flex -space-x-2">
+        {/* Social Proof area */}
+        <div className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 animate-fade-in-up-delay-3 opacity-0">
+          <div className="flex -space-x-3">
             {[
-              "bg-brand-500",
-              "bg-accent-500",
-              "bg-emerald-500",
-              "bg-brand-400",
-              "bg-accent-400",
+              "bg-blue-100 text-blue-600",
+              "bg-purple-100 text-purple-600",
+              "bg-emerald-100 text-emerald-600",
+              "bg-amber-100 text-amber-600",
+              "bg-rose-100 text-rose-600",
             ].map((color, i) => (
               <div
                 key={i}
-                className={`w-8 h-8 rounded-full ${color} border-2 border-surface-900 flex items-center justify-center text-[10px] font-bold text-white animate-bounce-slow`}
-                style={{ animationDelay: `${i * 0.2}s` }}
+                className={`w-10 h-10 rounded-full ${color} border-2 border-white flex items-center justify-center text-xs font-bold shadow-sm animate-bounce-slow`}
+                style={{ animationDelay: `${i * 0.15}s` }}
               >
                 {String.fromCharCode(65 + i)}
               </div>
             ))}
           </div>
-          <div className="text-left">
-            <p className="text-sm font-semibold text-white">Join early founders</p>
-            <p className="text-xs text-surface-200/50">
-              Building in public. Shipping fast.
+          <div className="text-center sm:text-left">
+            <p className="text-sm font-bold text-[#1a1a2e]">Join 2,400+ founders</p>
+            <p className="text-sm font-medium text-gray-500">
+              Getting their first 100 users.
             </p>
           </div>
         </div>
 
-        {/* Dashboard preview mock */}
+        {/* Floating Mock UI - Clean, White Gojiberry Style */}
         <div className="mt-20 relative max-w-4xl mx-auto animate-scale-in opacity-0" style={{ animationDelay: "0.8s" }}>
-          <div className="gradient-border rounded-2xl overflow-hidden glow-brand">
-            <div className="glass-card rounded-2xl p-1">
-              <div className="bg-surface-850 rounded-xl overflow-hidden">
-                {/* Mock browser bar */}
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500/60" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-                    <div className="w-3 h-3 rounded-full bg-green-500/60" />
-                  </div>
-                  <div className="flex-1 ml-4">
-                    <div className="max-w-sm mx-auto bg-surface-900/80 rounded-md px-3 py-1 text-xs text-surface-200/40 font-mono">
-                      app.getfarcast.com/playbook
+          
+          {/* Decorative floating sub-cards outside the main frame */}
+          <div className="absolute -left-12 top-10 w-48 bg-white rounded-2xl shadow-xl shadow-black/5 p-4 border border-gray-100 animate-float hidden lg:block z-20" style={{ animationDelay: '1s' }}>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                <Target className="w-4 h-4 text-emerald-500" />
+              </div>
+              <span className="text-xs font-bold text-gray-900">Found ICP</span>
+            </div>
+            <div className="h-1.5 w-full bg-gray-100 rounded-full mb-1" />
+            <div className="h-1.5 w-2/3 bg-gray-100 rounded-full" />
+          </div>
+
+          <div className="absolute -right-8 bottom-12 w-56 bg-white rounded-2xl shadow-xl shadow-black/5 p-4 border border-gray-100 animate-float-delayed hidden lg:block z-20">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center">
+                  <span className="text-[10px]">in</span>
+                </div>
+                <span className="text-xs font-bold text-gray-900">Post Drafted</span>
+              </div>
+              <Check className="w-3.5 h-3.5 text-emerald-500" />
+            </div>
+            <div className="p-2 bg-gray-50 rounded-lg border border-gray-100">
+              <p className="text-[10px] text-gray-600 font-medium">"Here's exactly how we reduced our churn by 40%..."</p>
+            </div>
+          </div>
+
+          {/* Main Mock App Window */}
+          <div className="bg-white rounded-3xl shadow-2xl shadow-[#ff6b4e]/10 border border-black/5 overflow-hidden relative z-10">
+            {/* Mock browser bar */}
+            <div className="bg-gray-50 flex items-center gap-2 px-4 py-3 border-b border-gray-100">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-400" />
+                <div className="w-3 h-3 rounded-full bg-amber-400" />
+                <div className="w-3 h-3 rounded-full bg-emerald-400" />
+              </div>
+              <div className="flex-1 ml-4 flex justify-center">
+                <div className="w-64 bg-white rounded-md px-3 py-1.5 text-xs text-gray-400 font-semibold text-center border border-gray-100 shadow-sm flex items-center justify-center gap-2">
+                  <span className="w-3 h-3 text-gray-300">🔒</span>
+                  app.getfarcast.com/playbook
+                </div>
+              </div>
+            </div>
+            
+            {/* Mock content */}
+            <div className="p-8 bg-white">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                {/* Mock Card 1 */}
+                <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-blue-600" />
                     </div>
+                    <span className="text-sm font-bold text-[#1a1a2e]">Your Market</span>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="h-2.5 bg-gray-200 rounded-full w-full" />
+                    <div className="h-2.5 bg-gray-200 rounded-full w-3/4" />
+                    <div className="h-2.5 bg-blue-200 rounded-full w-1/2" />
                   </div>
                 </div>
-                {/* Mock content */}
-                <div className="p-6 sm:p-8">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {/* ICP Card */}
-                    <div className="glass-card rounded-xl p-4 space-y-3 hover:scale-105 transition-transform duration-300">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-brand-500/20 flex items-center justify-center">
-                          <span className="text-brand-400 text-xs">👤</span>
-                        </div>
-                        <span className="text-xs font-semibold text-white">
-                          Your ICP
-                        </span>
-                      </div>
-                      <div className="space-y-1.5">
-                        <div className="h-2 bg-white/5 rounded-full w-full" />
-                        <div className="h-2 bg-white/5 rounded-full w-3/4" />
-                        <div className="h-2 bg-brand-500/20 rounded-full w-1/2" />
-                      </div>
-                      <div className="text-[10px] text-surface-200/40">
-                        Solo founders, 25-35, tech-savvy...
-                      </div>
+                
+                {/* Mock Card 2 */}
+                <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-purple-600" />
                     </div>
-                    {/* Channel Card */}
-                    <div className="glass-card rounded-xl p-4 space-y-3 hover:scale-105 transition-transform duration-300">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-accent-500/20 flex items-center justify-center">
-                          <span className="text-accent-400 text-xs">📡</span>
+                    <span className="text-sm font-bold text-[#1a1a2e]">Channels</span>
+                  </div>
+                  <div className="space-y-3">
+                    {["Reddit", "X/Twitter", "Hacker News"].map((ch, i) => (
+                      <div key={ch} className="flex items-center gap-3">
+                        <span className="text-[10px] font-bold text-gray-500 w-16">{ch}</span>
+                        <div className="h-2 rounded-full flex-1 bg-gray-200 overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-purple-400 to-[#ff6b4e]" 
+                            style={{ width: `${100 - i * 20}%` }}
+                          />
                         </div>
-                        <span className="text-xs font-semibold text-white">
-                          Top Channels
-                        </span>
                       </div>
-                      <div className="space-y-2">
-                        {["Reddit", "LinkedIn", "Insta"].map((ch, i) => (
-                          <div key={ch} className="flex items-center gap-2">
-                            <div
-                              className="h-1.5 rounded-full"
-                              style={{
-                                width: `${90 - i * 20}%`,
-                                background: `linear-gradient(90deg, rgba(51,120,255,${0.6 - i * 0.15}), rgba(139,92,246,${0.6 - i * 0.15}))`,
-                              }}
-                            />
-                            <span className="text-[10px] text-surface-200/40 whitespace-nowrap">
-                              {ch}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mock Card 3 */}
+                <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-xl bg-[#ff6b4e]/10 flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-[#ff6b4e]" />
                     </div>
-                    {/* Content Card */}
-                    <div className="glass-card rounded-xl p-4 space-y-3 hover:scale-105 transition-transform duration-300">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-emerald-500/20 flex items-center justify-center">
-                          <span className="text-emerald-400 text-xs">✍️</span>
-                        </div>
-                        <span className="text-xs font-semibold text-white">
-                          Content Ready
-                        </span>
-                      </div>
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded bg-emerald-500/20" />
-                          <div className="h-2 bg-white/5 rounded-full flex-1" />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded bg-emerald-500/20" />
-                          <div className="h-2 bg-white/5 rounded-full flex-1" />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded bg-emerald-500/10" />
-                          <div className="h-2 bg-white/5 rounded-full flex-1" />
-                        </div>
-                      </div>
-                      <div className="text-[10px] text-surface-200/40">
-                        12 posts generated
-                      </div>
+                    <span className="text-sm font-bold text-[#1a1a2e]">Content Output</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="p-2.5 bg-white rounded-xl border border-gray-100 shadow-sm">
+                      <div className="h-2 bg-gray-200 rounded-full w-full mb-1" />
+                      <div className="h-2 bg-gray-100 rounded-full w-2/3" />
+                    </div>
+                    <div className="p-2.5 bg-white rounded-xl border border-gray-100 shadow-sm">
+                      <div className="h-2 bg-gray-200 rounded-full w-4/5 mb-1" />
+                      <div className="h-2 bg-gray-100 rounded-full w-1/2" />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          {/* Glow underneath */}
-          <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-brand-500/10 blur-[80px] rounded-full animate-pulse-soft" />
+          
+          {/* Subtle Glow underneath the mock app */}
+          <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-4/5 h-12 bg-black/10 blur-xl rounded-full z-0" />
         </div>
       </div>
     </section>
+  );
+}
+
+// Icons for the floating cards that weren't imported yet
+function Check(props: any) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
   );
 }

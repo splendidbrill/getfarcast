@@ -1,70 +1,231 @@
 import { getLLMClient, getModelId } from "@/lib/llm";
-import { buildSystemPrompt, buildUserPrompt } from "@/lib/prompts";
-import type { WizardFormData } from "@/lib/types";
+import {
+  buildICPSystemPrompt,
+  buildICPUserPrompt,
+  buildChannelSystemPrompt,
+  buildChannelUserPrompt,
+  buildOutreachSystemPrompt,
+  buildOutreachUserPrompt,
+  buildMarketSizingSystemPrompt,
+  buildMarketSizingUserPrompt,
+} from "@/lib/prompts";
+import { matchChannels } from "@/lib/channelMatcher";
+import { getChannelPlaybook } from "@/lib/knowledgeBase";
+import type { WizardFormData, ICPProfile, Playbook } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
+// ==========================================
+// Helper: call LLM and parse JSON response
+// ==========================================
+async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknown> {
+  const client = getLLMClient();
+  const model = getModelId();
+
+  const completion = await client.chat.completions.create({
+    model,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
+    temperature: 0.6,
+    max_tokens: 4000,
+  });
+
+  let raw = completion.choices[0]?.message?.content || "";
+
+  // Strip potential markdown code blocks
+  raw = raw.trim();
+  if (raw.startsWith("```")) {
+    raw = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+  }
+
+  return JSON.parse(raw.trim());
+}
+
+// ==========================================
+// SSE helper: write a structured event to the stream
+// ==========================================
+function encodeEvent(
+  controller: ReadableStreamDefaultController,
+  encoder: TextEncoder,
+  type: string,
+  data: unknown
+) {
+  const payload = JSON.stringify({ type, data });
+  controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
+}
+
+// ==========================================
+// POST /api/generate-playbook
+// Multi-step SSE orchestration pipeline
+// ==========================================
 export async function POST(request: Request) {
-  try {
-    const formData: WizardFormData = await request.json();
+  const formData: WizardFormData = await request.json();
 
-    // Basic validation
-    if (!formData.productName || !formData.productDescription) {
-      return Response.json(
-        { error: "Product name and description are required." },
-        { status: 400 }
-      );
-    }
-
-    const client = getLLMClient();
-    const model = getModelId();
-
-    const stream = await client.chat.completions.create({
-      model,
-      messages: [
-        { role: "system", content: buildSystemPrompt() },
-        { role: "user", content: buildUserPrompt(formData) },
-      ],
-      stream: true,
-      temperature: 0.7,
-      max_tokens: 8000,
-    });
-
-    // Create a ReadableStream that forwards the SSE chunks
-    const encoder = new TextEncoder();
-
-    const readable = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of stream) {
-            const content = chunk.choices[0]?.delta?.content;
-            if (content) {
-              controller.enqueue(encoder.encode(content));
-            }
-          }
-          controller.close();
-        } catch (err) {
-          controller.error(err);
-        }
-      },
-    });
-
-    return new Response(readable, {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        "Cache-Control": "no-cache",
-        "Transfer-Encoding": "chunked",
-      },
-    });
-  } catch (error: unknown) {
-    console.error("Playbook generation error:", error);
-
-    const message =
-      error instanceof Error ? error.message : "Unknown error occurred";
-
+  if (!formData.productName || !formData.productDescription) {
     return Response.json(
-      { error: `Failed to generate playbook: ${message}` },
-      { status: 500 }
+      { error: "Product name and description are required." },
+      { status: 400 }
     );
   }
+
+  const encoder = new TextEncoder();
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        // ── STEP 1: Generate ICP ──────────────────────────────────────
+        encodeEvent(controller, encoder, "progress", {
+          step: 1,
+          total: 4,
+          label: "Profiling your ideal customer...",
+          status: "running",
+        });
+
+        const icp = (await callLLM(
+          buildICPSystemPrompt(),
+          buildICPUserPrompt(formData)
+        )) as ICPProfile;
+
+        encodeEvent(controller, encoder, "progress", {
+          step: 1,
+          total: 4,
+          label: "ICP identified",
+          status: "done",
+          preview: icp.title,
+        });
+
+        // ── STEP 2: Channel Matching (deterministic) ─────────────────
+        encodeEvent(controller, encoder, "progress", {
+          step: 2,
+          total: 4,
+          label: "Matching distribution channels...",
+          status: "running",
+        });
+
+        const matchedChannels = matchChannels(
+          icp,
+          formData.industry || formData.productDescription,
+          formData.pricingModel
+        );
+
+        encodeEvent(controller, encoder, "progress", {
+          step: 2,
+          total: 4,
+          label: "Channels matched",
+          status: "done",
+          preview: matchedChannels.map((c) => c.name).join(", "),
+        });
+
+        // ── STEP 3: Channel Strategies (sequential, KB-injected) ──────
+        const channelStrategies = [];
+
+        for (let i = 0; i < matchedChannels.length; i++) {
+          const ch = matchedChannels[i];
+          const kb = await getChannelPlaybook(ch.name);
+
+          encodeEvent(controller, encoder, "progress", {
+            step: 3,
+            total: 4,
+            label: `Writing ${ch.name} strategy (expert rules applied)...`,
+            status: "running",
+            substep: `${i + 1}/${matchedChannels.length}`,
+          });
+
+          let systemPrompt: string;
+          if (kb) {
+            systemPrompt = buildChannelSystemPrompt(ch.name, kb);
+          } else {
+            // Fallback if no KB file exists for this channel
+            systemPrompt = buildChannelSystemPrompt(
+              ch.name,
+              `No specific playbook available. Generate a comprehensive strategy based on your knowledge of ${ch.name} best practices for early-stage startups. Apply the general principles of value-first content, audience-specific tone, and anti-slop rules.`
+            );
+          }
+
+          const strategy = await callLLM(
+            systemPrompt,
+            buildChannelUserPrompt(icp, formData, ch.name, i + 1, ch.pushType)
+          ) as Record<string, unknown>;
+
+          channelStrategies.push({
+            ...strategy,
+            rank: i + 1,
+            fitScore: ch.score,
+            pushType: ch.pushType,
+          });
+
+          encodeEvent(controller, encoder, "progress", {
+            step: 3,
+            total: 4,
+            label: `${ch.name} strategy ready`,
+            status: i + 1 === matchedChannels.length ? "done" : "partial",
+            substep: `${i + 1}/${matchedChannels.length}`,
+          });
+        }
+
+        // ── STEP 4: Outreach + Market Sizing ─────────────────────────
+        encodeEvent(controller, encoder, "progress", {
+          step: 4,
+          total: 4,
+          label: "Writing outreach sequences...",
+          status: "running",
+        });
+
+        const [outreach, marketSizing] = await Promise.all([
+          callLLM(
+            buildOutreachSystemPrompt(),
+            buildOutreachUserPrompt(
+              icp,
+              formData,
+              matchedChannels.slice(0, 3).map((c) => c.name)
+            )
+          ),
+          callLLM(
+            buildMarketSizingSystemPrompt(),
+            buildMarketSizingUserPrompt(icp, formData)
+          ),
+        ]);
+
+        encodeEvent(controller, encoder, "progress", {
+          step: 4,
+          total: 4,
+          label: "Playbook complete",
+          status: "done",
+        });
+
+        // ── Assemble final playbook ───────────────────────────────────
+        const id = crypto.randomUUID().slice(0, 8);
+        const playbook: Playbook = {
+          id,
+          createdAt: new Date().toISOString(),
+          productName: formData.productName,
+          summary: `GetFarcast has identified your ideal customer as "${icp.title}" and mapped ${channelStrategies.length} distribution channels with expert-level strategy for each. Your top channel is ${matchedChannels[0]?.name}, followed by ${matchedChannels[1]?.name}.`,
+          icp,
+          marketSizing: marketSizing as Playbook["marketSizing"],
+          channels: channelStrategies as Playbook["channels"],
+          outreach: outreach as Playbook["outreach"],
+        };
+
+        // Send the final playbook
+        encodeEvent(controller, encoder, "complete", { playbook, formData });
+
+        controller.close();
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        console.error("Pipeline error:", message);
+        encodeEvent(controller, encoder, "error", { message });
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    },
+  });
 }

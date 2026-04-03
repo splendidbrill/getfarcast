@@ -11,11 +11,11 @@ import {
 } from "lucide-react";
 import type { ICPProfile } from "@/lib/types";
 
-const DISC_COLORS: Record<string, { bg: string; text: string; label: string }> = {
-  D: { bg: "bg-red-500/10", text: "text-red-400", label: "Dominance" },
-  I: { bg: "bg-amber-500/10", text: "text-amber-400", label: "Influence" },
-  S: { bg: "bg-emerald-500/10", text: "text-emerald-400", label: "Steadiness" },
-  C: { bg: "bg-blue-500/10", text: "text-blue-400", label: "Conscientiousness" },
+const DISC_COLORS: Record<string, { bg: string; border: string, text: string; label: string }> = {
+  D: { bg: "bg-red-50", border: "border-red-100", text: "text-red-600", label: "Dominance" },
+  I: { bg: "bg-amber-50", border: "border-amber-100", text: "text-amber-600", label: "Influence" },
+  S: { bg: "bg-emerald-50", border: "border-emerald-100", text: "text-emerald-600", label: "Steadiness" },
+  C: { bg: "bg-blue-50", border: "border-blue-100", text: "text-blue-600", label: "Conscientiousness" },
 };
 
 export function PlaybookICP({ icp }: { icp: ICPProfile }) {
@@ -25,14 +25,14 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
   return (
     <div className="space-y-8">
       {/* ICP Header */}
-      <div className="glass-card rounded-2xl p-6 sm:p-8">
+      <div className="bg-gradient-to-br from-blue-50 to-transparent rounded-3xl p-6 sm:p-8 border border-blue-100">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
             <Users className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">{icp.title}</h2>
-            <p className="text-sm text-surface-200/50 mt-1 leading-relaxed">
+            <h2 className="text-xl font-bold text-[#1a1a2e]">{icp.title}</h2>
+            <p className="text-sm text-gray-600 mt-1.5 leading-relaxed font-medium">
               {icp.summary}
             </p>
           </div>
@@ -42,10 +42,10 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
       {/* Demographics + Psychographics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Demographics */}
-        <div className="glass-card rounded-2xl p-6">
+        <div className="rounded-2xl border border-black/5 p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center gap-2 mb-5">
-            <Briefcase className="w-4 h-4 text-brand-400" />
-            <h3 className="text-sm font-semibold text-surface-200/60 uppercase tracking-wider">
+            <Briefcase className="w-4 h-4 text-blue-500" />
+            <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
               Demographics
             </h3>
           </div>
@@ -59,21 +59,21 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
             ].map((row) => (
               <div
                 key={row.label}
-                className="flex items-center justify-between py-2 border-b border-white/5 last:border-0"
+                className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
               >
-                <span className="text-xs text-surface-200/40">{row.label}</span>
-                <span className="text-sm font-medium text-white text-right max-w-[60%]">
+                <span className="text-xs font-medium text-gray-500">{row.label}</span>
+                <span className="text-sm font-semibold text-[#1a1a2e] text-right max-w-[60%]">
                   {row.value}
                 </span>
               </div>
             ))}
             <div className="pt-2">
-              <p className="text-xs text-surface-200/40 mb-2">Job Titles</p>
-              <div className="flex flex-wrap gap-1.5">
+              <p className="text-xs font-medium text-gray-500 mb-2">Likely Job Titles</p>
+              <div className="flex flex-wrap gap-2">
                 {icp.demographics.jobTitles.map((jt) => (
                   <span
                     key={jt}
-                    className="px-2 py-1 rounded-md bg-brand-500/10 text-brand-400 text-xs"
+                    className="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-100 text-blue-700 text-xs font-medium"
                   >
                     {jt}
                   </span>
@@ -84,213 +84,139 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
         </div>
 
         {/* Psychographics */}
-        <div className="glass-card rounded-2xl p-6">
+        <div className="rounded-2xl border border-black/5 p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center gap-2 mb-5">
-            <Heart className="w-4 h-4 text-accent-400" />
-            <h3 className="text-sm font-semibold text-surface-200/60 uppercase tracking-wider">
+            <Heart className="w-4 h-4 text-[#ff6b4e]" />
+            <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
               Psychographics
             </h3>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
-              <p className="text-xs text-surface-200/40 mb-2">Personality Traits</p>
-              <div className="flex flex-wrap gap-1.5">
-                {icp.psychographics.personalityTraits.map((t) => (
+              <p className="text-xs font-medium text-gray-500 mb-2">Core Values & Traits</p>
+              <div className="flex flex-wrap gap-2">
+                {icp.psychographics.values.concat(icp.psychographics.personalityTraits).map((t) => (
                   <span
                     key={t}
-                    className="px-2 py-1 rounded-md bg-accent-500/10 text-accent-400 text-xs"
+                    className="px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium"
                   >
                     {t}
                   </span>
                 ))}
               </div>
             </div>
-            <div>
-              <p className="text-xs text-surface-200/40 mb-2">Values</p>
-              <div className="flex flex-wrap gap-1.5">
-                {icp.psychographics.values.map((v) => (
-                  <span
-                    key={v}
-                    className="px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-xs"
-                  >
-                    {v}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className="text-xs text-surface-200/40 mb-2">Interests</p>
-              <div className="flex flex-wrap gap-1.5">
-                {icp.psychographics.interests.map((i) => (
-                  <span
-                    key={i}
-                    className="px-2 py-1 rounded-md bg-blue-500/10 text-blue-400 text-xs"
-                  >
-                    {i}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className="text-xs text-surface-200/40 mb-2">Frustrations</p>
-              <ul className="space-y-1">
-                {icp.psychographics.frustrations.map((f, i) => (
-                  <li
-                    key={i}
-                    className="text-xs text-surface-200/60 flex items-start gap-2"
-                  >
-                    <span className="text-red-400 mt-0.5">•</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            
             {icp.psychographics.spendingHabits && (
-              <div>
-                <p className="text-xs text-surface-200/40 mb-2">Spending Habits</p>
-                <ul className="space-y-1">
+              <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2 flex items-center gap-1">
+                  <span className="text-emerald-500">$</span> Spending Habits
+                </p>
+                <ul className="space-y-1.5">
                   {icp.psychographics.spendingHabits.map((sh, i) => (
-                    <li
-                      key={i}
-                      className="text-xs text-surface-200/60 flex items-start gap-2"
-                    >
-                      <span className="text-emerald-400 mt-0.5">$</span>
-                      {sh}
+                    <li key={i} className="text-xs font-medium text-emerald-800 flex items-start gap-2">
+                      <span className="text-emerald-400 mt-0.5">•</span> {sh}
                     </li>
                   ))}
                 </ul>
               </div>
             )}
+            
+            <div>
+              <p className="text-xs font-medium text-gray-500 mb-2">Key Frustrations</p>
+              <ul className="space-y-2">
+                {icp.psychographics.frustrations.map((f, i) => (
+                  <li
+                    key={i}
+                    className="text-xs font-medium text-gray-700 flex items-start gap-2 bg-red-50/50 p-2 rounded-lg border border-red-100/50"
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
 
       {/* DISC Profile */}
-      <div className="glass-card rounded-2xl p-6">
+      <div className="rounded-2xl border border-black/5 p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-center gap-2 mb-5">
-          <Brain className="w-4 h-4 text-brand-400" />
-          <h3 className="text-sm font-semibold text-surface-200/60 uppercase tracking-wider">
-            DISC Personality Profile
+          <Brain className="w-4 h-4 text-purple-500" />
+          <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+            Psychological Profile (DISC)
           </h3>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-          <div className={`${primary.bg} rounded-xl p-4 border border-white/5`}>
-            <p className="text-xs text-surface-200/40 mb-1">Primary Type</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div className={`${primary.bg} ${primary.border} border rounded-2xl p-5`}>
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Primary Motivation</p>
             <p className={`text-2xl font-extrabold ${primary.text}`}>
               {icp.discProfile.primaryType} — {primary.label}
             </p>
           </div>
-          <div className={`${secondary.bg} rounded-xl p-4 border border-white/5`}>
-            <p className="text-xs text-surface-200/40 mb-1">Secondary Type</p>
+          <div className={`${secondary.bg} ${secondary.border} border rounded-2xl p-5`}>
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Secondary Motivation</p>
             <p className={`text-2xl font-extrabold ${secondary.text}`}>
               {icp.discProfile.secondaryType} — {secondary.label}
             </p>
           </div>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-4 bg-gray-50 rounded-2xl p-5 border border-gray-100">
           <div>
-            <p className="text-xs text-surface-200/40 mb-1">Description</p>
-            <p className="text-sm text-surface-200/70 leading-relaxed">
+            <p className="text-xs font-bold text-gray-900 mb-1">How they think</p>
+            <p className="text-sm text-gray-600 leading-relaxed font-medium">
               {icp.discProfile.description}
             </p>
           </div>
           <div>
-            <p className="text-xs text-surface-200/40 mb-1">
-              Communication Style
+            <p className="text-xs font-bold text-gray-900 mb-1">
+              How to communicate with them
             </p>
-            <p className="text-sm text-surface-200/70 leading-relaxed">
+            <p className="text-sm text-gray-600 leading-relaxed font-medium">
               {icp.discProfile.communicationStyle}
             </p>
-          </div>
-          <div className="grid grid-cols-2 gap-4 pt-2">
-            <div>
-              <p className="text-xs text-emerald-400 mb-2 font-medium">
-                ✅ Motivators
-              </p>
-              <ul className="space-y-1">
-                {icp.discProfile.motivators.map((m, i) => (
-                  <li key={i} className="text-xs text-surface-200/60">
-                    {m}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs text-red-400 mb-2 font-medium">
-                ⚠️ Stressors
-              </p>
-              <ul className="space-y-1">
-                {icp.discProfile.stressors.map((s, i) => (
-                  <li key={i} className="text-xs text-surface-200/60">
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Buying Triggers + Pain Points + Alternatives */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Buying Triggers */}
-        <div className="glass-card rounded-2xl p-6">
+      {/* Buying Triggers + Alternatives */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="rounded-2xl border border-amber-100 bg-amber-50/50 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Lightbulb className="w-4 h-4 text-amber-400" />
-            <h3 className="text-sm font-semibold text-surface-200/60 uppercase tracking-wider">
-              Buying Triggers
+            <Lightbulb className="w-4 h-4 text-amber-500" />
+            <h3 className="text-xs font-bold text-amber-900 uppercase tracking-wider">
+              Buying Triggers (Why they buy NOW)
             </h3>
           </div>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {icp.buyingTriggers.map((t, i) => (
               <li
                 key={i}
-                className="text-xs text-surface-200/60 flex items-start gap-2"
+                className="text-sm font-medium text-amber-800 flex items-start gap-2 bg-white rounded-xl p-3 border border-amber-100 shadow-sm"
               >
-                <span className="text-amber-400 mt-0.5">⚡</span>
+                <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5 fill-amber-400" />
                 {t}
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Pain Points */}
-        <div className="glass-card rounded-2xl p-6">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="w-4 h-4 text-red-400" />
-            <h3 className="text-sm font-semibold text-surface-200/60 uppercase tracking-wider">
-              Pain Points
-            </h3>
-          </div>
-          <ul className="space-y-2">
-            {icp.painPoints.map((p, i) => (
-              <li
-                key={i}
-                className="text-xs text-surface-200/60 flex items-start gap-2"
-              >
-                <span className="text-red-400 mt-0.5">🔥</span>
-                {p}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Current Alternatives */}
-        <div className="glass-card rounded-2xl p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <ShieldCheck className="w-4 h-4 text-brand-400" />
-            <h3 className="text-sm font-semibold text-surface-200/60 uppercase tracking-wider">
-              Alternatives
+            <ShieldCheck className="w-4 h-4 text-gray-500" />
+            <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+              Competitor Weaknesses
             </h3>
           </div>
           <div className="space-y-3">
             {icp.currentAlternatives.map((alt, i) => (
               <div
                 key={i}
-                className="bg-white/[0.02] rounded-lg p-3 border border-white/5"
+                className="bg-gray-50 rounded-xl p-4 border border-gray-100"
               >
-                <p className="text-xs font-semibold text-white">{alt.name}</p>
-                <p className="text-xs text-surface-200/40 mt-0.5">
+                <p className="text-sm font-bold text-[#1a1a2e] mb-1">{alt.name}</p>
+                <p className="text-xs font-medium text-gray-600">
+                  <span className="text-red-500 font-semibold mb-1 block">Why it falls short:</span>
                   {alt.weakness}
                 </p>
               </div>

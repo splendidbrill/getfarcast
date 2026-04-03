@@ -11,34 +11,38 @@ const steps = [
     description:
       "Describe your product in a few sentences. What it does, who it's for, and your pricing model. That's all we need.",
     detail: "Takes less than 2 minutes",
-    gradient: "from-brand-500 to-brand-400",
+    gradient: "from-blue-500 to-blue-400",
+    shadowColor: "shadow-blue-500/20"
   },
   {
     number: "02",
     icon: Search,
     title: "AI maps your ICP",
     description:
-      "Our AI analyzes your product and identifies your exact ideal customer profile with demographics, psychographics, buying triggers, and DISC personality mapping.",
-    detail: "Powered by GPT-5.4",
-    gradient: "from-brand-400 to-accent-500",
+      "Our AI analyzes your product and identifies your exact ideal customer profile with demographics, psychographics, buying triggers, and DISC profiling.",
+    detail: "Agency-level analysis",
+    gradient: "from-purple-500 to-purple-400",
+    shadowColor: "shadow-purple-500/20"
   },
   {
     number: "03",
     icon: Layers,
     title: "Get your channel strategy",
     description:
-      "We rank the top platforms where your ICP hangs out, with engagement benchmarks, algorithm insights, best practices, and what to avoid on each.",
+      "We rank the top platforms where your ICP hangs out, with engagement benchmarks, algorithm insights, and what to avoid on each.",
     detail: "Reddit, LinkedIn, Instagram & more",
-    gradient: "from-accent-500 to-accent-400",
+    gradient: "from-emerald-500 to-emerald-400",
+    shadowColor: "shadow-emerald-500/20"
   },
   {
     number: "04",
     icon: PenTool,
     title: "Content is generated",
     description:
-      "Get ready-to-post content for each channel with platform-specific templates, hooks, tone guidelines, and anti-AI-slop guardrails to sound genuinely human.",
-    detail: "Human-sounding, not AI slop",
-    gradient: "from-accent-400 to-emerald-500",
+      "Get ready-to-post content for each channel with platform-specific templates, hooks, and anti-AI-slop guardrails to sound genuinely human.",
+    detail: "Human-sounding, ready-to-use",
+    gradient: "from-[#ff6b4e] to-[#ff8c5a]",
+    shadowColor: "shadow-[#ff6b4e]/20"
   },
   {
     number: "05",
@@ -47,7 +51,8 @@ const steps = [
     description:
       "A complete cold outreach sequence with email and DM templates personalized to your product. Just copy, paste, and start getting users.",
     detail: "Copy, paste, grow",
-    gradient: "from-emerald-500 to-emerald-400",
+    gradient: "from-amber-500 to-amber-400",
+    shadowColor: "shadow-amber-500/20"
   },
 ];
 
@@ -72,32 +77,27 @@ export function HowItWorks() {
     <section
       ref={sectionRef}
       id="how-it-works"
-      className="relative py-28 sm:py-36 overflow-hidden"
+      className="relative py-28 sm:py-36 overflow-hidden bg-[#faf8f6]"
     >
-      <div className="absolute inset-0 bg-grid opacity-50" />
-      
-      {/* Animated background elements */}
-      <div className="absolute top-1/3 right-0 w-72 h-72 bg-brand-500/5 rounded-full blur-[100px] animate-float" />
-      <div className="absolute bottom-1/3 left-0 w-64 h-64 bg-accent-500/5 rounded-full blur-[100px] animate-float-delayed" />
+      <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
       
       <div className="relative z-10 max-w-5xl mx-auto px-6">
-        <div className="text-center mb-20">
-          <p className="text-sm font-semibold text-emerald-400 uppercase tracking-widest mb-3">
+        <div className="text-center mb-24">
+          <p className="text-sm font-bold text-emerald-500 uppercase tracking-widest mb-3">
             How It Works
           </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1a1a2e] tracking-tight">
             From zero to growth playbook
             <br />
-            <span className="text-surface-200/50">in under 5 minutes.</span>
+            <span className="text-gray-400">in under 5 minutes.</span>
           </h2>
         </div>
 
         <div className="relative">
           {/* Animated connecting line */}
-          <div className="absolute left-6 sm:left-8 top-0 bottom-0 w-px hidden md:block">
-            <div className="w-full h-full bg-gradient-to-b from-brand-500/30 via-accent-500/30 to-emerald-500/30" />
+          <div className="absolute left-6 sm:left-10 top-0 bottom-0 w-1 hidden md:block bg-gray-100 rounded-full">
             <div
-              className="absolute top-0 left-0 w-full bg-gradient-to-b from-brand-500 to-accent-500 transition-all duration-700 ease-out"
+              className="absolute top-0 left-0 w-full bg-gradient-to-b from-blue-500 via-[#ff6b4e] to-amber-500 rounded-full transition-all duration-1000 ease-out"
               style={{
                 height: isVisible ? "100%" : "0%",
                 transitionDelay: "0.3s",
@@ -105,57 +105,65 @@ export function HowItWorks() {
             />
           </div>
 
-          <div className="space-y-8 md:space-y-10">
+          <div className="space-y-10 md:space-y-12 pl-0 md:pl-4">
             {steps.map((step, i) => {
               const Icon = step.icon;
               return (
                 <div
                   key={step.number}
-                  className={`relative flex gap-6 md:gap-8 transition-all duration-700 cursor-pointer group ${
+                  className={`relative flex gap-6 md:gap-10 transition-all duration-700 cursor-default group ${
                     isVisible
-                      ? "opacity-100 translate-x-0"
-                      : "opacity-0 -translate-x-8"
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-12"
                   }`}
                   style={{ transitionDelay: `${i * 150}ms` }}
                   onMouseEnter={() => setActiveStep(i)}
                   onMouseLeave={() => setActiveStep(null)}
                 >
                   {/* Step number / icon */}
-                  <div className="shrink-0 relative z-10">
+                  <div className="shrink-0 relative z-10 hidden md:block">
                     <div
-                      className={`w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-lg transition-all duration-300 ${
-                        activeStep === i ? "scale-110 shadow-xl" : ""
+                      className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-lg ${step.shadowColor} transition-transform duration-300 ${
+                        activeStep === i ? "scale-110" : ""
                       }`}
                     >
-                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                      <Icon className="w-6 h-6 text-white" />
                     </div>
                   </div>
 
                   {/* Content */}
                   <div
-                    className={`glass-card spotlight-card rounded-2xl p-5 sm:p-6 flex-1 transition-all duration-300 ${
+                    className={`bg-white rounded-3xl p-6 sm:p-8 flex-1 border transition-all duration-300 ${
                       activeStep === i
-                        ? "border-brand-500/30 bg-white/[0.05] shadow-lg shadow-brand-500/10"
-                        : "border-white/5"
+                        ? "border-[#ff6b4e]/30 shadow-xl shadow-[#ff6b4e]/5 -translate-y-1"
+                        : "border-gray-100 shadow-sm"
                     }`}
-                    style={{
-                      "--mouse-x": "50%",
-                      "--mouse-y": "50%",
-                    } as React.CSSProperties}
                   >
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-xs font-mono text-surface-200/30 tracking-wider">
-                        STEP {step.number}
-                      </span>
-                      <div className="h-px flex-1 bg-white/5" />
-                      <span className="text-xs text-surface-200/30">
-                        {step.detail}
-                      </span>
+                    <div className="flex items-center gap-4 mb-4">
+                      {/* Mobile Icon */}
+                      <div
+                        className={`md:hidden w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-md`}
+                      >
+                        <Icon className="w-4 h-4 text-white" />
+                      </div>
+                      
+                      <div className="flex-1 flex items-center gap-3">
+                        <span className="text-xs font-bold text-gray-400 tracking-widest uppercase">
+                          STEP {step.number}
+                        </span>
+                        <div className="h-px flex-1 bg-gray-100" />
+                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider bg-gray-50 px-2.5 py-1 rounded-md">
+                          {step.detail}
+                        </span>
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2 transition-colors duration-300 group-hover:text-gradient-brand">
+                    
+                    <h3 className={`text-2xl font-bold text-[#1a1a2e] mb-3 transition-colors duration-300 ${
+                      activeStep === i && step.number === "04" ? "text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a]" : ""
+                    }`}>
                       {step.title}
                     </h3>
-                    <p className="text-sm text-surface-200/50 leading-relaxed">
+                    <p className="text-base text-gray-600 font-medium leading-relaxed">
                       {step.description}
                     </p>
                   </div>
