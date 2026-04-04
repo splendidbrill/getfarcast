@@ -20,9 +20,9 @@ import { PlaybookOutreach } from "./PlaybookOutreach";
 import Link from "next/link";
 
 export function PlaybookDashboard({
-  playbookId,
+  id,
 }: {
-  playbookId: string;
+  id: string;
 }) {
   const router = useRouter();
   const [playbook, setPlaybook] = useState<Playbook | null>(null);
@@ -31,7 +31,7 @@ export function PlaybookDashboard({
   useEffect(() => {
     async function loadPlaybook() {
       // 1. Try local storage first for instant load
-      const raw = localStorage.getItem(`playbook_${playbookId}`);
+      const raw = localStorage.getItem(`playbook_${id}`);
       if (raw) {
         try {
           const stored = JSON.parse(raw);
@@ -48,7 +48,7 @@ export function PlaybookDashboard({
       const { data, error } = await supabase
         .from("playbooks")
         .select("data")
-        .eq("id", playbookId)
+        .eq("id", id)
         .single();
 
       if (data && data.data) {
@@ -56,7 +56,7 @@ export function PlaybookDashboard({
         setPlaybook(parsedPlaybook as Playbook);
         // Sync it to local storage for speed next time
         localStorage.setItem(
-          `playbook_${playbookId}`,
+          `playbook_${id}`,
           JSON.stringify({ playbook: data.data as Playbook, formData: {} })
         );
       } else {
@@ -66,7 +66,7 @@ export function PlaybookDashboard({
     }
 
     loadPlaybook();
-  }, [playbookId, router]);
+  }, [id, router]);
 
   if (!playbook) {
     return (
