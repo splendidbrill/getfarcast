@@ -10,6 +10,7 @@ export type Timeline = "2-weeks" | "1-month" | "3-months";
 
 export interface WizardFormData {
   // Step 1: Product
+  previousPlaybookId?: string;
   productName: string;
   productUrl: string;
   productDescription: string;
@@ -81,6 +82,8 @@ export interface CalendarPost {
   title: string;
   hook: string;
   body: string;
+  feedbackRating?: "fire" | "ok" | "flop";
+  feedbackComments?: string;
 }
 
 export interface ChannelStrategy {

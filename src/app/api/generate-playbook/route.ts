@@ -119,6 +119,39 @@ export async function POST(request: Request) {
           preview: matchedChannels.map((c) => c.name).join(", "),
         });
 
+        let feedbackContextStr = "";
+
+        if (formData.previousPlaybookId) {
+          const supabase = await createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { data: pastData } = await supabase
+              .from("playbooks")
+              .select("data")
+              .eq("id", formData.previousPlaybookId)
+              .eq("user_id", user.id)
+              .single();
+
+            if (pastData && pastData.data) {
+              const pbData = pastData.data.playbook || pastData.data;
+              const feedbackEntries: string[] = [];
+              pbData.channels?.forEach((ch: any) => {
+                ch.contentCalendar?.forEach((post: any) => {
+                  if (post.feedbackRating || post.feedbackComments) {
+                    feedbackEntries.push(
+                      `- Post Title: "${post.title}"\n  Rating given: ${post.feedbackRating || 'none'}\n  Comments from audience/user: "${post.feedbackComments || 'none'}"`
+                    );
+                  }
+                });
+              });
+              if (feedbackEntries.length > 0) {
+                feedbackContextStr = feedbackEntries.join("\n\n");
+                console.log("Injected Feedback Context!");
+              }
+            }
+          }
+        }
+
         // ── STEP 3: Channel Strategies (sequential, KB-injected) ──────
         const channelStrategies = [];
 
@@ -147,7 +180,7 @@ export async function POST(request: Request) {
 
           const strategy = await callLLM(
             systemPrompt,
-            buildChannelUserPrompt(icp, formData, ch.name, i + 1, ch.pushType)
+            buildChannelUserPrompt(icp, formData, ch.name, i + 1, ch.pushType, feedbackContextStr)
           ) as Record<string, unknown>;
 
           channelStrategies.push({
@@ -219,7 +252,7 @@ export async function POST(request: Request) {
               id: playbook.id,
               user_id: user.id,
               product_name: playbook.productName,
-              data: playbook,
+              data: { playbook, formData },
             });
             if (dbError) {
               console.error("Supabase insert error:", dbError);

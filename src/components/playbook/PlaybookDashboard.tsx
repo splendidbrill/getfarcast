@@ -52,7 +52,8 @@ export function PlaybookDashboard({
         .single();
 
       if (data && data.data) {
-        setPlaybook(data.data as Playbook);
+        const parsedPlaybook = data.data.playbook ? data.data.playbook : data.data;
+        setPlaybook(parsedPlaybook as Playbook);
         // Sync it to local storage for speed next time
         localStorage.setItem(
           `playbook_${playbookId}`,
@@ -170,7 +171,7 @@ export function PlaybookDashboard({
           <div className="bg-white rounded-3xl border border-black/5 shadow-sm p-6 sm:p-8">
             {activeTab === "overview" && <PlaybookOverview playbook={playbook} />}
             {activeTab === "icp" && <PlaybookICP icp={playbook.icp} />}
-            {activeTab === "channels" && <PlaybookChannels channels={playbook.channels} />}
+            {activeTab === "channels" && <PlaybookChannels playbookId={playbook.id} channels={playbook.channels} />}
             {activeTab === "outreach" && <PlaybookOutreach outreach={playbook.outreach} />}
           </div>
         </main>

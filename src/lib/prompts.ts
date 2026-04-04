@@ -153,7 +153,8 @@ export function buildChannelUserPrompt(
   data: WizardFormData,
   channelName: string,
   channelRank: number,
-  pushType: "hard" | "soft"
+  pushType: "hard" | "soft",
+  feedbackContext?: string
 ): string {
   return `## PRODUCT
 Name: ${data.productName}
@@ -176,6 +177,10 @@ Channel: ${channelName}
 Ranked #${channelRank} for this product
 Intensity: ${pushType === "hard" ? "HARD push — primary channel, invest heavily here" : "SOFT push — secondary channel, maintain presence"}
 
+${feedbackContext ? `## CRITICAL PERFORMANCE FEEDBACK FROM PREVIOUS 30 DAYS
+The user ran a 30-day playbook last month. Here is EXACTLY what performed well and what flopped. Adapt this month's content immediately based on this data:
+${feedbackContext}
+` : ''}
 Generate the complete ${channelName} strategy JSON now. Apply ALL rules from the expert playbook. Make the content templates READY TO POST TODAY.`;
 }
 

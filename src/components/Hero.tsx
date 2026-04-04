@@ -67,7 +67,7 @@ export function Hero() {
 
         {/* Headline */}
         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-6 animate-fade-in-up-delay-1 opacity-0 text-[#1a1a2e]">
-          Building is done.
+          Building is easy.
           <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a]">
             Distribution isn't.
@@ -76,8 +76,8 @@ export function Hero() {
 
         {/* Subheadline */}
         <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-600 font-medium leading-relaxed mb-10 animate-fade-in-up-delay-2 opacity-0">
-          Describe your product, and our AI tells you who your customers are, 
-          where they hangout, and how to reach them - with a complete growth playbook with ready-to-post content in under 2 minutes.
+          Describe your product and our AI tells you exactly who your target customer is, 
+           where they hang out, and the full growth engine — in minutes.
         </p>
 
         {/* CTAs */}

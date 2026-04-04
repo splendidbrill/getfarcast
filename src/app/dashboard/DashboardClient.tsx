@@ -49,8 +49,9 @@ export function DashboardClient({ playbooks }: { playbooks: any[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {playbooks.map((pb) => {
-        // Extract sneak peek data safely from JSONB
-        const topChannels = pb.data?.channels?.slice(0, 2).map((c: any) => c.name).join(" + ") || "Multiple Channels";
+        // Extract sneak peek data safely from JSONB handling both old and new schemas
+        const channelsData = pb.data?.playbook?.channels || pb.data?.channels || [];
+        const topChannels = channelsData.slice(0, 2).map((c: any) => c.name).join(" + ") || "Multiple Channels";
         
         return (
           <Link
