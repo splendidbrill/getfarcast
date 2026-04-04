@@ -1,0 +1,2 @@
+﻿src/components/playbook/PlaybookICP.tsx(197,18): error TS2304: Cannot find name 'Zap'.
+src/components/playbook/PlaybookOverview.tsx(68,63): error TS2339: Property 'contentTemplates' does not exist on type 'ChannelStrategy'.

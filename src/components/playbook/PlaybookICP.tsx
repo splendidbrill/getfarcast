@@ -8,6 +8,7 @@ import {
   Lightbulb,
   Heart,
   Briefcase,
+  Zap,
 } from "lucide-react";
 import type { ICPProfile } from "@/lib/types";
 
