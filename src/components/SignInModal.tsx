@@ -17,13 +17,10 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
 
   const handleGoogleSignIn = async () => {
     const supabase = createClient();
-    const origin = window.location.origin;
-    const redirectUrl = `${origin}/auth/callback?origin=${encodeURIComponent(origin)}`;
-
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: redirectUrl,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
   };
