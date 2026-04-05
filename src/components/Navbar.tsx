@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X, Zap, LogOut, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
@@ -11,6 +11,8 @@ export function Navbar() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState("");
   const [userInitial, setUserInitial] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,6 +56,25 @@ export function Navbar() {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setDropdownOpen(false);
+    window.location.href = '/';
+  };
 
   const navLinks = [
     { label: "How It Works", href: "#how-it-works", section: "how-it-works" },
@@ -111,9 +132,35 @@ export function Navbar() {
         {/* CTA */}
         <div className="hidden md:flex items-center gap-4">
           {userInitial ? (
-            <Link href="/dashboard" className="w-9 h-9 rounded-full bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] text-white flex items-center justify-center font-bold text-sm shadow-md transition-transform hover:scale-105">
-              {userInitial}
-            </Link>
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] text-white flex items-center justify-center font-bold text-sm shadow-md transition-transform hover:scale-105"
+              >
+                {userInitial}
+              </button>
+
+              {/* Dropdown Menu */}
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-fade-in-up">
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-[#1a1a2e] transition-colors"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <Link href="/login" className="text-sm font-semibold text-gray-600 hover:text-[#1a1a2e] transition-colors">
               Log in
@@ -160,12 +207,24 @@ export function Navbar() {
             <hr className="border-gray-100 my-4" />
 
             {userInitial ? (
-              <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-4 py-2 hover:bg-black/5 rounded-xl transition-colors">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] text-white flex items-center justify-center font-bold text-lg shadow-md">
-                  {userInitial}
-                </div>
-                <span className="font-semibold text-[#1a1a2e]">Your Dashboard</span>
-              </Link>
+              <div className="space-y-2">
+                <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-4 py-2 hover:bg-black/5 rounded-xl transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] text-white flex items-center justify-center font-bold text-lg shadow-md">
+                    {userInitial}
+                  </div>
+                  <span className="font-semibold text-[#1a1a2e]">Your Dashboard</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    handleSignOut();
+                    setMobileOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="font-semibold">Sign Out</span>
+                </button>
+              </div>
             ) : (
               <Link
                 href="/login"
