@@ -52,8 +52,23 @@ export async function callAzureLLM(
   userPrompt: string
 ): Promise<string> {
   const config = getConfig();
+  let urlStr = config.baseURL;
+  
+  // Robustly handle the endpoint URL so it never 404s
+  try {
+    const urlObj = new URL(urlStr);
+    if (!urlObj.pathname.endsWith("/chat/completions")) {
+      urlObj.pathname = urlObj.pathname.replace(/\/$/, "") + "/chat/completions";
+    }
+    if (!urlObj.searchParams.has("api-version")) {
+      urlObj.searchParams.set("api-version", "2024-05-01-preview");
+    }
+    urlStr = urlObj.toString();
+  } catch (err) {
+    // If it's totally invalid, let it fall through and fail the fetch natively
+  }
 
-  console.log(`[LLM] Azure call → endpoint: ${config.baseURL}`);
+  console.log(`[LLM] Azure call → endpoint: ${urlStr}`);
   console.log(`[LLM] Azure model: ${config.model}`);
 
   const body = JSON.stringify({
@@ -66,7 +81,7 @@ export async function callAzureLLM(
     max_tokens: 4000,
   });
 
-  const response = await fetch(config.baseURL, {
+  const response = await fetch(urlStr, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
