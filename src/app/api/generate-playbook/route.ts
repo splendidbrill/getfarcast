@@ -1,4 +1,4 @@
-﻿import { getLLMClient, getModelId, callAzureLLM, getProvider } from "@/lib/llm";
+import { getLLMClient, getModelId, callAzureLLM, getProvider } from "@/lib/llm";
 import {
   buildICPSystemPrompt,
   buildICPUserPrompt,
@@ -11,6 +11,7 @@ import {
   buildPostsCalendarSystemPrompt,
   buildPostsCalendarUserPrompt,
 } from "@/lib/prompts";
+import { jsonrepair } from "jsonrepair";
 import { matchChannels } from "@/lib/channelMatcher";
 import { getChannelPlaybook } from "@/lib/knowledgeBase";
 import type { WizardFormData, ICPProfile, Playbook } from "@/lib/types";
@@ -92,7 +93,15 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
     }
   );
 
-  return JSON.parse(raw.trim());
+  try {
+    const repaired = jsonrepair(raw.trim());
+    return JSON.parse(repaired);
+  } catch (parseError) {
+    console.error("\n\n====== [FATAL LLM JSON ERROR] ======\n");
+    console.error(raw);
+    console.error("\n====================================\n\n");
+    throw new Error("AI returned malformed JSON that could not be repaired. Please retry.");
+  }
 }
 
 // ==========================================
