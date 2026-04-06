@@ -48,6 +48,31 @@ function getConfig(): LLMConfig {
 export function getLLMClient(): OpenAI {
   const config = getConfig();
 
+  if (config.provider === "azure") {
+    try {
+      const url = new URL(config.baseURL);
+      const apiVersion = url.searchParams.get("api-version") || "2024-05-01-preview";
+      url.searchParams.delete("api-version");
+      
+      let baseStr = url.toString();
+      // OpenAI client automatically appends /chat/completions, so we must remove it from the base
+      if (baseStr.endsWith("/chat/completions")) {
+        baseStr = baseStr.substring(0, baseStr.length - 17);
+      } else if (baseStr.endsWith("/chat/completions/")) {
+        baseStr = baseStr.substring(0, baseStr.length - 18);
+      }
+
+      return new OpenAI({
+        apiKey: config.apiKey, // Note: OpenAI client will still set Bearer, but Azure ignores it if api-key is present
+        baseURL: baseStr,
+        defaultQuery: { "api-version": apiVersion },
+        defaultHeaders: { "api-key": config.apiKey },
+      });
+    } catch (e) {
+      console.warn("Failed to parse AZURE_ENDPOINT. Using fallback.", e);
+    }
+  }
+
   return new OpenAI({
     apiKey: config.apiKey,
     baseURL: config.baseURL,
