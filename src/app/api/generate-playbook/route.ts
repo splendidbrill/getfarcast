@@ -41,6 +41,24 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
     raw = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
   }
 
+  // Sanitize illegal control characters that some models (e.g. Qwen) emit
+  // inside JSON string values. These make JSON.parse throw "Bad control character".
+  // We replace literal control chars (0x00-0x1F) except for valid whitespace
+  // that appears OUTSIDE of string values — but since targeting inside strings
+  // is complex, we use a regex that replaces them only within quoted strings.
+  raw = raw.replace(
+    /"((?:[^"\\]|\\.)*)"/g,
+    (_match, inner: string) => {
+      const sanitized = inner
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r")
+        .replace(/\t/g, "\\t")
+        // Replace any remaining raw control chars (0x00-0x1F except already escaped)
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
+      return `"${sanitized}"`;
+    }
+  );
+
   return JSON.parse(raw.trim());
 }
 
