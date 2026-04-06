@@ -92,6 +92,7 @@ export function OnboardingWizard() {
       if (!reader) throw new Error("No response stream");
 
       const decoder = new TextDecoder();
+      let completed = false;
       let buffer = "";
 
       while (true) {
@@ -112,6 +113,7 @@ export function OnboardingWizard() {
           if (event.type === "progress") {
             updatePipelineStep(event.data as PipelineStep);
           } else if (event.type === "complete") {
+            completed = true;
             const { playbook, formData: fd } = event.data;
             const stored: StoredPlaybook = { playbook, formData: fd };
             localStorage.setItem(`playbook_${playbook.id}`, JSON.stringify(stored));
@@ -121,6 +123,10 @@ export function OnboardingWizard() {
             throw new Error(event.data.message);
           }
         }
+      }
+
+      if (!completed) {
+        throw new Error("Connection dropped. Please check the local server and try again.");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
