@@ -279,3 +279,124 @@ Pricing: ${data.pricingModel}${data.pricePoint ? ` at ${data.pricePoint}` : ""}
 
 Generate market sizing JSON now.`;
 }
+
+// ==========================================
+// Step 5: 7-Day Ready-to-Post Calendar Prompt
+// ==========================================
+export function buildPostsCalendarSystemPrompt(channels: string[]): string {
+  const platformRules: Record<string, string> = {
+    Reddit: `REDDIT RULES:
+- Must feel like a genuine community member, NOT a founder pitching
+- Titles must be questions, confessions, or stories (not announcements)
+- No hashtags. No links in first comment unless it flows naturally.
+- Best performing formats: "I built X because Y frustrated me", "Show HN"-style, "Unpopular opinion:", "Honest question:"
+- Keep titles under 120 chars. Body can be longer (200-500 words tells a story well).
+- Mention the subreddit context naturally but don't force it.`,
+    LinkedIn: `LINKEDIN RULES:
+- Hook must be 1 punchy line that stops scroll. No leading with "I" as first word.
+- Use single-sentence paragraphs. White space is engagement.
+- Structure: Hook > Story/Insight > Takeaway > Call to action (subtle).
+- End with 1-3 relevant hashtags max. Never more.
+- Optimal length: 150-300 words. Long form (500+) works for personal stories.
+- "I almost quit" or counter-intuitive insights perform extremely well.`,
+    "X": `X (TWITTER) RULES:
+- Opening tweet must work as a standalone. Under 280 chars.
+- For threads: First tweet is the hook. Each tweet adds ONE idea. End with CTA.
+- Use numbers: "7 things I learned" or "$0 to $1K in 3 weeks"
+- Contrarian takes and behind-the-scenes content drives retweets.
+- No corporate speak. Lower case is fine. Casual wins.
+- Hashtags: max 2, only if highly relevant.`,
+    "Twitter/X": `X (TWITTER) RULES:
+- Opening tweet must work as a standalone. Under 280 chars.
+- For threads: First tweet is the hook. Each tweet adds ONE idea. End with CTA.
+- Use numbers: "7 things I learned" or "$0 to $1K in 3 weeks"
+- Contrarian takes and behind-the-scenes content drives retweets.
+- No corporate speak. Lower case is fine. Casual wins.
+- Hashtags: max 2, only if highly relevant.`,
+    "Product Hunt": `PRODUCT HUNT RULES:
+- First comment is crucial — it should tell the full story of WHY you built this.
+- Tagline must be under 60 chars. No jargon.
+- Ask for honest feedback, not upvotes.`,
+  };
+
+  const channelRules = channels
+    .map((ch) => platformRules[ch] || `${ch.toUpperCase()} RULES:\n- Write natively for this platform. Authentic, specific, platform-appropriate tone.`)
+    .join("\n\n");
+
+  return `You are GetFarcast AI — the world's sharpest distribution strategist. Your ONLY job right now is to write a 7-day post calendar where EVERY single post is ready to copy-paste and publish TODAY.
+
+## THE PLATFORMS YOU ARE WRITING FOR:
+${channels.join(", ")}
+
+## PLATFORM-SPECIFIC RULES (follow these to the letter):
+${channelRules}
+
+${ANTI_SLOP_RULES}
+
+## CONTENT PILLAR ROTATION (use variety across the 7 days):
+- Day 1: Origin Story — Why did the founder build this? What broke that made them snap?
+- Day 2: The Problem — Make the ICP feel deeply seen. Describe their pain without mentioning the product.
+- Day 3: Behind the Scenes — One real, specific insight from building this. Numbers, struggles, surprises.
+- Day 4: Value-Add / Educational — Teach them something useful related to the problem. No product pitch.
+- Day 5: Hot Take / Contrarian — A bold opinion that will get replies. Must be defensible and specific.  
+- Day 6: Soft Pitch — The product reveal. Lead with transformation, not features.
+- Day 7: Community / Engagement — Ask the ICP a question they actually want to answer.
+
+## OUTPUT RULES:
+1. Return ONLY valid JSON. Zero text outside the JSON block.
+2. Assign one platform per day. Rotate across the matched platforms.
+3. The "hook" field is the FIRST LINE ONLY. It must stop a scroll.
+4. The "body" field is the FULL POST including the hook at the start. It must be copy-paste ready with NO placeholders. Substitute your own specific, plausible examples if needed.
+5. "characterCount" must be the actual character count of the body field.
+6. "bestTimeToPost" — give the optimal day+time for this specific platform.
+7. "subredditOrHashtags" — for Reddit: specific subreddit (e.g., "r/SaaS, r/Entrepreneur"). For LinkedIn/X: 2-3 hashtags max. For others: leave empty string.
+
+## JSON SCHEMA:
+{
+  "weekOf": "Week 1 — Launch Sprint",
+  "posts": [
+    {
+      "day": 1,
+      "platform": "Reddit",
+      "postType": "Origin Story",
+      "hook": "The exact first line that stops the scroll",
+      "body": "Full ready-to-post text including the hook. Specific. Human. No filler.",
+      "characterCount": 420,
+      "bestTimeToPost": "Tuesday 9-11am EST",
+      "subredditOrHashtags": "r/SaaS, r/Entrepreneur"
+    }
+  ]
+}`;
+}
+
+export function buildPostsCalendarUserPrompt(
+  icp: ICPProfile,
+  data: WizardFormData,
+  channels: string[]
+): string {
+  return `## PRODUCT
+Name: ${data.productName}
+URL: ${data.productUrl || "Not provided"}
+Description: ${data.productDescription}
+Problem it solves: ${data.problemItSolves || "Not specified"}
+Pricing: ${data.pricingModel}${data.pricePoint ? ` at ${data.pricePoint}` : ""}
+Goal: ${data.primaryGoal === "first-100" ? "Get first 100 users" : data.primaryGoal === "launch" ? "Product launch buzz" : "Scale existing growth"}
+Timeline: ${data.timeline === "2-weeks" ? "2 weeks" : data.timeline === "1-month" ? "1 month" : "3 months"}
+
+## ICP
+Title: ${icp.title}
+Summary: ${icp.summary}
+Age: ${icp.demographics.ageRange} | Location: ${icp.demographics.location}
+Job titles: ${icp.demographics.jobTitles.join(", ")}
+Core pain points: ${icp.painPoints.slice(0, 3).join("; ")}
+Buying triggers: ${icp.buyingTriggers.slice(0, 2).join("; ")}
+DISC personality: ${icp.discProfile.primaryType}/${icp.discProfile.secondaryType}
+How to communicate: ${icp.discProfile.communicationStyle}
+Key frustrations: ${icp.psychographics.frustrations.slice(0, 2).join("; ")}
+
+## MATCHED PLATFORMS (write posts for THESE ONLY, rotate across them):
+${channels.join(", ")}
+
+## TASK
+Write the 7-day post calendar now. Every post must be SPECIFIC to ${data.productName} and this ICP. Replace any placeholder with real, specific content that is ready to post today. No generic content. No filler. No slop.`;
+}

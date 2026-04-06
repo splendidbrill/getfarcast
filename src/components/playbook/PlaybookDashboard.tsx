@@ -17,21 +17,22 @@ import { PlaybookOverview } from "./PlaybookOverview";
 import { PlaybookICP } from "./PlaybookICP";
 import { PlaybookChannels } from "./PlaybookChannels";
 import { PlaybookOutreach } from "./PlaybookOutreach";
+import { PlaybookPosts } from "./PlaybookPosts";
 import Link from "next/link";
 
 export function PlaybookDashboard({
-  id,
+  playbookId,
 }: {
-  id: string;
+  playbookId: string;
 }) {
   const router = useRouter();
   const [playbook, setPlaybook] = useState<Playbook | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "icp" | "channels" | "outreach">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "icp" | "channels" | "outreach" | "posts">("overview");
 
   useEffect(() => {
     async function loadPlaybook() {
       // 1. Try local storage first for instant load
-      const raw = localStorage.getItem(`playbook_${id}`);
+      const raw = localStorage.getItem(`playbook_${playbookId}`);
       if (raw) {
         try {
           const stored = JSON.parse(raw);
@@ -48,7 +49,7 @@ export function PlaybookDashboard({
       const { data, error } = await supabase
         .from("playbooks")
         .select("data")
-        .eq("id", id)
+        .eq("id", playbookId)
         .single();
 
       if (data && data.data) {
@@ -56,7 +57,7 @@ export function PlaybookDashboard({
         setPlaybook(parsedPlaybook as Playbook);
         // Sync it to local storage for speed next time
         localStorage.setItem(
-          `playbook_${id}`,
+          `playbook_${playbookId}`,
           JSON.stringify({ playbook: data.data as Playbook, formData: {} })
         );
       } else {
@@ -66,7 +67,7 @@ export function PlaybookDashboard({
     }
 
     loadPlaybook();
-  }, [id, router]);
+  }, [playbookId, router]);
 
   if (!playbook) {
     return (
@@ -81,6 +82,7 @@ export function PlaybookDashboard({
     { id: "icp", label: "Audience Profiling", icon: Users },
     { id: "channels", label: "Distribution Channels", icon: Share2 },
     { id: "outreach", label: "Outreach & DMs", icon: Mail },
+    { id: "posts", label: "Posts to Post", icon: Zap },
   ] as const;
 
   return (
@@ -171,8 +173,16 @@ export function PlaybookDashboard({
           <div className="bg-white rounded-3xl border border-black/5 shadow-sm p-6 sm:p-8">
             {activeTab === "overview" && <PlaybookOverview playbook={playbook} />}
             {activeTab === "icp" && <PlaybookICP icp={playbook.icp} />}
-            {activeTab === "channels" && <PlaybookChannels playbookId={playbook.id} channels={playbook.channels} />}
+            {activeTab === "channels" && <PlaybookChannels playbookId={playbookId} channels={playbook.channels} />}
             {activeTab === "outreach" && <PlaybookOutreach outreach={playbook.outreach} />}
+            {activeTab === "posts" && (
+              playbook.postsCalendar
+                ? <PlaybookPosts postsCalendar={playbook.postsCalendar} />
+                : <div className="text-center py-16 text-gray-400">
+                    <p className="text-sm font-medium">Post calendar not available for this playbook.</p>
+                    <p className="text-xs mt-1">Regenerate your playbook to get the 7-day post calendar.</p>
+                  </div>
+            )}
           </div>
         </main>
       </div>

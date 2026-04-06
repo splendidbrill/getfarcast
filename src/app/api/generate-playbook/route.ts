@@ -8,6 +8,8 @@ import {
   buildOutreachUserPrompt,
   buildMarketSizingSystemPrompt,
   buildMarketSizingUserPrompt,
+  buildPostsCalendarSystemPrompt,
+  buildPostsCalendarUserPrompt,
 } from "@/lib/prompts";
 import { matchChannels } from "@/lib/channelMatcher";
 import { getChannelPlaybook } from "@/lib/knowledgeBase";
@@ -97,7 +99,7 @@ export async function POST(request: Request) {
         // ── STEP 1: Generate ICP ──────────────────────────────────────
         encodeEvent(controller, encoder, "progress", {
           step: 1,
-          total: 4,
+          total: 5,
           label: "Profiling your ideal customer...",
           status: "running",
         });
@@ -109,7 +111,7 @@ export async function POST(request: Request) {
 
         encodeEvent(controller, encoder, "progress", {
           step: 1,
-          total: 4,
+          total: 5,
           label: "ICP identified",
           status: "done",
           preview: icp.title,
@@ -118,7 +120,7 @@ export async function POST(request: Request) {
         // ── STEP 2: Channel Matching (deterministic) ─────────────────
         encodeEvent(controller, encoder, "progress", {
           step: 2,
-          total: 4,
+          total: 5,
           label: "Matching distribution channels...",
           status: "running",
         });
@@ -131,7 +133,7 @@ export async function POST(request: Request) {
 
         encodeEvent(controller, encoder, "progress", {
           step: 2,
-          total: 4,
+          total: 5,
           label: "Channels matched",
           status: "done",
           preview: matchedChannels.map((c) => c.name).join(", "),
@@ -242,8 +244,36 @@ export async function POST(request: Request) {
 
         encodeEvent(controller, encoder, "progress", {
           step: 4,
-          total: 4,
+          total: 5,
           label: "Playbook complete",
+          status: "done",
+        });
+
+        // ── STEP 5: 7-Day Ready-to-Post Calendar ─────────────────────
+        encodeEvent(controller, encoder, "progress", {
+          step: 5,
+          total: 5,
+          label: "Writing your 7-day post calendar...",
+          status: "running",
+        });
+
+        // Only generate posts for social/content platforms (skip email, SEO, etc.)
+        const postChannels = matchedChannels
+          .map((c) => c.name)
+          .filter((name) =>
+            ["Reddit", "LinkedIn", "X", "Twitter/X", "Twitter", "Instagram", "TikTok", "Facebook", "Hacker News", "Product Hunt"].includes(name)
+          );
+        const calendarChannels = postChannels.length > 0 ? postChannels : matchedChannels.slice(0, 3).map((c) => c.name);
+
+        const postsCalendar = await callLLM(
+          buildPostsCalendarSystemPrompt(calendarChannels),
+          buildPostsCalendarUserPrompt(icp, formData, calendarChannels)
+        );
+
+        encodeEvent(controller, encoder, "progress", {
+          step: 5,
+          total: 5,
+          label: "7-day post calendar ready",
           status: "done",
         });
 
@@ -258,6 +288,7 @@ export async function POST(request: Request) {
           marketSizing: marketSizing as Playbook["marketSizing"],
           channels: channelStrategies as Playbook["channels"],
           outreach: outreach as Playbook["outreach"],
+          postsCalendar: postsCalendar as Playbook["postsCalendar"],
         };
 
         // ── Save to Supabase ──────────────────────────────────────────

@@ -86,6 +86,23 @@ export interface CalendarPost {
   feedbackComments?: string;
 }
 
+// 7-day ready-to-post calendar
+export interface ReadyPost {
+  day: number; // 1–7
+  platform: string; // e.g. "Reddit", "LinkedIn", "X"
+  postType: string; // e.g. "Origin Story", "Hot Take", "Value Add"
+  hook: string; // The exact opening line
+  body: string; // Full copy-paste ready post body
+  characterCount: number; // Approximate length
+  bestTimeToPost: string; // e.g. "Tuesday 9am EST"
+  subredditOrHashtags?: string; // e.g. "r/SaaS" or "#buildinpublic #saas"
+}
+
+export interface PostsCalendar {
+  weekOf: string; // e.g. "Week 1"
+  posts: ReadyPost[];
+}
+
 export interface ChannelStrategy {
   name: string;
   rank: number;
@@ -132,6 +149,7 @@ export interface Playbook {
   marketSizing: MarketSizing;
   channels: ChannelStrategy[];
   outreach: OutreachSequence;
+  postsCalendar?: PostsCalendar;
 }
 
 // --- Stored Playbook (localStorage) ---

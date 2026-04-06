@@ -1,0 +1,2 @@
+﻿src/app/playbook/[id]/page.tsx(15,29): error TS2322: Type '{ id: string; }' is not assignable to type 'IntrinsicAttributes & { playbookId: string; }'.
+  Property 'id' does not exist on type 'IntrinsicAttributes & { playbookId: string; }'.
