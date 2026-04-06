@@ -92,6 +92,7 @@ export async function callAzureLLM(
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt },
     ],
+    response_format: { type: "json_object" },
   };
 
   // Add the correct token parameter based on model family
