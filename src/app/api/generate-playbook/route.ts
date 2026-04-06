@@ -1,4 +1,4 @@
-import { getLLMClient, getModelId, callAzureLLM, getProvider } from "@/lib/llm";
+﻿import { getLLMClient, getModelId, callAzureLLM, getProvider } from "@/lib/llm";
 import {
   buildICPSystemPrompt,
   buildICPUserPrompt,
@@ -46,17 +46,40 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
     raw = completion.choices[0]?.message?.content || "";
   }
 
-  // Strip potential markdown code blocks
+  // ── Normalize the raw response 
   raw = raw.trim();
-  if (raw.startsWith("```")) {
-    raw = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+
+  // 1. Strip markdown code fences (```json...``` or ```...```)
+  if (raw.includes("```")) {
+    const fenceMatch = raw.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+    if (fenceMatch) {
+      raw = fenceMatch[1].trim();
+    } else {
+      raw = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
+    }
   }
 
-  // Sanitize illegal control characters that some models (e.g. Qwen) emit
-  // inside JSON string values. These make JSON.parse throw "Bad control character".
-  // We replace literal control chars (0x00-0x1F) except for valid whitespace
-  // that appears OUTSIDE of string values — but since targeting inside strings
-  // is complex, we use a regex that replaces them only within quoted strings.
+  // 2. If model prefaced JSON with prose ("Here is the JSON: {...}"),
+  //    find the first { or [ and slice from there.
+  if (!raw.startsWith("{") && !raw.startsWith("[")) {
+    const objIdx = raw.indexOf("{");
+    const arrIdx = raw.indexOf("[");
+    let startIdx = -1;
+    if (objIdx === -1) startIdx = arrIdx;
+    else if (arrIdx === -1) startIdx = objIdx;
+    else startIdx = Math.min(objIdx, arrIdx);
+    if (startIdx !== -1) raw = raw.slice(startIdx);
+  }
+
+  // 3. Trim trailing prose after the last closing brace/bracket
+  const lastBrace = raw.lastIndexOf("}");
+  const lastBracket = raw.lastIndexOf("]");
+  const endIdx = Math.max(lastBrace, lastBracket);
+  if (endIdx !== -1 && endIdx < raw.length - 1) {
+    raw = raw.slice(0, endIdx + 1);
+  }
+
+  // 4. Sanitize illegal control characters inside JSON string values
   raw = raw.replace(
     /"((?:[^"\\]|\\.)*)"/g,
     (_match, inner: string) => {
@@ -64,7 +87,6 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
         .replace(/\n/g, "\\n")
         .replace(/\r/g, "\\r")
         .replace(/\t/g, "\\t")
-        // Replace any remaining raw control chars (0x00-0x1F except already escaped)
         .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
       return `"${sanitized}"`;
     }
@@ -105,7 +127,7 @@ export async function POST(request: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // ── STEP 1: Generate ICP ──────────────────────────────────────
+        // â”€â”€ STEP 1: Generate ICP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         encodeEvent(controller, encoder, "progress", {
           step: 1,
           total: 5,
@@ -126,7 +148,7 @@ export async function POST(request: Request) {
           preview: icp.title,
         });
 
-        // ── STEP 2: Channel Matching (deterministic) ─────────────────
+        // â”€â”€ STEP 2: Channel Matching (deterministic) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         encodeEvent(controller, encoder, "progress", {
           step: 2,
           total: 5,
@@ -181,7 +203,7 @@ export async function POST(request: Request) {
           }
         }
 
-        // ── STEP 3: Channel Strategies (sequential, KB-injected) ──────
+        // â”€â”€ STEP 3: Channel Strategies (sequential, KB-injected) â”€â”€â”€â”€â”€â”€
         const channelStrategies = [];
 
         for (let i = 0; i < matchedChannels.length; i++) {
@@ -228,7 +250,7 @@ export async function POST(request: Request) {
           });
         }
 
-        // ── STEP 4: Outreach + Market Sizing ─────────────────────────
+        // â”€â”€ STEP 4: Outreach + Market Sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         encodeEvent(controller, encoder, "progress", {
           step: 4,
           total: 4,
@@ -258,7 +280,7 @@ export async function POST(request: Request) {
           status: "done",
         });
 
-        // ── STEP 5: 7-Day Ready-to-Post Calendar ─────────────────────
+        // â”€â”€ STEP 5: 7-Day Ready-to-Post Calendar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         encodeEvent(controller, encoder, "progress", {
           step: 5,
           total: 5,
@@ -286,7 +308,7 @@ export async function POST(request: Request) {
           status: "done",
         });
 
-        // ── Assemble final playbook ───────────────────────────────────
+        // â”€â”€ Assemble final playbook â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const id = crypto.randomUUID().slice(0, 8);
         const playbook: Playbook = {
           id,
@@ -300,7 +322,7 @@ export async function POST(request: Request) {
           postsCalendar: postsCalendar as Playbook["postsCalendar"],
         };
 
-        // ── Save to Supabase ──────────────────────────────────────────
+        // â”€â”€ Save to Supabase â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         try {
           const supabase = await createClient();
           const { data: { user } } = await supabase.auth.getUser();
