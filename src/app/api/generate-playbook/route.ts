@@ -332,25 +332,7 @@ export async function POST(request: Request) {
           postsCalendar: postsCalendar as Playbook["postsCalendar"],
         };
 
-        // â”€â”€ Save to Supabase â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        try {
-          const supabase = await createClient();
-          const { data: { user } } = await supabase.auth.getUser();
-
-          if (user) {
-            const { error: dbError } = await supabase.from("playbooks").insert({
-              id: playbook.id,
-              user_id: user.id,
-              product_name: playbook.productName,
-              data: { playbook, formData },
-            });
-            if (dbError) {
-              console.error("Supabase insert error:", dbError);
-            }
-          }
-        } catch (dbErr) {
-          console.error("Failed to save playbook to DB:", dbErr);
-        }
+        // â”€â”€ Save to localStorage (handled on frontend) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         // Send the final playbook
         encodeEvent(controller, encoder, "complete", { playbook, formData });

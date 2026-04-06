@@ -1,30 +1,48 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { DashboardClient } from "./DashboardClient";
 
-export const dynamic = "force-dynamic";
+interface LocalPlaybook {
+  id: string;
+  product_name: string;
+  created_at: string;
+  data: any;
+}
 
-export default async function DashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function DashboardPage() {
+  const [playbooks, setPlaybooks] = useState<LocalPlaybook[]>([]);
 
-  if (!user) {
-    redirect("/login");
-  }
+  useEffect(() => {
+    // Load playbooks from localStorage
+    const loadedPlaybooks: LocalPlaybook[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith("playbook_")) {
+        try {
+          const stored = JSON.parse(localStorage.getItem(key)!);
+          const { playbook, formData } = stored;
+          loadedPlaybooks.push({
+            id: playbook.id,
+            product_name: playbook.productName,
+            created_at: playbook.createdAt,
+            data: { playbook, formData },
+          });
+        } catch (e) {
+          console.error("Failed to parse playbook:", key, e);
+        }
+      }
+    }
+    // Sort by created_at descending
+    loadedPlaybooks.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    setPlaybooks(loadedPlaybooks);
+  }, []);
 
-  const { data: playbooks, error } = await supabase
-    .from("playbooks")
-    .select("id, product_name, created_at, data")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Failed to load playbooks:", error);
-  }
+  const handleDelete = (id: string) => {
+    setPlaybooks(prev => prev.filter(p => p.id !== id));
+  };
 
   return (
     <main className="bg-[#faf8f6] text-[#1a1a2e] min-h-screen font-sans selection:bg-[#ff6b4e]/20 selection:text-[#ff6b4e] flex flex-col">
@@ -58,7 +76,7 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        <DashboardClient playbooks={playbooks || []} />
+        <DashboardClient playbooks={playbooks} onDelete={handleDelete} />
       </div>
 
       <Footer />

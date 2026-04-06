@@ -36,16 +36,16 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
 
   const handleRating = (idx: number, rating: "fire"|"ok"|"flop") => {
     setFeedbackState(prev => ({...prev, [idx]: { ...prev[idx], rating }}));
-    updatePostFeedback(playbookId, channel.name, idx, rating, undefined).catch(console.error);
+    updatePostFeedback(playbookId, channel.name, idx, rating, undefined);
   };
 
   const handleCommentsChange = (idx: number, val: string) => {
     setFeedbackState(prev => ({...prev, [idx]: { ...prev[idx], comments: val }}));
-    
+
     // Auto-save logic
     if (timeoutRefs.current[idx]) clearTimeout(timeoutRefs.current[idx]);
     timeoutRefs.current[idx] = setTimeout(() => {
-      updatePostFeedback(playbookId, channel.name, idx, undefined, val).catch(console.error);
+      updatePostFeedback(playbookId, channel.name, idx, undefined, val);
     }, 1000);
   };
 

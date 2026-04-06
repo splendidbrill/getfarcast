@@ -3,9 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Trash2, ArrowRight, BookOpen, AlertCircle, Sparkles } from "lucide-react";
-import { deletePlaybook } from "./actions";
 
-export function DashboardClient({ playbooks }: { playbooks: any[] }) {
+export function DashboardClient({ playbooks, onDelete }: { playbooks: any[]; onDelete: (id: string) => void }) {
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
@@ -13,8 +12,8 @@ export function DashboardClient({ playbooks }: { playbooks: any[] }) {
     if (!confirm("Are you sure you want to delete this playbook?")) return;
     setIsDeleting(id);
     try {
-      await deletePlaybook(id);
       localStorage.removeItem(`playbook_${id}`);
+      onDelete(id);
     } catch (err) {
       console.error(err);
       alert("Failed to delete playbook");
