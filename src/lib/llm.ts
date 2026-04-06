@@ -53,11 +53,11 @@ export async function callAzureLLM(
 ): Promise<string> {
   const config = getConfig();
   let urlStr = config.baseURL;
-  
+
   // Robustly handle the endpoint URL based on Azure's two different routing structures
   try {
     const urlObj = new URL(urlStr);
-    
+
     if (urlObj.hostname.includes("cognitiveservices.azure.com") || urlObj.hostname.includes("openai.azure.com")) {
       // Cognitive Services / Azure OpenAI format
       urlObj.pathname = `/openai/deployments/${config.model}/chat/completions`;
@@ -81,9 +81,9 @@ export async function callAzureLLM(
   console.log(`[LLM] Azure call → endpoint: ${urlStr}`);
   console.log(`[LLM] Azure model: ${config.model}`);
 
-  const isNewerModel = config.model.toLowerCase().includes("o1") || 
-                       config.model.toLowerCase().includes("o3") || 
-                       config.model.toLowerCase().includes("deepseek") || 
+  const isNewerModel = config.model.toLowerCase().includes("o1") ||
+                       config.model.toLowerCase().includes("o3") ||
+                       config.model.toLowerCase().includes("deepseek") ||
                        config.model.toLowerCase().includes("gpt-5");
 
   const bodyData: any = {
@@ -105,14 +105,29 @@ export async function callAzureLLM(
 
   const body = JSON.stringify(bodyData);
 
-  const response = await fetch(urlStr, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": config.apiKey,
-    },
-    body,
-  });
+  // Add timeout to prevent indefinite hanging
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes
+
+  let response;
+  try {
+    response = await fetch(urlStr, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": config.apiKey,
+      },
+      body,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Azure LLM request timed out after 2 minutes');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   console.log(`[LLM] Azure response status: ${response.status}`);
 
@@ -121,6 +136,8 @@ export async function callAzureLLM(
     console.error(`[LLM] Azure error body:`, errText);
     throw new Error(`Azure LLM error ${response.status}: ${errText}`);
   }
+
+  console.log(`[LLM] Azure response received successfully`);
 
   const data = await response.json() as {
     choices: Array<{ message: { content: string } }>;

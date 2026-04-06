@@ -43,6 +43,7 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
       ],
       temperature: 0.6,
       max_tokens: 4000,
+      timeout: 120000, // 2 minutes
     });
     raw = completion.choices[0]?.message?.content || "";
   }
