@@ -1,4 +1,4 @@
-import { getLLMClient, getModelId } from "@/lib/llm";
+import { getLLMClient, getModelId, callAzureLLM, getProvider } from "@/lib/llm";
 import {
   buildICPSystemPrompt,
   buildICPUserPrompt,
@@ -22,20 +22,29 @@ export const dynamic = "force-dynamic";
 // Helper: call LLM and parse JSON response
 // ==========================================
 async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknown> {
-  const client = getLLMClient();
-  const model = getModelId();
+  const provider = getProvider();
 
-  const completion = await client.chat.completions.create({
-    model,
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-    temperature: 0.6,
-    max_tokens: 4000,
-  });
+  let raw: string;
 
-  let raw = completion.choices[0]?.message?.content || "";
+  if (provider === "azure") {
+    // Azure AI Foundry: use raw fetch (SDK mangles the URL)
+    raw = await callAzureLLM(systemPrompt, userPrompt);
+  } else {
+    // OpenRouter / OpenAI: use the OpenAI SDK
+    const client = getLLMClient();
+    const model = getModelId();
+
+    const completion = await client.chat.completions.create({
+      model,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.6,
+      max_tokens: 4000,
+    });
+    raw = completion.choices[0]?.message?.content || "";
+  }
 
   // Strip potential markdown code blocks
   raw = raw.trim();

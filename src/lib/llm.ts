@@ -2,7 +2,7 @@ import OpenAI from "openai";
 
 // ==========================================
 // Flexible LLM Client
-// Supports OpenRouter (now) and OpenAI (later)
+// Supports Azure AI Foundry, OpenRouter, OpenAI
 // ==========================================
 
 export type LLMProvider = "openrouter" | "openai" | "azure";
@@ -18,11 +18,10 @@ function getConfig(): LLMConfig {
   const provider = (process.env.LLM_PROVIDER || "openrouter") as LLMProvider;
 
   if (provider === "azure") {
-    // For Azure Serverless Endpoints / Azure AI Studio
     return {
       provider: "azure",
       apiKey: process.env.AZURE_API_KEY || "",
-      baseURL: process.env.AZURE_ENDPOINT || "", 
+      baseURL: process.env.AZURE_ENDPOINT || "",
       model: process.env.AZURE_MODEL || "grok-4-1-fast-reasoning",
     };
   }
@@ -45,33 +44,57 @@ function getConfig(): LLMConfig {
   };
 }
 
-export function getLLMClient(): OpenAI {
+// ==========================================
+// Azure AI Foundry: use raw fetch (SDK mangles the URL)
+// ==========================================
+export async function callAzureLLM(
+  systemPrompt: string,
+  userPrompt: string
+): Promise<string> {
   const config = getConfig();
 
-  if (config.provider === "azure") {
-    try {
-      const url = new URL(config.baseURL);
-      const apiVersion = url.searchParams.get("api-version") || "2024-05-01-preview";
-      url.searchParams.delete("api-version");
-      
-      let baseStr = url.toString();
-      // OpenAI client automatically appends /chat/completions, so we must remove it from the base
-      if (baseStr.endsWith("/chat/completions")) {
-        baseStr = baseStr.substring(0, baseStr.length - 17);
-      } else if (baseStr.endsWith("/chat/completions/")) {
-        baseStr = baseStr.substring(0, baseStr.length - 18);
-      }
+  console.log(`[LLM] Azure call → endpoint: ${config.baseURL}`);
+  console.log(`[LLM] Azure model: ${config.model}`);
 
-      return new OpenAI({
-        apiKey: config.apiKey, // Note: OpenAI client will still set Bearer, but Azure ignores it if api-key is present
-        baseURL: baseStr,
-        defaultQuery: { "api-version": apiVersion },
-        defaultHeaders: { "api-key": config.apiKey },
-      });
-    } catch (e) {
-      console.warn("Failed to parse AZURE_ENDPOINT. Using fallback.", e);
-    }
+  const body = JSON.stringify({
+    model: config.model,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
+    temperature: 0.6,
+    max_tokens: 4000,
+  });
+
+  const response = await fetch(config.baseURL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": config.apiKey,
+    },
+    body,
+  });
+
+  console.log(`[LLM] Azure response status: ${response.status}`);
+
+  if (!response.ok) {
+    const errText = await response.text();
+    console.error(`[LLM] Azure error body:`, errText);
+    throw new Error(`Azure LLM error ${response.status}: ${errText}`);
   }
+
+  const data = await response.json() as {
+    choices: Array<{ message: { content: string } }>;
+  };
+
+  return data.choices[0]?.message?.content || "";
+}
+
+// ==========================================
+// OpenAI / OpenRouter client
+// ==========================================
+export function getLLMClient(): OpenAI {
+  const config = getConfig();
 
   return new OpenAI({
     apiKey: config.apiKey,
@@ -87,4 +110,8 @@ export function getLLMClient(): OpenAI {
 
 export function getModelId(): string {
   return getConfig().model;
+}
+
+export function getProvider(): LLMProvider {
+  return getConfig().provider;
 }
