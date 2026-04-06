@@ -54,14 +54,24 @@ export async function callAzureLLM(
   const config = getConfig();
   let urlStr = config.baseURL;
   
-  // Robustly handle the endpoint URL so it never 404s
+  // Robustly handle the endpoint URL based on Azure's two different routing structures
   try {
     const urlObj = new URL(urlStr);
-    if (!urlObj.pathname.endsWith("/chat/completions")) {
-      urlObj.pathname = urlObj.pathname.replace(/\/$/, "") + "/chat/completions";
-    }
-    if (!urlObj.searchParams.has("api-version")) {
-      urlObj.searchParams.set("api-version", "2024-05-01-preview");
+    
+    if (urlObj.hostname.includes("cognitiveservices.azure.com") || urlObj.hostname.includes("openai.azure.com")) {
+      // Cognitive Services / Azure OpenAI format
+      urlObj.pathname = `/openai/deployments/${config.model}/chat/completions`;
+      if (!urlObj.searchParams.has("api-version")) {
+        urlObj.searchParams.set("api-version", "2024-02-15-preview");
+      }
+    } else {
+      // Azure Model Catalog / Serverless format
+      if (!urlObj.pathname.endsWith("/chat/completions")) {
+        urlObj.pathname = urlObj.pathname.replace(/\/$/, "") + "/chat/completions";
+      }
+      if (!urlObj.searchParams.has("api-version")) {
+        urlObj.searchParams.set("api-version", "2024-05-01-preview");
+      }
     }
     urlStr = urlObj.toString();
   } catch (err) {
