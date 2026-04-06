@@ -5,7 +5,7 @@ import OpenAI from "openai";
 // Supports OpenRouter (now) and OpenAI (later)
 // ==========================================
 
-export type LLMProvider = "openrouter" | "openai";
+export type LLMProvider = "openrouter" | "openai" | "azure";
 
 interface LLMConfig {
   provider: LLMProvider;
@@ -16,6 +16,16 @@ interface LLMConfig {
 
 function getConfig(): LLMConfig {
   const provider = (process.env.LLM_PROVIDER || "openrouter") as LLMProvider;
+
+  if (provider === "azure") {
+    // For Azure Serverless Endpoints / Azure AI Studio
+    return {
+      provider: "azure",
+      apiKey: process.env.AZURE_API_KEY || "",
+      baseURL: process.env.AZURE_ENDPOINT || "", 
+      model: process.env.AZURE_MODEL || "grok-4-1-fast-reasoning",
+    };
+  }
 
   if (provider === "openai") {
     return {
@@ -35,14 +45,10 @@ function getConfig(): LLMConfig {
   };
 }
 
-let clientInstance: OpenAI | null = null;
-
 export function getLLMClient(): OpenAI {
-  if (clientInstance) return clientInstance;
-
   const config = getConfig();
 
-  clientInstance = new OpenAI({
+  return new OpenAI({
     apiKey: config.apiKey,
     baseURL: config.baseURL,
     defaultHeaders: {
@@ -52,8 +58,6 @@ export function getLLMClient(): OpenAI {
       }),
     },
   });
-
-  return clientInstance;
 }
 
 export function getModelId(): string {
