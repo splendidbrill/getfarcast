@@ -344,7 +344,7 @@ ${ANTI_SLOP_RULES}
 
 ## OUTPUT RULES:
 1. Return ONLY valid JSON. Zero text outside the JSON block.
-2. Assign one platform per day. Rotate across the matched platforms.
+2. For EVERY single platform listed above, generate a full 7-day post sequence (Days 1 through 7). If there are 3 platforms, your JSON array MUST contain 21 posts (7 for each platform).
 3. The "hook" field is the FIRST LINE ONLY. It must stop a scroll.
 4. The "body" field is the FULL POST including the hook at the start. It must be copy-paste ready with NO placeholders. Substitute your own specific, plausible examples if needed.
 5. "characterCount" must be the actual character count of the body field.

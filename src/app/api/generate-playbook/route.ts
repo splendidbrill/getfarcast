@@ -297,13 +297,13 @@ export async function POST(request: Request) {
           status: "running",
         });
 
-        // Only generate posts for social/content platforms (skip email, SEO, etc.)
+        // Only generate posts for text-heavy social/content platforms (skip visual-only like Instagram/TikTok/YouTube)
         const postChannels = matchedChannels
           .map((c) => c.name)
           .filter((name) =>
-            ["Reddit", "LinkedIn", "X", "Twitter/X", "Twitter", "Instagram", "TikTok", "Facebook", "Hacker News", "Product Hunt"].includes(name)
+            ["Reddit", "LinkedIn", "X", "Twitter/X", "Twitter", "Facebook", "Hacker News", "Product Hunt"].includes(name)
           );
-        const calendarChannels = postChannels.length > 0 ? postChannels : matchedChannels.slice(0, 3).map((c) => c.name);
+        const calendarChannels = postChannels.length > 0 ? postChannels : matchedChannels.slice(0, 3).map((c) => c.name).filter(name => !["Instagram", "TikTok", "YouTube"].includes(name));
 
         const postsCalendar = await callLLM(
           buildPostsCalendarSystemPrompt(calendarChannels),
