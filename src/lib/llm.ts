@@ -81,15 +81,28 @@ export async function callAzureLLM(
   console.log(`[LLM] Azure call → endpoint: ${urlStr}`);
   console.log(`[LLM] Azure model: ${config.model}`);
 
-  const body = JSON.stringify({
+  const isNewerModel = config.model.toLowerCase().includes("o1") || 
+                       config.model.toLowerCase().includes("o3") || 
+                       config.model.toLowerCase().includes("deepseek") || 
+                       config.model.toLowerCase().includes("gpt-5");
+
+  const bodyData: any = {
     model: config.model,
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt },
     ],
-    temperature: 0.6,
-    max_tokens: 4000,
-  });
+  };
+
+  // Add the correct token parameter based on model family
+  if (isNewerModel) {
+    bodyData.max_completion_tokens = 4000;
+  } else {
+    bodyData.max_tokens = 4000;
+    bodyData.temperature = 0.6; // O1/newer reasoning models often reject custom temperatures too
+  }
+
+  const body = JSON.stringify(bodyData);
 
   const response = await fetch(urlStr, {
     method: "POST",
