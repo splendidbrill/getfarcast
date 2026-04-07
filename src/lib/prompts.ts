@@ -284,44 +284,25 @@ Generate market sizing JSON now.`;
 // Step 5: 7-Day Ready-to-Post Calendar Prompt
 // ==========================================
 export function buildPostsCalendarSystemPrompt(channels: string[]): string {
-  const platformRules: Record<string, string> = {
-    Reddit: `REDDIT RULES:
-- Must feel like a genuine community member, NOT a founder pitching
-- Titles must be questions, confessions, or stories (not announcements)
-- No hashtags. No links in first comment unless it flows naturally.
-- Best performing formats: "I built X because Y frustrated me", "Show HN"-style, "Unpopular opinion:", "Honest question:"
-- Keep titles under 120 chars. Body can be longer (200-500 words tells a story well).
-- Mention the subreddit context naturally but don't force it.`,
-    LinkedIn: `LINKEDIN RULES:
-- Hook must be 1 punchy line that stops scroll. No leading with "I" as first word.
-- Use single-sentence paragraphs. White space is engagement.
-- Structure: Hook > Story/Insight > Takeaway > Call to action (subtle).
-- End with 1-3 relevant hashtags max. Never more.
-- Optimal length: 150-300 words. Long form (500+) works for personal stories.
-- "I almost quit" or counter-intuitive insights perform extremely well.`,
-    "X": `X (TWITTER) RULES:
-- Opening tweet must work as a standalone. Under 280 chars.
-- For threads: First tweet is the hook. Each tweet adds ONE idea. End with CTA.
-- Use numbers: "7 things I learned" or "$0 to $1K in 3 weeks"
-- Contrarian takes and behind-the-scenes content drives retweets.
-- No corporate speak. Lower case is fine. Casual wins.
-- Hashtags: max 2, only if highly relevant.`,
-    "Twitter/X": `X (TWITTER) RULES:
-- Opening tweet must work as a standalone. Under 280 chars.
-- For threads: First tweet is the hook. Each tweet adds ONE idea. End with CTA.
-- Use numbers: "7 things I learned" or "$0 to $1K in 3 weeks"
-- Contrarian takes and behind-the-scenes content drives retweets.
-- No corporate speak. Lower case is fine. Casual wins.
-- Hashtags: max 2, only if highly relevant.`,
-    "Product Hunt": `PRODUCT HUNT RULES:
-- First comment is crucial — it should tell the full story of WHY you built this.
-- Tagline must be under 60 chars. No jargon.
-- Ask for honest feedback, not upvotes.`,
-  };
+  // Import the loadPlatforms function dynamically to avoid circular dependencies
+  const { loadPlatforms } = require("@/lib/platforms/loader") as { loadPlatforms: () => any[] };
+  const platforms = loadPlatforms();
 
-  const channelRules = channels
-    .map((ch) => platformRules[ch] || `${ch.toUpperCase()} RULES:\n- Write natively for this platform. Authentic, specific, platform-appropriate tone.`)
-    .join("\n\n");
+  const channelRules = channels.map((ch) => {
+    const platform = platforms.find((p: any) => p.channel === ch);
+    if (platform) {
+      const content = platform.content_system;
+      return `${ch.toUpperCase()} RULES:
+- Winning content types: ${content.winning_content_types}
+- Hook formulas: ${content.hook_formulas}
+- Platform native tone: ${content.platform_native_tone}
+- CTA approach: ${content.cta_approach}
+- Content to avoid: ${content.content_to_avoid}
+- Cross-posting rules: ${content.cross_posting_rules}`;
+    } else {
+      return `${ch.toUpperCase()} RULES:\n- Write natively for this platform. Authentic, specific, platform-appropriate tone.`;
+    }
+  }).join("\n\n");
 
   return `You are GetFarcast AI — the world's sharpest distribution strategist. Your ONLY job right now is to write a 7-day post calendar where EVERY single post is ready to copy-paste and publish TODAY.
 
@@ -338,7 +319,7 @@ ${ANTI_SLOP_RULES}
 - Day 2: The Problem — Make the ICP feel deeply seen. Describe their pain without mentioning the product.
 - Day 3: Behind the Scenes — One real, specific insight from building this. Numbers, struggles, surprises.
 - Day 4: Value-Add / Educational — Teach them something useful related to the problem. No product pitch.
-- Day 5: Hot Take / Contrarian — A bold opinion that will get replies. Must be defensible and specific.  
+- Day 5: Hot Take / Contrarian — A bold opinion that will get replies. Must be defensible and specific.
 - Day 6: Soft Pitch — The product reveal. Lead with transformation, not features.
 - Day 7: Community / Engagement — Ask the ICP a question they actually want to answer.
 

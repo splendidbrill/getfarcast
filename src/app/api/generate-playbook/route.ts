@@ -43,7 +43,6 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
       ],
       temperature: 0.6,
       max_tokens: 4000,
-      timeout: 120000, // 2 minutes
     });
     raw = completion.choices[0]?.message?.content || "";
   }
@@ -298,13 +297,8 @@ export async function POST(request: Request) {
           status: "running",
         });
 
-        // Only generate posts for text-heavy social/content platforms (skip visual-only like Instagram/TikTok/YouTube)
-        const postChannels = matchedChannels
-          .map((c) => c.name)
-          .filter((name) =>
-            ["Reddit", "LinkedIn", "X", "Twitter/X", "Twitter", "Facebook", "Hacker News", "Product Hunt"].includes(name)
-          );
-        const calendarChannels = postChannels.length > 0 ? postChannels : matchedChannels.slice(0, 3).map((c) => c.name).filter(name => !["Instagram", "TikTok", "YouTube"].includes(name));
+        // Generate posts for all matched channels (platform-specific rules will handle formatting)
+        const calendarChannels = matchedChannels.slice(0, 5).map((c) => c.name); // Top 5 channels for post generation
 
         const postsCalendar = await callLLM(
           buildPostsCalendarSystemPrompt(calendarChannels),
