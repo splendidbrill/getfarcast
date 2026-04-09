@@ -213,21 +213,18 @@ export async function POST(request: Request) {
 
         if (signal.aborted) return cleanup();
         // Returns ALL channels with genuine fit score > 50
-        const allMatchedChannels = matchChannels(
+        const matchedChannels = matchChannels(
           icp,
           formData.industry || formData.productDescription,
           formData.pricingModel
         );
 
-        // Limit to top 3 to keep generation fast and cost-effective
-        const matchedChannels = allMatchedChannels.slice(0, 3);
-
         encodeEvent(controller, encoder, "progress", {
           step: 2,
           total: 5,
-          label: `${allMatchedChannels.length} channels identified. Focusing on top ${matchedChannels.length}.`,
+          label: `${matchedChannels.length} channels identified.`,
           status: "done",
-          preview: matchedChannels.map((c) => `${c.name} (${c.score}%)`).join(", "),
+          preview: matchedChannels.slice(0, 5).map((c) => `${c.name} (${c.score}%)`).join(", ") + (matchedChannels.length > 5 ? "..." : ""),
         });
 
         // -- Feedback context (from previous playbook if provided) -----------------
@@ -270,39 +267,62 @@ export async function POST(request: Request) {
         for (let i = 0; i < matchedChannels.length; i++) {
           if (signal.aborted) return cleanup();
           const ch = matchedChannels[i];
-          const kb = await getChannelPlaybook(ch.name);
+
+          // NEW: Only generate full AI content for the top 3 channels to save costs
+          const isTopThree = i < 3;
 
           encodeEvent(controller, encoder, "progress", {
             step: 3,
             total: 5,
-            label: `Writing ${ch.name} strategy (expert rules applied)...`,
+            label: isTopThree 
+              ? `Writing ${ch.name} strategy (expert rules applied)...`
+              : `Recognizing ${ch.name} as a match...`,
             status: "running",
             substep: `${i + 1}/${matchedChannels.length}`,
           });
 
-          const systemPrompt = kb
-            ? buildChannelSystemPrompt(ch.name, kb)
-            : buildChannelSystemPrompt(
-                ch.name,
-                `No specific playbook available. Generate a comprehensive strategy based on your knowledge of ${ch.name} best practices for early-stage startups. Apply the general principles of value-first content, audience-specific tone, and anti-slop rules.`
-              );
+          if (isTopThree) {
+            const kb = await getChannelPlaybook(ch.name);
+            const systemPrompt = kb
+              ? buildChannelSystemPrompt(ch.name, kb)
+              : buildChannelSystemPrompt(
+                  ch.name,
+                  `No specific playbook available. Generate a comprehensive strategy based on your knowledge of ${ch.name} best practices for early-stage startups.`
+                );
 
-          const strategy = (await callLLM(
-            systemPrompt,
-            buildChannelUserPrompt(icp, formData, ch.name, i + 1, ch.pushType, feedbackContextStr)
-          )) as Record<string, unknown>;
+            const strategy = (await callLLM(
+              systemPrompt,
+              buildChannelUserPrompt(icp, formData, ch.name, i + 1, ch.pushType, feedbackContextStr)
+            )) as Record<string, unknown>;
 
-          channelStrategies.push({
-            ...strategy,
-            rank: i + 1,
-            fitScore: ch.score,
-            pushType: ch.pushType,
-          });
+            channelStrategies.push({
+              ...strategy,
+              rank: i + 1,
+              fitScore: ch.score,
+              pushType: ch.pushType,
+            });
+          } else {
+            // Skeleton strategy for non-top-3 channels
+            channelStrategies.push({
+              name: ch.name,
+              rank: i + 1,
+              fitScore: ch.score,
+              pushType: ch.pushType,
+              rationale: `Matched as a high-potential growth channel with a ${ch.score}% fit score. Strategy generation skipped for cost optimization (Only top 3 channels are fully analyzed).`,
+              audienceSize: "Matched",
+              engagementRate: "Profiled",
+              accessibility: "free",
+              algorithmInsights: [],
+              bestPractices: [],
+              antiPatterns: [],
+              contentCalendar: []
+            });
+          }
 
           encodeEvent(controller, encoder, "progress", {
             step: 3,
             total: 5,
-            label: `${ch.name} strategy ready`,
+            label: `${ch.name} recognized`,
             status: i + 1 === matchedChannels.length ? "done" : "partial",
             substep: `${i + 1}/${matchedChannels.length}`,
           });
@@ -350,7 +370,8 @@ export async function POST(request: Request) {
         });
 
         if (signal.aborted) return cleanup();
-        const calendarChannels = matchedChannels.map((c) => c.name);
+        // Post calendar ONLY for the top 3 channels to save tokens
+        const calendarChannels = matchedChannels.slice(0, 3).map((c) => c.name);
 
         // Use higher token limit since we may generate posts for many platforms
         const postsCalendar = await callLLMWithTokens(

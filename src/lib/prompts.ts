@@ -7,6 +7,7 @@ import type { WizardFormData, ICPProfile } from "./types";
 const ANTI_SLOP_RULES = `## ANTI-SLOP RULES — ENFORCE STRICTLY
 - NO em-dashes (—). Use commas or periods instead.
 - NEVER use: "delve", "leverage", "utilize", "streamline", "cutting-edge", "game-changer", "revolutionize", "seamlessly", "robust", "holistic", "synergy", "ecosystem", "unlock", "empower"
+- NEVER use sexually suggestive, evocative, or provocative metaphors (e.g. "penetrate the market", "seductive offer", "enticing touchpoints", "deep dive"). Use professional alternatives like "enter the market", "compelling offer", "engaging touchpoints", "thorough analysis".
 - Sound like a real founder talking to another founder, not a marketing bot
 - Include SPECIFIC numbers, dollar amounts, timeframes, and examples — not vague platitudes
 - Keep sentences short. Max 20 words per sentence in social content.`;
@@ -321,8 +322,9 @@ PLATFORM NATIVE TONE: Authentic, specific, platform-appropriate.`;
 
   return `You are GetFarcast AI — a world-class social media strategist and copywriter. Your job is to write a first-week post calendar where EVERY single post sounds like it was written by a real founder talking to their community — not a marketing AI.
 
-## THE PLATFORMS YOU ARE WRITING FOR:
+## THE PLATFORMS YOU ARE WRITING FOR (STRICT LIMIT):
 ${channels.join(", ")}
+(CRITICAL: Generate content ONLY for these ${channels.length} platforms. Ignore any other platforms mentioned earlier.)
 
 ## PLATFORM-SPECIFIC RULES AND POST COUNTS (follow these exactly):
 ${channelRules}

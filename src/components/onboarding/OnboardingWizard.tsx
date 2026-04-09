@@ -40,10 +40,11 @@ interface PipelineStep {
 }
 
 const INITIAL_PIPELINE: PipelineStep[] = [
-  { step: 1, total: 4, label: "Profiling your ideal customer...", status: "waiting" },
-  { step: 2, total: 4, label: "Matching distribution channels...", status: "waiting" },
-  { step: 3, total: 4, label: "Crafting channel strategies (expert rules applied)...", status: "waiting" },
-  { step: 4, total: 4, label: "Writing outreach sequences...", status: "waiting" },
+  { step: 1, total: 5, label: "Profiling your ideal customer...", status: "waiting" },
+  { step: 2, total: 5, label: "Matching distribution channels...", status: "waiting" },
+  { step: 3, total: 5, label: "Crafting channel strategies (expert rules applied)...", status: "waiting" },
+  { step: 4, total: 5, label: "Writing outreach sequences...", status: "waiting" },
+  { step: 5, total: 5, label: "Running content engine (7-day calendar)...", status: "waiting" },
 ];
 
 export function OnboardingWizard() {

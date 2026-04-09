@@ -348,3 +348,47 @@ html {
   background: rgba(51, 120, 255, 0.3);
   color: white;
 }
+/* Print Styles */
+@media print {
+  @page {
+    margin: 2cm;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Hide common UI elements */
+  header, 
+  nav, 
+  .fixed,
+  .print\:hidden,
+  button:not(.print\:show) {
+    display: none !important;
+  }
+
+  /* Reset layout for print */
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Ensure background colors/gradients show up in some browsers */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .bg-white {
+    background-color: white !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Break pages between sections if needed */
+  h2, h3 {
+    page-break-before: auto;
+  }
+}

@@ -8,8 +8,8 @@ import {
   Share2,
   Mail,
   Download,
-  Share,
   Zap,
+  Target,
 } from "lucide-react";
 import type { Playbook } from "@/lib/types";
 import { PlaybookOverview } from "./PlaybookOverview";
@@ -28,7 +28,7 @@ export function PlaybookDashboard({
   const [playbook, setPlaybook] = useState<Playbook | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
-  const [activeTab, setActiveTab] = useState<"overview" | "icp" | "channels" | "outreach" | "posts">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "icp" | "channels" | "outreach" | "posts" | "leads">("overview");
 
   useEffect(() => {
     async function loadPlaybook() {
@@ -64,11 +64,13 @@ export function PlaybookDashboard({
           return;
         }
 
-        const pb = data.data?.playbook || data.data;
-        const fd = data.data?.formData;
+        // Supabase returns { data: { playbook, formData } } or a legacy flat structure
+        const pbData = data.data; // The 'data' column content
+        const pb = pbData?.playbook || pbData;
+        const fd = pbData?.formData;
 
         if (!pb) {
-          setLoadError("Playbook data is malformed.");
+          setLoadError("Playbook content is missing or malformed.");
           setLoading(false);
           return;
         }
@@ -122,6 +124,7 @@ export function PlaybookDashboard({
     { id: "channels", label: "Distribution Channels", icon: Share2 },
     { id: "outreach", label: "Outreach & DMs", icon: Mail },
     { id: "posts", label: "Content Engine", icon: Zap },
+    { id: "leads", label: "Warm Leads", icon: Target },
   ] as const;
 
   return (
@@ -162,11 +165,10 @@ export function PlaybookDashboard({
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <button className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5 transition-colors">
-              <Share className="w-4 h-4" />
-              Share
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a2e] text-white text-sm font-medium hover:bg-black transition-colors shadow-sm">
+            <button 
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a2e] text-white text-sm font-medium hover:bg-black transition-colors shadow-sm print:hidden"
+            >
               <Download className="w-4 h-4" />
               Export PDF
             </button>
@@ -230,6 +232,23 @@ export function PlaybookDashboard({
                     <p className="text-xs mt-1">Regenerate your playbook to get the post calendar.</p>
                   </div>
                 )
+            )}
+            {activeTab === "leads" && (
+              <div className="text-center py-20 px-6 space-y-6">
+                <div className="w-20 h-20 bg-[#ff6b4e]/5 rounded-3xl flex items-center justify-center mx-auto shadow-sm border border-[#ff6b4e]/10">
+                  <Target className="w-10 h-10 text-[#ff6b4e]" />
+                </div>
+                <div className="max-w-md mx-auto">
+                  <h3 className="text-2xl font-bold text-[#1a1a2e] mb-2">Warm Lead Engine</h3>
+                  <p className="text-gray-500 font-medium leading-relaxed">
+                    Automatically identify and scrape warm leads from your matched distribution channels.
+                  </p>
+                </div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-bold border border-blue-100">
+                  <Zap className="w-4 h-4" />
+                  Launching Soon with our Chrome Extension
+                </div>
+              </div>
             )}
           </div>
         </main>
