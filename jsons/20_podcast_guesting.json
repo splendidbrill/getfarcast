@@ -1,0 +1,64 @@
+{
+  "channel": "Podcast Guesting",
+  "tier": 4,
+  "channel_dna": {
+    "platform_type": "Appearing as a guest on podcasts in your industry or ICP's space. Distributed across Spotify, Apple Podcasts, YouTube (for video podcasts), and all major podcast platforms.",
+    "algorithm_type": "No algorithm for guesting. Discovery: Podcast hosts find guests through referrals, Twitter/LinkedIn, guest booking services (PodcastGuests.com, Podchaser), and direct email outreach.",
+    "primary_audience": "Podcast listeners are self-selected highly engaged audience. B2B podcasts reach decision-makers with long commutes or workout routines. Very high trust medium — listeners form parasocial bonds with hosts who vouch for guests.",
+    "native_content_formats": "Audio interview (30-90 min typical). Video interview (growing rapidly — YouTube podcast format). Short clips for social promotion. Episode transcript for SEO.",
+    "platform_culture_code": "Authenticity is everything — podcast listeners detect inauthentic guests immediately. Hosts protect their audience — guests must provide genuine value, not just pitch products. Storytelling over feature lists. The host is your advocate — treat every host with deep respect.",
+    "account_warmup_requirements": "Build credible public presence (Twitter, LinkedIn, website) before pitching hosts. Have clear, specific talking points around your expertise. A one-sheet (guest bio, topics you can discuss, previous media) dramatically increases booking rates."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "B2B SaaS with strong founder story, products with a clear 'origin myth', products in industries with active podcast ecosystems (marketing, sales, entrepreneurship, tech, health, finance)",
+    "worst_product_types": "Products with no founder story. Products in industries with no podcast community. Consumer products with no educational component.",
+    "best_pricing_models": "All models work — podcast builds trust at the top of funnel. Paid products with higher AOV benefit most from the trust built through long-form audio exposure.",
+    "icp_match_signals": "Search '[ICP job title] podcast' on Spotify/Apple Podcasts. If shows with 50K+ downloads/episode exist, your ICP is listening to podcasts.",
+    "red_flags_skip_this_channel": "Skip if you are not comfortable speaking in long-form audio/video format. Skip if your product story is not compelling. Skip if your ICP doesn't listen to podcasts.",
+    "geographic_strength": "US dominant podcast market. UK, Canada, Australia also strong. Podcast adoption growing in India (Hindi and English language podcasts booming)."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash for organic guesting. Paid podcast sponsorships range from $25-$45 CPM. Guest booking services cost $200-$1000/month.",
+    "time_to_first_traffic_spike": "Episode goes live 2-6 weeks after recording. Traffic spike on release day. Podcast content has long tail — episodes drive traffic for 1-3 years.",
+    "time_to_first_paying_user": "2-8 weeks after episode release. High trust medium means conversion rates from podcast traffic are typically 2-5x website average.",
+    "effort_level": "Medium. Pitching takes time. Booking 1-2 podcast appearances per month is achievable with a systematic outreach process.",
+    "virality_coefficient": "Low. Individual episodes don't go viral. But clips shared on Twitter/LinkedIn can drive significant short-term traffic.",
+    "compounding_potential": "High long-term. Podcast appearances compound as a body of work. '50+ podcast appearances' is credibility that converts. Each appearance also drives SEO through show notes and transcripts."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Not algorithm-based. Show selection and host quality determine your reach. Target podcasts with 1,000-10,000 listeners per episode for maximum ROI (large shows rarely book unknown guests).",
+    "what_algorithm_rewards": "Podcast SEO: show notes with your name and company name + transcript text all index in Google. Podcast clips on YouTube get algorithmic distribution. Show notes links to your website drive SEO value.",
+    "what_kills_reach": "Being a bad guest (pitching product instead of providing value). Hosts will not promote an episode they regret recording. Poor audio quality (invest in a decent microphone — $100 makes a huge difference).",
+    "peak_posting_windows": "No peak time — evergreen content. Request host to release on Tuesday-Thursday for maximum first-week downloads.",
+    "optimal_posting_cadence": "2-4 podcast appearances per month for systematic growth. 1 per month minimum to maintain momentum.",
+    "content_freshness_window": "Podcast episodes remain discoverable indefinitely. Popular episodes resurface in searches for 3-5+ years. Video podcast episodes have even longer YouTube shelf life."
+  },
+  "content_system": {
+    "winning_content_types": "1. 'How I built/grew [product]' narrative 2. Contrarian take on industry convention 3. Data and research from your product's user base 4. Framework or method you developed 5. Failure story with lessons (extremely high engagement) 6. Prediction/trend analysis for your industry",
+    "hook_formulas": "Pitch to hosts: 'I built [product] to solve [specific problem] and in the process discovered [counterintuitive insight about your industry]. I can share [specific framework] that would be immediately actionable for your [audience].' | In episode: Lead with the most surprising or counterintuitive thing you know.",
+    "platform_native_tone": "Conversational, storytelling-first. Data and specifics to back stories. Vulnerability about failures. Avoid corporate speak. Speak to the host, not to the audience — the listener is eavesdropping on a conversation, not receiving a presentation.",
+    "cta_approach": "At end of episode: '3 things' — where to find you, free resource you are offering, and product if relevant. Ask host to put your link in show notes. Offer listeners a special deal ('mention this podcast for X% off').",
+    "content_to_avoid": "Pure product pitches. Vague generalisations without data. Repeating the same talking points across every podcast without adapting to the host's audience. Forgetting to prepare specific stories and examples.",
+    "cross_posting_rules": "Request episode clips from host for social sharing. Transcribe and publish episode summary on your blog. Share episode on all your social channels tagging the host. Create Twitter thread with 5 key insights from the episode."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Podcast directories: Listen Notes, Podchaser, Spotify. Search '[ICP job title] podcast' or '[product category] podcast'. Your own network — ask satisfied customers what podcasts they listen to.",
+    "contribution_before_pitch_rule": "Listen to 3 episodes before pitching any podcast. Reference specific episodes in your pitch. Hosts receive 10+ pitches per week — personalisation is the difference between a booking and a delete.",
+    "dm_outreach_approach": "Email is the primary outreach channel (usually in podcast show notes or host's website). Twitter DM after engaging with their content also works. Pitch template: Name, relevance to their show, specific topic you can discuss with 3 bullet points of takeaways for their audience, your credentials in 2 sentences, links to previous appearances if applicable.",
+    "influencer_partner_strategy": "Podcast host IS the influencer. Treat every host as a priority relationship. Send a thank-you gift after recording. Share the episode enthusiastically when published. Hosts who like you will refer you to other podcasters.",
+    "broadcast_vs_community_mode": "Broadcast — you are providing content to the host's audience. But the relationship with the host is a community relationship.",
+    "banned_behaviours": "Pitching a show without listening to it first. Cancelling recordings last-minute. Being late to recordings. Pitching your product throughout the interview instead of providing value. Not sharing or promoting the episode after it airs."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Start with industry-adjacent podcasts as a thought leader on the PROBLEM, not as a product founder. Build body of podcast appearances before product launches.",
+    "early_traction_1_to_100": "Target niche podcasts specifically serving your ICP. 10K-50K listeners per episode is ideal range. Smaller, targeted audience converts better than large general podcast.",
+    "growth_100_to_1k": "Systematic podcast outreach process. Track all pitches. Get on 2-4 podcasts per month. Request testimonials from happy users to use as social proof in future pitches.",
+    "scale_1k_plus": "Target higher-profile podcasts with your growing track record. Consider launching your own podcast about your product category (not about your product). Paid podcast sponsorships for podcasts serving your ICP."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Ryan Hoover (Product Hunt) — appeared on dozens of startup podcasts as a founder building in public before Product Hunt was well-known. Podcast appearances drove early adopters and investor attention that fuelled PH's early growth.",
+    "growth_stage_win": "HubSpot — created their own podcast ecosystem (The Growth Show, Marketing Made Simple) and appeared on hundreds of external podcasts. Podcast strategy was estimated to drive $10M+ in pipeline annually at scale.",
+    "what_made_it_work": "Both focused on being genuinely useful to podcast audiences with specific, data-backed insights. Product mentions were natural, not forced. The audience trusted the host who trusted the guest — that chain of trust was the conversion mechanism.",
+    "what_would_have_killed_it": "A podcast appearance that felt like a 45-minute product pitch would have resulted in a host never releasing the episode, and potentially publically warning other hosts about the guest."
+  }
+}

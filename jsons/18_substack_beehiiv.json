@@ -1,0 +1,64 @@
+{
+  "channel": "Substack / Beehiiv (Newsletter)",
+  "tier": 4,
+  "channel_dna": {
+    "platform_type": "Email newsletter platforms with built-in discovery features. Substack has network effects (readers discover newsletters on platform). Beehiiv focuses on growth tools. Both enable owned, direct subscriber relationships.",
+    "algorithm_type": "Substack: Recommendation network (Substack writers recommend each other), Substack Notes (Twitter-like feed), subscriber count as social proof. Beehiiv: No network discovery — pure subscriber list tool with superior analytics.",
+    "primary_audience": "Readers who prefer in-depth content. Professionals, creators, researchers, thought leaders. Higher average income and education than social platforms. Opt-in means higher engagement than any social platform.",
+    "native_content_formats": "Email newsletter (primary), Substack Notes (short-form), podcast integration, paid subscriber posts. Rich text with images, embeds.",
+    "platform_culture_code": "Depth and consistency valued over virality. Long-form, opinionated writing appreciated. Personal voice celebrated. Subscribers expect regular cadence — breaking cadence without notice is disrespectful. Monetisation through paid subscriptions is native and accepted.",
+    "account_warmup_requirements": "No warmup needed to start. But list-building requires time — grow from 0 to 1K subscribers takes 3-6 months minimum. Consistent publishing cadence is the most important factor."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Products with B2B audiences (newsletters about your product category = ICP research channel), creator tools, content tools, research platforms, any product where consistent thought leadership builds trust",
+    "worst_product_types": "Products where ICP does not read newsletters, impulse purchase consumer products, products with no educational component",
+    "best_pricing_models": "All pricing models. Newsletter builds trust that converts to any price point. Especially powerful for paid products requiring longer consideration cycles.",
+    "icp_match_signals": "Search your product category on Substack — if newsletters exist in your space with 5K+ subscribers, your ICP is a newsletter reader.",
+    "red_flags_skip_this_channel": "Skip if you cannot commit to publishing consistently. A sporadically published newsletter is worse than no newsletter. Skip if your ICP has no newsletter reading habit.",
+    "geographic_strength": "US dominant. English-language markets globally. Growing in India and Europe."
+  },
+  "growth_mechanics": {
+    "expected_cac": "For newsletter: $0-$2 per subscriber via organic growth. For product conversion from newsletter: newsletter subscribers convert to paid users at 3-5x the rate of social followers.",
+    "time_to_first_traffic_spike": "6-12 months to build a meaningful newsletter following (1K+ subscribers). Slow build but extremely durable.",
+    "time_to_first_paying_user": "Can be immediate if product is directly relevant to newsletter topic. Newsletter as a product funnel converts exceptionally well.",
+    "effort_level": "High. Writing a quality newsletter consistently is significant effort. Weekly cadence = 4+ hours of writing per week. But the ROI per effort hour is extremely high.",
+    "virality_coefficient": "Low individual virality. Substack Recommendations network drives subscriber-to-subscriber growth. Word-of-mouth sharing drives slow but high-quality growth.",
+    "compounding_potential": "Very High. Newsletter subscribers compound — each subscriber can refer others. Email open rates (30-50%) dramatically outperform social media reach (1-5%). Subscriber list is an owned asset."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Substack: Subscriber count determines visibility in recommendations. Notes engagement (likes, restacks) determines reach on Substack Notes. Recommendations from other newsletters amplify reach significantly. Beehiiv: No internal algorithm — pure list-building tool.",
+    "what_algorithm_rewards": "Consistent publication. High open rates (signals quality content — Substack shares metrics with potential subscribers). Subscriber growth velocity. Notes that get heavily restacked.",
+    "what_kills_reach": "Inconsistent publishing (subscribers unsubscribe, open rates drop). Clickbait subject lines that don't deliver (hurts open rates permanently). Buying subscribers (fake emails tank deliverability).",
+    "peak_posting_windows": "Tuesday 9am-11am EST for maximum open rates. Wednesday also strong. Avoid Mondays (inbox full) and Fridays (low attention). B2B newsletters perform better midweek.",
+    "optimal_posting_cadence": "Weekly is the standard. Biweekly acceptable for deep research newsletters. Daily for news-focused newsletters. Consistency beats frequency.",
+    "content_freshness_window": "Email newsletters: immediate impact (70% of opens happen in first 24 hours). Evergreen editions live on Substack website indefinitely for Google Search discovery."
+  },
+  "content_system": {
+    "winning_content_types": "1. Original research or analysis (highest share rate) 2. Curated industry insights with original commentary 3. Case studies and frameworks 4. Contrarian or counterintuitive takes 5. Personal stories with professional lessons 6. Interviews with industry experts",
+    "hook_formulas": "Subject line: '[Specific number] things I learned from [specific experience]' | '[Surprising finding]: Why [conventional wisdom] is wrong' | '[Specific question your ICP is asking]?' | 'The [specific topic] guide you have been looking for'",
+    "platform_native_tone": "Personal, thoughtful, in-depth. The newsletter is a private conversation with subscribers — more intimate than any social platform. Point of view is essential. Bland, balanced newsletters have low open rates. Strong opinions, backed by data, drive growth.",
+    "cta_approach": "At end of newsletter: clear CTA relevant to the edition's topic ('Try [product feature] that does this automatically'). Avoid more than 1 CTA per edition. Monthly dedicated product edition is acceptable. Never make every edition a product pitch.",
+    "content_to_avoid": "Pure product updates and marketing content (subscribers unsubscribe immediately). Irregular publishing. Overly long issues without a clear structure. Forgetting to include an opinion — pure summaries without point of view underperform.",
+    "cross_posting_rules": "Newsletter content can be cross-posted to LinkedIn (adapted). Twitter threads can expand newsletter points. Website blog version of newsletters captures Google Search traffic."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Other newsletters in adjacent spaces. Substack Notes is a discovery channel — engage with posts from newsletters your ICP reads. Find newsletters your ICP reads and consider sponsorship or recommendation exchange.",
+    "contribution_before_pitch_rule": "Subscribe to and genuinely engage with 10+ newsletters in your space before launching your own. Reply to newsletter emails you receive — many newsletter authors read and respond to replies.",
+    "dm_outreach_approach": "Email the author via Substack reply or their contact email. 'Love your newsletter. I am building [product] for [your ICP] — would love to explore a recommendation exchange or sponsorship.' Best outreach channel: reply directly to their newsletter email.",
+    "influencer_partner_strategy": "Newsletter recommendations are extremely powerful — when one newsletter recommends another, it typically drives 100-500 new subscribers. Build relationships with newsletter authors in your category for cross-recommendation. Newsletter sponsorships: $100-$2000 per edition depending on audience size.",
+    "broadcast_vs_community_mode": "Primarily broadcast. Community elements through Substack Notes, reader replies, and paid subscriber community features.",
+    "banned_behaviours": "Buying email lists. Adding people to newsletter without explicit opt-in (GDPR/CAN-SPAM violation). Misleading subject lines. Selling subscriber data."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Start the newsletter BEFORE the product. Write about the problem space. 'I am researching X and sharing what I learn.' Build an audience that is invested in the problem — they become your first users.",
+    "early_traction_1_to_100": "Announce product to newsletter subscribers with special founding member pricing. These are your highest-trust leads. Conversion rate from newsletter to product is typically 5-15%.",
+    "growth_100_to_1k": "Newsletter becomes a key product funnel. Weekly editions naturally mention product use cases. Grow subscriber list through content marketing and cross-newsletter promotions.",
+    "scale_1k_plus": "Paid subscription tier for newsletter (Substack). Newsletter sponsorships become a revenue stream. Subscriber data informs product roadmap. Paid newsletters at 10K+ subscribers generate meaningful revenue themselves."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Morning Brew — started as a college project, zero marketing budget. Built to 4M subscribers through relentless consistency and genuinely entertaining writing. Business model pivoted to include advertising, sponsorships, and eventually a media company.",
+    "growth_stage_win": "Lenny's Newsletter — built to 650K+ subscribers through opinionated product management advice. Converted to paid ($150/year) and generates millions in annual revenue. The newsletter drives significant inbound for his consulting and community products.",
+    "what_made_it_work": "Both had a specific, underserved audience and a consistent publishing schedule. Strong editorial point of view differentiated them from content aggregators.",
+    "what_would_have_killed_it": "A newsletter that tried to appeal to everyone with bland, balanced content would have had 20% open rates and zero growth through recommendations."
+  }
+}

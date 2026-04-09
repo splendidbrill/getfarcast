@@ -1,0 +1,64 @@
+{
+  "channel": "Hacker News",
+  "tier": 2,
+  "channel_dna": {
+    "platform_type": "Tech-focused link aggregator and discussion forum run by Y Combinator. Extremely high signal-to-noise community of technical founders, engineers, and investors.",
+    "algorithm_type": "Upvote-based with time-decay. Front page = highest points in shortest time. 'Ask HN' and 'Show HN' are special post types for questions and product launches. Heavily penalises manipulation.",
+    "primary_audience": "Software engineers (senior/staff), technical founders, VCs, product managers at tech companies. Average age 28-42. Highly educated, skeptical, values substance over style. YC alumni heavily active.",
+    "native_content_formats": "Link submissions, text posts (Ask HN for questions, Show HN for products). No images in posts. Comments are the real engagement layer. Plain text only — no formatting.",
+    "platform_culture_code": "Substance over everything. Zero tolerance for marketing speak. Intellectual honesty required. Mistakes acknowledged openly. Technical depth respected. Self-promotion only via Show HN. Being wrong is fine — pretending to be right when wrong is not.",
+    "account_warmup_requirements": "No minimum karma for commenting. Need 2+ karma to submit links (easy to get). Accounts shadow-banned if posting promotional content too early. Participate in comments weeks before submitting a Show HN."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Developer tools, technical infrastructure, AI/ML products, productivity tools for engineers, open-source projects, technical B2B SaaS, anything with a clever technical approach to a hard problem",
+    "worst_product_types": "Consumer lifestyle apps, e-commerce, social networks, anything requiring emotional rather than rational buying decision, products with no technical differentiation",
+    "best_pricing_models": "Open source with paid tier performs best. Free developer tier (freemium) with strong technical product. Paid products accepted but must justify value with technical substance.",
+    "icp_match_signals": "Search your product category on HN — if Ask HN threads exist asking for solutions to your problem, your ICP is here. Comments mentioning your competitors are also strong signals.",
+    "red_flags_skip_this_channel": "Skip if your product has no technical depth or differentiation. Skip if your target user is non-technical. Skip if you cannot handle extremely direct, critical public feedback.",
+    "geographic_strength": "English-speaking tech hubs dominant — US (especially Bay Area, NYC), UK, Canada, Germany, Australia. Remote-first tech community globally."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash. A successful Show HN can drive 5,000-50,000 visitors in 48 hours with zero ad spend.",
+    "time_to_first_traffic_spike": "Immediate — within 24-48 hours if Show HN front pages. But front-paging requires exceptional product AND timing.",
+    "time_to_first_paying_user": "Days to 2 weeks if product resonates with the HN audience. HN users are early adopters who pay for good tools.",
+    "effort_level": "Low for submission (one post). Very High for the community engagement afterward — you must respond to every single comment on your Show HN. Quality of your responses can make or break the launch.",
+    "virality_coefficient": "High within the tech bubble. A front-page HN story gets picked up by tech media (TechCrunch, The Verge often monitor HN). Can trigger a second wave of coverage.",
+    "compounding_potential": "Low for repeated posts (HN penalises repeat submissions). But high for reputation — being known in HN comments as a thoughtful builder carries long-term social capital."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Points (upvotes) per unit of time determines rank. Front page typically requires 50-100 points in first 2 hours. Comments from high-karma accounts carry more weight. Multiple downvotes or flags rapidly penalise posts.",
+    "what_algorithm_rewards": "Genuine technical substance. Honest, specific posts. Products that solve real problems the HN community has experienced. Self-aware posts that acknowledge limitations. Comments that engage thoughtfully with criticism.",
+    "what_kills_reach": "Marketing language in title or post (community will flag it). Duplicate submissions of same product. Asking for upvotes anywhere (instant flagging). Controversial political content. Thin Show HN with no technical detail.",
+    "peak_posting_windows": "9-11am EST on weekday (US morning catches most active US HN users before they get deep into work). Avoid Friday afternoon and weekends.",
+    "optimal_posting_cadence": "One Show HN per product (you get one shot — make it count). Can post Ask HN or comments daily.",
+    "content_freshness_window": "Front page posts active 24-36 hours. Comments in active threads can generate discussion for 48-72 hours. Posts searchable forever on HN."
+  },
+  "content_system": {
+    "winning_content_types": "1. Show HN: [Product Name] — [one honest sentence about what it does] 2. Ask HN: [genuine question about a problem your product solves] 3. Thoughtful comments in threads relevant to your space — builds reputation over time",
+    "hook_formulas": "Show HN title formula: 'Show HN: [Product Name] – [what it does in plain technical language]'. No superlatives. No adjectives like 'revolutionary' or 'game-changing'. Just: 'Show HN: ExamFlash – Upload lecture notes, get AI-generated spaced repetition flashcard decks'.",
+    "platform_native_tone": "Technical, precise, honest. Acknowledge what you don't know. State assumptions clearly. Use numbers and specifics. Avoid marketing language entirely. Self-deprecating humour about limitations is more effective than confident claims.",
+    "cta_approach": "Show HN post should link directly to your product. No email gates — HN users will not sign up for a newsletter to see a product. In comments: answer questions honestly, share metrics if asked, invite technical collaboration.",
+    "content_to_avoid": "ANY marketing language in title or post. Vague claims ('best', 'fastest', 'revolutionary'). Asking for upvotes. Posting multiple times if first submission didn't gain traction. Defensive responses to criticism.",
+    "cross_posting_rules": "HN content cannot be repurposed elsewhere meaningfully. But HN success GENERATES content — a popular Show HN is worth covering in a Twitter thread and LinkedIn post."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Active HN comment threads in your product category. Specific Ask HN posts. Job threads (Who is hiring) — great for finding decision-makers. Who is hiring + Who wants to be hired threads for B2B tool validation.",
+    "contribution_before_pitch_rule": "Comment helpfully in relevant threads for at least 4 weeks before submitting Show HN. Your comment history is public — reviewers of your Show HN WILL check your account history. Thoughtful comments build significant community trust.",
+    "dm_outreach_approach": "HN has a contact field in profiles — many senior technical people list emails. Reaching out via email after genuine HN interaction can work. Keep extremely short and genuinely technical.",
+    "influencer_partner_strategy": "No influencers on HN — influence comes from karma and comment quality. The goal is to impress the community, not specific individuals. YC partners are active on HN — substance-driven posts occasionally catch their attention.",
+    "broadcast_vs_community_mode": "Community first. HN rewards participation. You cannot just drop a Show HN and leave — you must be present to respond to the community's questions and criticism.",
+    "banned_behaviours": "Vote manipulation of any kind. Creating multiple accounts. Posting promotional content disguised as organic content. Flagging competitors' posts. Asking others to upvote your post."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Participate in HN comments in your product's space for 2-3 months before launch. Build karma and community recognition. Ask HN for advice on the problem you are solving — this is genuine community research and builds pre-launch awareness.",
+    "early_traction_1_to_100": "Show HN at launch — this is the single most impactful thing you can do on HN. Prepare thoroughly: write a clear, honest launch comment, anticipate technical questions, be available for 12 hours after posting.",
+    "growth_100_to_1k": "Share learnings and data in comment threads. 'We tried X and here is what happened' posts resonate. Monthly/quarterly 'what we learned' posts if you build something genuinely interesting.",
+    "scale_1k_plus": "HN is less relevant at scale. But continued community participation builds long-term credibility. YC application process is influenced by HN reputation for some founders."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Linear — Show HN in 2019 went to front page with 400+ points. 'Show HN: Linear – Issue tracking for high-performance teams'. Drove 15,000+ signups in 48 hours. The no-BS technical description and product quality did the work.",
+    "growth_stage_win": "Vercel — consistent HN presence through genuine technical content and honest product updates. CEO Guillermo Rauch actively engages in HN comments. Built enormous developer trust over years.",
+    "what_made_it_work": "Both had technically excellent products AND communicated about them in HN's native language — precise, technical, honest, no hype.",
+    "what_would_have_killed_it": "A Show HN with marketing language or vague claims ('The future of issue tracking') would have been flagged and buried within minutes."
+  }
+}

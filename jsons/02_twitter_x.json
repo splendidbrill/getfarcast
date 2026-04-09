@@ -1,0 +1,64 @@
+{
+  "channel": "Twitter / X",
+  "tier": 1,
+  "channel_dna": {
+    "platform_type": "Real-time public microblogging and social network. Dominant for tech, media, finance, and startup discourse.",
+    "algorithm_type": "Hybrid: For You Page (algorithmic, interest + engagement signals) + Following feed (chronological). Replies and quote tweets amplify reach. Early engagement in first 30 minutes determines algorithmic push.",
+    "primary_audience": "Tech founders, VCs, journalists, developers, marketers, creators. 25-45 skew. Highly influential despite smaller size than Instagram/TikTok. 1 right tweet can reach millions.",
+    "native_content_formats": "Short tweets (under 280 chars), long-form threads, image tweets, video tweets (under 2:20 for max reach), polls, quote tweets. Threads are the highest-engagement format for founders.",
+    "platform_culture_code": "Build in public is the dominant founder culture. Opinions and hot takes get engagement. Data and receipts get respect. Authenticity over polish. Reply game matters as much as original tweets. Being wrong publicly and owning it = massive respect.",
+    "account_warmup_requirements": "No formal warmup. But accounts with under 100 followers get minimal algorithmic reach. First 90 days: follow 50 relevant accounts per day, reply generously to big accounts in your niche, tweet daily. Follower count matters for credibility."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "B2B SaaS, developer tools, AI/ML products, creator economy tools, fintech, productivity apps. Any product where the founder IS the brand early on.",
+    "worst_product_types": "Local businesses, offline services, products targeting non-tech audiences 40+, highly regulated industries where public commentary is restricted.",
+    "best_pricing_models": "All models work. Freemium benefits most from Twitter virality. Paid products use Twitter for trust-building and credibility before conversion.",
+    "icp_match_signals": "Search your product category + 'tool' or 'app' on Twitter. If 10+ tweets per day mention your problem space, your ICP is active. Check if thought leaders in your space have 10K+ followers.",
+    "red_flags_skip_this_channel": "Skip if your ICP is non-English speaking or offline. Skip if you are unwilling to share opinions publicly. Skip if your product category has no active Twitter community (e.g. local hospitality, offline retail).",
+    "geographic_strength": "US dominant (32%), UK (8%), Japan (8%), India (7%). Tech and startup discourse is English-language global."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash with organic strategy. Premium at $8-22/month helps with visibility (paid reply boost). Time cost: 5-7 hrs/week for real compounding growth.",
+    "time_to_first_traffic_spike": "Can happen within hours if a tweet goes viral. Typically 2-4 weeks of consistent posting before algorithmic traction begins.",
+    "time_to_first_paying_user": "3-6 weeks if building in public with product mentions. Faster if driving to a specific landing page from a viral tweet.",
+    "effort_level": "High. Twitter rewards daily presence. Reply game is 40% of the strategy — you must engage with others consistently. Content half-life is 18-24 hours.",
+    "virality_coefficient": "High. Retweets and quote tweets create exponential amplification. One viral thread from a mid-size account (5K followers) can reach 500K+ impressions.",
+    "compounding_potential": "Low for individual tweets (expire in 24 hrs). High for reputation and followers — a well-built account compounds over years. Pinned tweets have lasting value."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Engagement rate in first 30 minutes (likes, replies, retweets, bookmarks). Reply engagement weighted most heavily — replies signal real conversation. Profile click-through rate influences future distribution.",
+    "what_algorithm_rewards": "Threads with strong hook tweet. Replies that generate sub-conversations. Tweets that get bookmarked (save = high-value signal). Video content (2x organic reach vs text). Consistency — posting daily trains the algorithm.",
+    "what_kills_reach": "External links in original tweet body (algorithm deprioritises — put links in first reply instead). Posting and not engaging for 24+ hours. Spammy follow/unfollow patterns. Quote tweeting yourself to boost. Excessive hashtag use (3+ hashtags = spam signal).",
+    "peak_posting_windows": "Tuesday-Thursday 8-10am EST for B2B/tech audience. Saturday morning for broader reach. Avoid Sunday evening and Monday morning.",
+    "optimal_posting_cadence": "3-5 tweets/day for growth phase. 1-2 threads/week. Minimum 1 tweet/day to maintain algorithmic presence. Replying to 10+ accounts daily is as important as original tweets.",
+    "content_freshness_window": "Original tweets: 18-24 hours active. Threads: 24-48 hours. But Twitter profile and pinned tweet serve as long-term landing page — keep these updated."
+  },
+  "content_system": {
+    "winning_content_types": "1. Build-in-public updates (daily/weekly progress) 2. Threads (how I did X, lessons from Y) 3. Hot takes with data backing 4. Behind-the-scenes product decisions 5. User result spotlights 6. Contrarian takes on conventional wisdom in your space",
+    "hook_formulas": "Specific number: '18 months ago I had 0 users. Here is every mistake I made growing to 10K.' | Counterintuitive: 'Stop spending money on ads. You don't have a traffic problem, you have a conversion problem.' | Strong opinion: 'Cold email is dead. Here is what actually works in 2025.' | Story opener: 'At 2am last Tuesday, I got an email that changed everything.'",
+    "platform_native_tone": "Direct, opinionated, conversational. First person always. Short sentences. Punchy. Vulnerability is a superpower. Data > vague claims. Humour works when authentic. No corporate speak ever.",
+    "cta_approach": "For product promotion: mention naturally in build-in-public updates. Put links in first reply, not tweet body. One clear CTA per thread (end of thread). Never make every tweet about the product — 80% value, 20% product.",
+    "content_to_avoid": "Inspirational quotes without original thought. 'Retweet if you agree' engagement bait. Vague threads with no real content. Copying viral tweet formats without authenticity. Excessive self-promotion. Tweeting the same point repeatedly.",
+    "cross_posting_rules": "LinkedIn content can be adapted but must be reformatted — LinkedIn tone is too formal for Twitter. TikTok scripts can become Twitter threads. Never auto-post from one platform to another — native tone is critical."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Identify 20 accounts your ICP follows. Engage in their reply sections. Twitter Lists are powerful — create private lists of your ICP. Hashtags: #buildinpublic #indiedev #saas #founder for builder communities. Search for problem keywords to find people expressing pain.",
+    "contribution_before_pitch_rule": "Spend first 2 weeks only replying and adding value to others' tweets. Never mention your product in someone else's replies until you have an established presence. Add genuine insights, not 'great post!'",
+    "dm_outreach_approach": "Only DM after 2+ meaningful tweet interactions. Never cold DM with product pitch. DM template: 'Loved your thread on [topic] — [specific insight]. Building something related. Would love your feedback.' Keep under 3 sentences. High reply rate when genuine.",
+    "influencer_partner_strategy": "Target accounts with 5K-50K followers in your niche — they have engaged audiences and reasonable response rates. Engage consistently with their content for 2-3 weeks before outreach. Offer to share data, a guest thread, or a collaboration.",
+    "broadcast_vs_community_mode": "Both. Broadcasting (original tweets/threads) builds audience. Community (replies, quote tweets, DMs) builds relationships that convert. Reply game generates 30-40% of profile visits for active accounts.",
+    "banned_behaviours": "Buying followers (destroys engagement rate). Follow/unfollow bots. DM blasting product links. Tweeting slurs or violating platform rules. Coordinated inauthentic behaviour. Posting misleading data."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Start building in public BEFORE you launch. Tweet about the problem you are solving, your research process, early mockups. Ask for feedback. Build an audience who is invested in your journey. 'I am building X because I experienced Y — want to follow the journey?' pins as first tweet.",
+    "early_traction_1_to_100": "Tweet every milestone — first user, first paying customer, first churn, first bug. Be transparent about numbers. Ask followers to roast your landing page. Share DMs from users (with permission). This stage is about building trust through radical transparency.",
+    "growth_100_to_1k": "Shift to educational threads that position your expertise. 'We grew to 500 users without ads — here is exactly what we did.' User case study threads. Start building an email list from Twitter — conversion asset you own.",
+    "scale_1k_plus": "Leverage social proof — user testimonials, revenue milestones. Collaborate with complementary product accounts. Consider Twitter Ads to amplify best-performing organic content. Build a team voice — not just founder account."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Levels.io (Pieter Levels) — built Nomad List, Remote OK, and multiple other products entirely through Twitter build-in-public strategy. Zero paid ads. $4M+ ARR built through Twitter audience of 450K followers over 8 years.",
+    "growth_stage_win": "Beehiiv — grew from 0 to $6M ARR partly through aggressive founder Twitter presence and build-in-public content sharing user growth milestones and product decisions publicly.",
+    "what_made_it_work": "Both treated Twitter as a trust-building platform, not a promotion platform. The product was a natural extension of the narrative they were already sharing publicly.",
+    "what_would_have_killed_it": "A Twitter presence consisting entirely of 'New feature launched — link in bio' posts would have zero engagement and zero conversions."
+  }
+}

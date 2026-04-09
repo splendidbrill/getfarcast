@@ -1,0 +1,64 @@
+{
+  "channel": "App Store / Google Play Store",
+  "tier": 5,
+  "channel_dna": {
+    "platform_type": "Apple App Store (iOS) and Google Play Store (Android) — the two primary mobile app marketplaces. Primary discovery mechanism for mobile-first products globally.",
+    "algorithm_type": "App Store Search (text matching + rating + download velocity). Editorial features (Today tab, category features). Top Charts (download velocity). Explore tab. Google Play has similar mechanics with additional Play Store optimisation factors.",
+    "primary_audience": "Smartphone users globally — 3.8B+ smartphones in use. Highly diverse — consumer apps reach the broadest demographic of any platform. Specific categories serve specific ICPs (health apps = health-conscious users, productivity apps = professionals, gaming = all demographics).",
+    "native_content_formats": "App Store listing: icon, screenshots (critical), preview video, title, subtitle, description, keywords. In-app review prompts. App Store editorial features.",
+    "platform_culture_code": "First impression is everything — users decide to download within 3 seconds based on icon and screenshots. Rating is binary social proof. Store policies are strict — any violation risks removal. Users expect free or low-cost apps with optional paid upgrades.",
+    "account_warmup_requirements": "Apple Developer account ($99/year). Google Play account ($25 one-time). App must pass review (Apple is strict and takes 1-3 days. Google Play is faster). Privacy policy, App Store metadata requirements must all be met."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Consumer mobile apps (health, fitness, education, entertainment, utilities), B2B mobile tools for field workers, any product where mobile is the primary use case",
+    "worst_product_types": "Desktop-only products, products requiring heavy computation or multiple screens, purely web-based tools with no mobile use case",
+    "best_pricing_models": "Freemium (free download + in-app purchase or subscription). Apple/Google take 15-30% of all in-app revenue. Subscriptions via app store are convenient for users but expensive for developers.",
+    "icp_match_signals": "If your ICP uses their smartphone for the task your product helps with, the App Store is essential. Check competitor app downloads and ratings.",
+    "red_flags_skip_this_channel": "Skip if your product is desktop-first with no mobile utility. Skip if your product does not justify a native mobile experience (responsive web may suffice).",
+    "geographic_strength": "Global. iOS dominant in US, UK, Australia, Japan. Android dominant in India, Southeast Asia, LatAm, Africa."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 organic for well-optimised listings. Apple Search Ads average $0.50-$3 CPI. Google App campaigns average $0.50-$2 CPI.",
+    "time_to_first_traffic_spike": "Immediate if featured by editorial team. 2-4 months for organic ASO to drive meaningful downloads.",
+    "time_to_first_paying_user": "Launch week for freemium if conversion flow is optimised. Day 1-30 is the critical conversion window.",
+    "effort_level": "Very High for initial development. Medium ongoing (ASO optimisation, review responses, update releases).",
+    "virality_coefficient": "Low algorithmically. High through word-of-mouth — 'what app is that?' is a common organic acquisition source for mobile.",
+    "compounding_potential": "High — more downloads and ratings drive higher ranking drives more downloads. Ratings compound over time."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Download velocity (how many downloads per day). Rating and review count. Text matching between user search and app metadata (title, subtitle, keywords on iOS — these are the primary ASO levers). Editorial featuring by Apple/Google editors.",
+    "what_algorithm_rewards": "High review ratings (4.5+). High download velocity immediately after update or feature launch. Low crash rate (both platforms monitor this and suppress poorly performing apps). High user retention (not just installs). Keyword optimisation in title and subtitle.",
+    "what_kills_reach": "Rating below 4.0 significantly impacts downloads. High crash rates. Policy violations (immediate removal). No updates for 6+ months (signals abandoned app). Keyword stuffing that violates guidelines.",
+    "peak_posting_windows": "Major updates Tuesday for App Store (Apple processes updates on weekday mornings EST). First week of every month is high app-browsing period. Holiday season (November-January) drives massive downloads.",
+    "optimal_posting_cadence": "Major updates every 4-6 weeks with new features. Bug fixes immediately. App Store screenshots should be refreshed every 6 months minimum.",
+    "content_freshness_window": "Evergreen — apps remain in the store indefinitely if maintained. Algorithmic ranking shifts based on competitors' download velocity."
+  },
+  "content_system": {
+    "winning_content_types": "1. App Store screenshots (your most important marketing asset) 2. App preview video (significantly increases conversion) 3. App Store editorial pitch (how to get featured) 4. App Store Connect promotional content 5. Press kit for tech media coverage",
+    "hook_formulas": "App title: Include primary keyword. Max 30 characters on iOS, 50 on Android. Subtitle: State the primary benefit in one line. Screenshots: First screenshot should show the key value proposition with a clear headline. Use device mockups with real UI.",
+    "platform_native_tone": "Visual-first. Screenshots do more work than any copy. Benefit-led headlines overlaid on screenshots. Clean, minimal design signals quality. Dark mode screenshots often outperform light mode in A/B tests.",
+    "cta_approach": "In-app review prompt: Ask for review after a positive moment (user completes goal, achieves result). Never ask for review immediately after install. ASK button in settings for users who want to leave a review later.",
+    "content_to_avoid": "Screenshots that show empty states or unfinished UI. Screenshots without explanatory overlay text. A preview video that is a talking head (should be pure product UI demonstration). Keyword stuffing in description.",
+    "cross_posting_rules": "App Store screenshots can be used in social media advertising. App Store rating can be featured on website ('4.8 stars on the App Store'). App launch should be announced via Product Hunt, Twitter, and press releases."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "App-specific subreddits, Facebook groups for app categories, review response (your store listing reviews are a community interaction point).",
+    "contribution_before_pitch_rule": "For App Store: your app IS your community entry point. Build the app first, then drive community around it.",
+    "dm_outreach_approach": "Tech journalists and app review sites (AppAdvice, MacStories, Android Police) — pitch with press kit and beta access. This drives editorial features and organic downloads.",
+    "influencer_partner_strategy": "App review YouTubers, tech YouTubers, and bloggers who cover apps in your category. iPhone Photography Award, Google Play Best of lists — apply for these recognition programmes.",
+    "broadcast_vs_community_mode": "Primarily broadcast (app store listing). Community happens in review responses and external communities.",
+    "banned_behaviours": "Incentivised reviews (both Apple and Google prohibit). Buying installs. Any data collection not disclosed in privacy policy. Background data usage beyond declared purposes."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Submit TestFlight/Google Play Beta. Build 100+ beta testers whose feedback shapes the app before launch. Their day-1 reviews are critical.",
+    "early_traction_1_to_100": "Coordinate launch: release update, email beta users to rate, pitch to press simultaneously. Review velocity in first week determines early ranking.",
+    "growth_100_to_1k": "A/B test screenshots and descriptions (Apple Offers Product Page Optimisation, Google Play offers Experiments). Optimise onboarding to improve Day 1 retention.",
+    "scale_1k_plus": "Apply for Apple and Google editorial features. Paid app store advertising. Build user acquisition through Apple Search Ads and Google App campaigns."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Superhuman — iOS app drove significant consumer awareness even though the product is primarily email. App Store presence built trust ('this is a real product') that accelerated enterprise adoption.",
+    "growth_stage_win": "Duolingo — built to #1 in Education category on App Store through relentless ASO optimisation, excellent product retention metrics, and a viral growth loop built into the product (streak sharing, friend challenges). The App Store is their primary acquisition channel driving 40M+ downloads.",
+    "what_made_it_work": "Both had excellent product retention metrics which the App Store algorithm rewards. High retention signals to Apple/Google that the app genuinely provides value, driving more algorithmic distribution.",
+    "what_would_have_killed_it": "An app with low Day-7 retention would never have achieved Top Charts placement regardless of download volume. The algorithm knows the difference between installs and genuine engagement."
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "channel": "GitHub",
+  "tier": 2,
+  "channel_dna": {
+    "platform_type": "The world's largest code hosting platform and developer community. Primary home for open source projects. Developer discovery, collaboration, and tool distribution platform.",
+    "algorithm_type": "Search-based + social graph. GitHub Trending surfaces new repositories with fast star growth. GitHub Topics organise repositories by technology and use case. Stars are the primary social proof metric.",
+    "primary_audience": "Software developers globally — all levels. 100M+ registered developers. Open source contributors, DevOps engineers, ML practitioners, data scientists, web developers.",
+    "native_content_formats": "Repository README (the product page), Issues (community discussion), Discussions (forum-style), GitHub Pages (documentation site), GitHub Actions workflows. Stars are the like button.",
+    "platform_culture_code": "Code quality is everything. Good documentation is non-negotiable. Open source ethos — transparency, contribution, collaboration. Monetisation is acceptable but must not feel extractive. Stars are a social currency shared generously among developers.",
+    "account_warmup_requirements": "GitHub profile must have activity (commits, contributions). README of repository is the product page — invest heavily in it. Pin your best repositories. Add topics/tags for discoverability."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Developer tools (CLI, SDKs, libraries, frameworks), open-source projects, APIs with developer-first interfaces, infrastructure tools, ML models, code analysis tools",
+    "worst_product_types": "Consumer apps with no developer component, B2B products for non-technical buyers, products with no code to show",
+    "best_pricing_models": "Open-source core with paid managed service (open-core model). Free CLI with paid cloud. Developer tools with freemium API. Stars help justify any price with social proof.",
+    "icp_match_signals": "Search your tool category on GitHub — if repositories with 1K+ stars exist in your category, your ICP is discovering tools here. Check GitHub Topics for relevant categories.",
+    "red_flags_skip_this_channel": "Skip if your product has no open-source component or developer-facing interface. Skip if you cannot write and maintain quality code publicly.",
+    "geographic_strength": "Global — US, China, India, Germany, UK, Brazil all massive developer communities."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 for organic GitHub growth. Stars beget stars — social proof compounds.",
+    "time_to_first_traffic_spike": "GitHub Trending can drive 1K+ stars in 24 hours if repository gets trending placement. README discovery is slower — 4-8 weeks for meaningful organic traffic.",
+    "time_to_first_paying_user": "1-4 weeks for developers who star a repo and then discover the paid cloud offering.",
+    "effort_level": "High upfront (building the open-source product, writing excellent README and docs). Medium ongoing (responding to issues, maintaining the project).",
+    "virality_coefficient": "High — popular repositories get featured in developer newsletters (TLDR, JavaScript Weekly), shared on Twitter/HN/Reddit. Trending placement gives exponential star growth.",
+    "compounding_potential": "Very High. Stars compound — more stars = higher Trending ranking = more stars. Developer tool adoption is also sticky and compounds through team usage."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "GitHub Trending: star velocity (stars per day). GitHub Search: keyword matching in README, topics, repository name. GitHub Topics: correct topic tags determine which topic pages you appear in.",
+    "what_algorithm_rewards": "Fast star growth over short time periods. Repositories with active Issues and PR discussions (signals community health). Well-maintained repos (recent commits). Correct topic tags. Excellent README with screenshots and demos.",
+    "what_kills_reach": "Inactive repositories (no commits in 6+ months signals abandoned project). Poor or missing README. No license file. Zero issues or PRs (signals community doesn't exist). Wrong or missing topic tags.",
+    "peak_posting_windows": "No specific peak time for repositories. Launches announced on Twitter/HN/Reddit during peak hours drive initial star velocity. Getting on Trending is timing-sensitive — announce coordinated star campaign.",
+    "optimal_posting_cadence": "Commits and updates to the repository signal active maintenance. At least 1-2 commits per week. Issues responded to within 48 hours.",
+    "content_freshness_window": "GitHub repositories are permanent and evergreen. A popular repo from 2019 still drives stars and forks. Trending placement lasts 1-7 days. Evergreen discovery through GitHub Search is indefinite."
+  },
+  "content_system": {
+    "winning_content_types": "1. README (the most important piece of content you will ever write for developer tools) 2. GitHub Discussions for tutorials and community Q&A 3. Issues as a transparent product roadmap 4. Release notes for each version 5. Examples directory with working code",
+    "hook_formulas": "README opening: Start with the ONE thing the tool does. 'ExamFlash automatically converts your lecture notes into spaced-repetition flashcard decks.' Followed by: demo GIF, quick install command, minimal working example. Stars call-to-action in README header.",
+    "platform_native_tone": "Technical, precise, documentation-oriented. Show code immediately. Minimal prose, maximum example. Badges (build passing, version, license) signal repository health. GIFs showing the tool in action are worth 1000 words.",
+    "cta_approach": "Star the repo button in README header. Link to hosted/paid version in README. 'If you find this useful, consider starring' is acceptable. Contribution guidelines attract collaborators.",
+    "content_to_avoid": "README that is marketing copy without technical substance. Missing installation instructions. Missing examples. Unsupported dependencies that break installations. Repositories with no license (developers will not use unlicensed code).",
+    "cross_posting_rules": "GitHub repository should be cross-promoted via: Show HN on Hacker News, Dev.to article about the project, Twitter announcement, Reddit r/programming or relevant subreddits. The code lives on GitHub; the marketing happens everywhere else."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Repositories in adjacent categories (look at contributors and stargazers). GitHub Discussions on popular open-source tools. GitHub Issues threads where your tool solves a problem.",
+    "contribution_before_pitch_rule": "Contribute PRs or meaningful issues to popular repositories in your category before launching your own. This builds reputation and connections in the developer community.",
+    "dm_outreach_approach": "GitHub has no direct messaging. Twitter/X is the primary outreach channel for developers found via GitHub. Email (often in profiles or commits) works for formal collaborations.",
+    "influencer_partner_strategy": "Getting starred or mentioned by popular GitHub accounts (100K+ followers) or being featured in popular developer newsletters (JavaScript Weekly, TLDR.tech) drives massive star growth. Build relationships via contributing to their projects.",
+    "broadcast_vs_community_mode": "Both. Repository README is broadcast (anyone who finds the repo sees it). Issues and Discussions are community. Good open-source projects are communities built around a codebase.",
+    "banned_behaviours": "Star-buying (GitHub detects and removes fake stars). Spamming Issues on other repositories. Copying code without attribution. License violations."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Release core functionality as open source first. Build community of contributors who become evangelists. GitHub stars are social proof you can use on your landing page ('2,000+ GitHub stars').",
+    "early_traction_1_to_100": "Launch on HN Show HN, Reddit, and Twitter simultaneously. Coordinate your network to star the repository. Getting on GitHub Trending is the single biggest thing that can happen at this stage.",
+    "growth_100_to_1k": "Add GitHub Sponsors or link to cloud/paid version in README. Create an 'awesome-[your-category]' list repository that links to your tool among others — these lists accumulate thousands of stars.",
+    "scale_1k_plus": "GitHub Marketplace listing if tool integrates with GitHub. Partner with popular open-source projects for integrations. Apply for GitHub Stars program. Consider GitHub Sponsors for sustainable open-source funding."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Tailwind CSS — launched on GitHub as open source, accumulated 72K+ stars. Every tutorial, article, and UI kit referencing Tailwind links back to the GitHub repo. The stars themselves became marketing.",
+    "growth_stage_win": "Supabase — open-source Firebase alternative hit GitHub Trending repeatedly and now has 67K+ stars. Each Trending appearance drove thousands of new developers to discover the managed cloud offering.",
+    "what_made_it_work": "Both had excellent README documentation that made the value immediately clear. Both were genuinely excellent tools that solved real developer pain. The open-source community did the marketing through stars and mentions.",
+    "what_would_have_killed_it": "A closed-source product or a poor README would have never accumulated the community-driven growth that made both products successful without traditional marketing budgets."
+  }
+}

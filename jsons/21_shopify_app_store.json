@@ -1,0 +1,64 @@
+{
+  "channel": "Shopify App Store",
+  "tier": 5,
+  "channel_dna": {
+    "platform_type": "Curated marketplace for Shopify apps and integrations. Over 8,000 apps. Shopify merchants actively browse to solve specific problems. High purchase intent — merchants install apps to solve immediate operational needs.",
+    "algorithm_type": "App Store search ranking based on: review count, review rating (5-star weighted), install velocity, app listing quality, and Shopify editorial curation. Partners with high ratings appear first.",
+    "primary_audience": "Shopify merchants — from small DTC brands ($10K/month) to large enterprises ($1M+/month). E-commerce operators, DTC founders, Shopify agency partners. Strong US, UK, Canada, Australia presence.",
+    "native_content_formats": "App listing page (title, description, screenshots, video demo), app reviews, developer response to reviews, Shopify Partners blog posts.",
+    "platform_culture_code": "Merchants are time-poor and trust-driven. Reviews are everything. Support responsiveness is deeply important — poor support = 1-star review. Free trial expected. Monthly pricing is native. Shopify ecosystem values are: merchant-first, easy to use, reliable.",
+    "account_warmup_requirements": "Shopify Partner account required. App must pass Shopify's technical review (API compliance, security). Listing quality directly impacts ranking. Minimum 10 reviews before meaningful organic discovery."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Any tool that solves a Shopify merchant operational problem: returns, reviews, email marketing, loyalty, inventory, shipping, upselling, SEO, analytics, customer support",
+    "worst_product_types": "Products with no Shopify integration. Products not relevant to e-commerce operations.",
+    "best_pricing_models": "Monthly subscription with free trial (7-30 days). Freemium tiers based on orders or revenue. Never one-time payment — Shopify ecosystem expects recurring SaaS pricing.",
+    "icp_match_signals": "If your product solves a problem that Shopify merchants face, the App Store is the primary discovery channel. Period.",
+    "red_flags_skip_this_channel": "Only relevant if your product integrates with Shopify. Not applicable otherwise.",
+    "geographic_strength": "US (largest Shopify merchant market), UK, Canada, Australia, Germany."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 organic if app ranks well for relevant searches. Shopify App Store ads available for paid acquisition.",
+    "time_to_first_traffic_spike": "Immediate upon launch for niche categories. 2-4 months to rank organically in competitive categories.",
+    "time_to_first_paying_user": "Launch week if the listing quality is strong and category is less competitive.",
+    "effort_level": "High upfront (app development, listing creation, Shopify review). Medium ongoing (responding to reviews, support, regular app updates).",
+    "virality_coefficient": "Low within app store. High via Shopify merchant communities (Facebook Groups, Reddit) when merchants recommend to each other.",
+    "compounding_potential": "High — more installs = more reviews = higher ranking = more installs. Review velocity is self-reinforcing once momentum builds."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Review rating and count are #1 ranking factors. Install velocity (recent installs) boosts ranking. Listing keyword optimisation for search. Shopify editorial team features apps for specific merchant categories. App categories and subcategories determine where you appear.",
+    "what_algorithm_rewards": "High average rating (4.7+ stars). Consistent positive review velocity. Low uninstall rate. Quick merchant support response time. Regular app updates.",
+    "what_kills_reach": "Rating drops below 4.0 (effectively invisible). High uninstall rate (signals bad product-market fit). Slow support response (generates negative reviews). Keyword stuffing in listing description.",
+    "peak_posting_windows": "No time-sensitive algorithm. Focus on review campaigns immediately after launch to build initial social proof. Respond to all new reviews within 24 hours.",
+    "optimal_posting_cadence": "App updates monthly to signal active maintenance. Regular changelog updates visible to merchants.",
+    "content_freshness_window": "Evergreen — App Store listings are permanently discoverable. But rankings shift as competitors gain more reviews."
+  },
+  "content_system": {
+    "winning_content_types": "1. App listing page (primary content — optimise obsessively) 2. Review responses that turn negative reviews into positive impressions 3. App Store blog post (Shopify Partners blog) 4. Case study videos of merchant success stories 5. Screenshot carousel showing specific problem-solution moments",
+    "hook_formulas": "App title: '[Specific problem solved] — [Your Brand]'. Description opening: 'Reduce returns by 40% with AI-powered size recommendations. ReturnLess analyses your store data and adds smart widgets that help customers buy the right product the first time.' | Screenshots: Show the specific problem on screen 1, the solution on screen 2, the result (metrics) on screen 3.",
+    "platform_native_tone": "Problem-solution oriented. Merchant-centric language ('your store', 'your customers', 'your revenue'). Specific and measurable claims wherever possible. No tech jargon — merchants are operators, not developers.",
+    "cta_approach": "Primary CTA: 'Try free for 14 days'. Secondary: 'See it in action — watch our 2-minute demo'. The install button is the primary conversion mechanism — everything on the listing page serves to get merchants to click install.",
+    "content_to_avoid": "Vague feature lists without merchant benefits. Technical language merchants don't understand. Screenshots that show UI without showing the problem being solved. Over-promising in listing description (leads to disappointed merchants and 1-star reviews).",
+    "cross_posting_rules": "App Store listing content can be adapted for Product Hunt launch. Shopify Partners blog posts can be repurposed for LinkedIn and Twitter. Merchant case studies work across all channels."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Shopify Community Forum, Shopify Facebook Groups (Shopify Entrepreneurs), Reddit r/shopify, Shopify partner agencies.",
+    "contribution_before_pitch_rule": "Participate in Shopify Community forums answering merchant questions before launching your app. This builds reputation and early user pipeline.",
+    "dm_outreach_approach": "Email outreach to Shopify merchants who have reviewed competitor apps. Shopify Partners program connects you with agencies who can refer merchants. Offer agency partners a revenue share for referrals.",
+    "influencer_partner_strategy": "Shopify agency partners are the most powerful referral channel. Build a formal agency partner program with revenue sharing. Target agencies managing 10+ merchant accounts.",
+    "broadcast_vs_community_mode": "App Store is primarily a discovery/listing channel. Community outreach happens in adjacent Shopify merchant communities.",
+    "banned_behaviours": "Fake or incentivised reviews (Shopify removes these and can ban apps). Misleading claims about functionality. Spamming merchant email lists. Review gating (only asking happy customers to review)."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Join Shopify Partners program. Build the app to Shopify API requirements. Get 5-10 beta merchant testers before formal launch. Their reviews on day 1 are critical.",
+    "early_traction_1_to_100": "Formal App Store launch. Email all beta users to leave reviews simultaneously (review velocity signal). Respond to every review within 12 hours.",
+    "growth_100_to_1k": "Build agency partner program. Get featured in Shopify's recommended apps. Apply for Shopify Built for Shopify certification (significant ranking boost).",
+    "scale_1k_plus": "Shopify App Store Ads. Partner with complementary apps for cross-promotion. Apply for Shopify Plus certified partner status. Negotiate featured placement deals."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Yotpo — launched as a simple product reviews app on Shopify App Store. Built to #1 in reviews category through relentless merchant support and review accumulation. Used App Store as sole acquisition channel for first 2 years.",
+    "growth_stage_win": "Klaviyo — dominated the Shopify email marketing category so thoroughly that 'Shopify email' became synonymous with Klaviyo. Over 100K+ Shopify stores. App Store was primary acquisition channel that seeded their $9.5B valuation.",
+    "what_made_it_work": "Both were genuinely excellent solutions to real merchant pain points AND invested heavily in merchant support and review cultivation. The App Store rewards excellence — there is no shortcut.",
+    "what_would_have_killed_it": "A mediocre app with poor support would have accumulated 3-star reviews and been permanently buried below competitors."
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "channel": "Slack Communities",
+  "tier": 3,
+  "channel_dna": {
+    "platform_type": "Professional community Slack workspaces organised around specific industries, roles, or interests. Hundreds of active communities for founders, designers, marketers, sales professionals, and developers.",
+    "algorithm_type": "No algorithm — real-time chronological messaging. Discovery through invitation, community directories (Slofile, Community.io), and word of mouth. Channels within workspaces organised by topic.",
+    "primary_audience": "Working professionals — high-income, decision-making capacity. Founders (On Deck, EF, Pioneer), marketers (Demand Curve, RevGenius), product managers (Lenny's community), developers (various), sales professionals (Pavilion, Revenue Collective).",
+    "native_content_formats": "Text messages, file sharing, voice notes, Slack Huddles (voice/video), threaded discussions, polls. Bots for community management. Canvases (new docs feature).",
+    "platform_culture_code": "Professional yet informal. High signal expected — low-quality posts get ignored. Community rules are enforced. Genuine expertise respected. Self-promotion carefully regulated — most communities have #promo or #show-off channels. Community reciprocity is the norm.",
+    "account_warmup_requirements": "Complete Slack profile (photo, bio, LinkedIn link, what you are working on). Lurk for 1 week before posting. Read pinned messages and community rules. Introduce yourself in #introductions properly."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "B2B SaaS targeting specific professional roles (marketers, salespeople, designers, developers, founders), productivity tools for knowledge workers, professional workflow tools",
+    "worst_product_types": "Consumer apps (wrong audience), developer tools not relevant to knowledge workers, B2C products, local services",
+    "best_pricing_models": "All B2B pricing models work. Slack communities have members with purchasing authority and budgets.",
+    "icp_match_signals": "If your ICP is a professional with a specific job title (Head of Marketing, Growth PM, SDR), there is a Slack community for them. Search Slofile.com or Community.io for your ICP's community.",
+    "red_flags_skip_this_channel": "Skip if your ICP is not a knowledge worker or professional. Skip if your product is purely consumer. Skip if you cannot invest time in genuine community participation.",
+    "geographic_strength": "US, UK dominant. Remote-first professional communities globally."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash. But membership fees for premium communities (Lenny's, On Deck) range from $100-$3,000/year — worth it for the targeting precision.",
+    "time_to_first_traffic_spike": "2-4 weeks after building genuine presence in 3-5 relevant communities.",
+    "time_to_first_paying_user": "2-6 weeks. Slack community members are professional buyers who can approve purchases.",
+    "effort_level": "Medium. Daily participation in 3-5 communities (30-60 min/day). Quality of participation matters more than volume.",
+    "virality_coefficient": "Low in terms of algorithmic virality. High in terms of word-of-mouth — a recommendation in a tight-knit professional Slack carries enormous weight.",
+    "compounding_potential": "High for reputation. Becoming the go-to person in a Slack community for your expertise drives consistent inbound referrals over months and years."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "No algorithm. Visibility comes from: posting in active channels (#general, #help), posting at peak activity times, getting emoji reactions (signals valuable post), being @mentioned by others.",
+    "what_algorithm_rewards": "N/A — real-time platform. Posting when community is most active (business hours) = maximum visibility.",
+    "what_kills_reach": "Off-topic posting. Self-promotion in non-promo channels. Generic messages with no specific value. Not responding to replies on your own posts.",
+    "peak_posting_windows": "Monday-Thursday 9am-11am EST for US-focused communities. Lunch hours (12-1pm) also active. Fridays taper off.",
+    "optimal_posting_cadence": "1-2 value posts per week per community. Daily participation in threads started by others. Too much posting = spam perception even if content is good.",
+    "content_freshness_window": "Slack messages disappear from view quickly in active communities. Important posts should be saved to canvas or pinned. Most posts active for 2-4 hours."
+  },
+  "content_system": {
+    "winning_content_types": "1. Specific question that invites expert discussion 2. Sharing a resource or tool that genuinely helps (not your own) 3. Requesting feedback on a specific thing 4. Sharing a non-obvious insight from your experience 5. Posting in #promo or #show-and-tell channels (when available)",
+    "hook_formulas": "Question: 'Has anyone found a good solution for [specific professional pain point]? We are dealing with X and every tool we have tried has Y problem.' | Resource share: 'Found this tool that solved [specific problem] for us — might be useful for others dealing with X.' | Insight: 'One thing I learned after [specific number] of [ICP] interviews that changed how I think about [topic]:'",
+    "platform_native_tone": "Professional but conversational. Honest and specific. First-person. Community members are peers. Never broadcast — always dialogue. Emoji reactions are native and expected.",
+    "cta_approach": "In #promo or designated channels only — post your product with one clear sentence of context. In general channels: only mention your product if directly relevant and specifically helpful. Always ask before promoting: 'Is it okay to share what we built for this?' Response to praise: 'Happy to share more — [link].'",
+    "content_to_avoid": "Generic promotional posts in general channels. Asking for things (votes, reviews, referrals) without giving first. Cross-posting identical messages across multiple communities. Ignoring threads you started.",
+    "cross_posting_rules": "Never cross-post identical messages to multiple Slack communities — community members often belong to multiple Slacks and immediately spot this as spam."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Key communities by ICP: Founders = On Deck, Pioneer, Indie Hackers Slack | Marketers = Demand Curve, RevGenius, Exit Five | Product = Lenny's, Mind the Product | Sales = Pavilion, Revenue Collective | Design = Designer Hangout, Spec | Devs = Various #slack-for-devs communities. Find via Slofile.com",
+    "contribution_before_pitch_rule": "Minimum 4 weeks of genuine helpful participation before any product mention. Answer 10+ questions from community members. Share 5+ genuinely useful resources (not your own). Only then mention your product when directly relevant.",
+    "dm_outreach_approach": "Slack DMs are the highest-converting outreach channel in professional communities. Template: 'Saw your post about [specific thing]. We built something that addresses exactly this — would you be open to a quick 15-min chat? No sales pitch, genuinely want feedback from someone dealing with this.' Keep it genuine and brief.",
+    "influencer_partner_strategy": "Community admins and moderators are the influencers. Build genuine relationships. Offer to host a community event (AMA, workshop). Admin endorsement dramatically increases trust.",
+    "broadcast_vs_community_mode": "Community mode entirely. Slack communities are intimate, reciprocal communities. Give 90% of the time. The 10% you promote is welcomed because of the trust built.",
+    "banned_behaviours": "Posting promo in non-promo channels. DM blasting members with cold pitches. Sharing others' private messages publicly. Scraping community member lists for outreach."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Join 5 communities where your ICP hangs out. Participate genuinely. Post the PROBLEM you are solving as a question — get validation and insights. Build relationships that will be beta tester pipeline.",
+    "early_traction_1_to_100": "Soft launch in relevant communities with 'I built something to solve [problem] — looking for 5 people to give honest feedback.' Frame as feedback-seeking, not promotion. This approach consistently outperforms hard promotion.",
+    "growth_100_to_1k": "Systematic participation in 5-10 Slack communities relevant to your ICP. Consider creating your own Slack community around the problem space.",
+    "scale_1k_plus": "Sponsor premium communities (Lenny's, Demand Curve) for targeted exposure. Host events within communities. Build a partner/affiliate network from community members."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Clay (CRM tool) — built early user base primarily through participation in growth and sales Slack communities. Founders participated genuinely in RevGenius and Demand Curve Slack. Product was recommended organically by community members to others asking for CRM advice.",
+    "growth_stage_win": "Notion — heavily leveraged designer and product manager Slack communities in early growth. Community members became evangelists who trained their teams on Notion, driving massive B2B adoption.",
+    "what_made_it_work": "Both were genuinely useful community members first. The product recommendation came from the community's own members, not the founders — and peer recommendations in tight professional communities carry 5-10x the credibility of any paid promotion.",
+    "what_would_have_killed_it": "Joining communities and immediately posting 'Check out our new product!' in #general would have resulted in immediate ban and damaged reputation across the professional community ecosystem."
+  }
+}

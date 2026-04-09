@@ -1,0 +1,64 @@
+{
+  "channel": "Reddit",
+  "tier": 1,
+  "channel_dna": {
+    "platform_type": "Community-driven discussion forum organised into topic-specific subreddits",
+    "algorithm_type": "Upvote/downvote voting system with time-decay. Hot feed = upvote velocity in first 2 hours. New feed = chronological. Rising = momentum signal.",
+    "primary_audience": "Highly diverse — 18-45, skews male, tech-literate, educated. Different subreddits have distinct demographics. r/entrepreneur = founders. r/medicalschool = med students. r/SaaS = SaaS builders.",
+    "native_content_formats": "Long-form text posts, image posts, link posts, polls. Text posts with personal stories get highest engagement. Self-posts outperform link posts in most subs.",
+    "platform_culture_code": "Authenticity is everything. Community detects and punishes self-promotion instantly. Lead with value, never with product. Comments are as important as posts. Karma is social proof.",
+    "account_warmup_requirements": "Account must be at least 30 days old with 100+ karma before posting in major subreddits. Many subs like r/entrepreneur have minimum karma thresholds. Build karma in general subs (r/AskReddit, r/todayilearned) first."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "B2C consumer tools, dev tools, edtech, productivity apps, SaaS with a clear pain point story, indie products built by the founder themselves",
+    "worst_product_types": "E-commerce stores (most subs ban links), crypto/NFT projects (auto-flagged), enterprise software (wrong audience), anything requiring direct affiliate links",
+    "best_pricing_models": "Free tier or freemium strongly preferred. Paid products can work but must lead with value content first. Never open with pricing.",
+    "icp_match_signals": "Search your ICP descriptor in Reddit search. If 3+ active subreddits with 20K+ members each exist, your ICP is here. Check post frequency — if top posts are less than 6 months old, the community is alive.",
+    "red_flags_skip_this_channel": "Skip if your product has no authentic founder story. Skip if your ICP is C-suite executives or enterprise buyers. Skip if you have no time to engage in comments daily.",
+    "geographic_strength": "English-speaking markets dominant — US (48%), UK (8%), Canada (7%), Australia (5%). Growing Indian and European presence in tech subs."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash. Time cost: 3-5 hrs/week minimum. One viral post can drive 500-5000 signups at zero ad spend.",
+    "time_to_first_traffic_spike": "2-7 days if post hits front page of a relevant subreddit. Can happen on first post if the content is exceptional.",
+    "time_to_first_paying_user": "2-4 weeks from first post if freemium. Longer if paid-only. Conversion happens when users organically find product in comments.",
+    "effort_level": "High upfront (building karma, learning community norms), Medium ongoing (3-5 hrs/week for posting + comment engagement)",
+    "virality_coefficient": "Medium-High. A front-page post on a major subreddit can drive 10K-50K visits. Cross-Reddit sharing amplifies reach. Content can resurface years later via search.",
+    "compounding_potential": "Medium. Top posts remain discoverable via subreddit search for years. But individual posts don't compound like YouTube — you must post consistently."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Upvote velocity in first 2 hours is the #1 signal. Comment count matters more than upvote ratio. Posts that generate discussion get pushed to Hot. Time of posting heavily influences initial exposure.",
+    "what_algorithm_rewards": "Posts that generate genuine discussion (many comments, deep threads). High early upvote-to-downvote ratio. Posts that keep users on Reddit (not just click-through). Images and text posts over external links.",
+    "what_kills_reach": "External links in post body (many subs auto-remove). Cross-posting identical content to multiple subs same day. Posting and not engaging with comments. Buying upvotes (detected and penalised). Accounts with low karma posting in high-karma-required subs.",
+    "peak_posting_windows": "Tuesday and Thursday 9am-11am EST for US audience. Wednesday 10am-12pm EST for global reach. Avoid Friday afternoon and weekends for professional/business subs.",
+    "optimal_posting_cadence": "Maximum 1 post per subreddit per week. Across all subreddits, 3-5 posts per week total. More frequent = spam flagging.",
+    "content_freshness_window": "Hot posts active for 48-72 hours. Posts stay searchable within subreddit indefinitely. Reddit posts also index on Google — long-term SEO value."
+  },
+  "content_system": {
+    "winning_content_types": "1. Origin story (I built this because I faced this problem) 2. Problem post without product mention (generates discussion, build awareness) 3. Value guide/tutorial (pure education, product mentioned only if asked) 4. AMA (Ask Me Anything after some credibility) 5. Results/milestone post (transparent numbers drive curiosity)",
+    "hook_formulas": "Personal failure opening: 'I spent 20 hours doing X manually. Never again.' | Specific number: 'After talking to 200 founders, here is what I learned about distribution' | Counterintuitive: 'Stop posting on LinkedIn if you are a B2B founder. Here is why.' | Question that surfaces pain: 'How are you currently handling X? Most tools I have tried are terrible.'",
+    "platform_native_tone": "Conversational, honest, self-deprecating. Never corporate. First-person always. Vulnerability gets upvotes. Humility over confidence. Data and specifics over vague claims. Reddit users are smart and will call out BS instantly.",
+    "cta_approach": "NEVER put product links in post body — most subs auto-remove or downvote. Mention product naturally in comments only when directly asked. Put link in profile bio. Let the product surface organically through discussion.",
+    "content_to_avoid": "Obvious promotional posts. Anything that reads like a press release. Vague value propositions without specifics. Asking for upvotes. Posting the same content across multiple subs. Engagement-bait questions.",
+    "cross_posting_rules": "Never cross-post identical content to multiple subreddits on the same day — Reddit detects this and it signals spam. If reusing content across subs, rewrite the angle and wait at least 1 week."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Research subreddits by ICP: Founders = r/entrepreneur, r/startups, r/SaaS, r/microsaas | Devs = r/programming, r/webdev, r/learnprogramming | Students = r/college, r/premed, r/medicalschool | E-commerce = r/entrepreneur, r/shopify, r/ecommerce | B2B = r/sales, r/marketing, r/entrepreneur",
+    "contribution_before_pitch_rule": "Minimum 10 genuine, helpful comments in a subreddit before posting your own content. Spend first 2 weeks only commenting. This builds karma and community recognition. Never pitch in comments unless directly asked.",
+    "dm_outreach_approach": "Reddit DMs are low-conversion. Only DM if someone directly comments asking for more info on your solution. Keep DMs short: 'Saw your comment about [problem]. Built something that might help — [one sentence]. Happy to share if you want.' Never cold DM.",
+    "influencer_partner_strategy": "Identify high-karma users (50K+) in your target subreddits who post about your problem space. Engage with their posts genuinely for 2-3 weeks. Then reach out via DM to share your product — frame as 'thought you'd find this interesting given your posts on X'.",
+    "broadcast_vs_community_mode": "Both. Reddit is a broadcast channel (posts reach thousands) AND a community channel (comments build relationships). Treat each subreddit as a community you are joining, not an audience you are broadcasting to.",
+    "banned_behaviours": "New account + first post is product link = instant permaban in most major subs. Asking for upvotes in any form. Posting affiliate links. Coordinated upvoting. Mentioning competitors disparagingly. Posting in subs you have never participated in."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Post the PROBLEM you are solving as a question or discussion. 'How do you currently handle X? Every tool I have tried sucks because Y.' Gauge upvotes and comments as demand signal. Do NOT mention you are building a solution yet. Read comments obsessively for ICP insights.",
+    "early_traction_1_to_100": "Post your founder origin story authentically. Share what you built and why. Respond to every single comment. Ask the community for brutal feedback. Post a 'I launched X, here is what happened after 30 days' update post. Transparency at this stage drives huge goodwill.",
+    "growth_100_to_1k": "Start posting value content weekly that naturally positions your product's category. Share data and learnings from your user base. Do AMAs in relevant subs. Begin identifying power users in communities and engaging them directly.",
+    "scale_1k_plus": "Transition to user-story posts. Share customer results (with permission). Build a subreddit for your product category (not your product — the problem space). Hire a community manager. Consider Reddit Ads targeting specific subreddits."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Superhuman (2018) — posted in r/productivity: 'I have been obsessed with email speed for 2 years. Here is everything I learned.' No product mention in post. 2,400 upvotes. 340 comments. Product linked in comments when asked → 3,000 waitlist signups.",
+    "growth_stage_win": "Notion (2019) — consistent posting in r/productivity with genuine template shares and workflow guides. Never promotional. Built a community that organically evangelised the product. r/Notion now has 600K+ members.",
+    "what_made_it_work": "Both led with the PROBLEM or VALUE, never the product. The product was the natural answer to a question the community was already asking. Founders engaged in every comment thread personally.",
+    "what_would_have_killed_it": "A post titled 'Check out our new email/productivity app — link in bio' would have been downvoted to zero and the account potentially banned for spam."
+  }
+}

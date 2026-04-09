@@ -1,0 +1,64 @@
+{
+  "channel": "Instagram",
+  "tier": 1,
+  "channel_dna": {
+    "platform_type": "Visual-first social platform. Dominant for lifestyle, consumer brands, creator economy, and increasingly B2B thought leadership via Reels.",
+    "algorithm_type": "Interest graph (Reels — primary discovery) + social graph (Feed — existing followers). Reels get algorithmic distribution to non-followers. Stories only reach existing followers. Feed is semi-chronological.",
+    "primary_audience": "18-35 core demographic. Strong female skew (57%). Lifestyle, fashion, beauty, food, travel dominant — but tech and business growing via Reels. High purchase intent for consumer products.",
+    "native_content_formats": "Reels (short vertical video, 15-90 seconds — primary reach driver), Feed posts (single image, carousel), Stories (24-hour ephemeral content), Live. Carousels have highest save rates in Feed.",
+    "platform_culture_code": "Aesthetics matter more than Twitter or Reddit. High visual quality expected. Authentic and aspirational co-exist. Personal brand and lifestyle content performs. Business content must feel human, not corporate. Caption engagement drives reach.",
+    "account_warmup_requirements": "Business or Creator account (switch in settings). Complete bio with clear value prop. 9+ posts in Feed before active growth push (empty grid is a credibility killer). Stories active daily."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "E-commerce/D2C (especially fashion, beauty, food, home), consumer apps, creator economy tools, health and wellness, education for visual subjects, lifestyle brands",
+    "worst_product_types": "Pure B2B enterprise software, developer tools, anything with no visual component, legal and financial services (heavily regulated on claims)",
+    "best_pricing_models": "All models work for consumer. E-commerce with direct purchase link converts well. Freemium with visual product demonstration works. Instagram Shopping for direct product purchase.",
+    "icp_match_signals": "Search product category hashtag — if top posts have 10K+ likes and comments discussing your problem space, your ICP is here. Check if competitors have 10K+ Instagram followers.",
+    "red_flags_skip_this_channel": "Skip if product has no visual story to tell. Skip if target audience is 45+ male professionals. Skip if you cannot maintain visual content quality consistently.",
+    "geographic_strength": "US, India, Brazil, Indonesia dominant. Strong in visual-first consumer markets globally."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 organic. Instagram Ads average $0.20-$2 CPC — competitive vs. Facebook but lower than LinkedIn.",
+    "time_to_first_traffic_spike": "Reels can spike within 24-48 hours. Feed content takes 2-4 weeks. Stories are follower-dependent.",
+    "time_to_first_paying_user": "2-6 weeks for consumer products. Instagram Shopping enables direct purchase. Link in bio friction for app downloads.",
+    "effort_level": "High. Reels production (filming, editing), Feed design, daily Stories, caption writing. Minimum 1 Reel/day + 3-5 Stories for growth phase.",
+    "virality_coefficient": "High for Reels. Medium for Feed. Stories do not spread organically. Viral Reels can drive 100K+ profile visits.",
+    "compounding_potential": "Medium. Followers compound well. Saved posts have long-tail visibility. Reels can resurface for weeks."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Reels: watch completion rate, shares (most important), saves, comments. Feed: immediate engagement from followers (likes, comments, saves). Stories: direct replies and poll interactions.",
+    "what_algorithm_rewards": "Reels that get shared to Stories by viewers. High save rates on carousels. Comments that generate replies (conversation threads). Consistent posting — the algorithm rewards accounts that post predictably. Reels with trending audio.",
+    "what_kills_reach": "Posting Reels with TikTok watermarks (suppressed). Very low completion rate. Spammy hashtags (over 30 hashtags in first comment = spam signal). Buying followers (destroys engagement rate — algorithm detects fake engagement). Long gaps between posts.",
+    "peak_posting_windows": "Reels: Tuesday-Friday 9am-11am, 1pm-3pm local time. Feed posts: Wednesday 11am. Stories: morning (7-9am) and evening (7-9pm) for highest views.",
+    "optimal_posting_cadence": "Reels: 3-5 per week minimum for growth. Feed: 3-4 per week. Stories: daily (7 days/week). Going below this significantly slows growth.",
+    "content_freshness_window": "Reels: can resurface for 2-4 weeks. Feed posts: 48-72 hours active. Stories: 24 hours only."
+  },
+  "content_system": {
+    "winning_content_types": "1. Tutorial Reels (how to solve one specific problem) 2. Before/after transformation 3. Product demo in natural setting 4. Behind-the-scenes/day in the life 5. User-generated content reposts 6. Carousel — educational slides on topic your ICP cares about",
+    "hook_formulas": "On-screen text in first frame: 'Stop doing X' | 'The [thing] nobody talks about' | 'If you are a [specific person] you need this' | Visual hook: Show end result first then reveal how. Audio hook: Use recognisable trending audio to trigger familiarity.",
+    "platform_native_tone": "Visual-first — show, don't just tell. Captions should be conversational. First line of caption is the hook (it is what shows before 'more'). Authentic imperfection in Reels beats perfect production. Use text overlays liberally — many viewers watch on mute.",
+    "cta_approach": "End of Reel CTA: 'Save this', 'Share with a friend who needs this', 'Link in bio for [offer]'. Caption CTA: Ask a question to drive comments. Never put more than 1 CTA. Instagram Shopping tags for e-commerce — eliminates bio link friction.",
+    "content_to_avoid": "Stock photos (zero authenticity). Reposting TikToks with watermarks. Hashtag stuffing (use 5-10 highly relevant hashtags maximum). Overly promotional captions. Low-quality video/audio. Never-ending product pitches.",
+    "cross_posting_rules": "Remove TikTok watermark before posting Reels. Facebook content can be cross-posted if audience overlap exists. LinkedIn content does not translate — too formal. YouTube Shorts can be repurposed as Reels with minor edits."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Niche hashtags and communities: follow hashtags your ICP uses. Study the 'explore' page through your ICP's lens. Look at who comments on competitor accounts — these are your potential users.",
+    "contribution_before_pitch_rule": "Comment genuinely on 20+ posts from ICP accounts before any product mention. Leave thoughtful comments (not just emojis) that add to the conversation. Be recognisable in comment sections before launching growth push.",
+    "dm_outreach_approach": "Warm DMs only — after they have interacted with your content first. Ice-breaker: reference something specific from their profile. Keep under 3 sentences. Voice notes convert 2x higher than text DMs for outreach. Never cold pitch in DMs.",
+    "influencer_partner_strategy": "Micro-influencers (10K-100K followers) in your niche have highest engagement rates and most affordable rates ($100-$1000 per post). Use Instagram's Creator Marketplace for paid partnerships. UGC creators (who create content but don't post it for their audience) are very cost-effective.",
+    "broadcast_vs_community_mode": "Both. Reels = broadcast to new audiences. Stories = community with existing followers (polls, Q&A, behind-the-scenes build deeper relationships). DMs are conversion channel.",
+    "banned_behaviours": "Follow/unfollow bots (account restriction or ban). Buying fake likes or followers. Spam commenting. Using copyrighted music without license. Making false health or financial claims. Mass DM blasting."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Build aesthetic around the problem space before product launch. Tease product through 'building this thing' Reels. Collect email list from bio link. Run polls in Stories to validate features. Build 1K+ followers before launch day for launch-day amplification.",
+    "early_traction_1_to_100": "Product demo Reels — showing the product in action solving a real problem. User testimonial reposts. Founder behind-the-scenes. Day 1 launch content with strong CTA to bio link.",
+    "growth_100_to_1k": "UGC campaign — incentivise users to create content featuring your product. Partner with 3-5 micro-influencers for honest reviews. Carousel educational content that positions your category.",
+    "scale_1k_plus": "Instagram Ads retargeting website visitors and lookalike audiences. Affiliate program for creators. Instagram Shopping integration if applicable. Branded hashtag to aggregate user content."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Gymshark — built from zero to $1.3B valuation almost entirely through Instagram influencer marketing and community building. Started with gifting to micro-influencers when the brand had almost no budget.",
+    "growth_stage_win": "Canva — used Instagram to showcase beautiful design templates created BY users, driving both aspiration and demonstration simultaneously. Built 1M+ Instagram following organically.",
+    "what_made_it_work": "Both led with the OUTPUT and aspiration (what you can achieve/create/become) rather than the product features. Instagram is a platform for aspirational content — show people who they can become.",
+    "what_would_have_killed_it": "Feature-led product posts ('New feature: X now available') would have zero engagement. Instagram audiences are not in feature evaluation mode."
+  }
+}

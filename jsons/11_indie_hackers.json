@@ -1,0 +1,64 @@
+{
+  "channel": "Indie Hackers",
+  "tier": 2,
+  "channel_dna": {
+    "platform_type": "Community and interview platform for bootstrapped and independent founders. Founded by Courtland Allen, acquired by Stripe. Home of the 'build in public' movement.",
+    "algorithm_type": "Community-driven upvotes + editorial curation. Milestone posts and transparent revenue sharing get highest engagement. Forum threads sorted by engagement.",
+    "primary_audience": "Solo founders, indie hackers, bootstrapped SaaS founders, developers who ship products. Ages 25-45. High overlap with Hacker News but more focused on business metrics and growth.",
+    "native_content_formats": "Forum posts (milestones, questions, product showcases), interviews (revenue-focused), podcast, newsletter. Transparent revenue numbers are the currency of the platform.",
+    "platform_culture_code": "Radical transparency about revenue, growth, and failure. '10-minute interviews' sharing exact MRR are the most popular content. Hustle and persistence celebrated. Honesty about failure respected. Community is tight-knit and supportive.",
+    "account_warmup_requirements": "Create account and post a product on IH. Complete your profile with transparent metrics. Participate in forum threads for 2+ weeks before posting your own milestone content."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "SaaS products (especially solo-built), developer tools, productivity tools, content tools, niche B2B, any product built by a single founder or small team with transparent metrics",
+    "worst_product_types": "Enterprise software (wrong audience), physical products, services businesses, VC-funded startups (IH celebrates bootstrapping)",
+    "best_pricing_models": "Paid SaaS (monthly/annual) is the native model celebrated on IH. Freemium works. Enterprise contracts are less celebrated — community prefers visible MRR.",
+    "icp_match_signals": "Search your product category on IH forum — if threads with 20+ comments exist about your problem space, your ICP is active here.",
+    "red_flags_skip_this_channel": "Skip if you cannot share transparent metrics. Skip if your product is VC-funded and you are uncomfortable with bootstrapping culture. Skip if you target enterprise buyers who are not active on IH.",
+    "geographic_strength": "US, UK, India, Canada, Germany. Remote-first global indie founder community."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash. Community-driven acquisition. IH users are high-intent potential customers and collaborators.",
+    "time_to_first_traffic_spike": "1-3 weeks from first milestone post. Traffic consistent but modest compared to HN or Product Hunt.",
+    "time_to_first_paying_user": "2-4 weeks. IH community members are paying SaaS subscribers who try products they discover in the community.",
+    "effort_level": "Low-Medium. Post monthly milestones, participate in weekly forum discussions, share honest metrics.",
+    "virality_coefficient": "Low-Medium. Content rarely goes viral beyond the IH community. But IH content gets picked up by indie founder newsletters (Starter Story, MicroConf) which expands reach.",
+    "compounding_potential": "Medium. Regular milestone posts build a follower base on IH. The IH interview (once you hit meaningful MRR) is a permanent piece of content that drives discovery indefinitely."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Upvotes and comments on forum posts. Milestone posts with specific numbers get more engagement. Featured placement on homepage by editorial team. Newsletter inclusion (massive reach).",
+    "what_algorithm_rewards": "Transparent revenue numbers. Specific lessons learned. Honest about what failed. Engagement with other community members' posts. Regular milestone posts (monthly).",
+    "what_kills_reach": "Vague milestone posts with no numbers. Promotional posts disguised as community content. Not engaging with others' posts. Inconsistent posting (IH rewards regulars).",
+    "peak_posting_windows": "Weekday mornings (EST). First of the month for monthly milestones. Monday for maximum weekly engagement.",
+    "optimal_posting_cadence": "Monthly milestone post. Weekly forum participation (comments + questions). Quarterly longer reflection post.",
+    "content_freshness_window": "Forum posts active 48-72 hours. Milestone posts resurface when you hit new milestones. IH interviews are permanent discovery assets."
+  },
+  "content_system": {
+    "winning_content_types": "1. Monthly milestone post: '$X MRR — here is what worked and what didn't' 2. Specific question to the community 3. Resource share with genuine value 4. Launch announcement with transparent early metrics 5. Failure post ('why I shut down X — lessons learned')",
+    "hook_formulas": "Milestone: 'Hit $[amount] MRR this month. Here is the single thing that made the biggest difference.' | Lesson: 'I spent 6 months building the wrong feature. Here is how I figured it out.' | Transparent failure: 'I shut down my product after 2 years. Here is everything I learned.'",
+    "platform_native_tone": "Honest, transparent, metric-driven. Personal and vulnerable. Community members are peers — not an audience. Celebrate small wins. Acknowledge big losses. Numbers give posts credibility.",
+    "cta_approach": "Link your IH product page to your product. Mention your product naturally in context. In forum posts: 'I built a tool for this exact problem — [product name]. Happy to share more if useful.' Do not post links without context.",
+    "content_to_avoid": "Vague posts without specific numbers or lessons. Promotional posts. Bragging without substance. Not engaging with comments on your own posts. Crossing into other communities to only self-promote.",
+    "cross_posting_rules": "IH milestone posts work well adapted for Twitter (build-in-public format) and LinkedIn (professional framing). The transparency of IH content is unusual on other platforms — adapt tone accordingly."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "IH forum by topic — look for posts about the problem your product solves. IH podcast listeners (highly engaged founders). IH newsletter subscribers.",
+    "contribution_before_pitch_rule": "Help 10 other founders in the forum with specific, useful advice before posting about your own product. The IH community strongly rewards givers.",
+    "dm_outreach_approach": "IH has private messaging. Reach out to founders in your adjacent space for advice, collaboration, or cross-promotion. Frame as peer-to-peer, not salesy.",
+    "influencer_partner_strategy": "Getting a full IH interview (requires meaningful MRR — typically $1K+/month) is the most powerful thing on the platform. Reach out to Courtland Allen via IH or Twitter when you hit a milestone worth interviewing about.",
+    "broadcast_vs_community_mode": "Community mode. IH rewards genuine participation over broadcasting. The more you contribute, the more your product gets organically mentioned.",
+    "banned_behaviours": "Fake revenue numbers. Promotional posts disguised as community content. Spamming product links. Creating multiple accounts for upvoting."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Share your idea in the IH forum — get feedback from experienced founders. Post your product even before launch to start building IH product page SEO. Join the IH community as a learner first.",
+    "early_traction_1_to_100": "First milestone post at $1 MRR (not joking — the community celebrates first dollar). Transparency about early struggles generates enormous goodwill and helpful advice.",
+    "growth_100_to_1k": "Monthly milestones with detailed lessons. Ask the community for advice on specific growth problems. Start appearing as a commenter who gives back to newcomers.",
+    "scale_1k_plus": "IH interview ($1K+ MRR is the typical threshold). Guest post on IH. Speak at MicroConf (the adjacent in-person community). Become a community pillar by helping newer founders."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Pieter Levels (Nomad List, Remote OK) — built his entire early audience through IH and regular transparent milestone posts. Zero ad spend. The transparency of sharing revenue numbers openly was revolutionary at the time.",
+    "growth_stage_win": "Bannerbear (Jack Ellis) — consistent IH milestone posts from $0 to $10K MRR drove significant signups and press. The IH interview at $10K MRR became a permanent reference for bootstrapped founders.",
+    "what_made_it_work": "Both shared actual numbers, actual failures, and actual lessons. The IH community trust is built on radical transparency — anything less is detected and dismissed.",
+    "what_would_have_killed_it": "Vague milestone posts ('Growing nicely! Excited for the future!') with no numbers or specifics would have zero engagement in a community that runs on exact MRR figures."
+  }
+}

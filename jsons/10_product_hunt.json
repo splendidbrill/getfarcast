@@ -1,0 +1,64 @@
+{
+  "channel": "Product Hunt",
+  "tier": 2,
+  "channel_dna": {
+    "platform_type": "Curated daily leaderboard of new product launches. Community of early adopters, tech enthusiasts, founders, and investors who actively discover and try new products.",
+    "algorithm_type": "Upvote-based daily leaderboard. Top 5 products of the day get featured in the PH email (1M+ subscribers). Upvotes in the first 4-6 hours determine ranking. Hunter network matters.",
+    "primary_audience": "Early adopters, tech-enthusiasts, indie founders, investors, product managers. Not mainstream consumers — hyper-early adopter community. Mean age 26-38. Highly international.",
+    "native_content_formats": "Product listing with gallery images, video demo, tagline, description. Comments. Maker posts (updates from founders). No long-form articles.",
+    "platform_culture_code": "Celebration of new products. Supportive community. First-mover focus — 'new' is core to the culture. Founders are expected to be present and engaged on launch day. Authenticity and founder story valued.",
+    "account_warmup_requirements": "Create PH account weeks before launch. Engage with other products (upvote, comment) to build community presence. Connect your Twitter to PH account — it surfaces your existing connections."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "B2B SaaS, developer tools, productivity apps, AI/ML tools, consumer apps with strong visual demo, creative tools, marketing tools. Essentially any digital product can launch here.",
+    "worst_product_types": "Offline services, physical products (unless tech-adjacent), local businesses, products with no demo-able digital component",
+    "best_pricing_models": "Freemium or free tier STRONGLY preferred. PH community expects to try before buying. Paid-only products launch to much lower engagement. Special PH discount ('30% off for PH community') is effective.",
+    "icp_match_signals": "Search your product category on PH — if similar products launched with 500+ upvotes, your ICP is present. Check if top comments suggest genuine use cases.",
+    "red_flags_skip_this_channel": "Skip if product has no free trial or demo. Skip if expecting massive revenue-driving launch (PH drives downloads and signups, not enterprise contracts). Skip if product is not digitally demoable.",
+    "geographic_strength": "US, UK, India, Canada, Germany largest markets. Global early adopter community across 100+ countries."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash. A top 5 product of the day gets 1,000-5,000 signups from PH directly. #1 product can generate 10,000+ signups.",
+    "time_to_first_traffic_spike": "Launch day — immediate. PH is one of the only channels where you can predict the exact date of your traffic spike.",
+    "time_to_first_paying_user": "Launch day to 2 weeks. PH users are willing to pay for genuinely useful products.",
+    "effort_level": "High upfront (2-4 weeks preparation), intense on launch day (12 hours of community engagement), Low afterwards.",
+    "virality_coefficient": "Medium-High. PH front page generates press coverage. Tech media monitors PH daily. A successful launch gets written up in newsletters and blogs.",
+    "compounding_potential": "Low — PH is a spike event not a compound channel. But the social proof ('Product of the Day') is a permanent badge you can use in marketing forever."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Upvotes in first 4-6 hours determine whether you hit the daily email. Hunter reputation matters (a well-known hunter boosts early visibility). Comment activity signals genuine interest. Maker responsiveness is tracked.",
+    "what_algorithm_rewards": "Fast upvote velocity at 12:01am PST (launch resets daily). Engagement from existing PH community members (not just your own network). Genuine comments that show real use. Maker responding to every comment.",
+    "what_kills_reach": "Launching without a hunter (or using a low-reputation hunter). Upvote brigading from non-community accounts (PH detects this and discounts these votes). Lack of maker engagement in comments. Launching on Friday (lowest traffic day).",
+    "peak_posting_windows": "Launch at 12:01am PST Tuesday-Thursday for maximum 24-hour window. Tuesday is the highest traffic day. Avoid Mondays (lower community activity) and Fridays-Sundays.",
+    "optimal_posting_cadence": "One major launch per product. Can launch significant updates as new products (v2, major feature launch). Multiple launches dilute impact.",
+    "content_freshness_window": "Launch day is everything — 24 hours of active window. Products remain searchable forever on PH. 'Product of the Day' badge is permanent."
+  },
+  "content_system": {
+    "winning_content_types": "1. Strong tagline (under 60 characters, specific benefit) 2. Video demo (showing product solving a problem in under 2 minutes) 3. Gallery screenshots that tell a visual story 4. Maker's first comment (personal story about why you built this)",
+    "hook_formulas": "Tagline formula: '[Specific user] can now [specific benefit] without [specific pain]'. Example: 'Founders can now get a distribution playbook for any product in minutes.' Gallery: Start with the 'aha moment' screenshot — the one that shows the product at its best.",
+    "platform_native_tone": "Founder-authentic, slightly casual, enthusiastic but not hypey. PH appreciates honesty about what the product is and is not. Maker first comment should be personal — why did you build this?",
+    "cta_approach": "Main CTA is the product URL itself. In comments: 'Happy to give [premium feature] free to PH community — DM me.' or 'Use code PRODUCTHUNT for 50% off.' Special launch offers dramatically increase conversion.",
+    "content_to_avoid": "Generic corporate descriptions. Vague taglines ('The all-in-one platform for everything'). Overproduced fake-looking screenshots. Ignoring negative feedback in comments.",
+    "cross_posting_rules": "Announce your PH launch on Twitter, LinkedIn, and relevant Slack communities/Reddit subs on launch day. This drives your existing network to PH to upvote. Email list is most important — send launch day email to your list."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "PH discussions, PH Ship (for waitlists), Upcoming Products (pre-launch signups). PH Discord is active with founders preparing launches.",
+    "contribution_before_pitch_rule": "Upvote and comment on 10-20 other products per week for 4+ weeks before your own launch. Build a genuine profile. Other makers will reciprocate on launch day.",
+    "dm_outreach_approach": "Message other PH makers in your category to introduce yourself. Build genuine relationships. On launch day — your network of PH connections is your single biggest advantage.",
+    "influencer_partner_strategy": "Hunters are the PH influencers. Get hunted by a well-known hunter (Chris Messina, Rohan Verma, Rajiv Ayyangar) for a significant upvote boost on launch day. Reach hunters via Twitter DM — lead with your product and why their audience would love it.",
+    "broadcast_vs_community_mode": "Community mode — engagement and relationship with the PH community determines success more than the product quality alone. Be present all day on launch day.",
+    "banned_behaviours": "Upvote exchanges or buying upvotes (account ban). Posting fake reviews. Launching with misleading product descriptions. Creating multiple accounts."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Post to PH Upcoming (pre-launch signups feature) to collect waitlist before formal launch. Cross-promote in your other channels. Build PH account karma.",
+    "early_traction_1_to_100": "This is the ideal PH launch timing — you have enough product to demo but it is genuinely new. Early customers provide testimonials for launch day comments.",
+    "growth_100_to_1k": "PH v2 launch for major feature updates. Can also use PH to announce a new pricing model, new integrations, or significant milestones.",
+    "scale_1k_plus": "PH ad products for targeted exposure. PH newsletter sponsorship. Being featured in PH Golden Kitty awards is a significant credibility booster."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Notion — relaunched multiple times on PH with major version updates. First major PH launch in 2019 drove the early adopter wave that seeded their explosive growth. Product of the Day multiple times.",
+    "growth_stage_win": "Figma — consistent PH presence with each major launch drove design community adoption and gave them early B2B pipeline that traditional sales could not.",
+    "what_made_it_work": "Strong visual demos, founder presence in comments, genuine community engagement, and special offers exclusively for the PH community. They treated PH as a community event, not a marketing campaign.",
+    "what_would_have_killed_it": "Posting at 3pm, having no maker engagement in comments, and offering no special pricing would have placed the product in the middle of the leaderboard with zero press coverage."
+  }
+}

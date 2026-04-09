@@ -1,0 +1,64 @@
+{
+  "channel": "G2 / Capterra",
+  "tier": 5,
+  "channel_dna": {
+    "platform_type": "B2B software review platforms. G2 (formerly G2 Crowd) and Capterra (owned by Gartner) are the dominant sites where B2B software buyers research and compare tools before purchasing.",
+    "algorithm_type": "Category ranking based on: review count, review recency, review rating, user satisfaction scores. G2 Grid positions products on 'Leaders', 'High Performers', 'Contenders', 'Niche' quadrants. Google Search drives significant traffic to review pages.",
+    "primary_audience": "B2B software buyers — specifically procurement, IT, marketing, and operations managers actively evaluating software. Extremely high purchase intent — people on G2/Capterra are in buying mode. Average buying process involves 3-5 review site visits.",
+    "native_content_formats": "Product listing page, user reviews, vendor responses to reviews, comparison pages, category reports. G2 Badges (Best Ease of Use, High Performer, etc.) are marketing assets.",
+    "platform_culture_code": "Credibility through verified reviews. Vendors are expected to respond professionally to all reviews including negative ones. Gaming reviews is strictly prohibited and detected. Buyers trust peer reviews over vendor marketing — honesty from vendors is rewarded.",
+    "account_warmup_requirements": "Create free vendor profile on both G2 and Capterra. Claim and complete your listing (logo, description, pricing, screenshots, demo video). Request G2 review from existing customers via their official review collection tools."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Any B2B SaaS product with paying customers. HR software, CRM, marketing tools, sales tools, customer service, finance, project management, developer tools, analytics platforms — all major B2B categories are active on G2/Capterra.",
+    "worst_product_types": "Consumer products, B2C apps, products with no business use case, products with zero paying customers (cannot get reviews without customers)",
+    "best_pricing_models": "All B2B pricing models. Paid product reviews require actual paying customers. Premium tiers generally get better reviews than free tiers (more invested users).",
+    "icp_match_signals": "Search your product category on G2/Capterra — if competitors have 50+ reviews, your ICP is actively using these platforms to make purchasing decisions.",
+    "red_flags_skip_this_channel": "Skip if you have zero paying customers (no reviews = invisible). Skip if your product is entirely consumer-focused.",
+    "geographic_strength": "US dominant. UK, Canada, Australia, India, Germany all significant B2B software markets active on these platforms."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 organic for listing. G2 Ads ($1,000-$10,000/month) for category leadership visibility. Organic review accumulation drives inbound at $0.",
+    "time_to_first_traffic_spike": "3-6 months to accumulate enough reviews for meaningful category ranking.",
+    "time_to_first_paying_user": "High-intent traffic converts well — buyers on G2/Capterra are actively evaluating. Trial-to-paid conversion from review site traffic is typically 15-30%.",
+    "effort_level": "Low-Medium. Systematic review collection from customers (quarterly campaigns). Responding to all reviews within 48 hours. Keeping listing updated.",
+    "virality_coefficient": "Low — review platforms are discovery, not sharing channels. But a high G2 rating prominently displayed on your website drives significant conversion improvement.",
+    "compounding_potential": "High — reviews compound (more reviews = better ranking = more traffic = more customers = more reviews). G2 Badges are permanent assets for marketing."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Review count × recency weighted average. User satisfaction scores (G2 surveys buyers on ease of use, support quality, etc.). Implementation scores. Category search ranking on G2/Capterra and Google Search for '[category] reviews' queries.",
+    "what_algorithm_rewards": "High volume of recent reviews. Verified reviews (G2 verifies through LinkedIn). High satisfaction scores across all dimensions. Regular review velocity (not just a burst at launch).",
+    "what_kills_reach": "Fake or incentivised reviews (platforms have sophisticated detection). Sudden spike then gap in review velocity (signals gaming). Unprofessional or defensive responses to negative reviews. Stale listing with outdated screenshots and description.",
+    "peak_posting_windows": "No time-sensitive algorithm. Review collection campaigns should be quarterly. G2 Seasonal Reports (Winter, Spring, Summer, Fall) use review data from those periods — time your review campaigns accordingly.",
+    "optimal_posting_cadence": "Quarterly review collection campaigns. Monthly listing updates. Respond to all reviews within 48 hours — always.",
+    "content_freshness_window": "Reviews are permanent and evergreen. Rankings shift as competitors accumulate reviews. G2 Grid Reports published quarterly — your category position matters."
+  },
+  "content_system": {
+    "winning_content_types": "1. Optimised product listing (description, screenshots, pricing, features — fill every field) 2. Professional video demo on listing page 3. Professional, empathetic responses to negative reviews 4. G2 Badges on your website and sales materials 5. Competitor comparison pages (G2 creates these automatically — claim them)",
+    "hook_formulas": "Listing description: '[Specific outcome] for [specific buyer role]. Used by [customer count]+ teams at [notable customer types].' | Feature descriptions: '[Feature name] — [what it does] so that [buyer achieves outcome].' | Review response (negative): 'Thank you for your honest feedback. [Acknowledge specific issue]. We have [action taken/planned]. [Offer to make it right].'",
+    "platform_native_tone": "Professional, transparent, buyer-centric. Address limitations honestly in listing — buyers will discover them anyway and appreciate upfront transparency. Response tone to reviews: professional, non-defensive, solution-oriented even for unfair negative reviews.",
+    "cta_approach": "Listing page CTA: 'Get a demo' and 'Start free trial' are standard. G2 integrates with your calendar for demo booking. Ensure demo booking link is always current and working.",
+    "content_to_avoid": "Fake reviews of any kind (instant listing removal if detected). Defensive or argumentative responses to negative reviews. Outdated listing information. Ignoring any review — no response signals you don't care.",
+    "cross_posting_rules": "G2 Badges → Website homepage, sales decks, email signatures. Customer quotes from G2 reviews → LinkedIn content (with customer permission). G2 Grid Reports featuring your product → PR content and case studies."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "B2B buyers actively searching G2/Capterra are your ICP. The platform itself is the community. Additionally: G2 community events, Capterra webinars.",
+    "contribution_before_pitch_rule": "N/A — G2/Capterra is a listing platform, not a community to participate in before listing.",
+    "dm_outreach_approach": "G2 buyer intent data (paid feature) identifies companies researching your category — these are warm outbound leads. G2 Buyer Intent is one of the highest-converting B2B lead sources available.",
+    "influencer_partner_strategy": "G2 has an analyst relations component — build relationships with G2 market researchers. Being quoted in G2 Market Reports provides credibility beyond the platform.",
+    "broadcast_vs_community_mode": "Primarily broadcast (listing as passive acquisition). Community interaction through review responses.",
+    "banned_behaviours": "Incentivising reviews with discounts or gifts in exchange for positive reviews. Asking employees to review as customers. Creating fake customer accounts. Negative review bombing competitors."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Claim your listing early. Complete all listing fields even before you have reviews. This ensures discoverability when buyers search your category. Set up the profile to receive reviews the moment you have customers.",
+    "early_traction_1_to_100": "First review collection campaign — email all paying customers asking for a G2/Capterra review. Offer a genuine thank-you (swag, not discount) for their time. First 10 reviews are the hardest and most important.",
+    "growth_100_to_1k": "Systematic quarterly review campaigns. Aim for 5+ new reviews per month. Request G2 Badge eligibility. Enable G2 Buyer Intent data for warm outbound sales.",
+    "scale_1k_plus": "G2/Capterra paid advertising for category leadership placement. Sponsor G2 State of Software reports. Leverage G2 data in investor presentations and enterprise sales."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Drift — accumulated 1,000+ G2 reviews through systematic review campaigns and became the #1 ranked conversational marketing tool on G2. The G2 ranking was prominently featured in all sales materials and became a significant driver of enterprise pipeline.",
+    "growth_stage_win": "HubSpot — dominates G2 across multiple categories (CRM, Marketing Hub, Sales Hub). G2 presence contributes to millions of organic visitors annually from buyers searching software comparisons. G2 Badges feature prominently in HubSpot's competitive differentiation.",
+    "what_made_it_work": "Both ran systematic, regular review collection campaigns and treated G2 as a core go-to-market channel, not an afterthought. Reviews were an institutional process, not an ad-hoc activity.",
+    "what_would_have_killed_it": "A G2 listing with 3 outdated reviews and no vendor responses would have been invisible in category searches and raised red flags for buyers who found it."
+  }
+}

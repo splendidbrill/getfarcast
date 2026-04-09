@@ -1,0 +1,64 @@
+{
+  "channel": "Chrome Web Store",
+  "tier": 5,
+  "channel_dna": {
+    "platform_type": "Google's marketplace for Chrome browser extensions. 200M+ active extension users. Passive distribution — once installed, extension is present in every browser session.",
+    "algorithm_type": "Search-based within the store. Google Search also indexes Chrome extension pages. Featured extensions get editorial placement. Rating and install count determine search ranking.",
+    "primary_audience": "Desktop Chrome users who work digitally. Developer tools audience (React DevTools, JSONViewer). Productivity audience (Grammarly, Dark Reader, ad blockers). Business users (sales tools, CRM extensions, email tools).",
+    "native_content_formats": "Extension listing page (screenshots, description, demo video), user reviews, developer blog posts. Extension itself is the product.",
+    "platform_culture_code": "Privacy and security are paramount — users are extremely sensitive about extensions that have access to browsing data. Trust takes years to build. One privacy violation ends the extension. Clear permission explanations required. Simple, focused functionality preferred.",
+    "account_warmup_requirements": "Google Developer account ($5 one-time fee). Extension must pass Chrome Web Store review (3-7 days typically). Privacy policy required. Clear explanation of all permissions requested."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Browser-based productivity tools, sales and CRM tools (integrating with web apps), email tools (Gmail extensions), SEO and marketing tools, developer tools (DevTools extensions), research tools, content tools",
+    "worst_product_types": "Products with no browser use case, mobile-first products, products where browser access adds no value",
+    "best_pricing_models": "Free with paid upgrade via your main SaaS product. Free extension as acquisition channel for paid web app. Extension-specific subscription is less common but works for standalone tools.",
+    "icp_match_signals": "If your ICP spends 6+ hours/day in their browser for work, the Chrome Web Store is relevant.",
+    "red_flags_skip_this_channel": "Skip if your product has no browser component. Skip if the extension use case is weak — users remove extensions that don't provide clear, consistent value.",
+    "geographic_strength": "Global — Chrome is dominant browser in all markets."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 organic once listed and rated. Google Search drives significant organic installs for well-optimised extensions.",
+    "time_to_first_traffic_spike": "Immediate for featured or recommended extensions. 2-4 weeks for organic Google Search traction.",
+    "time_to_first_paying_user": "1-4 weeks from install to trial to paid conversion for freemium extensions.",
+    "effort_level": "High upfront (development). Low ongoing once live — extensions are passive distribution.",
+    "virality_coefficient": "Medium — users share useful extensions with colleagues. Team-based extensions spread through workplaces organically.",
+    "compounding_potential": "High — extensions remain installed passively. Daily active use drives retention far beyond any other channel."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Search ranking: install count and rating are primary factors. Featured placement: editorial team selects regularly. Google Search: extension pages indexed — keyword optimisation in description matters.",
+    "what_algorithm_rewards": "High rating (4.5+ stars). Active user count (not just installs — weekly active users). Recent updates (stale extensions get deprioritised). Detailed, keyword-rich description.",
+    "what_kills_reach": "Rating drops from negative reviews. Extensions that crash Chrome (Google monitors this). Excessive permissions requests (users decline install or leave negative reviews). No updates for 12+ months signals abandonment.",
+    "peak_posting_windows": "No time-sensitive algorithm. Launch timing: Tuesday for maximum tech blogger coverage.",
+    "optimal_posting_cadence": "Extension updates quarterly minimum. Bug fixes immediately. New features every 1-2 months.",
+    "content_freshness_window": "Evergreen listing. Active extensions remain discoverable indefinitely."
+  },
+  "content_system": {
+    "winning_content_types": "1. Extension listing page with specific, benefit-led description 2. Promotional screenshots showing exact problem being solved 3. 60-90 second demo video 4. How-to blog post about your extension's main use case (SEO) 5. Product Hunt launch announcing the extension",
+    "hook_formulas": "Extension name should include the primary function: 'ReturnLess: AI Size Recommendations'. Description opening: 'Reduce Shopify returns by 40% directly in your browser. ReturnLess adds intelligent size guides to any product page with one click.'",
+    "platform_native_tone": "Feature-specific, benefit-driven, privacy-respecting. Address privacy concerns proactively: 'We only access [specific data] to [specific purpose]. We never store or share your browsing data.' Trust language is critical.",
+    "cta_approach": "Primary: 'Add to Chrome — it's free'. Secondary: Upgrade prompt within extension after free usage tier. Clear, non-aggressive upgrade flow.",
+    "content_to_avoid": "Requesting unnecessary permissions (major install conversion killer). Vague description. Not explaining exactly what the extension does in the first line. Privacy policy that is hard to find.",
+    "cross_posting_rules": "Chrome extension launch should be announced across: Product Hunt, Twitter, Dev.to, Hacker News (Show HN). Extension listing URL should be linked from main product website."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Chrome extension review communities, developer communities (for dev tools), Reddit r/chrome, Reddit r/productivity, specific subreddits for your extension's use case.",
+    "contribution_before_pitch_rule": "Share your extension in communities that allow it (r/productivity, relevant Slack communities) for early organic installs that seed your rating.",
+    "dm_outreach_approach": "Direct outreach to power users of your main SaaS product to install the companion extension. Email existing customers is the most effective extension install campaign.",
+    "influencer_partner_strategy": "Tech YouTubers who create productivity content ('Best Chrome extensions for X') are extremely valuable. One mention in a '10 best extensions' video can drive thousands of installs.",
+    "broadcast_vs_community_mode": "Chrome Web Store is primarily a discovery platform. Community happens through rating responses and user engagement.",
+    "banned_behaviours": "Requesting permissions beyond what is needed. Accessing browsing data without clear user consent. Fake reviews. Extensions that contain malware or unwanted software."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Build extension as companion to your main product or as standalone free tool. Use as a distribution and data collection mechanism (with user consent).",
+    "early_traction_1_to_100": "Ask first 100 users to install extension and leave a review. These reviews determine your initial ranking.",
+    "growth_100_to_1k": "Apply for Chrome Featured extension status. Submit to 'Chrome Extension' review lists and ProductHunt. Build automated review request flow in extension.",
+    "scale_1k_plus": "Google Chrome Enterprise for business distribution. Partner programs with enterprise software for bundled extension distribution."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Loom — Chrome extension for screen recording drove early adoption by making the tool instantly accessible without leaving the browser. Extension installs were 3x faster than web app signups. The extension was the primary acquisition channel for early growth.",
+    "growth_stage_win": "Grammarly — Chrome extension with 30M+ weekly active users is their primary distribution channel. The extension is so ubiquitous that it drives both consumer and enterprise awareness. The extension installed itself into workflows without users needing to consciously choose Grammarly.",
+    "what_made_it_work": "Both provided immediate value in the browser with zero friction. The value was obvious within 30 seconds of installation. This drove organic word-of-mouth and near-zero uninstall rates.",
+    "what_would_have_killed_it": "A clunky extension that slowed down the browser, asked for too many permissions, or didn't deliver obvious value within the first 60 seconds would have accumulated 1-star reviews."
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "channel": "Discord",
+  "tier": 3,
+  "channel_dna": {
+    "platform_type": "Real-time community platform with servers, channels, voice, and text. Originally gaming, now dominant for developer communities, crypto, creator communities, and product user bases.",
+    "algorithm_type": "No public algorithm. Discovery through Server Discovery feature (minimum 200 members), community invites, website/product integration, and word-of-mouth. Members must be actively invited.",
+    "primary_audience": "Developer communities (very strong), gaming and creator communities, Web3/crypto, study communities, product user communities. Ages 16-35 skew. Highly engaged active users.",
+    "native_content_formats": "Text channels (like Slack), voice channels, video, threads, forums (new feature), bots and automation, stage channels for announcements. Rich link embeds. Bots are a major community tool.",
+    "platform_culture_code": "Real-time, informal, community-focused. Server culture varies wildly. Member roles and hierarchy create status. Bots automate moderation and add fun. Active servers have thriving sub-communities in different channels. Dead servers are ghost towns.",
+    "account_warmup_requirements": "Build a proper server structure before inviting anyone. Set up roles, channels, rules, and welcome message. Add basic bots (MEE6 or Carl-bot for moderation). Have at least 5-10 real members having genuine conversations before promoting broadly."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Developer tools, gaming adjacent, AI/ML communities, Web3 products, study and edtech tools, creator tools, products where community is a core value proposition",
+    "worst_product_types": "B2B enterprise software where buyers are not community-oriented, local services, consumer products for 40+ demographic with low Discord adoption",
+    "best_pricing_models": "Discord community works with all pricing models — it is a retention and community channel, not primarily a conversion channel. Free tier users convert better to paid through community.",
+    "icp_match_signals": "Search '[product category] Discord server' — if servers with 1K+ members exist for your category, your ICP is using Discord. Join these servers before building your own.",
+    "red_flags_skip_this_channel": "Skip if you cannot commit to active moderation and community management. A dead Discord is worse than no Discord. Skip if your ICP is not Discord-native.",
+    "geographic_strength": "US, UK, Brazil, France, Germany dominant. Global gaming and developer communities. Strong in Southeast Asia."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash for community members. Discord servers are retention and community channels — CAC happens through other channels, Discord reduces churn.",
+    "time_to_first_traffic_spike": "N/A — Discord is not a traffic generation channel. It is a community and retention channel.",
+    "time_to_first_paying_user": "Discord community members convert to paid at significantly higher rates (2-5x) than non-community users. But conversion comes through the product, not Discord itself.",
+    "effort_level": "Very High. Active community management daily. Moderation. Content in channels. Events (AMAs, voice chats). Discord communities fail without daily attention.",
+    "virality_coefficient": "Low for new member acquisition. High for retention — active community members become product evangelists who bring others.",
+    "compounding_potential": "High — a thriving Discord community is an enormous competitive moat. Users in active communities churn 60-80% less than non-community users."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Server Discovery ranking based on member count and activity. Invite links shared in other platforms (Reddit, Twitter, Dev.to). In-product invite prompts. Server Boosts increase visibility.",
+    "what_algorithm_rewards": "Active servers with daily message volume. Servers with high member retention (people not leaving). Server Boosts (paid feature that increases Discovery ranking).",
+    "what_kills_reach": "Dead channels with no activity. Servers where the only person talking is a bot. Over-moderation that kills organic conversation. Too many rules that intimidate new members.",
+    "peak_posting_windows": "No algorithm to optimise. Focus on community events at times when your members are most active. Check Discord server analytics for your server's peak hours.",
+    "optimal_posting_cadence": "Daily announcements or discussions in key channels. Weekly community events (AMA, voice chat, demo). Real-time response to member questions (within 2-4 hours during business hours).",
+    "content_freshness_window": "Real-time — Discord is live conversation. Old messages scroll away. Pin important messages. Use threads for focused discussions."
+  },
+  "content_system": {
+    "winning_content_types": "1. #announcements channel (product updates, launches) 2. #showcase (user creations with your product) 3. #feedback (structured feedback collection) 4. #general (organic community conversation) 5. #help (support and Q&A) 6. Weekly community events (AMAs, demos, voice chats)",
+    "hook_formulas": "Server invite: 'Join 2,000 [product] users who [specific value prop].' Welcome message: 'Welcome! Start here: [#start-here channel link]. Ask anything in [#general].' Announcement format: 'What is new: [specific feature]. Why it matters: [benefit]. Try it: [link].'",
+    "platform_native_tone": "Casual, real-time, community-first. Informal. Emojis are native here. Voice chats add a human element. Founders participating in #general as community members (not just broadcasting) is the most effective approach.",
+    "cta_approach": "Discord is a retention tool, not a conversion tool. CTA = get them to invite a friend or try a new feature. In #announcements: link to changelog or new feature. Upgrade CTAs should be rare and contextual.",
+    "content_to_avoid": "Only using Discord to broadcast announcements. Not responding to member messages. Auto-welcome messages with no human follow-up. Over-moderation that deletes genuine questions.",
+    "cross_posting_rules": "Product updates posted on Twitter/LinkedIn should also be posted in Discord #announcements. Discord conversations (interesting feature requests, testimonials) can be shared on Twitter with member permission."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Join 10 Discord servers in your product category BEFORE building your own. Understand what good communities look like. Observe what your ICP discusses.",
+    "contribution_before_pitch_rule": "Be helpful in other relevant Discord servers for weeks before promoting your own. Drop genuine value, answer questions, share resources. Never spam your server invite in others' servers.",
+    "dm_outreach_approach": "Discord DMs for direct user outreach — after someone asks a question your product solves in a community server, DM with a helpful answer and soft mention of your product. High conversion when genuinely helpful.",
+    "influencer_partner_strategy": "Partner with popular Discord servers in your category — offer exclusive perks for their members (discount code, special role). Server owners are the influencers here.",
+    "broadcast_vs_community_mode": "Community mode entirely. Discord is the anti-broadcast channel. Every feature should serve the community, not the company.",
+    "banned_behaviours": "Raiding other servers. Self-promotion without permission in others' servers. Buying fake Discord members. NSFW content in non-NSFW servers. IP violations."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Do NOT build a Discord server until you have a product. Premature Discord servers die instantly. Use it for closed beta community if you have 20+ beta users already.",
+    "early_traction_1_to_100": "Launch Discord server with first 50-100 users. Invite personally. Be extremely active. This small group becomes the cultural foundation of your entire community.",
+    "growth_100_to_1k": "Structure channels properly. Add moderation bots. Create roles for power users. Host first community events. Apply for Discord Server Discovery once you hit 200 members.",
+    "scale_1k_plus": "Hire a community manager. Partner with related servers for cross-promotion. Apply for Discord Partner or Verified Server status. Create tiered roles (free vs paid users get different channels)."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Midjourney — built their entire early user base through a Discord server. Every user interaction happened in Discord. The community-first approach created massive word-of-mouth growth that cost $0 in paid acquisition.",
+    "growth_stage_win": "Supabase Discord — 35K+ members. Developer community answers questions faster than official support. Community-led support reduces churn dramatically and the word-of-mouth from happy community members drives significant new user acquisition.",
+    "what_made_it_work": "Both treated the community as the product, not a marketing channel. The Discord was the first place members went — not the last resort.",
+    "what_would_have_killed_it": "A Discord server used only for broadcast announcements with no genuine community interaction would have been abandoned within 30 days."
+  }
+}

@@ -281,56 +281,85 @@ Generate market sizing JSON now.`;
 }
 
 // ==========================================
-// Step 5: 7-Day Ready-to-Post Calendar Prompt
+// Step 5: Ready-to-Post Calendar Prompt
+// Posts are generated per-platform with the correct number based
+// on each platform's optimal_posting_cadence from the JSON data.
 // ==========================================
 export function buildPostsCalendarSystemPrompt(channels: string[]): string {
   // Import the loadPlatforms function dynamically to avoid circular dependencies
   const { loadPlatforms } = require("@/lib/platforms/loader") as { loadPlatforms: () => any[] };
   const platforms = loadPlatforms();
 
+  // Build per-platform rules + cadence context
   const channelRules = channels.map((ch) => {
     const platform = platforms.find((p: any) => p.channel === ch);
     if (platform) {
       const content = platform.content_system;
-      return `${ch.toUpperCase()} RULES:
-- Winning content types: ${content.winning_content_types}
-- Hook formulas: ${content.hook_formulas}
-- Platform native tone: ${content.platform_native_tone}
-- CTA approach: ${content.cta_approach}
-- Content to avoid: ${content.content_to_avoid}
-- Cross-posting rules: ${content.cross_posting_rules}`;
+      const algo = platform.algorithm_playbook;
+      const postCount = getPostCountForPlatform(ch, algo.optimal_posting_cadence);
+      return `## ${ch.toUpperCase()} (generate exactly ${postCount} posts)
+OPTIMAL POSTING CADENCE: ${algo.optimal_posting_cadence}
+PEAK POSTING WINDOWS: ${algo.peak_posting_windows}
+WINNING CONTENT TYPES: ${content.winning_content_types}
+HOOK FORMULAS: ${content.hook_formulas}
+PLATFORM NATIVE TONE: ${content.platform_native_tone}
+CTA APPROACH: ${content.cta_approach}
+CONTENT TO AVOID: ${content.content_to_avoid}`;
     } else {
-      return `${ch.toUpperCase()} RULES:\n- Write natively for this platform. Authentic, specific, platform-appropriate tone.`;
+      return `## ${ch.toUpperCase()} (generate exactly 7 posts)
+OPTIMAL POSTING CADENCE: 1 post per day for the first week
+PLATFORM NATIVE TONE: Authentic, specific, platform-appropriate.`;
     }
   }).join("\n\n");
 
-  return `You are GetFarcast AI — the world's sharpest distribution strategist. Your ONLY job right now is to write a 7-day post calendar where EVERY single post is ready to copy-paste and publish TODAY.
+  // Build the total post count summary
+  const totalPosts = channels.reduce((sum, ch) => {
+    const platform = platforms.find((p: any) => p.channel === ch);
+    const cadence = platform?.algorithm_playbook?.optimal_posting_cadence || "";
+    return sum + getPostCountForPlatform(ch, cadence);
+  }, 0);
+
+  return `You are GetFarcast AI — a world-class social media strategist and copywriter. Your job is to write a first-week post calendar where EVERY single post sounds like it was written by a real founder talking to their community — not a marketing AI.
 
 ## THE PLATFORMS YOU ARE WRITING FOR:
 ${channels.join(", ")}
 
-## PLATFORM-SPECIFIC RULES (follow these to the letter):
+## PLATFORM-SPECIFIC RULES AND POST COUNTS (follow these exactly):
 ${channelRules}
 
 ${ANTI_SLOP_RULES}
 
-## CONTENT PILLAR ROTATION (use variety across the 7 days):
-- Day 1: Origin Story — Why did the founder build this? What broke that made them snap?
-- Day 2: The Problem — Make the ICP feel deeply seen. Describe their pain without mentioning the product.
-- Day 3: Behind the Scenes — One real, specific insight from building this. Numbers, struggles, surprises.
-- Day 4: Value-Add / Educational — Teach them something useful related to the problem. No product pitch.
-- Day 5: Hot Take / Contrarian — A bold opinion that will get replies. Must be defensible and specific.
-- Day 6: Soft Pitch — The product reveal. Lead with transformation, not features.
-- Day 7: Community / Engagement — Ask the ICP a question they actually want to answer.
+## HUMAN-SOUNDING POST RULES (CRITICAL — ENFORCE ON EVERY POST):
+- Write in first person, like a founder talking to a friend or online community
+- Use real, specific details — numbers, dates, specific situations
+- Short paragraphs (2–3 lines max). Never wall-of-text.
+- Vary sentence length. Mix short punchy sentences with slightly longer ones.
+- Sound slightly imperfect — real humans don't write perfectly polished copy
+- Include emotion: frustration, excitement, curiosity, doubt
+- Avoid: "I'm thrilled to announce", "game-changer", "excited to share", "In conclusion", "In today's world"
+- Never start with "I" — start with the situation, the problem, or a question
+- For Reddit: conversational, no hashtags, end with a question to spark comments
+- For LinkedIn: professional but personal, 3–5 short paragraphs, 2–3 hashtags max at the end
+- For Twitter/X: punchy, opinionated, max 280 chars per tweet or thread format
+- For TikTok/Instagram: hook in first 3 words, speak directly to the viewer, single CTA
+
+## CONTENT PILLAR ROTATION (spread across all posts per platform):
+- Origin Story: Why the founder built this. What specific pain point broke them.
+- The Problem: Make the ICP feel seen. No product mention. Pure empathy.
+- Behind the Scenes: One real insight from building. Specific numbers or struggles.
+- Value-Add: Teach something useful about the problem space. No pitch.
+- Hot Take: A bold, specific, defensible opinion that will get replies.
+- Soft Pitch: Product reveal led by transformation story, not features.
+- Community: Ask the ICP a question they genuinely want to answer.
 
 ## OUTPUT RULES:
 1. Return ONLY valid JSON. Zero text outside the JSON block.
-2. For EVERY single platform listed above, generate a full 7-day post sequence (Days 1 through 7). If there are 3 platforms, your JSON array MUST contain 21 posts (7 for each platform).
-3. The "hook" field is the FIRST LINE ONLY. It must stop a scroll.
-4. The "body" field is the FULL POST including the hook at the start. It must be copy-paste ready with NO placeholders. Substitute your own specific, plausible examples if needed.
-5. "characterCount" must be the actual character count of the body field.
-6. "bestTimeToPost" — give the optimal day+time for this specific platform.
-7. "subredditOrHashtags" — for Reddit: specific subreddit (e.g., "r/SaaS, r/Entrepreneur"). For LinkedIn/X: 2-3 hashtags max. For others: leave empty string.
+2. Generate exactly the number of posts specified per platform above. Total posts: ${totalPosts}.
+3. The "hook" is the FIRST LINE ONLY — must make someone stop scrolling.
+4. The "body" is the FULL POST including the hook. Copy-paste ready. No [PLACEHOLDER] text.
+5. "characterCount" is the real character count of the body field.
+6. "bestTimeToPost" — use the exact peak posting windows from the platform data above.
+7. "subredditOrHashtags" — Reddit: specific subreddit like "r/SaaS, r/Entrepreneur". LinkedIn/X: 2–3 hashtags max. Others: leave empty string.
 
 ## JSON SCHEMA:
 {
@@ -341,7 +370,7 @@ ${ANTI_SLOP_RULES}
       "platform": "Reddit",
       "postType": "Origin Story",
       "hook": "The exact first line that stops the scroll",
-      "body": "Full ready-to-post text including the hook. Specific. Human. No filler.",
+      "body": "Full ready-to-post text. Human. Specific. No filler.",
       "characterCount": 420,
       "bestTimeToPost": "Tuesday 9-11am EST",
       "subredditOrHashtags": "r/SaaS, r/Entrepreneur"
@@ -350,11 +379,99 @@ ${ANTI_SLOP_RULES}
 }`;
 }
 
+// ==========================================
+// Helper: determine how many posts to generate for a platform
+// based on its optimal_posting_cadence field.
+// Rules are ordered from most-specific to least-specific to
+// avoid false matches (e.g. "daily" inside "commenting daily").
+// ==========================================
+export function getPostCountForPlatform(channelName: string, cadence: string): number {
+  const lower = cadence.toLowerCase();
+  const ch = channelName.toLowerCase();
+
+  // ── One-shot / event-based channels — 1 post ─────────────────────────────
+  if (
+    ch.includes("product hunt") ||
+    ch.includes("appsumo") ||
+    ch.includes("betalist") ||
+    ch.includes("hacker news") ||
+    ch.includes("shopify app store") ||
+    ch.includes("chrome web store") ||
+    ch.includes("app store") ||     // App Store / Google Play
+    ch.includes("g2") ||
+    ch.includes("capterra")
+  ) return 1;
+
+  // ── Multiple-per-day channels — 7 posts (1 per day of week) ──────────────
+  // Be specific: match explicit "per day" or "tweets/day" patterns
+  if (
+    lower.includes("videos per day") ||     // TikTok: "1-3 videos per day"
+    lower.includes("tweets/day") ||          // Twitter: "3-5 tweets/day"
+    lower.includes("posts/day") ||           // Threads: "3-5 posts/day"
+    lower.match(/\d+-\d+ (times|posts|tweets|videos) (per|a) day/)
+  ) return 7;
+
+  // ── High-frequency: 3-5 posts per week — 5 posts ─────────────────────────
+  if (
+    lower.includes("3-5 tweets") ||          // Twitter: "3-5 tweets/day" already caught above
+    lower.includes("3-5 per week") ||
+    lower.includes("3-4 per week") ||
+    lower.includes("3-5 posts/week") ||
+    lower.includes("3-4 posts per week") ||
+    lower.includes("3-5 reels") ||
+    lower.match(/[3-5]-[3-5] (posts|reels|videos) (per|a) week/) ||
+    ch === "linkedin" ||                      // LinkedIn explicitly: "3-4 posts per week maximum"
+    ch === "reddit"                           // Reddit: "3-5 posts per week total"
+  ) return 5;
+
+  // ── Medium-frequency: 1-3 per week / weekly — 3 posts ────────────────────
+  if (
+    lower.includes("1-2") ||                 // Facebook Groups, Slack, WhatsApp: "1-2 posts per week"
+    lower.includes("weekly") ||              // Substack: "Weekly is the standard"
+    lower.includes("once a week") ||
+    lower.includes("1 video/week") ||
+    lower.includes("1 post/week") ||
+    lower.includes("minimum 1 video/week") ||
+    lower.includes("minimum 1/day")          // Discord min but weekly events
+  ) return 3;
+
+  // ── Quarterly / monthly — 1 post ─────────────────────────────────────────
+  if (
+    lower.includes("quarterly") ||
+    lower.includes("monthly") ||
+    lower.includes("one per month") ||
+    lower.includes("once per month") ||
+    lower.includes("per month")
+  ) return 1;
+
+  // ── Rare / low-frequency — 1 post ────────────────────────────────────────
+  if (
+    lower.includes("one shot") ||
+    lower.includes("one excellent post") ||
+    lower.includes("post rarely") ||
+    lower.includes("rarely")
+  ) return 1;
+
+  // Default: 3 posts (safe middle ground)
+  return 3;
+}
+
 export function buildPostsCalendarUserPrompt(
   icp: ICPProfile,
   data: WizardFormData,
   channels: string[]
 ): string {
+  const { loadPlatforms } = require("@/lib/platforms/loader") as { loadPlatforms: () => any[] };
+  const platforms = loadPlatforms();
+
+  // Build a cadence summary per platform for the user prompt context
+  const cadenceSummary = channels.map((ch) => {
+    const platform = platforms.find((p: any) => p.channel === ch);
+    const cadence = platform?.algorithm_playbook?.optimal_posting_cadence || "daily";
+    const count = getPostCountForPlatform(ch, cadence);
+    return `${ch}: ${count} posts (cadence: ${cadence})`;
+  }).join("\n");
+
   return `## PRODUCT
 Name: ${data.productName}
 URL: ${data.productUrl || "Not provided"}
@@ -375,9 +492,16 @@ DISC personality: ${icp.discProfile.primaryType}/${icp.discProfile.secondaryType
 How to communicate: ${icp.discProfile.communicationStyle}
 Key frustrations: ${icp.psychographics.frustrations.slice(0, 2).join("; ")}
 
-## MATCHED PLATFORMS (write posts for THESE ONLY, rotate across them):
-${channels.join(", ")}
+## MATCHED PLATFORMS AND POST COUNTS:
+${cadenceSummary}
 
 ## TASK
-Write the 7-day post calendar now. Every post must be SPECIFIC to ${data.productName} and this ICP. Replace any placeholder with real, specific content that is ready to post today. No generic content. No filler. No slop.`;
+Write the post calendar now. Every post MUST:
+1. Sound like a real founder wrote it — specific, human, slightly informal
+2. Be immediately ready to copy-paste and post with zero editing needed
+3. Reference real details about ${data.productName} and this exact ICP
+4. Use the exact hook formulas from the platform rules
+5. Have zero placeholders, zero generic statements, zero corporate language
+
+Do NOT write 7 posts per platform unless the cadence says so. Follow the post counts above exactly.`;
 }

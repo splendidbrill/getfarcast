@@ -1,0 +1,64 @@
+{
+  "channel": "TikTok",
+  "tier": 1,
+  "channel_dna": {
+    "platform_type": "Short-form video platform with the most powerful interest-based recommendation algorithm in existence. Content discovery-first — followers matter less than content quality.",
+    "algorithm_type": "Pure interest graph. The For You Page (FYP) serves content to non-followers based on watch time, completion rate, shares, comments, and saves. A zero-follower account can go viral on day one.",
+    "primary_audience": "Dominant 18-30 demographic. Gen Z core but Millennial presence growing fast. Diverse — not just entertainment. StudyTok, BookTok, FinTok, MedTok, TechTok all have massive engaged communities.",
+    "native_content_formats": "Vertical short video (15 seconds to 10 minutes — 60-90 second sweet spot for most content). Trending audio/sounds. Duets and stitches. Text overlays. Hooks in first 3 seconds are everything.",
+    "platform_culture_code": "Authenticity over production quality. Raw, real, imperfect content outperforms polished ads. Trending sounds and formats matter. Self-awareness and humour work. Educational content (edutainment) is dominant in professional niches.",
+    "account_warmup_requirements": "No warmup needed — TikTok actively surfaces new accounts if content is strong. But watch 30+ videos in your category before posting to calibrate your FYP and signal your niche to the algorithm."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "B2C consumer apps (especially 18-30 audience), edtech, health and wellness, beauty/fashion/lifestyle e-commerce, fintech for young adults, creator tools, productivity apps, student tools",
+    "worst_product_types": "Enterprise B2B software, products for 50+ demographic, highly technical developer tools (small audience on TikTok), professional services requiring formal tone",
+    "best_pricing_models": "Freemium and free tier strongly preferred — TikTok viewers are not in purchase mode. Low-friction signups work. Impulse purchase products under $50 can convert via TikTok Shop.",
+    "icp_match_signals": "Search your product category hashtag on TikTok. If #studytok has 5B+ views and your product serves students, your ICP is active. Check if creators in your niche have 100K+ followers.",
+    "red_flags_skip_this_channel": "Skip if your ICP is 45+ professionals. Skip if your product requires lengthy explanation before value is clear. Skip if you cannot create video content consistently.",
+    "geographic_strength": "US, UK, Southeast Asia, Brazil dominant. Growing rapidly in India since Reels market. Younger demographics globally."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash possible with organic. TikTok Ads available but organic reach is significantly better than any other platform for new accounts.",
+    "time_to_first_traffic_spike": "Can happen within 24-48 hours of first video if it catches the algorithm. More realistic expectation: 2-4 weeks of consistent posting.",
+    "time_to_first_paying_user": "3-6 weeks if driving to a freemium product. Link in bio friction means conversion is lower than direct-intent channels.",
+    "effort_level": "Very High in production phase. 1-3 videos/day for growth. Each video requires filming, editing, and captioning. Can reduce with templates and batch filming.",
+    "virality_coefficient": "Highest of any platform. A single video can go from 0 to 10M views with zero followers. Algorithm is completely egalitarian.",
+    "compounding_potential": "Medium. Followers compound slowly but each video gets independent algorithmic treatment. Popular videos resurface on FYP for months."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Watch completion rate is the #1 signal — if people watch to the end, it gets distributed more. Shares are weighted most heavily after completion. Comments signal engagement. Saves indicate high value. Hooks in first 3 seconds determine whether video gets initial push.",
+    "what_algorithm_rewards": "High completion rate videos. Content that gets rewatched. Videos that generate comments asking questions (reply with video = algorithm boost). Trending audio usage (small additional boost). Consistent posting from same account.",
+    "what_kills_reach": "Watermarks from other apps (TikTok suppresses repurposed content from Instagram Reels, YouTube Shorts). Low completion rate (people skipping = death signal). Blurry or very low quality audio/video. Posting links in comments (removed by platform). Inconsistent niche — if you post food one day and finance the next, algorithm cannot categorise you.",
+    "peak_posting_windows": "Tuesday-Friday 7-9am, 12-2pm, 7-9pm local time. Multiple daily posts recommended — TikTok is a volume game unlike other platforms.",
+    "optimal_posting_cadence": "1-3 videos per day for growth phase. Minimum 1/day to maintain algorithmic presence. Batch film weekly to reduce daily effort.",
+    "content_freshness_window": "Individual videos can resurface on FYP for 90+ days after posting. Unlike Twitter — TikTok content has long tail. Trending sounds have a 1-2 week window before they feel stale."
+  },
+  "content_system": {
+    "winning_content_types": "1. 'Day in the life' of your ICP (relatable) 2. Quick tutorial solving one specific pain point 3. 'Things I wish I knew' format 4. Trend adaptation (popular audio + your niche angle) 5. Behind-the-scenes product building 6. Reaction/duet to relevant viral content",
+    "hook_formulas": "Direct address: 'If you are a [specific person] you need to watch this.' | Pain statement: 'Stop wasting hours on [specific task].' | Curiosity: 'The reason your [thing] is not working (and it is not what you think).' | Specific number: 'I tested 47 study methods. Here are the 3 that actually worked.'",
+    "platform_native_tone": "Fast-paced, casual, direct. First 3 seconds must hook immediately. Speak fast or use quick cuts. Use on-screen text for retention. Talk directly to camera. Show dont tell. Humour and personality matter more than production quality. Never sound like an ad.",
+    "cta_approach": "Single CTA at end of video — 'Link in bio' or 'Follow for more'. Keep it brief and natural. TikTok does not allow clickable links in video or comments (only bio link). Use Linktree or similar for multiple destinations. Never hard sell — the community will turn against you.",
+    "content_to_avoid": "Overly produced, ad-like content. Talking head videos with no cuts or text overlays. Long intros before the value. Asking for follows before delivering value. Reposting from other platforms with watermarks. Inconsistent posting schedule.",
+    "cross_posting_rules": "TikTok content can be repurposed to Instagram Reels and YouTube Shorts BUT remove TikTok watermark first (use TikTok's own save feature or SnapTik). Do not cross-post in reverse — Instagram Reels content repurposed to TikTok gets suppressed."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Niche hashtag communities: #studytok (students), #buildinpublic (founders), #saastok (SaaS), #medstudenttok (med students), #productivitytok (productivity tools). Follow these hashtags to find your ICP.",
+    "contribution_before_pitch_rule": "Duet or stitch relevant creators' content with your perspective — this is native TikTok contribution. Comment genuinely on videos from accounts your ICP follows. Get known in comments before launching your own content.",
+    "dm_outreach_approach": "TikTok DMs are low-conversion for product promotion. Better approach: create a video responding to a creator's content (duet/stitch) — this gets their attention and their audience. DMs work best for creator collaboration inquiries.",
+    "influencer_partner_strategy": "TikTok creators with 10K-100K followers in your niche convert better than mega-influencers. Nano-influencers (1K-10K) have highest engagement rates. Product gifting in exchange for honest reviews is the most common model. Reach via DM with clear offer.",
+    "broadcast_vs_community_mode": "Primarily broadcast. TikTok is a content discovery platform — relationships are one-to-many. Community happens in comments sections. Reply to every comment in first hour after posting (algorithm signal).",
+    "banned_behaviours": "Buying fake followers or views (account ban risk). Spam commenting. Posting adult content. Misleading claims about products. Using banned sounds or copyrighted music without license. Posting other creators' content without credit."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Build your audience around the PROBLEM before you have a product. 'Why I am building [product type]' format. Show the problem visually — demonstrate the pain point in a way that makes people say 'I feel this'. Collect email signups from bio link.",
+    "early_traction_1_to_100": "Product demo videos — show the product solving a real problem in under 60 seconds. User reaction content. 'I built this in X days' behind-the-scenes. Be the founder showing the journey — people root for builders.",
+    "growth_100_to_1k": "User testimonial videos (with permission). Before/after problem-solution format. Tutorial content that naturally features your product. Partner with 3-5 small creators for honest reviews.",
+    "scale_1k_plus": "TikTok Ads to amplify best-performing organic content. TikTok Shop integration if physical product. Creator Marketplace for paid partnerships. Branded hashtag challenges for community engagement."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Duolingo — their TikTok presence went viral through self-aware, humorous content featuring their owl mascot. Zero promotional content. 100% entertainment. Built 8M+ followers. App downloads directly attributable to TikTok spikes.",
+    "growth_stage_win": "Notion — StudyTok creators organically adopted Notion for aesthetic study setups. Notion did not create this — they amplified it. Partnered with study creators for organic reach that drove millions of student signups.",
+    "what_made_it_work": "Both met the TikTok audience where they were — in their native content format with native humour and aesthetics. Neither made ads. Both made TikToks.",
+    "what_would_have_killed_it": "A traditional product demo or promotional video in corporate tone would have been scrolled past immediately and damaged brand perception."
+  }
+}

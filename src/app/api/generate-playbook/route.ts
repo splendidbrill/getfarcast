@@ -20,34 +20,9 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 // ==========================================
-// Helper: call LLM and parse JSON response
+// Helper: normalise + JSON-parse an LLM response string
 // ==========================================
-async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknown> {
-  const provider = getProvider();
-
-  let raw: string;
-
-  if (provider === "azure") {
-    // Azure AI Foundry: use raw fetch (SDK mangles the URL)
-    raw = await callAzureLLM(systemPrompt, userPrompt);
-  } else {
-    // OpenRouter / OpenAI: use the OpenAI SDK
-    const client = getLLMClient();
-    const model = getModelId();
-
-    const completion = await client.chat.completions.create({
-      model,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.6,
-      max_tokens: 4000,
-    });
-    raw = completion.choices[0]?.message?.content || "";
-  }
-
-  // ── Normalize the raw response 
+function parseJsonResponse(raw: string): unknown {
   raw = raw.trim();
 
   // 1. Strip markdown code fences (```json...``` or ```...```)
@@ -60,8 +35,7 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
     }
   }
 
-  // 2. If model prefaced JSON with prose ("Here is the JSON: {...}"),
-  //    find the first { or [ and slice from there.
+  // 2. Strip any leading prose before the first { or [
   if (!raw.startsWith("{") && !raw.startsWith("[")) {
     const objIdx = raw.indexOf("{");
     const arrIdx = raw.indexOf("[");
@@ -72,7 +46,7 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
     if (startIdx !== -1) raw = raw.slice(startIdx);
   }
 
-  // 3. Trim trailing prose after the last closing brace/bracket
+  // 3. Trim trailing prose after the last } or ]
   const lastBrace = raw.lastIndexOf("}");
   const lastBracket = raw.lastIndexOf("]");
   const endIdx = Math.max(lastBrace, lastBracket);
@@ -102,6 +76,47 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
     console.error("\n====================================\n\n");
     throw new Error("AI returned malformed JSON that could not be repaired. Please retry.");
   }
+}
+
+// ==========================================
+// Helper: call LLM and parse JSON response (default 4000 tokens)
+// ==========================================
+async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknown> {
+  return callLLMWithTokens(systemPrompt, userPrompt, 4000);
+}
+
+// ==========================================
+// Helper: call LLM with a custom max_tokens budget
+// Used for the posts calendar which can be much larger when
+// many platforms are matched.
+// ==========================================
+async function callLLMWithTokens(
+  systemPrompt: string,
+  userPrompt: string,
+  maxTokens: number
+): Promise<unknown> {
+  const provider = getProvider();
+  let raw: string;
+
+  if (provider === "azure") {
+    raw = await callAzureLLM(systemPrompt, userPrompt);
+  } else {
+    const client = getLLMClient();
+    const model = getModelId();
+
+    const completion = await client.chat.completions.create({
+      model,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.7,
+      max_tokens: maxTokens,
+    });
+    raw = completion.choices[0]?.message?.content || "";
+  }
+
+  return parseJsonResponse(raw);
 }
 
 // ==========================================
@@ -136,7 +151,7 @@ export async function POST(request: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // â”€â”€ STEP 1: Generate ICP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- STEP 1: Generate ICP --------------------------------------------------
         encodeEvent(controller, encoder, "progress", {
           step: 1,
           total: 5,
@@ -157,7 +172,7 @@ export async function POST(request: Request) {
           preview: icp.title,
         });
 
-        // â”€â”€ STEP 2: Channel Matching (deterministic) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- STEP 2: Channel Matching (deterministic, genuine scoring) -------------
         encodeEvent(controller, encoder, "progress", {
           step: 2,
           total: 5,
@@ -165,6 +180,7 @@ export async function POST(request: Request) {
           status: "running",
         });
 
+        // Returns ALL channels with genuine fit score > 50 (not just top 5)
         const matchedChannels = matchChannels(
           icp,
           formData.industry || formData.productDescription,
@@ -174,11 +190,12 @@ export async function POST(request: Request) {
         encodeEvent(controller, encoder, "progress", {
           step: 2,
           total: 5,
-          label: "Channels matched",
+          label: `${matchedChannels.length} channels matched`,
           status: "done",
-          preview: matchedChannels.map((c) => c.name).join(", "),
+          preview: matchedChannels.map((c) => `${c.name} (${c.score}%)`).join(", "),
         });
 
+        // -- Feedback context (from previous playbook if provided) -----------------
         let feedbackContextStr = "";
 
         if (formData.previousPlaybookId) {
@@ -199,7 +216,7 @@ export async function POST(request: Request) {
                 ch.contentCalendar?.forEach((post: any) => {
                   if (post.feedbackRating || post.feedbackComments) {
                     feedbackEntries.push(
-                      `- Post Title: "${post.title}"\n  Rating given: ${post.feedbackRating || 'none'}\n  Comments from audience/user: "${post.feedbackComments || 'none'}"`
+                      `- Post Title: "${post.title}"\n  Rating given: ${post.feedbackRating || "none"}\n  Comments from audience/user: "${post.feedbackComments || "none"}"`
                     );
                   }
                 });
@@ -212,7 +229,7 @@ export async function POST(request: Request) {
           }
         }
 
-        // â”€â”€ STEP 3: Channel Strategies (sequential, KB-injected) â”€â”€â”€â”€â”€â”€
+        // -- STEP 3: Channel Strategies (sequential, KB-injected) -----------------
         const channelStrategies = [];
 
         for (let i = 0; i < matchedChannels.length; i++) {
@@ -221,27 +238,23 @@ export async function POST(request: Request) {
 
           encodeEvent(controller, encoder, "progress", {
             step: 3,
-            total: 4,
+            total: 5,
             label: `Writing ${ch.name} strategy (expert rules applied)...`,
             status: "running",
             substep: `${i + 1}/${matchedChannels.length}`,
           });
 
-          let systemPrompt: string;
-          if (kb) {
-            systemPrompt = buildChannelSystemPrompt(ch.name, kb);
-          } else {
-            // Fallback if no KB file exists for this channel
-            systemPrompt = buildChannelSystemPrompt(
-              ch.name,
-              `No specific playbook available. Generate a comprehensive strategy based on your knowledge of ${ch.name} best practices for early-stage startups. Apply the general principles of value-first content, audience-specific tone, and anti-slop rules.`
-            );
-          }
+          const systemPrompt = kb
+            ? buildChannelSystemPrompt(ch.name, kb)
+            : buildChannelSystemPrompt(
+                ch.name,
+                `No specific playbook available. Generate a comprehensive strategy based on your knowledge of ${ch.name} best practices for early-stage startups. Apply the general principles of value-first content, audience-specific tone, and anti-slop rules.`
+              );
 
-          const strategy = await callLLM(
+          const strategy = (await callLLM(
             systemPrompt,
             buildChannelUserPrompt(icp, formData, ch.name, i + 1, ch.pushType, feedbackContextStr)
-          ) as Record<string, unknown>;
+          )) as Record<string, unknown>;
 
           channelStrategies.push({
             ...strategy,
@@ -252,18 +265,18 @@ export async function POST(request: Request) {
 
           encodeEvent(controller, encoder, "progress", {
             step: 3,
-            total: 4,
+            total: 5,
             label: `${ch.name} strategy ready`,
             status: i + 1 === matchedChannels.length ? "done" : "partial",
             substep: `${i + 1}/${matchedChannels.length}`,
           });
         }
 
-        // â”€â”€ STEP 4: Outreach + Market Sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- STEP 4: Outreach + Market Sizing (parallel) --------------------------
         encodeEvent(controller, encoder, "progress", {
           step: 4,
-          total: 4,
-          label: "Writing outreach sequences...",
+          total: 5,
+          label: "Writing outreach sequences + market sizing...",
           status: "running",
         });
 
@@ -285,40 +298,43 @@ export async function POST(request: Request) {
         encodeEvent(controller, encoder, "progress", {
           step: 4,
           total: 5,
-          label: "Playbook complete",
+          label: "Outreach and market sizing ready",
           status: "done",
         });
 
-        // â”€â”€ STEP 5: 7-Day Ready-to-Post Calendar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- STEP 5: Post Calendar (cadence-matched per platform) -----------------
+        // ALL matched channels get posts generated, each with the correct number
+        // of posts based on optimal_posting_cadence from the platform JSON.
         encodeEvent(controller, encoder, "progress", {
           step: 5,
           total: 5,
-          label: "Writing your 7-day post calendar...",
+          label: "Writing post calendar (cadence-matched per platform)...",
           status: "running",
         });
 
-        // Generate posts for all matched channels (platform-specific rules will handle formatting)
-        const calendarChannels = matchedChannels.slice(0, 5).map((c) => c.name); // Top 5 channels for post generation
+        const calendarChannels = matchedChannels.map((c) => c.name);
 
-        const postsCalendar = await callLLM(
+        // Use higher token limit since we may generate posts for many platforms
+        const postsCalendar = await callLLMWithTokens(
           buildPostsCalendarSystemPrompt(calendarChannels),
-          buildPostsCalendarUserPrompt(icp, formData, calendarChannels)
+          buildPostsCalendarUserPrompt(icp, formData, calendarChannels),
+          8000
         );
 
         encodeEvent(controller, encoder, "progress", {
           step: 5,
           total: 5,
-          label: "7-day post calendar ready",
+          label: "Post calendar ready",
           status: "done",
         });
 
-        // â”€â”€ Assemble final playbook â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Assemble final playbook ----------------------------------------------
         const id = crypto.randomUUID().slice(0, 8);
         const playbook: Playbook = {
           id,
           createdAt: new Date().toISOString(),
           productName: formData.productName,
-          summary: `GetFarcast has identified your ideal customer as "${icp.title}" and mapped ${channelStrategies.length} distribution channels with expert-level strategy for each. Your top channel is ${matchedChannels[0]?.name}, followed by ${matchedChannels[1]?.name}.`,
+          summary: `GetFarcast identified your ideal customer as "${icp.title}" and matched ${channelStrategies.length} distribution channels (all with genuine fit scores above 50%). Your top channel is ${matchedChannels[0]?.name} (${matchedChannels[0]?.score}%), followed by ${matchedChannels[1]?.name} (${matchedChannels[1]?.score}%).`,
           icp,
           marketSizing: marketSizing as Playbook["marketSizing"],
           channels: channelStrategies as Playbook["channels"],
@@ -326,11 +342,7 @@ export async function POST(request: Request) {
           postsCalendar: postsCalendar as Playbook["postsCalendar"],
         };
 
-        // â”€â”€ Save to localStorage (handled on frontend) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-        // Send the final playbook
         encodeEvent(controller, encoder, "complete", { playbook, formData });
-
         controller.close();
       } catch (err) {
         const message = err instanceof Error ? err.message : "Unknown error";

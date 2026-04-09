@@ -1,0 +1,64 @@
+{
+  "channel": "Threads",
+  "tier": 1,
+  "channel_dna": {
+    "platform_type": "Text-based social network by Meta. Direct Twitter/X competitor launched July 2023. Connected to Instagram accounts — leverages existing follower graphs.",
+    "algorithm_type": "Algorithmic feed prioritising engagement (likes, replies, reposts). Early-mover advantage — new accounts get more distribution than on mature platforms. Algorithm still less competitive than Twitter.",
+    "primary_audience": "Instagram users crossing over — skews younger than Twitter (25-40). Growing creator and business community. Strong overlap with Instagram audience but more text-comfortable.",
+    "native_content_formats": "Text posts (500 chars), images, short videos, polls, quotes. No link previews in feed (links don't get rich preview treatment yet). Thread format for multi-post stories.",
+    "platform_culture_code": "More positive and less toxic than Twitter. Lighter, more conversational tone preferred. Still establishing its culture norms — early movers shape the culture. Cross-over from Instagram makes it more lifestyle-comfortable.",
+    "account_warmup_requirements": "Linked to Instagram — your Instagram followers are auto-suggested to follow you. Instagram audience is your warmup advantage. Accounts with 0 Instagram following start cold."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Consumer apps, lifestyle brands, creator economy tools, B2C products with a story to tell, anything where Instagram audience overlaps with product ICP",
+    "worst_product_types": "Pure developer tools (dev community smaller on Threads), enterprise B2B software, highly technical products requiring deep audience",
+    "best_pricing_models": "Freemium and consumer-priced products. Too early for high-ACV B2B deals through Threads.",
+    "icp_match_signals": "Search product category on Threads — if discussion threads exist with 100+ replies, the community is forming. Early signal is more important than size here.",
+    "red_flags_skip_this_channel": "Skip if your ICP has zero Instagram presence. Skip if you need immediate measurable ROI — Threads is still building its commercial ecosystem.",
+    "geographic_strength": "US, Brazil, UK, Australia largest markets. Growing rapidly globally."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash. Early platform advantage means lower effort needed for reach compared to mature platforms.",
+    "time_to_first_traffic_spike": "1-3 weeks for accounts leveraging existing Instagram following. 4-8 weeks for standalone growth.",
+    "time_to_first_paying_user": "4-8 weeks. Platform still developing its conversion ecosystem.",
+    "effort_level": "Low-Medium. Less demanding than Twitter in terms of reply culture expectations. 3-5 posts/day for growth.",
+    "virality_coefficient": "Medium and growing. Algorithm is more generous to new content than mature platforms.",
+    "compounding_potential": "Unknown and growing. First-mover advantage is real — building now costs less than building in 2 years."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Engagement rate (likes, replies, reposts). Early engagement from existing followers signals quality. New accounts get exploration distribution — algorithm surfaces them to relevant users.",
+    "what_algorithm_rewards": "Posts with genuine replies (not just likes). Content that gets reposted. Consistent posting. Polls and interactive content.",
+    "what_kills_reach": "External links (don't suppress reach but don't get boosted). Pure promotional content. Cross-posting identical Twitter content (audience detects it and it underperforms).",
+    "peak_posting_windows": "Similar to Instagram — morning (8-10am), lunch (12-1pm), evening (6-8pm). Still being established by the community.",
+    "optimal_posting_cadence": "3-5 posts/day during growth phase. More forgiving than Twitter — less penalty for lower frequency.",
+    "content_freshness_window": "24-48 hours. Slightly longer than Twitter but shorter than LinkedIn."
+  },
+  "content_system": {
+    "winning_content_types": "1. Opinions and hot takes (Twitter-style) 2. Personal stories adapted from Instagram 3. Polls 4. Quick tips 5. Questions to the community 6. Behind-the-scenes of building",
+    "hook_formulas": "Opinion opener: 'Unpopular opinion: [category conventional wisdom] is completely wrong.' | Question: 'For founders: what is the one thing you wish you had done differently in year one?' | Specific insight: 'After 6 months of building in public, here is what actually moved the needle.'",
+    "platform_native_tone": "Lighter and more conversational than LinkedIn, less intense than Twitter. Positive framing performs better than confrontational. Personal, first-person, casual.",
+    "cta_approach": "Link in bio (same as Instagram). Threads does not have robust click-through infrastructure yet. Soft CTAs: 'DM me if you want to chat about this.' 'Drop your thoughts below.'",
+    "content_to_avoid": "Pure cross-posts from Twitter. Corporate tone. Hard promotional content. Highly political content (Meta actively suppresses this on Threads).",
+    "cross_posting_rules": "Instagram Reels cannot be embedded. Text from Twitter needs adaptation (tone shift). LinkedIn content can be lightened and adapted. Threads and Twitter audiences have different expectations."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Follow hashtags (feature still developing). Search by keyword. Your existing Instagram community is the fastest path — mention Threads in your Instagram Stories to migrate existing followers.",
+    "contribution_before_pitch_rule": "Same principle as Twitter — contribute to discussions before promoting product. Threads is small enough that reputation forms quickly.",
+    "dm_outreach_approach": "Threads DMs exist but the ecosystem is developing. Instagram DMs still primary for Threads-adjacent outreach.",
+    "influencer_partner_strategy": "Instagram influencers who are active on Threads are the primary target — they bridge both audiences. Early adopter creators on Threads have outsized influence as the platform's culture is still forming.",
+    "broadcast_vs_community_mode": "More community-oriented than Twitter currently. Conversation and genuine replies valued. Less broadcast-focused.",
+    "banned_behaviours": "Same as Instagram/Meta policies. Spam. Fake accounts. Misleading content. Coordinated inauthentic behaviour."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Build presence now to establish early authority. Share problem research and founder journey. Cross-promote your Threads in Instagram Stories to rapidly build following.",
+    "early_traction_1_to_100": "Build-in-public content directly translated from Twitter build-in-public format. Threads audience responds well to authentic founder journeys.",
+    "growth_100_to_1k": "Cross-promote your Threads in Instagram. LinkedIn content adapted for Threads tone. Collaborate with other founders on Threads for mutual audience growth.",
+    "scale_1k_plus": "Threads Ads expected (follow Meta's ad product roadmap). Threads Newsletter feature in development. Platform is evolving rapidly — stay ahead of new features."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Multiple indie founders migrated from Twitter to Threads in 2023-2024 and found significantly easier audience building. Accounts that reached 1K followers on Twitter in 2 years replicated it in 3 months on Threads.",
+    "growth_stage_win": "Nike, Netflix, and other major brands established Threads presence early and saw 1M+ followers quickly from Instagram audience conversion.",
+    "what_made_it_work": "First-mover advantage. Platform algorithm aggressively surfaced new quality accounts. Instagram follower migration was seamless.",
+    "what_would_have_killed_it": "Waiting 2 years before joining — the early-mover advantage window is real and closing."
+  }
+}

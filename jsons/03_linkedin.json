@@ -1,0 +1,64 @@
+{
+  "channel": "LinkedIn",
+  "tier": 1,
+  "channel_dna": {
+    "platform_type": "Professional social network. Dominant for B2B, enterprise, career, and business content. World's largest professional community.",
+    "algorithm_type": "Social graph + interest graph hybrid. Early engagement from your network (first 1-2 hrs) determines wider distribution. 'Dwell time' (how long people read) is a key signal. Content stays active 24-72 hours.",
+    "primary_audience": "Professionals aged 25-55. Decision-makers, managers, founders, sales and marketing professionals. 65% B2B decision-makers use LinkedIn for research. Average HHI is significantly higher than other platforms.",
+    "native_content_formats": "Long-form text posts (1300 chars performs best), carousels (PDF documents), short videos (under 3 min), articles, polls, newsletters. Text posts with no images get highest organic reach counterintuitively.",
+    "platform_culture_code": "Professional but increasingly personal. Vulnerability and personal stories perform well. Data-driven insights respected. Thought leadership over self-promotion. Comments are heavily weighted — the platform rewards conversation starters.",
+    "account_warmup_requirements": "Profile must be 100% complete with professional photo. 500+ connections baseline for credibility. Creator Mode enabled to get Follow button. First 90 days: optimise profile, connect strategically, comment daily before posting."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "B2B SaaS, HR tech, sales tools, marketing tools, enterprise software, professional services, recruiting tools, finance tools, productivity for teams",
+    "worst_product_types": "B2C consumer apps (especially for under-25 audience), gaming, consumer entertainment, anything lifestyle-focused, student tools",
+    "best_pricing_models": "Paid and freemium both work well. LinkedIn audience has purchasing authority and budget. Paid products with clear ROI narrative convert well.",
+    "icp_match_signals": "Search your ICP job title on LinkedIn — if 1M+ people have that title, the audience is there. Check if there are active LinkedIn Groups in your category with 10K+ members.",
+    "red_flags_skip_this_channel": "Skip if target users are under 25 (students, Gen Z consumers). Skip if your product has no professional/business use case. Skip if your ICP is non-English speaking markets where LinkedIn penetration is low.",
+    "geographic_strength": "US (185M users), India (107M), Brazil (65M), UK (38M), Canada (21M). Strong in English-speaking professional markets globally."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 for organic. LinkedIn Ads are expensive ($5-15 CPC) but highly targeted. Organic content is the primary acquisition play for early-stage.",
+    "time_to_first_traffic_spike": "3-6 weeks of consistent posting before meaningful traction. LinkedIn has a slower build than Twitter but more durable engagement.",
+    "time_to_first_paying_user": "4-8 weeks for B2B products with a defined outreach strategy. LinkedIn is a pipeline builder, not an impulse conversion channel.",
+    "effort_level": "Medium. 3-4 posts per week. Daily commenting on target accounts. Profile maintenance. Less real-time pressure than Twitter.",
+    "virality_coefficient": "Low-Medium. Content spreads through professional networks. Viral posts typically reach 10K-100K impressions. Rarely becomes truly viral like Twitter or TikTok.",
+    "compounding_potential": "Medium-High. Followers compound slowly but stickily. Newsletter subscribers compound well. Published articles have long-term SEO value."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Engagement in first 60-90 minutes from your immediate connections. Dwell time (people stopping to read). Comments weighted 4x more than likes. Comment replies from the author boost post further. Early comments from high-follower accounts amplify significantly.",
+    "what_algorithm_rewards": "Posts that generate conversation (multiple comment threads). Posts people save. Native documents (carousels) because they increase dwell time. Personal stories that generate emotional responses. Consistency — posting 3-4x/week trains the algorithm.",
+    "what_kills_reach": "External links in post body (LinkedIn suppresses these — always put links in first comment). More than 3 hashtags. Tagging many people who don't engage (spam signal). Posting and not responding to comments. Cross-posting from other platforms without reformatting.",
+    "peak_posting_windows": "Tuesday-Thursday 7:30-8:30am local time (commute window). Tuesday 10am-12pm. Wednesday 8-10am. Avoid weekends — LinkedIn engagement drops 40%.",
+    "optimal_posting_cadence": "3-4 posts per week maximum. Daily posting beyond 5x/week triggers algorithmic suppression. Quality over frequency.",
+    "content_freshness_window": "Posts stay active 24-72 hours depending on engagement velocity. Unlike Twitter, LinkedIn content can resurface days later if it receives a comment spike."
+  },
+  "content_system": {
+    "winning_content_types": "1. Personal story with professional lesson 2. Data-driven industry insight 3. Carousel/document (step-by-step guides perform best) 4. Contrarian take on conventional wisdom 5. Milestone post with lessons learned 6. 'What I wish I knew' format",
+    "hook_formulas": "Specific number: 'I sent 500 cold emails last month. Here is what I learned.' | Bold statement: 'Most startup founders waste their first 6 months on the wrong thing.' | Personal failure: 'I almost shut down my company last year. Here is what saved it.' | Curiosity gap: 'The single LinkedIn post that got me 50 inbound leads (and what made it work)'",
+    "platform_native_tone": "Professional but human. First-person. Honest about failures. Data-backed claims. Paragraphs are short (1-2 sentences for readability). No jargon. No corporate buzzwords. The best LinkedIn posts sound like a smart colleague talking at a coffee meeting.",
+    "cta_approach": "Single CTA at end of post. Options: 'Comment your experience below', 'Link to full resource in comments', 'DM me if you want to chat about X'. Never put product link in post body. Product mentions should be organic and contextual, not salesy.",
+    "content_to_avoid": "Engagement bait ('Comment YES if you agree'). Corporate press release tone. Excessive hashtag use. Humble-bragging without substance. Posting the same content repeatedly. 'Inspirational' quotes with no original insight. Anything that sounds like an advertisement.",
+    "cross_posting_rules": "Twitter content needs heavy reformatting for LinkedIn — expand threads into long-form posts. TikTok video scripts can work if reformatted as text posts. Never auto-cross-post. LinkedIn audience expects a different register."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "LinkedIn Groups (search your ICP category), company pages of your ICP's employers, specific job title searches, industry hashtag feeds (#SaaS, #ProductManagement, #B2BSales). LinkedIn Events attract concentrated ICP.",
+    "contribution_before_pitch_rule": "Comment on 10+ posts from your ICP daily for first month before any outreach. Add genuine insights, not just 'Great post!' Become a recognisable name in their feed before you reach out.",
+    "dm_outreach_approach": "InMail for non-connections — personalise every single message. Reference something specific they posted. Keep under 3 sentences. Never pitch in first message — ask a question or give value. Connection request: add personalised note. Response rates 3-5x higher with personalisation.",
+    "influencer_partner_strategy": "LinkedIn newsletter collaborations are powerful — cross-promote with complementary newsletters. Target thought leaders with 10K-100K followers for co-written posts. LinkedIn Live collaborations also drive mutual audience growth.",
+    "broadcast_vs_community_mode": "Primarily broadcast with community elements. Build an audience through posts, convert through DMs and comments. LinkedIn is a pipeline tool — use it to start conversations, not close deals.",
+    "banned_behaviours": "Mass connection requests without personalisation (LinkedIn rate-limits and may restrict account). Automated messaging tools (against ToS). Posting misleading statistics. Selling in InMail without relationship context. Scraping LinkedIn data."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Build founder personal brand around the PROBLEM space, not the solution. Share research findings, customer interview insights, market observations. 'I have been talking to 50 [ICP job title] about [problem] and here is what I am learning.' Builds credibility and pre-qualifies audience.",
+    "early_traction_1_to_100": "Share the founding story. Be transparent about early traction, what's working and what's not. Tag early customers in success posts (with permission). This stage is about converting professional credibility into product curiosity.",
+    "growth_100_to_1k": "Case studies with real customer names and metrics (requires customer permission). Industry data posts that position your product category. Begin LinkedIn newsletter for owned audience. Start targeted connection campaigns to your ICP.",
+    "scale_1k_plus": "LinkedIn Ads for retargeting website visitors. Sponsored content for top-performing organic posts. Employee advocacy program. Company page content strategy separate from founder content."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Gong.io — founder Amit Bendov built a LinkedIn following sharing revenue intelligence insights and sales data before the product scaled. Thought leadership content drove inbound pipeline worth millions.",
+    "growth_stage_win": "HubSpot — dominated LinkedIn with inbound marketing education content for years before competitors caught on. Built category ownership through consistent educational posting that drove massive organic pipeline.",
+    "what_made_it_work": "Both shared genuinely useful industry knowledge that their ICP needed — not product features. The product was naturally positioned as the tool that enabled the outcomes they were teaching about.",
+    "what_would_have_killed_it": "A feed full of 'New product update — check out our latest feature' posts would have been ignored by the algorithm and the audience."
+  }
+}

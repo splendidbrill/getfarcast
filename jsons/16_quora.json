@@ -1,0 +1,64 @@
+{
+  "channel": "Quora",
+  "tier": 3,
+  "channel_dna": {
+    "platform_type": "Question and answer platform. Long-form answers to questions in every topic imaginable. Strong Google Search indexing — Quora answers frequently rank on page 1 for informational queries.",
+    "algorithm_type": "Quality-based curation. Answer upvotes determine ranking within a question. Quora editorial team features top answers. Google Search is the primary long-term traffic driver — Quora pages rank highly for 'how to', 'what is', and 'best X' queries.",
+    "primary_audience": "Diverse — 300M+ monthly users. Strong in US, India, UK. Decision-makers researching products (B2B), consumers researching purchases, students, professionals seeking advice. 45% of users have household income over $75K.",
+    "native_content_formats": "Long-form answers (500-2000 words performs best), images within answers, links within answers, Quora Spaces (topic-focused communities), Quora Digest (curated email newsletter).",
+    "platform_culture_code": "Expertise is currency. Well-written, specific, experienced answers get upvoted. Self-promotion is acceptable but must be disclosed. Vague or low-effort answers get collapsed. Personal experience and data-backed answers outperform generic advice.",
+    "account_warmup_requirements": "Complete profile with credentials and bio — credentials are shown below your name on every answer (e.g., 'CEO at [Company], 7 years in SaaS'). These credentials dramatically increase answer upvotes. Write 10+ quality answers before expecting meaningful traction."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "B2C consumer products with research phase, B2B tools where buyers research before deciding, health and wellness, finance, education, software tools (buyers Google 'best [tool category]')",
+    "worst_product_types": "Products with no informational research phase (impulse purchases), products where ICP does not use Quora (most devs don't)",
+    "best_pricing_models": "All pricing models work — Quora is a research channel. Both free and paid products benefit from being recommended in relevant Quora answers.",
+    "icp_match_signals": "Search '[problem your product solves] Quora' on Google — if Quora answers appear on page 1 with 100K+ views, your ICP is finding answers here.",
+    "red_flags_skip_this_channel": "Skip if your product category has no active Quora questions with significant views. Skip if your product requires no research phase before purchase.",
+    "geographic_strength": "US (dominant), India (massive Quora community), UK, Canada, Australia."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash. Quora answers compound through Google Search for years.",
+    "time_to_first_traffic_spike": "Immediate if your answer ranks highly in a popular question. 2-3 months for Google Search traffic to build.",
+    "time_to_first_paying_user": "1-4 months. Quora drives awareness — conversion happens when prospects visit your website after reading your answer.",
+    "effort_level": "Low-Medium. Write 5-10 excellent answers targeting high-traffic questions. Update quarterly. Low ongoing effort once initial answers are written.",
+    "virality_coefficient": "Low within Quora. High via Google Search — a top-ranked Quora answer for a 'best X' query drives consistent organic traffic.",
+    "compounding_potential": "High via SEO. A well-written Quora answer can drive 1,000+ monthly website visits for 3-5+ years."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Answer quality (upvotes) determines ranking within the question. Question popularity determines the potential audience size. Google Search algorithm determines how prominently Quora appears for that query.",
+    "what_algorithm_rewards": "Detailed, specific, experienced answers. Answers with images, numbered lists, and clear structure. First-person experience. Answers that get shared on other platforms.",
+    "what_kills_reach": "Short, vague answers. Obvious promotional answers with no genuine value. Answers that get reported for spam. Credentials that don't match the topic you are answering.",
+    "peak_posting_windows": "No time-sensitive algorithm. Focus on targeting the highest-traffic questions in your category. Use Quora's question analytics to see monthly views.",
+    "optimal_posting_cadence": "5-10 excellent answers targeting high-view questions. Then quarterly updates to your best-performing answers.",
+    "content_freshness_window": "Quora answers are evergreen — a great answer from 2020 still ranks and drives traffic. Update annually to maintain relevance."
+  },
+  "content_system": {
+    "winning_content_types": "1. 'Best tools for X' questions — the holy grail, mention your product among genuinely good options 2. 'How do I solve X' questions — provide real answer, product is a natural mention 3. 'What is the difference between X and Y' — comparison answers position your product 4. Personal experience answers: 'I used to struggle with X until I found...'",
+    "hook_formulas": "Open with your credential and relevance: 'I have managed Shopify stores for 5 years and reduced return rates by 40%. Here is what actually works.' | Lead with the key insight: 'The most common mistake when doing X is Y. Here is how to avoid it.' | Story opener: 'Last year, one of my clients faced exactly this problem. Here is what we did.'",
+    "platform_native_tone": "Expert, experienced, specific. First-person with relevant credentials. Structured with headers and lists for readability. Honest about what does not work as well as what does. Include your product as one option among others when relevant — never as the only option.",
+    "cta_approach": "Mention your product naturally: 'We built [product] specifically for this — it handles X and Y automatically.' Link to your product where relevant. Disclose your affiliation. Quora allows links — use them when adding genuine value.",
+    "content_to_avoid": "Pure promotional answers with no genuine help. Answers that are entirely about your product. Very short answers on high-traffic questions. Answering questions completely outside your expertise.",
+    "cross_posting_rules": "Quora answers can be repurposed as LinkedIn articles, blog posts, or Twitter threads with minimal editing. The expertise demonstrated in a Quora answer is valuable content across all platforms."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Follow questions relevant to your product category. Search for '[problem] site:quora.com' on Google to find high-traffic questions. Follow Quora Spaces related to your product's category.",
+    "contribution_before_pitch_rule": "Answer 10 questions with zero product mention before your first product mention. Establish credibility as a genuine expert. Quora readers upvote contributors who seem genuinely helpful, not promotional.",
+    "dm_outreach_approach": "Quora has messaging — rarely used effectively. Better to let answers drive inbound interest organically.",
+    "influencer_partner_strategy": "Upvote other excellent answers in your category to build reciprocal relationships. Quora Top Writers in your category have significant reach — their answers get featured in the Quora Digest email.",
+    "broadcast_vs_community_mode": "Primarily broadcast. Quora is a question-answer platform, not a community platform in the traditional sense.",
+    "banned_behaviours": "Answers that are pure spam or promotion. Creating multiple accounts. Upvoting your own answers with secondary accounts. Misleading credentials."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Answer questions about the problem space with no product mention — builds credibility and SEO authority. Identify which questions drive the most traffic to target post-launch.",
+    "early_traction_1_to_100": "Write comprehensive answers to top 10 high-traffic questions in your category. Include product mention naturally. This creates a permanent SEO funnel.",
+    "growth_100_to_1k": "Systematically target 'best tools for X' questions in your category. Update your most popular answers with new data and examples.",
+    "scale_1k_plus": "Quora Ads for targeting people who view specific questions related to your product category. Very precise B2B targeting possible."
+  },
+  "proof_of_play": {
+    "early_stage_win": "HubSpot — answered thousands of inbound marketing Quora questions over years. The Quora answers drove consistent organic search traffic that complemented their blog. HubSpot consultants became the top-upvoted voices on marketing questions.",
+    "growth_stage_win": "Zapier — appears in top answers for virtually every automation-related Quora question. The compound SEO effect of hundreds of Quora mentions drives tens of thousands of monthly visits to Zapier.com.",
+    "what_made_it_work": "Both provided genuinely comprehensive, expert-level answers that outcompeted shorter answers in upvotes and Google ranking. The product recommendation was incidental to truly useful content.",
+    "what_would_have_killed_it": "Short promotional answers ('Check out HubSpot!') would have been collapsed by Quora's algorithm and earned zero Google Search ranking."
+  }
+}

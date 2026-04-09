@@ -1,0 +1,64 @@
+{
+  "channel": "Facebook Groups",
+  "tier": 1,
+  "channel_dna": {
+    "platform_type": "Community platform within Facebook. Closed and open interest-based groups for specific professional and personal interests. Underestimated B2B channel for niche operators.",
+    "algorithm_type": "Social graph + group engagement. Content from active groups surfaces in members' News Feeds. Groups with high engagement get more organic reach. Notifications drive direct engagement.",
+    "primary_audience": "35-55 skew. Business owners, local professionals, hobbyists, niche professional communities. Restaurant owners, real estate agents, e-commerce merchants — often unreachable on other channels — are highly active in Facebook Groups.",
+    "native_content_formats": "Text posts, image posts, video (auto-plays in feed), polls, events, Facebook Live within groups. Long-form text posts with personal stories perform best.",
+    "platform_culture_code": "Community over promotion. Every group has different rules — read them before posting. Personal stories and specific questions get best engagement. Admins have significant power. Groups are trust-based micro-communities.",
+    "account_warmup_requirements": "Personal Facebook profile must look authentic (not clearly fake). Join groups and participate for 1-2 weeks before posting. Introducing yourself post is often required by group rules."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Products for niche professional communities (restaurants, real estate, trades), e-commerce tools for Shopify/WooCommerce merchants, local business tools, parenting products, hobby-adjacent products, B2B tools for offline-first industries",
+    "worst_product_types": "Developer tools (devs don't use Facebook Groups), enterprise B2B software, products targeting tech-savvy 18-25 audience (they're not on Facebook Groups)",
+    "best_pricing_models": "All models work. Groups are discovery channels — once found, conversion happens elsewhere (website, Messenger). Free consultations and demos convert well.",
+    "icp_match_signals": "Search '[ICP job title or description] group' on Facebook. If groups with 10K+ members exist and have active daily posting, your ICP is here and reachable.",
+    "red_flags_skip_this_channel": "Skip if your ICP is under 30. Skip if your product category has no established Facebook Group community. Skip if you are uncomfortable with the Facebook platform.",
+    "geographic_strength": "US, Southeast Asia (massive), India, LatAm, Philippines dominant. Facebook Groups are the primary online community for billions who never adopted Twitter or Reddit."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash. Time cost: 2-3 hrs/week monitoring and engaging in 5-10 relevant groups. Direct outreach via Messenger can be high-converting if personalised.",
+    "time_to_first_traffic_spike": "1-3 weeks if posting valuable content in right groups. A single well-received post in a 50K member group can drive hundreds of website visits.",
+    "time_to_first_paying_user": "2-4 weeks. Facebook Groups have high purchase intent in niche professional communities.",
+    "effort_level": "Low-Medium. Join groups, participate, post weekly, respond to comments. Less demanding than Twitter or TikTok.",
+    "virality_coefficient": "Low. Content rarely spreads beyond the group. But in niche B2B markets, reaching 10K targeted professionals is more valuable than reaching 1M unqualified people.",
+    "compounding_potential": "Low for individual posts. High for relationships built — a trusted group member gets ongoing referrals and recommendations. Consider creating your own group for compounding."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Group engagement rate influences how much content surfaces in members' News Feeds. Comments and reactions drive distribution. Most-active members' posts get priority. Time of posting matters — business groups most active 7-9am and lunch hours.",
+    "what_algorithm_rewards": "Posts that generate comments and discussion. Posts where people tag others ('you need to see this'). Videos with high completion rates. Live videos within groups get heavy promotion.",
+    "what_kills_reach": "Posts that look like ads. External links to competitor products. Posts that get reported by members. Overly promotional posts that group admins remove.",
+    "peak_posting_windows": "Weekday mornings (7-9am local). Lunch hours (12-1pm). For hobbyist/personal groups: evenings and weekends.",
+    "optimal_posting_cadence": "1-2 posts per group per week maximum. Commenting on others' posts daily. Over-posting gets you flagged as spam by admins.",
+    "content_freshness_window": "Group posts active 24-72 hours. Unlike Reddit, posts don't resurface — they fade quickly. Consistency is more important than viral peaks."
+  },
+  "content_system": {
+    "winning_content_types": "1. Question to the community (generates maximum comments) 2. Value post with specific tip relevant to the group's interests 3. Case study or story from your experience 4. Resource share (free guide, template, checklist) 5. Introductory post (who you are, what you are building — if group allows)",
+    "hook_formulas": "Question: 'Quick question for restaurant owners — how are you currently managing X?' | Specific tip: 'I spent 3 years managing Shopify stores. Here is the one thing I wish I knew earlier.' | Story: 'Last month one of our clients 2x'd their revenue by doing this one thing...'",
+    "platform_native_tone": "Conversational, community-minded, helpful first. Never salesy. Write like you are posting in a professional WhatsApp group. First name, personal story, direct language.",
+    "cta_approach": "Never put product links in posts without explicit permission from group admin — this gets you removed. Soft approach: 'Happy to share what worked for us if anyone is interested.' Hard approach (only in groups that allow it): 'We built a tool for this — link in comments.' Always ask admin first.",
+    "content_to_avoid": "Obvious advertising. Linking to your product without adding value first. Posting in multiple groups simultaneously (duplicate content gets flagged). Arguing with members. Ignoring group rules.",
+    "cross_posting_rules": "Content from LinkedIn can be adapted for Facebook Groups if the tone is made less formal. Reddit content can work if removed of reddit-specific elements. Always read group rules — many prohibit links entirely."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Search '[ICP type] group' on Facebook: 'Restaurant owners group', 'Shopify sellers', 'Freelancers', 'Real estate investors'. Also search by tool: 'Shopify community', 'WordPress users'. Look for groups your competitors are active in.",
+    "contribution_before_pitch_rule": "Be an active helpful member for at least 3 weeks before any product mention. Answer questions generously. Build a reputation as knowledgeable in the group. Admins notice consistent contributors and are far more lenient with their promotions.",
+    "dm_outreach_approach": "Facebook Messenger direct outreach to group members who post about the problem your product solves. Personalise every message. Reference their specific post. Keep short. Warm DM after commenting on their post performs 3x better than cold DM.",
+    "influencer_partner_strategy": "Group admins are the influencers in Facebook Groups. Build a relationship with admins of your top 3-5 groups. Offer genuine value to the group (free resource, guest expert session). Admins can pin your posts or give you posting privileges.",
+    "broadcast_vs_community_mode": "Community mode. Facebook Groups are intimate communities, not broadcast channels. The more you give to the community, the more you get back. Create your own group for broadcast control.",
+    "banned_behaviours": "Spamming multiple groups with identical promotional posts. Adding people to groups without their permission. Using fake profiles. Selling without group admin permission. Sharing referral links without disclosure."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Join 10 groups where your ICP hangs out. Post the problem you are solving as a question. 'I am trying to understand how [ICP] handle [problem]. Would love to hear from the community.' Collect insights AND build awareness simultaneously.",
+    "early_traction_1_to_100": "Share your founding story in relevant groups. Ask for beta testers. Offer founding member pricing to group members. These communities often have high word-of-mouth within the group — one conversion can cascade.",
+    "growth_100_to_1k": "Create your own Facebook Group around your product's problem space (not your product). Become the community hub. Post valuable content daily. This becomes an owned channel.",
+    "scale_1k_plus": "Paid Facebook Group ads targeting members of specific competitor or adjacent groups. Live events within your own group. Affiliate/referral programs for active group members."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Tailwind — social media scheduler that built initial user base heavily through Pinterest-focused Facebook Groups. Answered questions helpfully in groups for months before promoting the tool. Built trust that led to thousands of sign-ups from group referrals.",
+    "growth_stage_win": "Shopify — has massive official and unofficial Facebook Group ecosystems. Merchants helping merchants. Shopify's community strategy through Facebook Groups has been a significant retention and word-of-mouth driver.",
+    "what_made_it_work": "Genuine community participation before any promotion. The product was positioned as a solution to the problems that were already being discussed in the community — not introduced as a new topic.",
+    "what_would_have_killed_it": "Posting a promotional message in the first week of joining would have resulted in immediate removal and reputation damage in the tight-knit professional community."
+  }
+}

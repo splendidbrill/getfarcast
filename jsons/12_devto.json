@@ -1,0 +1,64 @@
+{
+  "channel": "Dev.to",
+  "tier": 2,
+  "channel_dna": {
+    "platform_type": "Open-source blogging and community platform for software developers. Welcoming, inclusive developer community. Strong SEO — articles index well in Google Search.",
+    "algorithm_type": "Editorial curation + tag-based discovery + reactions. Articles tagged correctly surface in relevant developer feeds. Staff Picks and trending badges amplify reach. Google Search is the biggest long-term driver.",
+    "primary_audience": "Software developers of all levels — juniors to seniors. Strong open-source, web dev, JavaScript, Python communities. More welcoming and accessible than HN. Ages 20-40 skew.",
+    "native_content_formats": "Long-form technical articles, tutorials, project showcases, opinion pieces. Code blocks, images, embedded CodePen/Replit. Markdown-based editor.",
+    "platform_culture_code": "Learning-focused and supportive. Unlike HN, beginners are welcome. Open source celebrated. 'Build in public' culture exists here too. Comments are constructive. Knowledge-sharing over gatekeeping.",
+    "account_warmup_requirements": "Create profile with professional photo, bio, and linked GitHub. Write 3-5 articles before expecting significant traction. React and comment on others' posts to build community presence."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Developer tools, APIs, open-source projects, infrastructure tools, code-related SaaS, devops tools, any product where the ICP is developers",
+    "worst_product_types": "Non-technical B2B products, consumer lifestyle apps, anything not relevant to a developer's professional or hobby life",
+    "best_pricing_models": "Open source with paid tier performs best. Free developer tier (freemium). Tutorial-led marketing works especially well — the article IS the CTA.",
+    "icp_match_signals": "Search your product category on Dev.to — if articles with 500+ reactions exist about your problem space, developers are engaged here.",
+    "red_flags_skip_this_channel": "Skip if your product has no relevance to developers. Skip if you cannot write technical content consistently.",
+    "geographic_strength": "Global developer community. India (massive), US, Europe, Brazil all strong."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash. Tutorial articles that rank in Google Search drive consistent organic traffic for years.",
+    "time_to_first_traffic_spike": "Published articles can appear in relevant tag feeds immediately. Google Search ranking takes 2-4 months for competitive terms.",
+    "time_to_first_paying_user": "2-6 weeks for developer tools with free trial promoted in articles.",
+    "effort_level": "Medium. One high-quality technical article per week can drive significant results. Quality strongly outweighs quantity.",
+    "virality_coefficient": "Low on platform. High via Google Search — well-written technical tutorials rank for years and drive consistent traffic.",
+    "compounding_potential": "Very High via SEO. Technical tutorials compound through Google rankings indefinitely. A top-ranked tutorial can drive 10K monthly visitors for 5+ years."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Tags determine which topic feeds your article appears in. Reactions and comments in first 24 hours influence trending placement. 'Staff Picks' by editors significantly boost reach.",
+    "what_algorithm_rewards": "Well-written, genuinely educational content. Appropriate tag use (up to 4 tags, be specific). Articles that get saved (bookmark). Comment engagement. Consistent publishing from the same account.",
+    "what_kills_reach": "Promotional articles with no educational value. Wrong or too broad tag selection. Poor code formatting. Plagiarised content (community detects this quickly). Articles with no original insight.",
+    "peak_posting_windows": "Tuesday-Thursday mornings (EST). Weekday publishing gets most immediate engagement. Evergreen content performs regardless of day.",
+    "optimal_posting_cadence": "1-2 quality articles per week. Quantity without quality gets penalised in Dev.to's curation.",
+    "content_freshness_window": "Articles active on platform for 48-72 hours after posting. Google Search lifetime is 2-5+ years for well-optimised technical content."
+  },
+  "content_system": {
+    "winning_content_types": "1. Tutorial: 'How to build X with Y' (highest search intent) 2. Comparison: 'X vs Y — which should you use in 2025?' 3. Project showcase: 'I built X in a weekend — here is how' 4. Opinion piece on a developer topic 5. Open source announcement 6. Tool review with honest pros and cons",
+    "hook_formulas": "Tutorial: 'In this tutorial, you will learn to [specific outcome] in [specific time].' | Problem-solution: 'If you have ever spent hours debugging X, this article is for you.' | Project showcase: 'I built [specific thing] using only [constraint]. Here is the full breakdown.'",
+    "platform_native_tone": "Educational, clear, well-structured. Code examples required for technical articles. Subheadings, bullet points, tables for scanability. Honest about limitations and alternatives. Never condescending.",
+    "cta_approach": "Natural mention of your product within the tutorial context ('I built [product] to automate this — link below'). GitHub star CTA if open source. Free trial link in closing paragraph. Dev.to articles allow links — use them contextually.",
+    "content_to_avoid": "Pure promotional articles. Articles without code examples in technical tutorials. Copied content. Articles targeting non-developer audiences. Clickbait titles.",
+    "cross_posting_rules": "Dev.to allows canonical URL — cross-post existing blog content from your own site using canonical tag to avoid SEO duplication. Medium articles can be cross-posted. Hashnode articles can also be cross-posted."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Tag-based feeds (#javascript, #python, #webdev, #devops, #opensource). Comment sections of popular articles in your category.",
+    "contribution_before_pitch_rule": "Comment thoughtfully on 20+ developer articles before publishing your first. Dev.to community is generous with upvotes to consistent community members.",
+    "dm_outreach_approach": "Dev.to has no direct messaging. GitHub or Twitter (linked in profiles) is the better outreach channel for developers found on Dev.to.",
+    "influencer_partner_strategy": "Reach out to Dev.to top authors in your category for collaboration articles. Co-authored tutorials perform exceptionally well and give access to both audiences.",
+    "broadcast_vs_community_mode": "Primarily broadcast (articles reach developer audience through tags and search). Community through comments.",
+    "banned_behaviours": "Spam posting. Purely promotional content. Plagiarism. Creating multiple accounts."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Write tutorials related to your product's problem space — without product yet. Builds SEO authority and audience before launch.",
+    "early_traction_1_to_100": "Launch announcement article: 'I built [product] to solve [problem]. Here is how it works.' Technical deep-dive on how you built it drives developer respect and adoption.",
+    "growth_100_to_1k": "SEO-optimised tutorial series targeting your ICP's most common searches. Comparison articles ('Best tools for X') where your product is featured.",
+    "scale_1k_plus": "Dev.to Listings (paid job/product listings). Partner with Dev.to for sponsored content. Contribute to their newsletter."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Appwrite — open-source Firebase alternative built initial developer community almost entirely through Dev.to technical articles and tutorials. Zero paid marketing. Dev.to was their primary awareness channel.",
+    "growth_stage_win": "Digital Ocean — their technical tutorials have been a primary developer acquisition channel for years. The tutorials are so good that developers use DigitalOcean just because the tutorials are on their platform.",
+    "what_made_it_work": "Both invested in genuinely excellent educational content that developers bookmarked and shared. The product was the natural infrastructure choice for developers who followed the tutorials.",
+    "what_would_have_killed_it": "Thinly veiled product promotion disguised as tutorials would have been called out in comments and lost all credibility with the developer community."
+  }
+}

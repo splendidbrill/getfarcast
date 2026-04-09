@@ -1,0 +1,64 @@
+{
+  "channel": "Lobsters / Tildes",
+  "tier": 2,
+  "channel_dna": {
+    "platform_type": "Invite-only technical link aggregators. Lobsters (lobste.rs) is a curated HN alternative. Tildes (tildes.net) is a community-driven discussion site. Both are small, high-signal developer communities with strict quality standards.",
+    "algorithm_type": "Upvote-based with time-decay, identical in principle to HN. Lobsters adds tag-based filtering — posts tagged by topic. Small communities mean individual posts get more relative visibility than HN front page.",
+    "primary_audience": "Senior software engineers, systems programmers, open-source contributors. Technical depth is extremely high — even higher quality bar than HN. Ages 28-45. Strongly values privacy, open source, and technical correctness.",
+    "native_content_formats": "Link submissions and text posts only. Tags are mandatory on Lobsters (programming, web, security, ai, etc.). Plain text comments — no formatting.",
+    "platform_culture_code": "Extremely high quality bar. Low tolerance for marketing or self-promotion. Invite-only on Lobsters means accounts are vouched for — community trust is high. Technical correctness matters more than novelty. Open source strongly preferred. Being wrong is acceptable; being dishonest is not.",
+    "account_warmup_requirements": "Lobsters requires an invite from an existing member (request at lobste.rs/invites). Tildes accounts require application. No quick entry — these are curated communities. Your invite history is public on Lobsters."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Open source developer tools, systems programming libraries, security tools, privacy-respecting alternatives to mainstream tools, technically novel infrastructure, CLI tools",
+    "worst_product_types": "Consumer apps, SaaS with no technical depth, closed-source proprietary software without strong technical justification, marketing-forward products with no code to show",
+    "best_pricing_models": "Open source preferred. Free or open-core. Paid acceptable only with compelling technical justification and transparent pricing.",
+    "icp_match_signals": "If your product is a developer tool used by senior/systems engineers, Lobsters is worth targeting. Community is small (~10K active users) but extremely high influence — these engineers recommend tools to their teams.",
+    "red_flags_skip_this_channel": "Skip if you cannot get an invite (the barrier is real). Skip if your product has no open source component or technical differentiation. Skip if you cannot engage with deep technical criticism.",
+    "geographic_strength": "English-speaking tech communities globally. North America and Europe dominant."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash. Very small community — volume is low but quality of users is extremely high (senior engineers who influence tool adoption at their companies).",
+    "time_to_first_traffic_spike": "Immediate if post reaches front page. Community is small so front page is achievable with 15-20 upvotes.",
+    "time_to_first_paying_user": "1-3 weeks. These users are decision-makers and early adopters who pay for quality tools.",
+    "effort_level": "Low for submission. High for technical community engagement in comments.",
+    "virality_coefficient": "Low in terms of reach. High in terms of quality — a Lobsters front page post reaches developers who influence tooling decisions for entire engineering teams.",
+    "compounding_potential": "Low for repeated posts. High for reputation — being a respected contributor on Lobsters is significant social capital in the senior developer community."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Upvotes with time-decay. Tags filter who sees the post in their customised feed. Smaller community means front page threshold is lower than HN but quality bar is higher.",
+    "what_algorithm_rewards": "Technically substantive posts. Open source releases. Technical deep-dives. Honest, specific content. Posts that generate technical discussion in comments.",
+    "what_kills_reach": "Anything that reads as marketing. Self-promotion from new accounts. Low-quality technical content. Posts that have been on HN recently (community shares content but dislikes pure reposts).",
+    "peak_posting_windows": "Weekday mornings EST/GMT. Community is smaller so timing matters less than quality.",
+    "optimal_posting_cadence": "Post rarely — quality over quantity. One excellent post per month is appropriate. Commenting regularly is more valued than frequent submissions.",
+    "content_freshness_window": "Posts active 24-48 hours. Comments in active threads can continue for several days. Community is small enough that good content is thoroughly discussed."
+  },
+  "content_system": {
+    "winning_content_types": "1. Open source release announcement (Show Lobsters equivalent) 2. Technical deep-dive blog post 3. Comparative analysis of technical approaches 4. Security or privacy analysis 5. Systems design post with real implementation details",
+    "hook_formulas": "Title must be precise and technical: 'ExamFlash: open-source spaced repetition engine using SM-2 algorithm, built in Rust'. No superlatives. No marketing language. Let technical specificity do the work.",
+    "platform_native_tone": "Precise, technical, humble. Acknowledge trade-offs and limitations explicitly — the community respects intellectual honesty about what a tool cannot do. Benchmarks and technical specifics are welcome and expected.",
+    "cta_approach": "Link to GitHub repository or technical documentation as primary CTA. If paid product: clearly state this upfront. Never obscure commercial nature. Community respects transparency about business model.",
+    "content_to_avoid": "Any marketing language. Vague technical claims. Closed-source tools positioned as open. Posts that are clearly reposts of HN content. Self-promotion from accounts with no community history.",
+    "cross_posting_rules": "It is acceptable to post to both HN and Lobsters but with slight time offset (24+ hours). Community members overlap and appreciate when content is adapted for each community's norms."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Lobsters tag feeds: #programming, #web, #security, #ai, #devops, #opensource. Comment sections of popular posts in your tool's category.",
+    "contribution_before_pitch_rule": "Minimum 3 months of comment participation before submitting your own product. Lobsters is extremely sensitive to new-account self-promotion. Your account history is public and scrutinised.",
+    "dm_outreach_approach": "No DM system on Lobsters/Tildes. GitHub is the primary outreach channel for technical collaboration. Email addresses are sometimes in profiles.",
+    "influencer_partner_strategy": "There are no influencers in the traditional sense. High-karma Lobsters users are respected contributors — engaging authentically with their comments over months builds community standing.",
+    "broadcast_vs_community_mode": "Community mode. Lobsters is a small, tight-knit community. Comments matter as much as submissions. Being a good community member is the strategy.",
+    "banned_behaviours": "Vote manipulation. Multiple accounts. Marketing posts disguised as technical content. Not disclosing affiliation with tools you submit. Submitting content solely for self-promotion."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Get an invite and participate in the community for 3+ months before launching. This is the price of entry — it cannot be shortcut.",
+    "early_traction_1_to_100": "Submit your open source repository or technical blog post about what you built. The community is small but the developers who find it will be your most technical and loyal early users.",
+    "growth_100_to_1k": "Continue contributing to the community. Technical posts about what you learned building and growing the product are well-received.",
+    "scale_1k_plus": "Lobsters becomes less of a growth channel at scale but remains valuable for technical credibility and recruiting senior engineers."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Numerous small developer tools (terminal emulators, text editors, CLI utilities) have found initial developer communities through Lobsters. The quality of these early users — senior engineers who test thoroughly and provide excellent feedback — is worth 10x the equivalent number of mainstream users.",
+    "growth_stage_win": "Tailscale — consistently posted technical deep-dives about their WireGuard implementation and network security approaches on Lobsters and HN. These posts drove adoption among the most technically sophisticated developers who then advocated internally at their companies.",
+    "what_made_it_work": "Technical honesty and depth. Acknowledging what the tools could not do. Sharing implementation details that other engineers found genuinely interesting — not as marketing but as knowledge sharing.",
+    "what_would_have_killed_it": "A single marketing-flavoured post from a new account would have resulted in downvotes, a ban, and permanent reputation damage in the small developer community that remembers everything."
+  }
+}

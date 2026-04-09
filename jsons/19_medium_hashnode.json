@@ -1,0 +1,64 @@
+{
+  "channel": "Medium / Hashnode",
+  "tier": 4,
+  "channel_dna": {
+    "platform_type": "Medium: Publishing platform for long-form articles with built-in distribution network and paywall. Hashnode: Developer-focused blogging platform with custom domain support and developer community features.",
+    "algorithm_type": "Medium: Algorithmic curation by editors, distribution to followers, and to relevant readers via tag matching. Hashnode: Tag-based discovery within Hashnode community + strong Google Search indexing through custom domain.",
+    "primary_audience": "Medium: Diverse but skews toward tech, self-improvement, business, design, and social topics. 60M+ monthly readers. Hashnode: Software developers exclusively. Strongly technical community.",
+    "native_content_formats": "Long-form articles (1,500-3,000 words performs best). Rich text with images, code blocks, embedded videos, pullquotes.",
+    "platform_culture_code": "Medium: Thoughtful, in-depth writing. Personal essays and opinion pieces thrive. Clickbait titles are native but quality writing gets curated. Hashnode: Technical depth required. Tutorial-focused. Open-source celebrating. Developer community is welcoming.",
+    "account_warmup_requirements": "Medium: Follow 20+ publications in your niche. Get first 3 articles published and submitted to publications before expecting significant distribution. Hashnode: Complete developer profile, link GitHub, publish under custom domain for SEO benefits."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Medium: Products with educated professional audience (SaaS, business tools, creative tools, health tech). Hashnode: Developer tools, APIs, open-source projects, technical infrastructure.",
+    "worst_product_types": "Medium: Highly technical developer products (wrong audience). Hashnode: Non-technical products.",
+    "best_pricing_models": "All pricing models. Both platforms drive awareness and trust — conversion happens on your website.",
+    "icp_match_signals": "Search your product category on Medium — if articles have 1,000+ claps and significant comments, your ICP reads here. For Hashnode, search relevant technical terms.",
+    "red_flags_skip_this_channel": "Skip Medium if your content cannot be made accessible and engaging for a general professional audience. Skip Hashnode if your product has no technical component.",
+    "geographic_strength": "Global English-speaking markets. India strong on Hashnode."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0. SEO traffic from well-written articles compounds indefinitely.",
+    "time_to_first_traffic_spike": "Immediate if curated by Medium editors. 2-4 months for Hashnode/custom domain Google Search ranking.",
+    "time_to_first_paying_user": "2-4 months. Content builds trust that converts to product trials.",
+    "effort_level": "Medium. One well-researched article per week. Quality over quantity strongly rewarded.",
+    "virality_coefficient": "Low within platforms. High via Google Search for long-tail informational queries.",
+    "compounding_potential": "High via SEO. Articles rank in Google indefinitely. Medium's internal distribution amplifies reach for curated articles."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Medium: Curator selection for distribution to non-followers is the most important factor. Tags determine relevant topic feed placement. Claps and bookmarks signal quality. Hashnode: Tag-based community discovery + custom domain Google indexing.",
+    "what_algorithm_rewards": "Medium: In-depth, well-written content with 5-7 minute read time (sweet spot). Articles submitted to relevant publications. Good headline with clear promise. Hashnode: Technical accuracy, code examples, original tutorial content.",
+    "what_kills_reach": "Medium: Short, thin content. Articles that mislead with title. Too many self-promotional links. Hashnode: Inaccurate technical information (community comments immediately call this out).",
+    "peak_posting_windows": "Medium: Tuesday-Thursday for maximum curator and reader attention. Hashnode: Same weekday pattern.",
+    "optimal_posting_cadence": "1-2 excellent articles per week. More than 3/week dilutes quality and signals low effort.",
+    "content_freshness_window": "Medium: Active distribution 48-72 hours from publish. Google Search lifetime 2-5+ years. Hashnode: Google Search lifetime indefinite."
+  },
+  "content_system": {
+    "winning_content_types": "1. How-to tutorial (Medium + Hashnode) 2. Opinion piece on industry trend (Medium) 3. Technical deep-dive (Hashnode) 4. Case study with real results 5. '10 things I learned from X' listicle (Medium) 6. Open-source project announcement (Hashnode)",
+    "hook_formulas": "Outcome-led: 'How I reduced our customer churn by 40% (and the one tool that made it possible).' | Counterintuitive: 'Why your SaaS pricing is probably wrong (and what most founders miss).' | Technical: 'Building a production-ready API in 30 minutes: a step-by-step guide with [technology].'",
+    "platform_native_tone": "Medium: Thoughtful, personal, opinionated. Good writing is celebrated. Mix data with personal experience. Hashnode: Technical, precise, example-driven. Show the code. Explain the why as well as the how.",
+    "cta_approach": "Mention your product naturally in context ('We built [product] to automate this'). Link once (not repeatedly). End with a genuine offer: 'If you found this useful, our tool does this automatically — try it free here.' Never make the CTA the point of the article.",
+    "content_to_avoid": "Thin content written solely to promote the product. Articles that mislead with their title. Pure self-promotion without educational value. Duplicate content (Google penalises this — use canonical tags if cross-posting).",
+    "cross_posting_rules": "Cross-post from your own blog to Medium using canonical URL (preserves SEO). Cross-post to Hashnode from Dev.to with canonical URL. Never cross-post without canonical tags — duplicate content penalty is real."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Medium Publications (Towards Data Science, Better Programming, UX Collective, The Startup) are curated channels with large followings. Submit articles to relevant publications. Hashnode: Find your ICP in technical tag communities.",
+    "contribution_before_pitch_rule": "Follow and clap for 20+ articles in your category before publishing your own. Comments on popular articles get seen by authors and their audiences.",
+    "dm_outreach_approach": "Medium and Hashnode authors can be reached via Twitter (almost all active writers maintain Twitter presence). Email is sometimes in profile. Collaboration pitch: 'I write about [your topic]. Would love to co-author something for your [platform] publication.'",
+    "influencer_partner_strategy": "Getting published in major Medium Publications (The Startup, Better Programming) gives immediate 50K-500K reader exposure. Submit polished articles to publication editors.",
+    "broadcast_vs_community_mode": "Primarily broadcast. Content reaches readers through search and platform distribution.",
+    "banned_behaviours": "Duplicate content without canonical tags. Buying Medium followers or claps. Misleading or clickbait content. Plagiarism."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Establish thought leadership in your product's problem space. Write definitive guides that rank in Google Search. Build Medium following that you can announce product to.",
+    "early_traction_1_to_100": "Launch announcement article with honest story. Technical deep-dive on how you built it (Hashnode). Case study from first beta users.",
+    "growth_100_to_1k": "SEO content strategy targeting your ICP's search queries. Series of educational articles that position your product category.",
+    "scale_1k_plus": "Medium partner program for revenue from your writing. Submit to major publications for amplified reach. Hashnode Headless for custom blog with your domain and Hashnode's SEO power."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Stripe — early engineering blog posts on Medium (later moved to their own blog) were highly technical and genuinely useful to developers. These articles drove developer adoption by demonstrating deep technical expertise before any sales conversations.",
+    "growth_stage_win": "Towards Data Science (Medium Publication) — became the dominant ML/AI content hub on Medium with 700K+ followers. Companies get their products discovered by data scientists through articles published in TDS.",
+    "what_made_it_work": "Both prioritised genuine educational value. The best Medium/Hashnode articles teach something real — the product is mentioned as a tool that enables the learning, not the focus of the article.",
+    "what_would_have_killed_it": "Articles that read like product brochures get zero organic distribution from editors or Google and generate no community trust."
+  }
+}

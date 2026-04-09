@@ -1,0 +1,64 @@
+{
+  "channel": "YouTube",
+  "tier": 1,
+  "channel_dna": {
+    "platform_type": "World's second largest search engine and dominant long-form video platform. Owned by Google — content indexes in Google Search as well as YouTube Search.",
+    "algorithm_type": "Hybrid search + recommendation. YouTube Search: keyword-based discovery. Suggested videos: watch history and interest graph. Homepage: personalised recommendations. Unlike TikTok — subscribers matter more here.",
+    "primary_audience": "Broadest demographic of any video platform. Highly intent-based — people search for specific solutions. Tutorial and educational content dominates across all ages. Developer tutorials, business content, lifestyle all massive categories.",
+    "native_content_formats": "Long-form video (8-20 minutes sweet spot for most niches), YouTube Shorts (under 60 seconds), Playlists, Live streams, Community posts. Long-form drives subscriptions; Shorts drive discovery.",
+    "platform_culture_code": "Value density matters — viewers will leave if bored. Credibility and expertise required — low-quality information gets called out in comments. Consistency builds trust. Production quality expectations higher than TikTok/Reels but authenticity still wins.",
+    "account_warmup_requirements": "Channel art, icon, about section must be complete. Minimum 10-15 videos before channel feels legitimate. First videos often get low views — treat as practice. Custom URL requires 100 subscribers."
+  },
+  "fit_scoring_matrix": {
+    "best_product_types": "Developer tools (tutorial-heavy content), SaaS products with workflow demonstrations, edtech, health and fitness, e-commerce brands, productivity apps, AI tools, business software",
+    "worst_product_types": "Products with no visual demonstration value, hyper-local services, products that solve problems nobody searches for, anything requiring real-time interaction",
+    "best_pricing_models": "All models work. Tutorial content works for freemium (show the free tier value). Paid products benefit from comparison videos and deep-dive demos.",
+    "icp_match_signals": "Search '[your product category] tutorial' or '[problem] how to solve'. If top results have 100K+ views and comments asking for tool recommendations, your ICP is searching here.",
+    "red_flags_skip_this_channel": "Skip if you cannot commit to video production consistently. Skip if your product has no screen-recording or demonstration potential. Skip if you need immediate results — YouTube takes 6-12 months to build.",
+    "geographic_strength": "Global reach in every market. India, US, Brazil, Russia, Japan, UK largest markets. Tutorial content performs across all geographies."
+  },
+  "growth_mechanics": {
+    "expected_cac": "$0 cash for organic. YouTube channel is a long-term asset — initial investment is time, payoff compounds for years. Videos drive organic traffic indefinitely.",
+    "time_to_first_traffic_spike": "3-6 months for most channels. Some videos can break out earlier with strong SEO and shareability. Shorts can spike faster.",
+    "time_to_first_paying_user": "3-6 months for organic YouTube strategy. Faster if driving to high-intent landing pages from tutorial content.",
+    "effort_level": "Very High — scripting, filming, editing, thumbnail design, SEO optimisation per video. 8-20 hours per video for quality content. Minimum 1 video/week for meaningful growth.",
+    "virality_coefficient": "Low for individual videos (rarely goes viral like TikTok). High for search traffic — well-optimised videos drive consistent traffic for years.",
+    "compounding_potential": "Highest of any platform. A video published today will still drive traffic in 3 years. Subscriber base compounds. Watch hours compound. Channel authority compounds."
+  },
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Click-through rate (CTR) from thumbnail + title determines initial push. Average view duration determines ongoing distribution. Suggested video placement = biggest traffic source after search. Subscriber notifications matter less than YouTube suggested.",
+    "what_algorithm_rewards": "High CTR thumbnails (>6% is good). Long average view duration (>50% video watched). Likes, comments, shares early after publish. Consistent uploads on predictable schedule. Videos that lead to more YouTube watching (not external clicks).",
+    "what_kills_reach": "Low CTR thumbnails (misleading titles that people click and immediately leave). Short average view duration (people leaving in first 30 seconds). Long gaps between uploads. Asking people to leave YouTube in video (algorithm penalises external link promotion).",
+    "peak_posting_windows": "Thursday-Saturday 2pm-4pm EST. Tuesday and Wednesday 2pm-4pm for business content. Publish 2-3 days before your target watch day for algorithmic building.",
+    "optimal_posting_cadence": "Minimum 1 video/week for consistent growth. 2-3 videos/week for fast growth. Consistency matters more than frequency — same day each week is better than sporadic bursts.",
+    "content_freshness_window": "Evergreen tutorials remain active indefinitely — some videos drive traffic for 5+ years. Trending/news content spikes in first 2 weeks then drops. Balance evergreen vs. topical content."
+  },
+  "content_system": {
+    "winning_content_types": "1. How-to tutorial (most searched content type) 2. Product comparison (high purchase intent) 3. Review of your own product (honest pros and cons) 4. 'Build with me' or 'Watch me use X' 5. Case study/results video 6. Problem deep-dive that positions your solution",
+    "hook_formulas": "First 30 seconds must answer: 'Why should I watch this?' Lead with the outcome: 'By the end of this video you will be able to X.' Address the viewer directly: 'If you are struggling with X, this video will change that.' Show a preview of the payoff immediately.",
+    "platform_native_tone": "Educational and structured. Clear chapter markers. Summary at beginning (tell them what you will teach). Detailed content. Slightly slower and more deliberate than TikTok. Credentials and expertise matter more here — earn trust early in video.",
+    "cta_approach": "Three CTAs per video: Early (subscribe to get more content like this), Middle (comment with your question), End (next video suggestion + link to product in description). Product in description with tracked links. Cards and end screens for cross-promotion.",
+    "content_to_avoid": "Overly long intros (viewers skip them). Filler content with no value. Clickbait titles that don't deliver on the promise. Reading from script too rigidly — feels unnatural. Poor audio quality — this is the #1 reason people leave videos.",
+    "cross_posting_rules": "YouTube Shorts from YouTube videos perform well. Long-form YouTube content is hard to repurpose elsewhere. Audio can become podcast episodes. Transcripts become blog posts. Screenshots become Twitter/LinkedIn content."
+  },
+  "community_outreach_playbook": {
+    "where_icp_clusters": "YouTube comments sections of your competitors. Channels your ICP watches. Subscribe and engage with top channels in your niche — your comments get seen by their audiences.",
+    "contribution_before_pitch_rule": "Comment thoughtfully on 20+ videos in your niche before starting your channel. Add value in comments ('Great point — I would also add...'). Never drop your channel link in other creators' comments.",
+    "dm_outreach_approach": "YouTube DMs (Community) rarely used. Better approach: respond to your own comment sections religiously — this builds community. For creator outreach, use email (found in about section of most channels).",
+    "influencer_partner_strategy": "YouTube creator sponsorships are expensive at scale but effective. Mid-tier creators (100K-500K subscribers) offer best ROI. Niche channels with 10K-50K subscribers for B2B products have high intent audiences. Provide a clear brief and free product access.",
+    "broadcast_vs_community_mode": "Primarily broadcast with community in comments. Respond to every comment in first 48 hours (algorithm signal AND relationship building). YouTube Community posts allow direct posts to subscribers.",
+    "banned_behaviours": "Click-bait that doesn't deliver. Buying views or subscribers. Keyword stuffing in descriptions. Re-uploading others' content. Copyright violations. Misleading thumbnails (YouTube Manual Review penalises)."
+  },
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Start YouTube channel around the PROBLEM space before launching. 'I am trying to solve X — here is what I am learning' format. Build subscribers who are invested in your mission. Document research, customer interviews, early builds.",
+    "early_traction_1_to_100": "Product tutorial series showing real use cases. Honest first-impressions/demo video. Founder story — why you built this. These early videos serve as sales material for years.",
+    "growth_100_to_1k": "Case study videos with real customers (permission required). Comparison videos (your product vs. alternatives — be fair and honest). SEO-optimised tutorial content targeting your ICP's search queries.",
+    "scale_1k_plus": "YouTube Ads to amplify best-performing content. Channel membership for exclusive content. Merchandise shelf. Speaking on industry podcast channels. Creator partnerships for mutual audience growth."
+  },
+  "proof_of_play": {
+    "early_stage_win": "Basecamp — Jason Fried and DHH built massive YouTube following through opinionated business content (not product tutorials). The content drove brand awareness and inbound that fuelled their growth for years.",
+    "growth_stage_win": "HubSpot Academy — built the dominant YouTube channel for inbound marketing education. Tutorials drove certified users who became paying customers. 500K+ subscribers became a significant acquisition channel.",
+    "what_made_it_work": "Both focused on education first — genuine value that helped the viewer regardless of whether they bought the product. The product was the natural next step for viewers who wanted to implement what they learned.",
+    "what_would_have_killed_it": "A channel full of product demos and company updates would have had zero organic search traffic and low subscriber retention."
+  }
+}
