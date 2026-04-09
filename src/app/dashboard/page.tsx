@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { DashboardClient } from "./DashboardClient";
+import { createClient } from "@/lib/supabase/client";
 
 interface LocalPlaybook {
   id: string;
@@ -16,28 +17,58 @@ export default function DashboardPage() {
   const [playbooks, setPlaybooks] = useState<LocalPlaybook[]>([]);
 
   useEffect(() => {
-    // Load playbooks from localStorage
-    const loadedPlaybooks: LocalPlaybook[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith("playbook_")) {
-        try {
-          const stored = JSON.parse(localStorage.getItem(key)!);
-          const { playbook, formData } = stored;
+    async function loadPlaybooks() {
+      const supabase = createClient();
+      const loadedPlaybooks: LocalPlaybook[] = [];
+
+      // 1. Load from Supabase
+      const { data: cloudPlaybooks, error } = await supabase
+        .from("playbooks")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Supabase load error:", error);
+      } else if (cloudPlaybooks) {
+        cloudPlaybooks.forEach((p: any) => {
           loadedPlaybooks.push({
-            id: playbook.id,
-            product_name: playbook.productName,
-            created_at: playbook.createdAt,
-            data: { playbook, formData },
+            id: p.id,
+            product_name: p.product_name,
+            created_at: p.created_at,
+            data: p.data,
           });
-        } catch (e) {
-          console.error("Failed to parse playbook:", key, e);
+        });
+      }
+
+      // 2. Load from localStorage (as fallback or migration)
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith("playbook_")) {
+          try {
+            const stored = JSON.parse(localStorage.getItem(key)!);
+            const { playbook, formData } = stored;
+            
+            // Avoid duplicates if already in cloud
+            if (!loadedPlaybooks.some(p => p.id === playbook.id)) {
+              loadedPlaybooks.push({
+                id: playbook.id,
+                product_name: playbook.productName,
+                created_at: playbook.createdAt,
+                data: { playbook, formData },
+              });
+            }
+          } catch (e) {
+            console.error("Failed to parse local playbook:", key, e);
+          }
         }
       }
+
+      // Sort final unified list by created_at descending
+      loadedPlaybooks.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setPlaybooks(loadedPlaybooks);
     }
-    // Sort by created_at descending
-    loadedPlaybooks.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    setPlaybooks(loadedPlaybooks);
+
+    loadPlaybooks();
   }, []);
 
   const handleDelete = (id: string) => {

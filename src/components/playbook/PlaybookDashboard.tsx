@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   LayoutDashboard,
@@ -10,7 +9,7 @@ import {
   Mail,
   Download,
   Share,
-  Zap
+  Zap,
 } from "lucide-react";
 import type { Playbook } from "@/lib/types";
 import { PlaybookOverview } from "./PlaybookOverview";
@@ -18,6 +17,7 @@ import { PlaybookICP } from "./PlaybookICP";
 import { PlaybookChannels } from "./PlaybookChannels";
 import { PlaybookOutreach } from "./PlaybookOutreach";
 import { PlaybookPosts } from "./PlaybookPosts";
+import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
 export function PlaybookDashboard({
@@ -25,31 +25,93 @@ export function PlaybookDashboard({
 }: {
   playbookId: string;
 }) {
-  const router = useRouter();
   const [playbook, setPlaybook] = useState<Playbook | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [activeTab, setActiveTab] = useState<"overview" | "icp" | "channels" | "outreach" | "posts">("overview");
 
   useEffect(() => {
-    // Load playbook from localStorage
-    const raw = localStorage.getItem(`playbook_${playbookId}`);
-    if (raw) {
-      try {
-        const stored = JSON.parse(raw);
-        setPlaybook(stored.playbook);
-      } catch (e) {
-        console.error("Failed to parse local playbook", e);
-        router.push("/dashboard");
-      }
-    } else {
-      // Playbook not found
-      router.push("/dashboard");
-    }
-  }, [playbookId, router]);
+    async function loadPlaybook() {
+      setLoading(true);
+      setLoadError("");
 
-  if (!playbook) {
+      // 1. Try localStorage first (fastest, no network)
+      const raw = localStorage.getItem(`playbook_${playbookId}`);
+      if (raw) {
+        try {
+          const stored = JSON.parse(raw);
+          setPlaybook(stored.playbook);
+          setLoading(false);
+          return;
+        } catch (e) {
+          console.warn("localStorage parse failed, falling back to Supabase");
+        }
+      }
+
+      // 2. Fallback: load from Supabase
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("playbooks")
+          .select("data")
+          .eq("id", playbookId)
+          .single();
+
+        if (error || !data) {
+          console.error("Supabase load failed:", error?.message);
+          setLoadError("Could not load this playbook. It may have been deleted.");
+          setLoading(false);
+          return;
+        }
+
+        const pb = data.data?.playbook || data.data;
+        const fd = data.data?.formData;
+
+        if (!pb) {
+          setLoadError("Playbook data is malformed.");
+          setLoading(false);
+          return;
+        }
+
+        // Cache in localStorage for next time
+        localStorage.setItem(`playbook_${playbookId}`, JSON.stringify({ playbook: pb, formData: fd }));
+        setPlaybook(pb);
+      } catch (err) {
+        setLoadError("An unexpected error occurred loading the playbook.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadPlaybook();
+  }, [playbookId]);
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-[#faf8f6] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#ff6b4e] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#faf8f6] flex items-center justify-center flex-col gap-4">
+        <div className="w-10 h-10 border-4 border-[#ff6b4e] border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm text-gray-500 font-medium">Loading your playbook...</p>
+      </div>
+    );
+  }
+
+  if (loadError || !playbook) {
+    return (
+      <div className="min-h-screen bg-[#faf8f6] flex items-center justify-center flex-col gap-6 px-6 text-center">
+        <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center">
+          <span className="text-3xl">📭</span>
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-[#1a1a2e] mb-2">Playbook not found</h2>
+          <p className="text-gray-500 text-sm max-w-sm">{loadError || "This playbook could not be loaded."}</p>
+        </div>
+        <Link
+          href="/dashboard"
+          className="px-6 py-3 rounded-xl bg-[#1a1a2e] text-white text-sm font-bold hover:bg-black transition-colors"
+        >
+          Back to Dashboard
+        </Link>
       </div>
     );
   }
@@ -59,7 +121,8 @@ export function PlaybookDashboard({
     { id: "icp", label: "Audience Profiling", icon: Users },
     { id: "channels", label: "Distribution Channels", icon: Share2 },
     { id: "outreach", label: "Outreach & DMs", icon: Mail },
-    { id: "posts", label: "Posts to Post", icon: Zap },
+    { id: "posts", label: "Content Engine", icon: Zap },
+    { id: "Warm Leads", label: "Warm Leads", icon: Zap },
   ] as const;
 
   return (
@@ -136,10 +199,17 @@ export function PlaybookDashboard({
 
           <div className="mt-8 pt-8 border-t border-black/5">
             <Link
-              href="/onboarding"
+              href="/dashboard"
               className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5 transition-all"
             >
               <ArrowLeft className="w-4.5 h-4.5 text-gray-400" />
+              All Playbooks
+            </Link>
+            <Link
+              href="/onboarding"
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5 transition-all"
+            >
+              <Zap className="w-4.5 h-4.5 text-gray-400" />
               New Playbook
             </Link>
           </div>
@@ -155,10 +225,12 @@ export function PlaybookDashboard({
             {activeTab === "posts" && (
               playbook.postsCalendar
                 ? <PlaybookPosts postsCalendar={playbook.postsCalendar} />
-                : <div className="text-center py-16 text-gray-400">
+                : (
+                  <div className="text-center py-16 text-gray-400">
                     <p className="text-sm font-medium">Post calendar not available for this playbook.</p>
-                    <p className="text-xs mt-1">Regenerate your playbook to get the 7-day post calendar.</p>
+                    <p className="text-xs mt-1">Regenerate your playbook to get the post calendar.</p>
                   </div>
+                )
             )}
           </div>
         </main>

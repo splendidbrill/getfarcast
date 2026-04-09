@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Zap, ArrowLeft, Check, Loader2 } from "lucide-react";
+import { Zap, ArrowLeft, Check, Loader2, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { WizardFormData, StoredPlaybook } from "@/lib/types";
 import { StepProductInfo } from "./StepProductInfo";
@@ -53,6 +53,8 @@ export function OnboardingWizard() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
   const [pipeline, setPipeline] = useState<PipelineStep[]>(INITIAL_PIPELINE);
+  const [isComplete, setIsComplete] = useState(false);
+  const [newPlaybookId, setNewPlaybookId] = useState("");
 
   const updateFormData = (updates: Partial<WizardFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -113,11 +115,13 @@ export function OnboardingWizard() {
           if (event.type === "progress") {
             updatePipelineStep(event.data as PipelineStep);
           } else if (event.type === "complete") {
-            completed = true;
             const { playbook, formData: fd } = event.data;
             const stored: StoredPlaybook = { playbook, formData: fd };
             localStorage.setItem(`playbook_${playbook.id}`, JSON.stringify(stored));
-            router.push(`/playbook/${playbook.id}`);
+            
+            setNewPlaybookId(playbook.id);
+            setIsComplete(true);
+            setIsGenerating(false);
             return;
           } else if (event.type === "error") {
             throw new Error(event.data.message);
@@ -168,20 +172,63 @@ export function OnboardingWizard() {
             </span>
           </Link>
           {!isGenerating && (
-            <Link
-              href="/"
-              className="text-sm text-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1.5"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Back to home
-            </Link>
+            <div className="flex items-center gap-6">
+              <Link
+                href="/dashboard"
+                className="text-sm font-medium text-gray-400 hover:text-[#1a1a2e] transition-colors"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/"
+                className="text-sm text-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1.5"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Back to home
+              </Link>
+            </div>
           )}
         </div>
       </header>
 
       <div className="relative z-10 max-w-2xl mx-auto px-6 py-12">
-        {/* Generating state — step-by-step pipeline */}
-        {isGenerating ? (
+        {/* Success / Complete state */}
+        {isComplete ? (
+          <div className="text-center space-y-8 py-12">
+            <div className="relative inline-block">
+              <div className="absolute inset-0 bg-emerald-500 rounded-full blur-2xl opacity-20 animate-pulse" />
+              <div className="relative w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl flex items-center justify-center shadow-2xl mx-auto mb-8 rotate-3 hover:rotate-0 transition-transform duration-500">
+                <Check className="w-12 h-12 text-white" strokeWidth={3} />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h2 className="text-3xl sm:text-4xl font-black text-[#1a1a2e] tracking-tight">
+                Your Playbook is <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-400">Ready!</span>
+              </h2>
+              <p className="text-gray-500 font-medium max-w-md mx-auto">
+                We've analyzed your product and built a bulletproof 30-day distribution engine tailored for {formData.productName}.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+              <Link
+                href={`/playbook/${newPlaybookId}`}
+                className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-[#1a1a2e] text-white font-bold shadow-xl hover:shadow-2xl hover:bg-black transition-all hover:-translate-y-1 flex items-center justify-center gap-2 group"
+              >
+                <Sparkles className="w-5 h-5 text-emerald-400" />
+                Show My Playbook
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                href="/dashboard"
+                className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white border border-black/5 text-gray-500 font-bold shadow-sm hover:shadow-md hover:text-[#1a1a2e] transition-all"
+              >
+                Go to Dashboard
+              </Link>
+            </div>
+          </div>
+        ) : isGenerating ? (
           <div className="space-y-8">
             <div className="text-center">
               <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a2e] mb-2">

@@ -128,8 +128,21 @@ function encodeEvent(
   type: string,
   data: unknown
 ) {
-  const payload = JSON.stringify({ type, data });
-  controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
+  try {
+    const payload = JSON.stringify({ type, data });
+    controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
+  } catch (err) {
+    // Controller already closed or cancelled
+    console.warn(`Could not encode event ${type}:`, err);
+  }
+}
+
+function safeClose(controller: ReadableStreamDefaultController) {
+  try {
+    controller.close();
+  } catch (err) {
+    // Already closed
+  }
 }
 
 // ==========================================
@@ -147,10 +160,27 @@ export async function POST(request: Request) {
   }
 
   const encoder = new TextEncoder();
+  const signal = request.signal;
 
   const stream = new ReadableStream({
     async start(controller) {
+      // HEARTBEAT: Send a tiny ping every 5 seconds to keep the connection alive
+      const heartbeat = setInterval(() => {
+        try {
+          controller.enqueue(encoder.encode(": keep-alive\n\n"));
+        } catch (e) {
+          clearInterval(heartbeat);
+        }
+      }, 5000);
+
+      const cleanup = () => {
+        clearInterval(heartbeat);
+        safeClose(controller);
+      };
+
       try {
+        if (signal.aborted) return cleanup();
+
         // -- STEP 1: Generate ICP --------------------------------------------------
         encodeEvent(controller, encoder, "progress", {
           step: 1,
@@ -159,6 +189,7 @@ export async function POST(request: Request) {
           status: "running",
         });
 
+        if (signal.aborted) return cleanup();
         const icp = (await callLLM(
           buildICPSystemPrompt(),
           buildICPUserPrompt(formData)
@@ -180,17 +211,21 @@ export async function POST(request: Request) {
           status: "running",
         });
 
-        // Returns ALL channels with genuine fit score > 50 (not just top 5)
-        const matchedChannels = matchChannels(
+        if (signal.aborted) return cleanup();
+        // Returns ALL channels with genuine fit score > 50
+        const allMatchedChannels = matchChannels(
           icp,
           formData.industry || formData.productDescription,
           formData.pricingModel
         );
 
+        // Limit to top 3 to keep generation fast and cost-effective
+        const matchedChannels = allMatchedChannels.slice(0, 3);
+
         encodeEvent(controller, encoder, "progress", {
           step: 2,
           total: 5,
-          label: `${matchedChannels.length} channels matched`,
+          label: `${allMatchedChannels.length} channels identified. Focusing on top ${matchedChannels.length}.`,
           status: "done",
           preview: matchedChannels.map((c) => `${c.name} (${c.score}%)`).join(", "),
         });
@@ -233,6 +268,7 @@ export async function POST(request: Request) {
         const channelStrategies = [];
 
         for (let i = 0; i < matchedChannels.length; i++) {
+          if (signal.aborted) return cleanup();
           const ch = matchedChannels[i];
           const kb = await getChannelPlaybook(ch.name);
 
@@ -280,6 +316,7 @@ export async function POST(request: Request) {
           status: "running",
         });
 
+        if (signal.aborted) return cleanup();
         const [outreach, marketSizing] = await Promise.all([
           callLLM(
             buildOutreachSystemPrompt(),
@@ -312,6 +349,7 @@ export async function POST(request: Request) {
           status: "running",
         });
 
+        if (signal.aborted) return cleanup();
         const calendarChannels = matchedChannels.map((c) => c.name);
 
         // Use higher token limit since we may generate posts for many platforms
@@ -329,7 +367,7 @@ export async function POST(request: Request) {
         });
 
         // -- Assemble final playbook ----------------------------------------------
-        const id = crypto.randomUUID().slice(0, 8);
+        const id = crypto.randomUUID();
         const playbook: Playbook = {
           id,
           createdAt: new Date().toISOString(),
@@ -342,15 +380,42 @@ export async function POST(request: Request) {
           postsCalendar: postsCalendar as Playbook["postsCalendar"],
         };
 
+        // -- SAVE TO SUPABASE  -----------------------------------------------------
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user) {
+          const { error: saveError } = await supabase
+            .from("playbooks")
+            .insert({
+              id: playbook.id,
+              user_id: user.id,
+              product_name: playbook.productName,
+              data: { playbook, formData },
+              created_at: playbook.createdAt,
+            });
+
+          if (saveError) {
+            console.error("Supabase Save Error:", saveError);
+            // We still want to send the complete event so the user doesn't lose data
+          } else {
+            console.log(`Playbook ${playbook.id} saved to Supabase successfully.`);
+          }
+        }
+
+        if (signal.aborted) return cleanup();
         encodeEvent(controller, encoder, "complete", { playbook, formData });
-        controller.close();
+        cleanup();
       } catch (err) {
         const message = err instanceof Error ? err.message : "Unknown error";
         console.error("Pipeline error:", message);
         encodeEvent(controller, encoder, "error", { message });
-        controller.close();
+        cleanup();
       }
     },
+    cancel() {
+      // Stream cancelled by browser (tab closed)
+    }
   });
 
   return new Response(stream, {
