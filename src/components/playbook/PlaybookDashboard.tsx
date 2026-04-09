@@ -122,7 +122,6 @@ export function PlaybookDashboard({
     { id: "channels", label: "Distribution Channels", icon: Share2 },
     { id: "outreach", label: "Outreach & DMs", icon: Mail },
     { id: "posts", label: "Content Engine", icon: Zap },
-    { id: "Warm Leads", label: "Warm Leads", icon: Zap },
   ] as const;
 
   return (
