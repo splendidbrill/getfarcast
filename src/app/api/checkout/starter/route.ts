@@ -4,25 +4,50 @@ import { createCheckout, lemonSqueezySetup } from "@lemonsqueezy/lemonsqueezy.js
 
 export async function GET(req: NextRequest) {
   try {
+    console.log("[checkout/starter] Request received");
+
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError) {
+      console.error("[checkout/starter] Auth error:", userError.message);
+    }
 
     if (!user) {
+      console.log("[checkout/starter] No user found - returning 401");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    console.log("[checkout/starter] User found:", user.id, "email:", user.email);
+
     const status = user.app_metadata?.subscription_status;
+    console.log("[checkout/starter] Subscription status:", status);
+
     if (status === "active" || status === "on_trial") {
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin}/dashboard`);
+      console.log("[checkout/starter] Already subscribed - redirecting to dashboard");
+      return NextResponse.redirect(`${req.nextUrl.origin}/dashboard`);
+    }
+
+    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+    const storeIdRaw = process.env.LEMON_SQUEEZY_STORE_ID;
+    const variantIdRaw = process.env.LEMON_SQUEEZY_VARIANT_ID;
+
+    console.log("[checkout/starter] Env check - apiKey present:", !!apiKey, "storeId:", storeIdRaw, "variantId:", variantIdRaw);
+
+    if (!apiKey || !storeIdRaw || !variantIdRaw) {
+      console.error("[checkout/starter] Missing env variables!");
+      return NextResponse.json({ error: "Server misconfiguration" }, { status: 500 });
     }
 
     lemonSqueezySetup({
-      apiKey: process.env.LEMON_SQUEEZY_API_KEY || "",
-      onError: (error) => console.error("Lemon Squeezy API Error:", error),
+      apiKey,
+      onError: (error) => console.error("[checkout/starter] Lemon Squeezy SDK Error:", error),
     });
 
-    const storeId = parseInt(process.env.LEMON_SQUEEZY_STORE_ID || "0", 10);
-    const variantId = parseInt(process.env.LEMON_SQUEEZY_VARIANT_ID || "0", 10);
+    const storeId = parseInt(storeIdRaw, 10);
+    const variantId = parseInt(variantIdRaw, 10);
+
+    console.log("[checkout/starter] Calling createCheckout with storeId:", storeId, "variantId:", variantId);
 
     const { data, error } = await createCheckout(storeId, variantId, {
       checkoutData: {
@@ -38,25 +63,28 @@ export async function GET(req: NextRequest) {
       },
       productOptions: {
         enabledVariants: [variantId],
-        redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin}/dashboard`,
+        redirectUrl: `${req.nextUrl.origin}/dashboard`,
         receiptButtonText: 'Go to Dashboard',
-        receiptLinkUrl: `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin}/dashboard`
+        receiptLinkUrl: `${req.nextUrl.origin}/dashboard`,
       },
     });
 
     if (error) {
-      console.error("Create checkout error:", error);
-      return NextResponse.json({ error: "Failed to create checkout" }, { status: 500 });
+      console.error("[checkout/starter] createCheckout error:", JSON.stringify(error));
+      return NextResponse.json({ error: "Failed to create checkout", detail: error }, { status: 500 });
     }
 
-    if (!data?.data?.attributes?.url) {
+    const checkoutUrl = data?.data?.attributes?.url;
+    console.log("[checkout/starter] Checkout URL:", checkoutUrl);
+
+    if (!checkoutUrl) {
+      console.error("[checkout/starter] No checkout URL in response:", JSON.stringify(data));
       return NextResponse.json({ error: "Failed to get checkout URL" }, { status: 500 });
     }
 
-    // Redirect the user to the Lemon Squeezy checkout page
-    return NextResponse.redirect(data.data.attributes.url);
+    return NextResponse.redirect(checkoutUrl);
   } catch (error) {
-    console.error("Internal Server Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("[checkout/starter] Unhandled exception:", error);
+    return NextResponse.json({ error: "Internal Server Error", detail: String(error) }, { status: 500 });
   }
 }
