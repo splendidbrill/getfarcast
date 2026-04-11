@@ -6,7 +6,7 @@ import { SignInModal } from "./SignInModal";
 import { sendGAEvent } from "@next/third-parties/google";
 
 type Region = "global" | "india";
-
+//new ssh key
 const plans = {
   global: [
     {
