@@ -6,9 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
+  nextUrl?: string;
 }
 
-export function SignInModal({ isOpen, onClose }: SignInModalProps) {
+export function SignInModal({ isOpen, onClose, nextUrl }: SignInModalProps) {
   if (!isOpen) return null;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -17,10 +18,15 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
 
   const handleGoogleSignIn = async () => {
     const supabase = createClient();
+    let redirectValue = `${window.location.origin}/auth/callback`;
+    if (nextUrl) {
+      redirectValue += `?next=${encodeURIComponent(nextUrl)}`;
+    }
+
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: redirectValue,
       },
     });
   };

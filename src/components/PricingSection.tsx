@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Check, Sparkles, Zap, Crown } from "lucide-react";
 import { SignInModal } from "./SignInModal";
 import { sendGAEvent } from "@next/third-parties/google";
+import { createClient } from "@/lib/supabase/client";
 
 type Region = "global" | "india";
 //new ssh key
@@ -149,6 +150,8 @@ const plans = {
 export function PricingSection() {
   const [region, setRegion] = useState<Region>("global");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [nextUrl, setNextUrl] = useState<string | undefined>();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -161,7 +164,20 @@ export function PricingSection() {
     );
 
     if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
+
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsLoggedIn(!!user);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session?.user);
+    });
+
+    return () => {
+      observer.disconnect();
+      subscription.unsubscribe();
+    };
   }, []);
 
   const currentPlans = plans[region];
@@ -301,8 +317,20 @@ export function PricingSection() {
                         : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"
                     }`}
                     onClick={() => {
-                      setIsModalOpen(true);
                       sendGAEvent('event', 'buttonClicked', { value: `pricing_trial_${plan.name.toLowerCase()}_${region}` });
+                      
+                      if (plan.name === "Starter") {
+                        if (isLoggedIn) {
+                          window.location.href = "/api/checkout/starter";
+                        } else {
+                          setNextUrl("/api/checkout/starter");
+                          setIsModalOpen(true);
+                        }
+                      } else {
+                        // For other plans, just open the modal normally (without specific redirect)
+                        setNextUrl(undefined);
+                        setIsModalOpen(true);
+                      }
                     }}
                   >
                     {plan.cta}
@@ -318,7 +346,7 @@ export function PricingSection() {
           })}
         </div>
       </div>
-      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} nextUrl={nextUrl} />
     </section>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Menu, X, Zap, LogOut, Settings } from "lucide-react";
+import { Menu, X, Zap, LogOut, Settings, CreditCard } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { sendGAEvent } from "@next/third-parties/google";
 
@@ -151,6 +151,14 @@ export function Navbar() {
                   >
                     <Settings className="w-4 h-4" />
                     Dashboard
+                  </Link>
+                  <Link
+                    href="/api/portal"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-[#1a1a2e] transition-colors"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    Manage Subscription
                   </Link>
                   <button
                     onClick={handleSignOut}
