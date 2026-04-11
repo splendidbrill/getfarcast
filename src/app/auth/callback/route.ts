@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
-// The client you created from the Server-Side Auth instructions
 import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  // if "next" is in param, use it as the redirect route
-  const next = searchParams.get('next') ?? '/dashboard'
+  
+  const cookieStore = await cookies()
+  const cookieNext = cookieStore.get('nextUrl')?.value
+  
+  // if "next" is in param, use it as the redirect route. Fallback to cookie.
+  const next = searchParams.get('next') || (cookieNext ? decodeURIComponent(cookieNext) : null) || '/dashboard'
 
   console.log('Auth callback triggered:', {
     origin,
@@ -64,11 +68,15 @@ export async function GET(request: Request) {
 
       // Normal production flow
       if (isVercel) {
-        return NextResponse.redirect(`${origin}${next}`)
+        const response = NextResponse.redirect(`${origin}${next}`)
+        response.cookies.delete('nextUrl')
+        return response
       }
 
       // Development environment
-      return NextResponse.redirect(`http://localhost:3000${next}`)
+      const response = NextResponse.redirect(`http://localhost:3000${next}`)
+      response.cookies.delete('nextUrl')
+      return response
     }
   }
 

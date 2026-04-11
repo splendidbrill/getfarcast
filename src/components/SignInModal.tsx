@@ -21,6 +21,7 @@ export function SignInModal({ isOpen, onClose, nextUrl }: SignInModalProps) {
     let redirectValue = `${window.location.origin}/auth/callback`;
     if (nextUrl) {
       redirectValue += `?next=${encodeURIComponent(nextUrl)}`;
+      document.cookie = `nextUrl=${encodeURIComponent(nextUrl)}; path=/; max-age=300; secure`;
     }
 
     await supabase.auth.signInWithOAuth({
