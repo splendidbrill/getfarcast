@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Check, Sparkles, Zap, Crown } from "lucide-react";
 import { SignInModal } from "./SignInModal";
+import { sendGAEvent } from "@next/third-parties/google";
 
 type Region = "global" | "india";
 
@@ -299,7 +300,10 @@ export function PricingSection() {
                         ? "bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white shadow-lg shadow-[#ff6b4e]/20 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#ff6b4e]/30"
                         : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"
                     }`}
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => {
+                      setIsModalOpen(true);
+                      sendGAEvent('event', 'buttonClicked', { value: `pricing_trial_${plan.name.toLowerCase()}_${region}` });
+                    }}
                   >
                     {plan.cta}
                   </button>

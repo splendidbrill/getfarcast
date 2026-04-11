@@ -12,6 +12,7 @@ import {
   Target,
 } from "lucide-react";
 import type { Playbook } from "@/lib/types";
+import { sendGAEvent } from "@next/third-parties/google";
 import { PlaybookOverview } from "./PlaybookOverview";
 import { PlaybookICP } from "./PlaybookICP";
 import { PlaybookChannels } from "./PlaybookChannels";
@@ -166,7 +167,10 @@ export function PlaybookDashboard({
           </div>
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => window.print()}
+              onClick={() => {
+                sendGAEvent('event', 'buttonClicked', { value: 'export_pdf' });
+                window.print();
+              }}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a2e] text-white text-sm font-medium hover:bg-black transition-colors shadow-sm print:hidden"
             >
               <Download className="w-4 h-4" />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Zap, ArrowLeft, Check, Loader2, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { sendGAEvent } from "@next/third-parties/google";
 import type { WizardFormData, StoredPlaybook } from "@/lib/types";
 import { StepProductInfo } from "./StepProductInfo";
 import { StepAudienceInfo } from "./StepAudienceInfo";
@@ -75,6 +76,7 @@ export function OnboardingWizard() {
   };
 
   const handleGenerate = async () => {
+    sendGAEvent('event', 'buttonClicked', { value: 'generate_playbook_start' });
     setIsGenerating(true);
     setError("");
     setPipeline(INITIAL_PIPELINE);

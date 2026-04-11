@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Menu, X, Zap, LogOut, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { sendGAEvent } from "@next/third-parties/google";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -169,6 +170,7 @@ export function Navbar() {
           <Link
             href="/onboarding"
             id="nav-cta-start"
+            onClick={() => sendGAEvent('event', 'buttonClicked', { value: 'nav_get_playbook_desktop' })}
             className="px-6 py-2.5 text-sm font-bold rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white hover:opacity-90 transition-all duration-200 shadow-md hover:shadow-xl hover:shadow-[#ff6b4e]/20 hover:-translate-y-0.5"
           >
             Get Your Playbook
@@ -237,7 +239,10 @@ export function Navbar() {
             
             <Link
               href="/onboarding"
-              onClick={() => setMobileOpen(false)}
+              onClick={() => {
+                setMobileOpen(false);
+                sendGAEvent('event', 'buttonClicked', { value: 'nav_get_playbook_mobile' });
+              }}
               className="block mt-4 px-6 py-3.5 text-base font-bold rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white text-center shadow-md"
             >
               Get Your Playbook
