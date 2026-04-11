@@ -64,7 +64,7 @@ export async function GET(request: Request) {
 
       // Normal production flow
       if (isVercel) {
-        return NextResponse.redirect(`https://getfarcast.vercel.app${next}`)
+        return NextResponse.redirect(`${origin}${next}`)
       }
 
       // Development environment
