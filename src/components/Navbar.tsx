@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, X, Zap, LogOut, Settings, CreditCard } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { sendGAEvent } from "@next/third-parties/google";
+import { SignInModal } from "./SignInModal";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -13,6 +14,7 @@ export function Navbar() {
   const [activeSection, setActiveSection] = useState("");
   const [userInitial, setUserInitial] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -171,9 +173,9 @@ export function Navbar() {
               )}
             </div>
           ) : (
-            <Link href="/login" className="text-sm font-semibold text-gray-600 hover:text-[#1a1a2e] transition-colors">
+            <button onClick={() => setIsLoginModalOpen(true)} className="text-sm font-semibold text-gray-600 hover:text-[#1a1a2e] transition-colors">
               Log in
-            </Link>
+            </button>
           )}
           <Link
             href="/onboarding"
@@ -236,13 +238,15 @@ export function Navbar() {
                 </button>
               </div>
             ) : (
-              <Link
-                href="/login"
-                onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 text-base font-bold text-gray-600 hover:text-[#1a1a2e]"
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  setIsLoginModalOpen(true);
+                }}
+                className="block w-full text-left px-4 py-3 text-base font-bold text-gray-600 hover:text-[#1a1a2e]"
               >
                 Log in
-              </Link>
+              </button>
             )}
             
             <Link
@@ -258,6 +262,7 @@ export function Navbar() {
           </div>
         </div>
       )}
+      <SignInModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} nextUrl="/api/checkout/starter" />
     </nav>
   );
 }

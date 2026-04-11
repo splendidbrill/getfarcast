@@ -11,6 +11,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const status = user.app_metadata?.subscription_status;
+    if (status === "active" || status === "on_trial") {
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin}/dashboard`);
+    }
+
     lemonSqueezySetup({
       apiKey: process.env.LEMON_SQUEEZY_API_KEY || "",
       onError: (error) => console.error("Lemon Squeezy API Error:", error),
