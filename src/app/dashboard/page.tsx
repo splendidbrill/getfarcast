@@ -19,6 +19,19 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadPlaybooks() {
       const supabase = createClient();
+
+      // Gate: check subscription status first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = '/';
+        return;
+      }
+      const status = user.app_metadata?.subscription_status;
+      if (!status || (status !== 'active' && status !== 'on_trial')) {
+        window.location.href = '/api/checkout/starter';
+        return;
+      }
+
       const loadedPlaybooks: LocalPlaybook[] = [];
 
       // 1. Load from Supabase
