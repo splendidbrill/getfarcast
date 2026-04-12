@@ -41,22 +41,23 @@ interface PipelineStep {
 }
 
 const INITIAL_PIPELINE: PipelineStep[] = [
-  { step: 1, total: 5, label: "Profiling your ideal customer...", status: "waiting" },
-  { step: 2, total: 5, label: "Matching distribution channels...", status: "waiting" },
-  { step: 3, total: 5, label: "Crafting channel strategies (expert rules applied)...", status: "waiting" },
-  { step: 4, total: 5, label: "Writing outreach sequences...", status: "waiting" },
-  { step: 5, total: 5, label: "Running content engine (7-day calendar)...", status: "waiting" },
+  { step: 1, total: 4, label: "Profiling your ideal customer...", status: "waiting" },
+  { step: 2, total: 4, label: "Matching distribution channels...", status: "waiting" },
+  { step: 3, total: 4, label: "Crafting channel strategies (expert rules applied)...", status: "waiting" },
+  { step: 4, total: 4, label: "Writing outreach sequences...", status: "waiting" },
 ];
 
 export function OnboardingWizard() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<WizardFormData>(INITIAL_DATA);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
   const [pipeline, setPipeline] = useState<PipelineStep[]>(INITIAL_PIPELINE);
-  const [isComplete, setIsComplete] = useState(false);
+  const [wizardPhase, setWizardPhase] = useState<'form' | 'generating_playbook' | 'selecting_channels' | 'generating_content' | 'done'>('form');
   const [newPlaybookId, setNewPlaybookId] = useState("");
+  const [generatedPlaybook, setGeneratedPlaybook] = useState<any>(null);
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
+  const [contentProgress, setContentProgress] = useState(0);
 
   const updateFormData = (updates: Partial<WizardFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -77,7 +78,7 @@ export function OnboardingWizard() {
 
   const handleGenerate = async () => {
     sendGAEvent('event', 'buttonClicked', { value: 'generate_playbook_start' });
-    setIsGenerating(true);
+    setWizardPhase('generating_playbook');
     setError("");
     setPipeline(INITIAL_PIPELINE);
 
@@ -123,8 +124,12 @@ export function OnboardingWizard() {
             localStorage.setItem(`playbook_${playbook.id}`, JSON.stringify(stored));
             
             setNewPlaybookId(playbook.id);
-            setIsComplete(true);
-            setIsGenerating(false);
+            setGeneratedPlaybook(playbook);
+            // Default top 3 selected
+            const topChannels = playbook.channels.filter((c: any) => c.pushType === "hard").map((c: any) => c.name);
+            setSelectedChannels(topChannels.length > 0 ? topChannels : playbook.channels.slice(0, 3).map((c: any) => c.name));
+            
+            setWizardPhase('selecting_channels');
             return;
           } else if (event.type === "error") {
             throw new Error(event.data.message);
@@ -137,10 +142,76 @@ export function OnboardingWizard() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
-      setIsGenerating(false);
+      setWizardPhase('form');
       setPipeline(INITIAL_PIPELINE);
     }
   };
+
+  const handleGenerateContent = async () => {
+    if (selectedChannels.length === 0) return;
+    setWizardPhase('generating_content');
+    setContentProgress(10);
+    setError("");
+
+    try {
+      const res = await fetch("/api/generate-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playbookId: newPlaybookId, selectedChannels }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Content generation failed");
+      }
+
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No response stream");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+      
+      setContentProgress(30);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const jsonStr = line.slice(6).trim();
+          if (!jsonStr) continue;
+
+          const event = JSON.parse(jsonStr);
+
+          if (event.type === "progress") {
+            setContentProgress(60);
+          } else if (event.type === "complete") {
+            const { playbook, formData: fd } = event.data;
+            const stored: StoredPlaybook = { playbook, formData: fd };
+            localStorage.setItem(`playbook_${playbook.id}`, JSON.stringify(stored));
+            
+            setContentProgress(100);
+            setWizardPhase('done');
+            return;
+          } else if (event.type === "error") {
+            throw new Error(event.data.message);
+          }
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setWizardPhase('selecting_channels');
+    }
+  };
+
+  // derived condition for backwards compat with old header visibility conditional
+  const isGenerating = wizardPhase === 'generating_playbook' || wizardPhase === 'generating_content';
+  const isComplete = wizardPhase === 'done';
 
   return (
     <div className="min-h-screen bg-[#faf8f6] text-[#1a1a2e] relative overflow-hidden">
@@ -195,8 +266,8 @@ export function OnboardingWizard() {
       </header>
 
       <div className="relative z-10 max-w-2xl mx-auto px-6 py-12">
-        {/* Success / Complete state */}
-        {isComplete ? (
+        {/* Phase 5: Success / Done state */}
+        {wizardPhase === 'done' && (
           <div className="text-center space-y-8 py-12">
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-emerald-500 rounded-full blur-2xl opacity-20 animate-pulse" />
@@ -207,7 +278,7 @@ export function OnboardingWizard() {
 
             <div className="space-y-3">
               <h2 className="text-3xl sm:text-4xl font-black text-[#1a1a2e] tracking-tight">
-                Your Playbook is <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-400">Ready!</span>
+                Hooray! Your 7 day content is <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-400">ready.</span>
               </h2>
               <p className="text-gray-500 font-medium max-w-md mx-auto">
                 We've analyzed your product and built a bulletproof 30-day distribution engine tailored for {formData.productName}.
@@ -231,7 +302,106 @@ export function OnboardingWizard() {
               </Link>
             </div>
           </div>
-        ) : isGenerating ? (
+        )}
+
+        {/* Phase 6: Generating Content state */}
+        {wizardPhase === 'generating_content' && (
+          <div className="space-y-8 max-w-lg mx-auto py-12">
+            <div className="text-center">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a2e] mb-2">
+                Writing your posts...
+              </h2>
+              <p className="text-gray-500 text-sm">
+                Creating 7 days of platform-native content for <span className="text-[#ff6b4e] font-semibold">{selectedChannels.length}</span> selected channels
+              </p>
+            </div>
+
+            <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-sm text-center">
+              <Loader2 className="w-10 h-10 text-[#ff6b4e] animate-spin mx-auto mb-6" />
+              <div className="w-full bg-gray-100 rounded-full h-3 mb-4 overflow-hidden">
+                <div 
+                  className="bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] h-3 rounded-full transition-all duration-500" 
+                  style={{ width: `${contentProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm font-medium text-gray-500 animate-pulse">Running expert playbooks to match algorithms...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Phase 7: Channel Selection state */}
+        {wizardPhase === 'selecting_channels' && generatedPlaybook && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a2e] mb-2">
+                Pick your distribution channels
+              </h2>
+              <p className="text-gray-500 text-sm">
+                We've found {generatedPlaybook.channels.length} channels with genuine fit for your product. Toggle the ones you want content for.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {generatedPlaybook.channels.map((ch: any) => {
+                const isSelected = selectedChannels.includes(ch.name);
+                return (
+                  <div 
+                    key={ch.name} 
+                    onClick={() => {
+                      if (isSelected) {
+                        setSelectedChannels(prev => prev.filter(c => c !== ch.name));
+                      } else {
+                        setSelectedChannels(prev => [...prev, ch.name]);
+                      }
+                    }}
+                    className={`cursor-pointer transition-all duration-200 rounded-2xl p-5 border-2 flex flex-col justify-between ${
+                      isSelected 
+                        ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-500/10' 
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg ${isSelected ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                          {ch.name.charAt(0)}
+                        </div>
+                        <div>
+                          <h4 className={`font-bold ${isSelected ? 'text-emerald-900' : 'text-gray-900'}`}>{ch.name}</h4>
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isSelected ? 'bg-emerald-200 text-emerald-800' : 'bg-green-100 text-green-700'}`}>
+                            {ch.fitScore}% Match
+                          </span>
+                        </div>
+                      </div>
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300 bg-transparent'}`}>
+                        {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-center pt-6">
+              <button
+                onClick={handleGenerateContent}
+                disabled={selectedChannels.length === 0}
+                className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-[#1a1a2e] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 flex items-center justify-center gap-2 group"
+              >
+                Generate Content ({selectedChannels.length})
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+            
+            {error && (
+              <div className="mt-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm text-center">
+                {error}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Phase 8: Generating Playbook state */}
+        {wizardPhase === 'generating_playbook' && (
           <div className="space-y-8">
             <div className="text-center">
               <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a2e] mb-2">
@@ -307,12 +477,12 @@ export function OnboardingWizard() {
                 Each channel strategy is powered by our curated playbooks — not generic AI advice.
               </p>
             </div>
-
+            
             {error && (
               <div className="bg-red-50 rounded-2xl p-5 border border-red-100">
                 <p className="text-sm text-red-600">{error}</p>
                 <button
-                  onClick={() => { setIsGenerating(false); setError(""); }}
+                  onClick={() => { setWizardPhase('form'); setError(""); }}
                   className="mt-3 text-sm text-[#ff6b4e] underline hover:no-underline"
                 >
                   Go back and try again
@@ -320,7 +490,9 @@ export function OnboardingWizard() {
               </div>
             )}
           </div>
-        ) : (
+        )}
+
+        {wizardPhase === 'form' && (
           <>
             {/* Progress bar */}
             <div className="mb-10">

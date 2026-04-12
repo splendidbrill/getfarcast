@@ -206,7 +206,7 @@ export async function POST(request: Request) {
         // -- STEP 2: Channel Matching (deterministic, genuine scoring) -------------
         encodeEvent(controller, encoder, "progress", {
           step: 2,
-          total: 5,
+          total: 4,
           label: "Matching distribution channels...",
           status: "running",
         });
@@ -221,7 +221,7 @@ export async function POST(request: Request) {
 
         encodeEvent(controller, encoder, "progress", {
           step: 2,
-          total: 5,
+          total: 4,
           label: `${matchedChannels.length} channels identified.`,
           status: "done",
           preview: matchedChannels.slice(0, 5).map((c) => `${c.name} (${c.score}%)`).join(", ") + (matchedChannels.length > 5 ? "..." : ""),
@@ -271,7 +271,7 @@ export async function POST(request: Request) {
           // Fetch strategy for ALL matched channels
           encodeEvent(controller, encoder, "progress", {
             step: 3,
-            total: 5,
+            total: 4,
             label: `Writing ${ch.name} strategy (expert rules applied)...`,
             status: "running",
             substep: `${i + 1}/${matchedChannels.length}`,
@@ -299,7 +299,7 @@ export async function POST(request: Request) {
 
           encodeEvent(controller, encoder, "progress", {
             step: 3,
-            total: 5,
+            total: 4,
             label: `${ch.name} recognized`,
             status: i + 1 === matchedChannels.length ? "done" : "partial",
             substep: `${i + 1}/${matchedChannels.length}`,
@@ -309,7 +309,7 @@ export async function POST(request: Request) {
         // -- STEP 4: Outreach + Market Sizing (parallel) --------------------------
         encodeEvent(controller, encoder, "progress", {
           step: 4,
-          total: 5,
+          total: 4,
           label: "Writing outreach sequences + market sizing...",
           status: "running",
         });
@@ -332,38 +332,11 @@ export async function POST(request: Request) {
 
         encodeEvent(controller, encoder, "progress", {
           step: 4,
-          total: 5,
+          total: 4,
           label: "Outreach and market sizing ready",
           status: "done",
         });
 
-        // -- STEP 5: Post Calendar (cadence-matched per platform) -----------------
-        // ALL matched channels get posts generated, each with the correct number
-        // of posts based on optimal_posting_cadence from the platform JSON.
-        encodeEvent(controller, encoder, "progress", {
-          step: 5,
-          total: 5,
-          label: "Writing post calendar (cadence-matched per platform)...",
-          status: "running",
-        });
-
-        if (signal.aborted) return cleanup();
-        // Post calendar ONLY for the top 3 channels to save tokens
-        const calendarChannels = matchedChannels.slice(0, 3).map((c) => c.name);
-
-        // Use higher token limit since we may generate posts for many platforms
-        const postsCalendar = await callLLMWithTokens(
-          buildPostsCalendarSystemPrompt(calendarChannels),
-          buildPostsCalendarUserPrompt(icp, formData, calendarChannels),
-          8000
-        );
-
-        encodeEvent(controller, encoder, "progress", {
-          step: 5,
-          total: 5,
-          label: "Post calendar ready",
-          status: "done",
-        });
 
         // -- Assemble final playbook ----------------------------------------------
         const id = crypto.randomUUID();
@@ -376,7 +349,6 @@ export async function POST(request: Request) {
           marketSizing: marketSizing as Playbook["marketSizing"],
           channels: channelStrategies as Playbook["channels"],
           outreach: outreach as Playbook["outreach"],
-          postsCalendar: postsCalendar as Playbook["postsCalendar"],
         };
 
         // -- SAVE TO SUPABASE  -----------------------------------------------------
