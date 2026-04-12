@@ -117,14 +117,18 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
                       Expert Algorithm Insights
                     </h4>
                   </div>
-                  <ul className="space-y-2">
-                    {channel.algorithmInsights?.map((ins, i) => (
-                      <li key={i} className="text-sm font-medium text-blue-800 flex items-start gap-2">
-                        <span className="text-blue-500 mt-0.5">•</span>
-                        {ins}
-                      </li>
-                    ))}
-                  </ul>
+                  {(!channel.algorithmInsights || channel.algorithmInsights.length === 0) ? (
+                    <p className="text-sm text-blue-700 italic">No algorithm insights yet. Generate a new playbook to retrieve them!</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {channel.algorithmInsights.map((ins, i) => (
+                        <li key={i} className="text-sm font-medium text-blue-800 flex items-start gap-2">
+                          <span className="text-blue-500 mt-0.5">•</span>
+                          {ins}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
 
                 {/* Best Practices vs Anti-Patterns */}
@@ -135,14 +139,18 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
                       <CheckCircle className="w-4 h-4" />
                       What To Do
                     </h4>
-                    <ul className="space-y-2.5">
-                      {channel.bestPractices.map((bp, i) => (
-                        <li key={i} className="text-sm font-medium text-gray-700 flex items-start gap-2">
-                          <span className="text-emerald-500 shrink-0 mt-0.5">✓</span>
-                          {bp}
-                        </li>
-                      ))}
-                    </ul>
+                    {(!channel.bestPractices || channel.bestPractices.length === 0) ? (
+                      <p className="text-sm text-gray-400 italic">No specific recommendations yet. Generate a new playbook to retrieve them!</p>
+                    ) : (
+                      <ul className="space-y-2.5">
+                        {channel.bestPractices.map((bp, i) => (
+                          <li key={i} className="text-sm font-medium text-gray-700 flex items-start gap-2">
+                            <span className="text-emerald-500 shrink-0 mt-0.5">✓</span>
+                            {bp}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                   <div className="bg-white rounded-2xl p-5 border border-red-100 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-16 h-16 bg-red-50 rounded-bl-full -z-10" />
@@ -150,14 +158,18 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
                       <XCircle className="w-4 h-4" />
                       What Kills Reach
                     </h4>
-                    <ul className="space-y-2.5">
-                      {channel.antiPatterns.map((ap, i) => (
-                        <li key={i} className="text-sm font-medium text-gray-700 flex items-start gap-2">
-                          <span className="text-red-500 shrink-0 mt-0.5">✗</span>
-                          {ap}
-                        </li>
-                      ))}
-                    </ul>
+                    {(!channel.antiPatterns || channel.antiPatterns.length === 0) ? (
+                      <p className="text-sm text-gray-400 italic">No specific warnings yet. Generate a new playbook to retrieve them!</p>
+                    ) : (
+                      <ul className="space-y-2.5">
+                        {channel.antiPatterns.map((ap, i) => (
+                          <li key={i} className="text-sm font-medium text-gray-700 flex items-start gap-2">
+                            <span className="text-red-500 shrink-0 mt-0.5">✗</span>
+                            {ap}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </div>
               </div>
