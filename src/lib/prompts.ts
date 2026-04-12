@@ -98,17 +98,13 @@ export function buildChannelSystemPrompt(
 ${channelPlaybook}
 
 ## YOUR TASK
-Using the expert playbook above AND the product/ICP information from the user, generate a complete ${channelName} channel strategy and a full 30-Day Content Calendar.
+Using the expert playbook above AND the product/ICP information from the user, generate a complete ${channelName} channel strategy.
 
 ${ANTI_SLOP_RULES}
 
 ## OUTPUT RULES
 1. Return ONLY valid JSON. Zero text outside the JSON.
-2. The contentCalendar MUST contain exactly 15 sequential posts designed to be published over 30 days (e.g. Day 1, Day 3, Day 5, Day 7... up to Day 30).
-3. Vary the post types (e.g., Value-add, Hot take, Origin story, Soft pitch, Interaction driver) to maintain an authentic feed.
-4. Content must be COPY-PASTE READY. The founder should be able to post them TODAY with minimal edits.
-5. All best practices and anti-patterns must be SPECIFIC to this channel AND this product. No generic advice.
-6. The hook in each post must follow the specific hook formats described in the expert playbook.
+2. All best practices and anti-patterns must be SPECIFIC to this channel AND this product. No generic advice.
 
 ## JSON SCHEMA:
 {
@@ -128,23 +124,6 @@ ${ANTI_SLOP_RULES}
   ],
   "antiPatterns": [
     "Specific thing NOT to do, from the expert playbook"
-  ],
-  "influencerTargets": [
-    {
-      "handle": "Account name or description",
-      "platform": "${channelName}",
-      "audienceSize": "e.g. 45K followers",
-      "why": "Why this influencer/community fits this product"
-    }
-  ],
-  "contentCalendar": [
-    {
-      "day": 1,
-      "type": "post|comment|reel|story|article|thread",
-      "title": "Theme or concept of this post (e.g., Origin Story)",
-      "hook": "The exact opening line. Must follow hook formats from the expert playbook.",
-      "body": "Full post body. Ready to copy-paste with [OPTIONAL: minor product-specific edits in brackets]."
-    }
   ]
 }`;
 }
@@ -182,7 +161,7 @@ ${feedbackContext ? `## CRITICAL PERFORMANCE FEEDBACK FROM PREVIOUS 30 DAYS
 The user ran a 30-day playbook last month. Here is EXACTLY what performed well and what flopped. Adapt this month's content immediately based on this data:
 ${feedbackContext}
 ` : ''}
-Generate the complete ${channelName} strategy JSON now. Apply ALL rules from the expert playbook. Make the content templates READY TO POST TODAY.`;
+Generate the complete ${channelName} strategy JSON now. Apply ALL rules from the expert playbook.`;
 }
 
 // ==========================================

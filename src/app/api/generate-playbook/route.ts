@@ -268,56 +268,34 @@ export async function POST(request: Request) {
           if (signal.aborted) return cleanup();
           const ch = matchedChannels[i];
 
-          // NEW: Only generate full AI content for the top 3 channels to save costs
-          const isTopThree = i < 3;
-
+          // Fetch strategy for ALL matched channels
           encodeEvent(controller, encoder, "progress", {
             step: 3,
             total: 5,
-            label: isTopThree 
-              ? `Writing ${ch.name} strategy (expert rules applied)...`
-              : `Recognizing ${ch.name} as a match...`,
+            label: `Writing ${ch.name} strategy (expert rules applied)...`,
             status: "running",
             substep: `${i + 1}/${matchedChannels.length}`,
           });
 
-          if (isTopThree) {
-            const kb = await getChannelPlaybook(ch.name);
-            const systemPrompt = kb
-              ? buildChannelSystemPrompt(ch.name, kb)
-              : buildChannelSystemPrompt(
-                  ch.name,
-                  `No specific playbook available. Generate a comprehensive strategy based on your knowledge of ${ch.name} best practices for early-stage startups.`
-                );
+          const kb = await getChannelPlaybook(ch.name);
+          const systemPrompt = kb
+            ? buildChannelSystemPrompt(ch.name, kb)
+            : buildChannelSystemPrompt(
+                ch.name,
+                `No specific playbook available. Generate a comprehensive strategy based on your knowledge of ${ch.name} best practices for early-stage startups.`
+              );
 
-            const strategy = (await callLLM(
-              systemPrompt,
-              buildChannelUserPrompt(icp, formData, ch.name, i + 1, ch.pushType, feedbackContextStr)
-            )) as Record<string, unknown>;
+          const strategy = (await callLLM(
+            systemPrompt,
+            buildChannelUserPrompt(icp, formData, ch.name, i + 1, ch.pushType, feedbackContextStr)
+          )) as Record<string, unknown>;
 
-            channelStrategies.push({
-              ...strategy,
-              rank: i + 1,
-              fitScore: ch.score,
-              pushType: ch.pushType,
-            });
-          } else {
-            // Skeleton strategy for non-top-3 channels
-            channelStrategies.push({
-              name: ch.name,
-              rank: i + 1,
-              fitScore: ch.score,
-              pushType: ch.pushType,
-              rationale: `Matched as a high-potential growth channel with a ${ch.score}% fit score. Strategy generation skipped for cost optimization (Only top 3 channels are fully analyzed).`,
-              audienceSize: "Matched",
-              engagementRate: "Profiled",
-              accessibility: "free",
-              algorithmInsights: [],
-              bestPractices: [],
-              antiPatterns: [],
-              contentCalendar: []
-            });
-          }
+          channelStrategies.push({
+            ...strategy,
+            rank: i + 1,
+            fitScore: ch.score,
+            pushType: ch.pushType,
+          });
 
           encodeEvent(controller, encoder, "progress", {
             step: 3,

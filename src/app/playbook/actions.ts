@@ -1,7 +1,6 @@
 // Client-side function to update post feedback in localStorage
 export function updatePostFeedback(
   playbookId: string,
-  channelName: string,
   postIndex: number,
   rating?: "fire" | "ok" | "flop",
   comments?: string
@@ -11,13 +10,14 @@ export function updatePostFeedback(
 
   try {
     const stored = JSON.parse(raw);
-    const playbook = stored.playbook;
+    const playbook = stored.playbook || stored; // Ensure we handle nested playbook if needed
+    
+    // Fallback if data structure is odd
+    const posts = playbook.postsCalendar?.posts || playbook.data?.playbook?.postsCalendar?.posts;
 
-    const channel = playbook.channels.find((c: any) => c.name === channelName);
-    if (!channel) return;
+    if (!posts || !posts[postIndex]) return;
 
-    const post = channel.contentCalendar[postIndex];
-    if (!post) return;
+    const post = posts[postIndex];
 
     if (rating !== undefined) {
       post.feedbackRating = rating;

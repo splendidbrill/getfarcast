@@ -229,7 +229,7 @@ export function PlaybookDashboard({
             {activeTab === "outreach" && <PlaybookOutreach outreach={playbook.outreach} />}
             {activeTab === "posts" && (
               playbook.postsCalendar
-                ? <PlaybookPosts postsCalendar={playbook.postsCalendar} />
+                ? <PlaybookPosts playbookId={playbookId} postsCalendar={playbook.postsCalendar} />
                 : (
                   <div className="text-center py-16 text-gray-400">
                     <p className="text-sm font-medium">Post calendar not available for this playbook.</p>

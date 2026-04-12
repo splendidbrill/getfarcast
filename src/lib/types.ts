@@ -96,6 +96,8 @@ export interface ReadyPost {
   characterCount: number; // Approximate length
   bestTimeToPost: string; // e.g. "Tuesday 9am EST"
   subredditOrHashtags?: string; // e.g. "r/SaaS" or "#buildinpublic #saas"
+  feedbackRating?: "fire" | "ok" | "flop";
+  feedbackComments?: string;
 }
 
 export interface PostsCalendar {

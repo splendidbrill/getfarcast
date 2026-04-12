@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Copy,
   Check,
@@ -14,8 +14,11 @@ import {
   Eye,
   MessageSquare,
   TrendingUp,
+  Frown,
+  ThumbsUp,
 } from "lucide-react";
 import type { PostsCalendar, ReadyPost } from "@/lib/types";
+import { updatePostFeedback } from "@/app/playbook/actions";
 
 const PLATFORM_CONFIG: Record<
   string,
@@ -291,9 +294,26 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function PostCard({ post, index }: { post: ReadyPost; index: number }) {
+function PostCard({ post, index, playbookId }: { post: ReadyPost; index: number; playbookId: string }) {
   const [expanded, setExpanded] = useState(index === 0);
   const platform = getPlatformConfig(post.platform);
+  
+  const [feedbackRating, setFeedbackRating] = useState<"fire" | "ok" | "flop" | undefined>(post.feedbackRating);
+  const [comments, setComments] = useState(post.feedbackComments || "");
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleRating = (rating: "fire" | "ok" | "flop") => {
+    setFeedbackRating(rating);
+    updatePostFeedback(playbookId, index, rating, undefined);
+  };
+
+  const handleCommentsChange = (val: string) => {
+    setComments(val);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      updatePostFeedback(playbookId, index, undefined, val);
+    }, 1000);
+  };
 
   return (
     <div
@@ -376,6 +396,67 @@ function PostCard({ post, index }: { post: ReadyPost; index: number }) {
             </p>
             <CopyButton text={post.body} />
           </div>
+
+          {/* Performance Feedback Loop */}
+          <div className="mt-6 pt-4 border-t border-gray-100/50 bg-gray-50/50 -mx-4 -mb-4 px-4 pb-4 shadow-inner">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Rate Performance</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleRating("fire")}
+                  className={`p-2 rounded-lg transition-all ${
+                    feedbackRating === "fire" 
+                    ? "bg-orange-100 text-orange-500 scale-110 shadow-sm" 
+                    : "text-gray-400 hover:bg-orange-50 hover:text-orange-400"
+                  }`}
+                  title="Killed It"
+                >
+                  <Flame className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => handleRating("ok")}
+                  className={`p-2 rounded-lg transition-all ${
+                    feedbackRating === "ok" 
+                    ? "bg-blue-100 text-blue-500 scale-110 shadow-sm" 
+                    : "text-gray-400 hover:bg-blue-50 hover:text-blue-400"
+                  }`}
+                  title="Did Okay"
+                >
+                  <ThumbsUp className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => handleRating("flop")}
+                  className={`p-2 rounded-lg transition-all ${
+                    feedbackRating === "flop" 
+                    ? "bg-gray-200 text-gray-600 scale-110 shadow-sm" 
+                    : "text-gray-400 hover:bg-gray-100 hover:text-gray-500"
+                  }`}
+                  title="Flopped"
+                >
+                  <Frown className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Raw Comments Dropdown (Visible if rated) */}
+            {(feedbackRating !== undefined) && (
+              <div className="animate-in slide-in-from-top-2 fade-in duration-200 mt-2">
+                <div className="relative">
+                  <MessageSquare className="absolute top-3 left-3 w-4 h-4 text-gray-400" />
+                  <textarea
+                    value={comments}
+                    onChange={(e) => handleCommentsChange(e.target.value)}
+                    placeholder="Paste the exact comments this got (or your raw thoughts) to train the AI for next time..."
+                    className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1a1a2e] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff6b4e]/20 focus:border-[#ff6b4e]/40 transition-all resize-none h-20 shadow-sm"
+                  />
+                  <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-50">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Auto-saving</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -383,8 +464,10 @@ function PostCard({ post, index }: { post: ReadyPost; index: number }) {
 }
 
 export function PlaybookPosts({
+  playbookId,
   postsCalendar,
 }: {
+  playbookId: string;
   postsCalendar: PostsCalendar;
 }) {
   // Group posts by platform to show unique platforms
@@ -455,7 +538,7 @@ export function PlaybookPosts({
       {/* Post Cards */}
       <div className="space-y-3">
         {filteredPosts.map((post, i) => (
-          <PostCard key={`${post.day}-${post.platform}`} post={post} index={i} />
+          <PostCard key={`${post.day}-${post.platform}`} post={post} index={i} playbookId={playbookId} />
         ))}
       </div>
 

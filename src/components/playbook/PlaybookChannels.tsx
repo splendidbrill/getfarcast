@@ -22,34 +22,6 @@ import { updatePostFeedback } from "@/app/playbook/actions";
 
 function ChannelCard({ playbookId, channel }: { playbookId: string; channel: ChannelStrategy }) {
   const [expanded, setExpanded] = useState(false);
-  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
-  
-  // Local state for instant UI updates
-  const [feedbackState, setFeedbackState] = useState<Record<number, { rating?: "fire"|"ok"|"flop", comments?: string }>>({});
-  const timeoutRefs = useRef<Record<number, NodeJS.Timeout>>({});
-
-  const handleCopy = async (text: string, idx: number) => {
-    await navigator.clipboard.writeText(text);
-    setCopiedIdx(idx);
-    setTimeout(() => setCopiedIdx(null), 2000);
-  };
-
-  const handleRating = (idx: number, rating: "fire"|"ok"|"flop") => {
-    setFeedbackState(prev => ({...prev, [idx]: { ...prev[idx], rating }}));
-    updatePostFeedback(playbookId, channel.name, idx, rating, undefined);
-  };
-
-  const handleCommentsChange = (idx: number, val: string) => {
-    setFeedbackState(prev => ({...prev, [idx]: { ...prev[idx], comments: val }}));
-
-    // Auto-save logic
-    if (timeoutRefs.current[idx]) clearTimeout(timeoutRefs.current[idx]);
-    timeoutRefs.current[idx] = setTimeout(() => {
-      updatePostFeedback(playbookId, channel.name, idx, undefined, val);
-    }, 1000);
-  };
-
-  const isBasicMatch = (channel.algorithmInsights?.length === 0 && channel.bestPractices?.length === 0);
 
   return (
     <div className={`bg-white rounded-3xl border transition-all duration-300 ${expanded ? 'border-[#ff6b4e]/30 shadow-md shadow-[#ff6b4e]/5' : 'border-black/5 shadow-sm hover:border-black/10 hover:shadow-md'}`}>
@@ -61,7 +33,8 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
         <div className="flex items-start sm:items-center gap-4">
           <span
             className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-bold shadow-sm ${
-              channel.pushType === "hard" && !isBasicMatch
+              channel.pushType === "hard"
+
                 ? "bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] text-white"
                 : "bg-gray-100 text-gray-500"
             }`}
@@ -73,18 +46,13 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
               <h3 className="text-xl font-bold text-[#1a1a2e]">{channel.name}</h3>
               <span
                 className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md ${
-                  channel.pushType === "hard" && !isBasicMatch
+                  channel.pushType === "hard"
                     ? "bg-[#ff6b4e]/10 text-[#ff6b4e]"
                     : "bg-gray-100 text-gray-500"
                 }`}
               >
                 {channel.pushType} push
               </span>
-              {isBasicMatch && (
-                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-50 text-blue-500 border border-blue-100">
-                  Basic Match
-                </span>
-              )}
             </div>
             <p className="text-sm text-gray-600 font-medium">
               {channel.rationale}
@@ -95,7 +63,7 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
         {/* Fit Score & Metrics (Hidden on small screens when collapsed) */}
         <div className={`mt-4 sm:mt-0 flex items-center gap-6 sm:ml-4`}>
           <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:gap-0">
-            <p className={`text-lg font-extrabold ${channel.pushType === 'hard' && !isBasicMatch ? 'text-emerald-500' : 'text-gray-500'}`}>
+            <p className={`text-lg font-extrabold ${channel.pushType === 'hard' ? 'text-emerald-500' : 'text-gray-500'}`}>
               {channel.fitScore}%
             </p>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fit Score</p>
@@ -113,23 +81,8 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
       {/* Expanded Content */}
       {expanded && (
         <div className="border-t border-gray-100 bg-gray-50/50 rounded-b-3xl">
-          {isBasicMatch ? (
-            <div className="p-8 text-center space-y-4">
-              <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto">
-                <TrendingUp className="w-8 h-8 text-blue-500" />
-              </div>
-              <div className="max-w-md mx-auto">
-                <h4 className="text-lg font-bold text-[#1a1a2e] mb-1">Growth Profile Identified</h4>
-                <p className="text-sm text-gray-500 font-medium">
-                  This platform was identified as a strong match with a <b>{channel.fitScore}%</b> score. 
-                  To keep your playbook generation fast and cost-effective, full expert strategies are only generated for your top 3 channels.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* Agency Data Bar (The "Anti-Generic" row) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 border-b border-gray-200 bg-white">
+          {/* Agency Data Bar (The "Anti-Generic" row) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 border-b border-gray-200 bg-white">
                 <div className="p-4 flex items-center gap-3">
                   <TrendingUp className="w-4 h-4 text-emerald-500" />
                   <div>
@@ -165,7 +118,7 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
                     </h4>
                   </div>
                   <ul className="space-y-2">
-                    {channel.algorithmInsights.map((ins, i) => (
+                    {channel.algorithmInsights?.map((ins, i) => (
                       <li key={i} className="text-sm font-medium text-blue-800 flex items-start gap-2">
                         <span className="text-blue-500 mt-0.5">•</span>
                         {ins}
@@ -173,28 +126,6 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
                     ))}
                   </ul>
                 </div>
-
-                {/* Influencer Targets (If provided) */}
-                {channel.influencerTargets && channel.influencerTargets.length > 0 && (
-                  <div>
-                    <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4">
-                      Influencer / Community Targets
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {channel.influencerTargets.map((inf, i) => (
-                        <div key={i} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                          <div className="flex justify-between items-start mb-2">
-                            <p className="text-sm font-bold text-[#1a1a2e]">{inf.handle}</p>
-                            <span className="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md">
-                              {inf.audienceSize}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-600 font-medium">{inf.why}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
                 {/* Best Practices vs Anti-Patterns */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -229,140 +160,7 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
                     </ul>
                   </div>
                 </div>
-
-                {/* 30-Day Content Timeline */}
-                <div>
-                  <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-6">
-                    30-Day Content Timeline
-                  </h4>
-                  <div className="relative border-l-2 border-gray-100 ml-4 space-y-6 pb-4">
-                    {channel.contentCalendar?.sort((a, b) => a.day - b.day).map((tmpl, i) => (
-                      <div
-                        key={i}
-                        className="relative pl-8"
-                      >
-                        {/* Timeline dot */}
-                        <div className="absolute -left-[11px] top-4 w-5 h-5 rounded-full bg-white border-4 border-blue-500 shadow-sm" />
-                        
-                        <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                          {/* Day Label */}
-                          <div className="absolute top-0 right-0 bg-blue-50 text-blue-600 px-4 py-1.5 rounded-bl-2xl font-black text-sm shadow-sm pointer-events-none group-hover:bg-[#ff6b4e] group-hover:text-white transition-colors">
-                            Day {tmpl.day}
-                          </div>
-
-                          <div className="flex items-center justify-between mb-5 border-b border-gray-100 pb-4 pr-20">
-                            <div className="flex items-center gap-3">
-                              <span className="text-[10px] px-2.5 py-1 rounded-md bg-[#1a1a2e] text-white uppercase font-bold tracking-wider">
-                                {tmpl.type}
-                              </span>
-                              <h5 className="text-base font-bold text-[#1a1a2e]">
-                                {tmpl.title}
-                              </h5>
-                            </div>
-                          </div>
-                          
-                          {/* Hook section */}
-                          <div className="bg-[#ff6b4e]/5 rounded-xl px-5 py-4 mb-4 border-l-4 border-[#ff6b4e]">
-                            <p className="text-sm text-[#ce4a2f] font-bold leading-relaxed">
-                              {tmpl.hook}
-                            </p>
-                          </div>
-                          
-                          {/* Body section */}
-                          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-medium mb-5">
-                            {tmpl.body}
-                          </p>
-
-                          {/* Copy action */}
-                          <div className="flex justify-end pt-4 border-t border-gray-100">
-                            <button
-                              onClick={() => handleCopy(`${tmpl.hook}\n\n${tmpl.body}`, i)}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-95 ${
-                                copiedIdx === i
-                                  ? "bg-emerald-500 text-white shadow-emerald-500/20"
-                                  : "bg-gray-50 text-gray-600 hover:bg-[#1a1a2e] hover:text-white border border-gray-200 hover:border-[#1a1a2e]"
-                              }`}
-                            >
-                              {copiedIdx === i ? (
-                                <>
-                                  <Check className="w-4 h-4" /> Copied to Clipboard
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-4 h-4" /> Copy Post
-                                </>
-                              )}
-                            </button>
-                          </div>
-
-                          {/* Performance Feedback Loop */}
-                          <div className="mt-4 pt-4 border-t border-gray-100/50 bg-gray-50/50 -mx-6 -mb-6 px-6 pb-6 shadow-inner">
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Rate Performance</span>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => handleRating(i, "fire")}
-                                  className={`p-2 rounded-lg transition-all ${
-                                    (feedbackState[i]?.rating || tmpl.feedbackRating) === "fire" 
-                                    ? "bg-orange-100 text-orange-500 scale-110 shadow-sm" 
-                                    : "text-gray-400 hover:bg-orange-50 hover:text-orange-400"
-                                  }`}
-                                  title="Killed It"
-                                >
-                                  <Flame className="w-5 h-5" />
-                                </button>
-                                <button
-                                  onClick={() => handleRating(i, "ok")}
-                                  className={`p-2 rounded-lg transition-all ${
-                                    (feedbackState[i]?.rating || tmpl.feedbackRating) === "ok" 
-                                    ? "bg-blue-100 text-blue-500 scale-110 shadow-sm" 
-                                    : "text-gray-400 hover:bg-blue-50 hover:text-blue-400"
-                                  }`}
-                                  title="Did Okay"
-                                >
-                                  <ThumbsUp className="w-5 h-5" />
-                                </button>
-                                <button
-                                  onClick={() => handleRating(i, "flop")}
-                                  className={`p-2 rounded-lg transition-all ${
-                                    (feedbackState[i]?.rating || tmpl.feedbackRating) === "flop" 
-                                    ? "bg-gray-200 text-gray-600 scale-110 shadow-sm" 
-                                    : "text-gray-400 hover:bg-gray-100 hover:text-gray-500"
-                                  }`}
-                                  title="Flopped"
-                                >
-                                  <Frown className="w-5 h-5" />
-                                </button>
-                              </div>
-                            </div>
-
-                            {/* Raw Comments Dropdown (Visible if rated) */}
-                            {((feedbackState[i]?.rating || tmpl.feedbackRating) !== undefined) && (
-                              <div className="animate-in slide-in-from-top-2 fade-in duration-200 mt-2">
-                                <div className="relative">
-                                  <MessageSquare className="absolute top-3 left-3 w-4 h-4 text-gray-400" />
-                                  <textarea
-                                    value={feedbackState[i]?.comments !== undefined ? feedbackState[i]?.comments : (tmpl.feedbackComments || "")}
-                                    onChange={(e) => handleCommentsChange(i, e.target.value)}
-                                    placeholder="Paste the exact comments this got (or your raw thoughts) to train the AI for next time..."
-                                    className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1a1a2e] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff6b4e]/20 focus:border-[#ff6b4e]/40 transition-all resize-none h-20 shadow-sm"
-                                  />
-                                  <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-50">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Auto-saving</span>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
-            </>
-          )}
         </div>
       )}
     </div>
