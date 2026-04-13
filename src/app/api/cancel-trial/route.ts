@@ -20,10 +20,28 @@ export async function POST(req: Request) {
     const { data: adminUser } = await adminClient.auth.admin.getUserById(user.id);
     const appMeta = (adminUser as any)?.user?.app_metadata || {};
 
+    // Mark the user as having exhausted their free trial
+    // Record this email in the used_free_trials table (persists even if user is deleted)
+    try {
+      await fetch(`${req.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL}/api/record-trial`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email, reason: "canceled" }),
+      });
+    } catch (e) {
+      console.error("[cancel-trial] Failed to record trial in database:", e);
+      // Don't fail the whole request if this fails - the user metadata update is the primary thing
+    }
+
     const { error: updateError } = await adminClient.auth.admin.updateUserById(user.id, {
       app_metadata: {
         ...appMeta,
-        subscription_status: 'canceled'
+        subscription_status: 'canceled',
+        trial_exhausted: true,
+      },
+      user_metadata: {
+        ...((adminUser as any)?.user?.user_metadata || {}),
+        trial_exhausted_email: user.email,
       },
     });
 

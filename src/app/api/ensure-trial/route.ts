@@ -19,13 +19,25 @@ export async function GET() {
 
     // Get fresh user data
     const { data: adminUser } = await adminClient.auth.admin.getUserById(user.id);
-    const appMeta = (adminUser as any)?.app_metadata || {};
-    const userMeta = (adminUser as any)?.user_metadata || {};
+    const mappedUser = (adminUser as any)?.user || adminUser;
+    const appMeta = mappedUser?.app_metadata || {};
+    const userMeta = mappedUser?.user_metadata || {};
+
+    // Check if this user has already exhausted a free trial
+    if (appMeta.trial_exhausted === true) {
+      console.log("User has already exhausted their free trial:", user.id);
+      return NextResponse.json({
+        subscription_status: 'trial_exhausted',
+        trial_start_date: null,
+        trial_end_date: null,
+        trial_canceled: true,
+      });
+    }
 
     // Check if trial needs to be set
     if (!appMeta.subscription_status || appMeta.subscription_status === 'none') {
       console.log("Setting up trial for user:", user.id);
-      
+
       const trialStart = new Date().toISOString();
       const trialEnd = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -53,7 +65,7 @@ export async function GET() {
       subscription_status: appMeta.subscription_status,
       trial_start_date: appMeta.trial_start_date,
       trial_end_date: appMeta.trial_end_date,
-      trial_canceled: userMeta.trial_canceled,
+      trial_canceled: userMeta.trial_exhausted_email ? true : appMeta.trial_canceled,
     });
   } catch (err) {
     console.error("Error:", err);

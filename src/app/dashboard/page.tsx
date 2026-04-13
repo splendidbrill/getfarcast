@@ -34,35 +34,38 @@ export default function DashboardPage() {
 
       // Stale token recovery: Auth callback might have just assigned a trial that isn't in our JWT yet
       if (!status || status === 'none') {
-        console.log('[dashboard] Status missing, attempting to refresh stale session tokens...');
-        await supabase.auth.refreshSession();
-        const { data: refreshed } = await supabase.auth.getUser();
-        if (refreshed.user) {
-          user = refreshed.user;
-          status = user.app_metadata?.subscription_status;
-          trialEndDate = user.app_metadata?.trial_end_date;
+        console.log('[dashboard] Status missing, falling back to /api/ensure-trial for strict bypass...');
+        try {
+          const res = await fetch('/api/ensure-trial');
+          if (res.ok) {
+            const data = await res.json();
+            status = data.subscription_status;
+            trialEndDate = data.trial_end_date;
+            // Best effort token refresh so next clicks are fast
+            supabase.auth.refreshSession();
+          }
+        } catch (e) {
+          console.error('[dashboard] Fallback failed', e);
         }
       }
       
       if (status === 'canceled') {
+        setTrialData({ status: 'canceled', trialEndDate });
+        // User can still access dashboard during their trial period, just with canceled status
+      } else if (status === 'trial_exhausted') {
         setTrialData({ status: 'expired' });
         return;
-      }
-
-      if (status === 'on_trial' && trialEndDate) {
+      } else if (status === 'on_trial' && trialEndDate) {
         if (new Date() > new Date(trialEndDate)) {
           setTrialData({ status: 'expired' });
           return;
         }
       }
 
-      if (!status || (status !== 'active' && status !== 'on_trial')) {
-        window.location.href = '/api/checkout/starter';
-        return;
-      }
-
+      // For users without active subscription (on trial or canceled), let them into the dashboard
+      // They will see the appropriate banner
       setTrialData({
-        status,
+        status: status || 'on_trial',
         trialEndDate
       });
 

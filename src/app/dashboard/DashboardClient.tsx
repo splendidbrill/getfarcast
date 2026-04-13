@@ -47,25 +47,37 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
     ? Math.max(0, Math.ceil((new Date(trialData.trialEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
 
-  if (trialData?.status === 'expired') {
+  if (trialData?.status === 'canceled' || trialData?.status === 'expired') {
     return (
       <div className="text-center py-24 bg-white rounded-3xl border border-black/5 shadow-sm relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-red-500/10 rounded-full blur-[100px]" />
-        
+
         <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 text-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner relative z-10">
           <AlertCircle className="w-10 h-10" />
         </div>
-        <h3 className="text-3xl font-black text-[#1a1a2e] mb-4 relative z-10">Trial Expired</h3>
+        <h3 className="text-3xl font-black text-[#1a1a2e] mb-4 relative z-10">
+          {trialData?.status === 'canceled' ? 'Trial Cancelled' : 'Trial Expired'}
+        </h3>
         <p className="text-gray-500 max-w-md mx-auto mb-10 font-medium text-lg relative z-10 leading-relaxed">
-          You have already used up your free trial. Subscribe now to restore full access to your content playbooks and strategy dashboards!
+          {trialData?.status === 'canceled'
+            ? 'Your free trial has been cancelled. Subscribe now to restore full access to your content playbooks and strategy dashboards!'
+            : 'You have already used up your free trial. Subscribe now to restore full access to your content playbooks and strategy dashboards!'}
         </p>
-        <Link 
+        <Link
           href="/api/checkout/starter"
           className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold shadow-[0_8px_30px_rgb(255,107,78,0.3)] hover:shadow-[0_8px_40px_rgb(255,107,78,0.5)] transition-all hover:-translate-y-1 relative z-10 text-lg"
         >
           <Sparkles className="w-6 h-6" />
-          Subscribe for $10/mo
+          Subscribe Now — $10/mo
         </Link>
+      </div>
+    );
+  }
+
+  if (!trialData) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="w-10 h-10 border-4 border-[#ff6b4e] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -181,7 +193,7 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
             </div>
             <h3 className="text-2xl font-bold text-center text-[#1a1a2e] mb-3">Cancel Free Trial?</h3>
             <p className="text-center text-gray-600 mb-8 font-medium">
-              Are you absolutely sure you want to cancel? If you cancel your trial, <span className="font-bold text-[#1a1a2e]">you will immediately lose access to your dashboard and all generated playbooks</span>. 
+              Are you absolutely sure you want to cancel your free trial? <span className="font-bold text-[#1a1a2e]">You will immediately lose access to your dashboard and all generated playbooks</span>. This action cannot be undone.
             </p>
             <div className="flex flex-col gap-3 relative z-10">
               <button 

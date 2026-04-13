@@ -39,6 +39,44 @@ export async function GET(request: Request) {
 
     const { data: adminUser } = await adminClient.auth.admin.getUserById(user.id)
     const appMeta = (adminUser as any).user?.app_metadata || {}
+    const userMeta = (adminUser as any).user?.user_metadata || {}
+
+    // Check if this user has already exhausted a free trial (from user metadata)
+    const hasExhaustedTrial = appMeta.trial_exhausted === true || userMeta.trial_exhausted_email
+
+    // Also check the database table (persists even if user is deleted)
+    const normalizedEmail = user.email?.toLowerCase().trim()
+    if (normalizedEmail && !hasExhaustedTrial) {
+      try {
+        const { createClient: createSvcClient } = await import("@supabase/supabase-js")
+        const svcClient = createSvcClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          { auth: { autoRefreshToken: false, persistSession: false } }
+        )
+        const { data: usedTrial } = await svcClient
+          .from("used_free_trials")
+          .select("email")
+          .eq("email", normalizedEmail)
+          .maybeSingle()
+        if (usedTrial) {
+          console.log(`[auth/callback] Email ${normalizedEmail} has already exhausted a free trial (DB check)`)
+          const response = NextResponse.redirect(`${origin}/expired-trial?reason=already_used`)
+          response.cookies.delete('nextUrl')
+          return response
+        }
+      } catch (dbErr) {
+        console.error("[auth/callback] Error checking used_free_trials table:", dbErr)
+        // Proceed with caution - if DB check fails, allow trial (user metadata check is the primary)
+      }
+    }
+
+    if (hasExhaustedTrial) {
+      console.log(`[auth/callback] User ${user.id} has already exhausted their free trial, redirecting to /expired-trial`)
+      const response = NextResponse.redirect(`${origin}/expired-trial?reason=already_used`)
+      response.cookies.delete('nextUrl')
+      return response
+    }
 
     if (!appMeta.subscription_status || appMeta.subscription_status === 'none') {
       console.log(`[auth/callback] Setting up trial for user: ${user.id}`)
