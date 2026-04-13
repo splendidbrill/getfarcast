@@ -12,7 +12,7 @@ const plans = {
   global: [
     {
       name: "Starter",
-      price: "$20",
+      price: "$10",
       period: "/month",
       description: "Perfect for solo founders testing a single product idea.",
       icon: Zap,

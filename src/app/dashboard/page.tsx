@@ -16,6 +16,8 @@ interface LocalPlaybook {
 export default function DashboardPage() {
   const [playbooks, setPlaybooks] = useState<LocalPlaybook[]>([]);
 
+  const [trialData, setTrialData] = useState<any>(null);
+
   useEffect(() => {
     async function loadPlaybooks() {
       const supabase = createClient();
@@ -26,11 +28,31 @@ export default function DashboardPage() {
         window.location.href = '/';
         return;
       }
+      
       const status = user.app_metadata?.subscription_status;
+      const trialEndDate = user.app_metadata?.trial_end_date;
+      
+      if (status === 'canceled') {
+        setTrialData({ status: 'expired' });
+        return;
+      }
+
+      if (status === 'on_trial' && trialEndDate) {
+        if (new Date() > new Date(trialEndDate)) {
+          setTrialData({ status: 'expired' });
+          return;
+        }
+      }
+
       if (!status || (status !== 'active' && status !== 'on_trial')) {
         window.location.href = '/api/checkout/starter';
         return;
       }
+
+      setTrialData({
+        status,
+        trialEndDate
+      });
 
       const loadedPlaybooks: LocalPlaybook[] = [];
 
@@ -120,7 +142,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <DashboardClient playbooks={playbooks} onDelete={handleDelete} />
+        {trialData && <DashboardClient playbooks={playbooks} onDelete={handleDelete} trialData={trialData} />}
       </div>
 
       <Footer />
