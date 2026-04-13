@@ -58,6 +58,7 @@ export async function GET(request: Request) {
         console.error("[auth/callback] Failed to set trial:", updateError.message)
       } else {
         console.log("[auth/callback] Trial set successfully")
+        await supabase.auth.refreshSession()
       }
     } else if (appMeta.subscription_status === 'canceled' || (appMeta.subscription_status === 'on_trial' && appMeta.trial_end_date && new Date() > new Date(appMeta.trial_end_date))) {
       console.log(`[auth/callback] User ${user.id} trial exhausted, routing to /expired-trial`)
