@@ -494,21 +494,20 @@ function WeekSection({
   weekIndex,
   playbookId,
   defaultExpanded,
-  filterPlatform,
 }: {
   week: PostsCalendar;
   weekIndex: number;
   playbookId: string;
   defaultExpanded: boolean;
-  filterPlatform: string;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
+  const [activePlatform, setActivePlatform] = useState<string>("All");
   const platforms = [...new Set(week.posts.map((p) => p.platform))];
 
   const filteredPosts =
-    filterPlatform === "All"
+    activePlatform === "All"
       ? week.posts
-      : week.posts.filter((p) => p.platform === filterPlatform);
+      : week.posts.filter((p) => p.platform === activePlatform);
 
   const ratedCount = week.posts.filter((p) => p.feedbackRating !== undefined).length;
   const totalCount = week.posts.length;
@@ -556,21 +555,31 @@ function WeekSection({
           {/* Platform filter */}
           <div className="flex items-center gap-2 flex-wrap">
             <button
-              onClick={() => {}}
-              className="px-3 py-1.5 rounded-full text-xs font-bold border bg-[#1a1a2e] text-white border-[#1a1a2e]"
+              onClick={() => setActivePlatform("All")}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                activePlatform === "All"
+                  ? "bg-[#1a1a2e] text-white border-[#1a1a2e]"
+                  : "bg-white text-[#1a1a2e] border-gray-300 hover:border-[#1a1a2e]"
+              }`}
             >
-              All ({filteredPosts.length})
+              All ({week.posts.length})
             </button>
             {platforms.map((platform) => {
               const cfg = getPlatformConfig(platform);
               const count = week.posts.filter((p) => p.platform === platform).length;
+              const isActive = activePlatform === platform;
               return (
-                <span
+                <button
                   key={platform}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.color} ${cfg.border}`}
+                  onClick={() => setActivePlatform(platform)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                    isActive
+                      ? `${cfg.bg} ${cfg.color} ${cfg.border}`
+                      : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+                  }`}
                 >
                   {cfg.icon} {cfg.label} ({count})
-                </span>
+                </button>
               );
             })}
           </div>
@@ -819,7 +828,6 @@ export function PlaybookPosts({
   selectedChannels: string[];
   onWeekGenerated: (updatedCalendars: PostsCalendar[]) => void;
 }) {
-  const [filterPlatform] = useState<string>("All");
   const [generatingWeek, setGeneratingWeek] = useState<number | null>(null);
   const [generationError, setGenerationError] = useState<string>("");
 
@@ -926,22 +934,6 @@ export function PlaybookPosts({
         </p>
       </div>
 
-      {generationError && (
-        <div className="rounded-2xl bg-red-50 border border-red-200 p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-bold text-red-700">Generation failed</p>
-            <p className="text-xs text-red-500 mt-0.5">{generationError}</p>
-          </div>
-          <button
-            onClick={() => setGenerationError("")}
-            className="ml-auto text-red-400 hover:text-red-600"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
       {/* Week sections + generate buttons */}
       <div className="space-y-4">
         {postsCalendars.map((week, idx) => (
@@ -951,17 +943,33 @@ export function PlaybookPosts({
               weekIndex={idx}
               playbookId={playbookId}
               defaultExpanded={idx === latestWeekIndex}
-              filterPlatform={filterPlatform}
             />
 
             {/* Show "Generate next week" button below the LAST generated week */}
             {idx === latestWeekIndex && (
-              <GenerateNextWeekButton
-                targetWeek={nextWeekNumber}
-                playbookId={playbookId}
-                onGenerate={handleGenerateWeek}
-                generating={generatingWeek === nextWeekNumber}
-              />
+              <>
+                <GenerateNextWeekButton
+                  targetWeek={nextWeekNumber}
+                  playbookId={playbookId}
+                  onGenerate={handleGenerateWeek}
+                  generating={generatingWeek === nextWeekNumber}
+                />
+                {generationError && (
+                  <div className="rounded-2xl bg-red-50 border border-red-200 p-4 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-bold text-red-700">Generation failed</p>
+                      <p className="text-xs text-red-500 mt-0.5">{generationError}</p>
+                    </div>
+                    <button
+                      onClick={() => setGenerationError("")}
+                      className="ml-auto text-red-400 hover:text-red-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         ))}
