@@ -23,10 +23,12 @@ export async function GET(req: NextRequest) {
     const status = user.app_metadata?.subscription_status;
     console.log("[checkout/starter] Subscription status:", status);
 
-    if (status === "active" || status === "on_trial") {
+    if (status === "active") {
       console.log("[checkout/starter] Already subscribed - redirecting to dashboard");
       return NextResponse.redirect(`${req.nextUrl.origin}/dashboard`);
     }
+
+    // Allow checkout for on_trial users (they can upgrade early)
 
     const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
     const storeIdRaw = process.env.LEMON_SQUEEZY_STORE_ID;
