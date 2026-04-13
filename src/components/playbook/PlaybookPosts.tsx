@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Copy,
   Check,
@@ -16,9 +16,17 @@ import {
   TrendingUp,
   Frown,
   ThumbsUp,
+  ChevronDown,
+  ChevronUp,
+  Lock,
+  Sparkles,
+  AlertCircle,
+  X,
+  Zap,
+  Timer,
 } from "lucide-react";
 import type { PostsCalendar, ReadyPost } from "@/lib/types";
-import { updatePostFeedback } from "@/app/playbook/actions";
+import { updatePostFeedback, checkWeekGate, type WeekGateResult } from "@/app/playbook/actions";
 
 const PLATFORM_CONFIG: Record<
   string,
@@ -150,7 +158,7 @@ const PLATFORM_CONFIG: Record<
     icon: "✍️",
     label: "Medium",
   },
-  "Hashnode": {
+  Hashnode: {
     color: "text-blue-500",
     bg: "bg-blue-50",
     border: "border-blue-200",
@@ -192,35 +200,35 @@ const PLATFORM_CONFIG: Record<
     icon: "🤖",
     label: "Play Store",
   },
-  "AppSumo": {
+  AppSumo: {
     color: "text-orange-600",
     bg: "bg-orange-50",
     border: "border-orange-200",
     icon: "💰",
     label: "AppSumo",
   },
-  "Betalist": {
+  Betalist: {
     color: "text-indigo-600",
     bg: "bg-indigo-50",
     border: "border-indigo-200",
     icon: "📋",
     label: "Betalist",
   },
-  "G2": {
+  G2: {
     color: "text-blue-700",
     bg: "bg-blue-50",
     border: "border-blue-200",
     icon: "⭐",
     label: "G2",
   },
-  "Lobsters": {
+  Lobsters: {
     color: "text-red-600",
     bg: "bg-red-50",
     border: "border-red-200",
     icon: "🦞",
     label: "Lobsters",
   },
-  "YouTube": {
+  YouTube: {
     color: "text-red-600",
     bg: "bg-red-50",
     border: "border-red-200",
@@ -263,13 +271,11 @@ function getPostTypeIcon(postType: string) {
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
-
   const handleCopy = async () => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
   return (
     <button
       onClick={handleCopy}
@@ -294,31 +300,43 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function PostCard({ post, index, playbookId }: { post: ReadyPost; index: number; playbookId: string }) {
-  const [expanded, setExpanded] = useState(index === 0);
+function PostCard({
+  post,
+  index,
+  playbookId,
+  weekIndex,
+  defaultOpen,
+}: {
+  post: ReadyPost;
+  index: number;
+  playbookId: string;
+  weekIndex: number;
+  defaultOpen: boolean;
+}) {
+  const [expanded, setExpanded] = useState(defaultOpen);
   const platform = getPlatformConfig(post.platform);
-  
-  const [feedbackRating, setFeedbackRating] = useState<"fire" | "ok" | "flop" | undefined>(post.feedbackRating);
+
+  const [feedbackRating, setFeedbackRating] = useState<"fire" | "ok" | "flop" | undefined>(
+    post.feedbackRating
+  );
   const [comments, setComments] = useState(post.feedbackComments || "");
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleRating = (rating: "fire" | "ok" | "flop") => {
     setFeedbackRating(rating);
-    updatePostFeedback(playbookId, index, rating, undefined);
+    updatePostFeedback(playbookId, index, rating, undefined, weekIndex);
   };
 
   const handleCommentsChange = (val: string) => {
     setComments(val);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
-      updatePostFeedback(playbookId, index, undefined, val);
+      updatePostFeedback(playbookId, index, undefined, val, weekIndex);
     }, 1000);
   };
 
   return (
-    <div
-      className={`rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden`}
-    >
+    <div className="rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
       {/* Card Header */}
       <div
         className="flex items-center gap-3 p-4 cursor-pointer select-none"
@@ -331,26 +349,33 @@ function PostCard({ post, index, playbookId }: { post: ReadyPost; index: number;
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            {/* Platform Badge */}
             <span
-              className={`inline-flex items-center gap-1.5 px-2. py-0.5 rounded-md text-xs font-bold ${platform.bg} ${platform.color} ${platform.border} border`}
+              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-bold ${platform.bg} ${platform.color} ${platform.border} border`}
             >
               <span className="text-[11px] font-black">{platform.icon}</span>
               {platform.label}
             </span>
-            {/* Post Type */}
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#ff6b4e]/10 text-[#ff6b4e] text-xs font-semibold border border-[#ff6b4e]/20">
               {getPostTypeIcon(post.postType)}
               {post.postType}
             </span>
+            {feedbackRating && (
+              <span
+                className={`text-xs font-bold px-1.5 py-0.5 rounded-md ${
+                  feedbackRating === "fire"
+                    ? "bg-orange-100 text-orange-600"
+                    : feedbackRating === "ok"
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-gray-100 text-gray-500"
+                }`}
+              >
+                {feedbackRating === "fire" ? "🔥" : feedbackRating === "ok" ? "👍" : "💀"}
+              </span>
+            )}
           </div>
-          {/* Hook preview */}
-          <p className="text-sm font-semibold text-[#1a1a2e] truncate">
-            {post.hook}
-          </p>
+          <p className="text-sm font-semibold text-[#1a1a2e] truncate">{post.hook}</p>
         </div>
 
-        {/* Expand indicator */}
         <div
           className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center bg-gray-100 text-gray-400 transition-transform duration-200 ${
             expanded ? "rotate-180" : ""
@@ -365,7 +390,6 @@ function PostCard({ post, index, playbookId }: { post: ReadyPost; index: number;
       {/* Expanded Body */}
       {expanded && (
         <div className="px-4 pb-4 border-t border-gray-50 pt-4">
-          {/* Metadata Row */}
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
               <Clock className="w-3.5 h-3.5 text-gray-400" />
@@ -382,32 +406,30 @@ function PostCard({ post, index, playbookId }: { post: ReadyPost; index: number;
             </div>
           </div>
 
-          {/* Post Body */}
           <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 mb-4">
             <p className="text-sm text-gray-800 leading-relaxed font-medium whitespace-pre-wrap">
               {post.body}
             </p>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center justify-between">
-            <p className="text-xs text-gray-400 font-medium">
-              Ready to copy and post
-            </p>
+            <p className="text-xs text-gray-400 font-medium">Ready to copy and post</p>
             <CopyButton text={post.body} />
           </div>
 
           {/* Performance Feedback Loop */}
           <div className="mt-6 pt-4 border-t border-gray-100/50 bg-gray-50/50 -mx-4 -mb-4 px-4 pb-4 shadow-inner">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Rate Performance</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                Rate Performance
+              </span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleRating("fire")}
                   className={`p-2 rounded-lg transition-all ${
-                    feedbackRating === "fire" 
-                    ? "bg-orange-100 text-orange-500 scale-110 shadow-sm" 
-                    : "text-gray-400 hover:bg-orange-50 hover:text-orange-400"
+                    feedbackRating === "fire"
+                      ? "bg-orange-100 text-orange-500 scale-110 shadow-sm"
+                      : "text-gray-400 hover:bg-orange-50 hover:text-orange-400"
                   }`}
                   title="Killed It"
                 >
@@ -416,9 +438,9 @@ function PostCard({ post, index, playbookId }: { post: ReadyPost; index: number;
                 <button
                   onClick={() => handleRating("ok")}
                   className={`p-2 rounded-lg transition-all ${
-                    feedbackRating === "ok" 
-                    ? "bg-blue-100 text-blue-500 scale-110 shadow-sm" 
-                    : "text-gray-400 hover:bg-blue-50 hover:text-blue-400"
+                    feedbackRating === "ok"
+                      ? "bg-blue-100 text-blue-500 scale-110 shadow-sm"
+                      : "text-gray-400 hover:bg-blue-50 hover:text-blue-400"
                   }`}
                   title="Did Okay"
                 >
@@ -427,9 +449,9 @@ function PostCard({ post, index, playbookId }: { post: ReadyPost; index: number;
                 <button
                   onClick={() => handleRating("flop")}
                   className={`p-2 rounded-lg transition-all ${
-                    feedbackRating === "flop" 
-                    ? "bg-gray-200 text-gray-600 scale-110 shadow-sm" 
-                    : "text-gray-400 hover:bg-gray-100 hover:text-gray-500"
+                    feedbackRating === "flop"
+                      ? "bg-gray-200 text-gray-600 scale-110 shadow-sm"
+                      : "text-gray-400 hover:bg-gray-100 hover:text-gray-500"
                   }`}
                   title="Flopped"
                 >
@@ -438,8 +460,7 @@ function PostCard({ post, index, playbookId }: { post: ReadyPost; index: number;
               </div>
             </div>
 
-            {/* Raw Comments Dropdown (Visible if rated) */}
-            {(feedbackRating !== undefined) && (
+            {feedbackRating !== undefined && (
               <div className="animate-in slide-in-from-top-2 fade-in duration-200 mt-2">
                 <div className="relative">
                   <MessageSquare className="absolute top-3 left-3 w-4 h-4 text-gray-400" />
@@ -450,7 +471,9 @@ function PostCard({ post, index, playbookId }: { post: ReadyPost; index: number;
                     className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1a1a2e] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff6b4e]/20 focus:border-[#ff6b4e]/40 transition-all resize-none h-20 shadow-sm"
                   />
                   <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-50">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Auto-saving</span>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                      Auto-saving
+                    </span>
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   </div>
                 </div>
@@ -463,21 +486,423 @@ function PostCard({ post, index, playbookId }: { post: ReadyPost; index: number;
   );
 }
 
-export function PlaybookPosts({
+// ─────────────────────────────────────────────────────────────
+// WeekSection — collapsible accordion card for one week
+// ─────────────────────────────────────────────────────────────
+function WeekSection({
+  week,
+  weekIndex,
   playbookId,
-  postsCalendar,
+  defaultExpanded,
+  filterPlatform,
 }: {
+  week: PostsCalendar;
+  weekIndex: number;
   playbookId: string;
-  postsCalendar: PostsCalendar;
+  defaultExpanded: boolean;
+  filterPlatform: string;
 }) {
-  // Group posts by platform to show unique platforms
-  const platforms = [...new Set(postsCalendar.posts.map((p) => p.platform))];
-  const [filterPlatform, setFilterPlatform] = useState<string>("All");
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const platforms = [...new Set(week.posts.map((p) => p.platform))];
 
   const filteredPosts =
     filterPlatform === "All"
-      ? postsCalendar.posts
-      : postsCalendar.posts.filter((p) => p.platform === filterPlatform);
+      ? week.posts
+      : week.posts.filter((p) => p.platform === filterPlatform);
+
+  const ratedCount = week.posts.filter((p) => p.feedbackRating !== undefined).length;
+  const totalCount = week.posts.length;
+  const ratingPercent = totalCount > 0 ? Math.round((ratedCount / totalCount) * 100) : 0;
+
+  return (
+    <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+      {/* Week Header — click to collapse/expand */}
+      <button
+        onClick={() => setExpanded((e) => !e)}
+        className="w-full flex items-center gap-4 p-5 text-left hover:bg-gray-50/50 transition-colors"
+      >
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] flex items-center justify-center shrink-0 shadow-sm">
+          <Calendar className="w-5 h-5 text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h3 className="text-base font-bold text-[#1a1a2e]">{week.weekOf}</h3>
+            <span className="text-xs text-gray-400 font-medium">
+              {totalCount} posts across {platforms.length} platform{platforms.length !== 1 ? "s" : ""}
+            </span>
+            {ratedCount > 0 && (
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                <Check className="w-3 h-3" />
+                {ratedCount}/{totalCount} rated ({ratingPercent}%)
+              </span>
+            )}
+          </div>
+          {week.generatedAt && (
+            <p className="text-xs text-gray-400 mt-0.5">
+              Generated {new Date(week.generatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+            </p>
+          )}
+        </div>
+        {expanded ? (
+          <ChevronUp className="w-4 h-4 text-gray-400 shrink-0" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+        )}
+      </button>
+
+      {/* Week Body */}
+      {expanded && (
+        <div className="border-t border-gray-100 p-5 space-y-4">
+          {/* Platform filter */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => {}}
+              className="px-3 py-1.5 rounded-full text-xs font-bold border bg-[#1a1a2e] text-white border-[#1a1a2e]"
+            >
+              All ({filteredPosts.length})
+            </button>
+            {platforms.map((platform) => {
+              const cfg = getPlatformConfig(platform);
+              const count = week.posts.filter((p) => p.platform === platform).length;
+              return (
+                <span
+                  key={platform}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.color} ${cfg.border}`}
+                >
+                  {cfg.icon} {cfg.label} ({count})
+                </span>
+              );
+            })}
+          </div>
+
+          {/* Post cards */}
+          <div className="space-y-3">
+            {filteredPosts.map((post, i) => (
+              <PostCard
+                key={`${weekIndex}-${post.day}-${post.platform}`}
+                post={post}
+                index={week.posts.indexOf(post)}
+                playbookId={playbookId}
+                weekIndex={weekIndex}
+                defaultOpen={i === 0 && weekIndex === 0}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FeedbackGateModal
+// ─────────────────────────────────────────────────────────────
+function FeedbackGateModal({
+  targetWeek,
+  gate,
+  onClose,
+}: {
+  targetWeek: number;
+  gate: WeekGateResult;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-gray-100 animate-in zoom-in-95 fade-in duration-200">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+        >
+          <X className="w-4 h-4 text-gray-500" />
+        </button>
+
+        <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mb-5">
+          <AlertCircle className="w-7 h-7 text-amber-500" />
+        </div>
+
+        <h2 className="text-xl font-bold text-[#1a1a2e] mb-2">
+          Rate more posts to unlock Week {targetWeek}
+        </h2>
+        <p className="text-gray-500 text-sm leading-relaxed mb-6">
+          To generate smarter Week {targetWeek} content, the AI needs performance signals from
+          at least <span className="font-bold text-[#1a1a2e]">10%</span> of your Week{" "}
+          {targetWeek - 1} posts. This helps it understand what resonates with your audience.
+        </p>
+
+        {/* Progress bar */}
+        <div className="bg-gray-100 rounded-full h-2 mb-2 overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] rounded-full transition-all duration-500"
+            style={{
+              width: `${Math.min(100, ((gate.feedbackGiven ?? 0) / (gate.minimumRequired ?? 1)) * 100)}%`,
+            }}
+          />
+        </div>
+        <p className="text-xs text-gray-400 font-medium mb-6">
+          {gate.feedbackGiven ?? 0} of {gate.minimumRequired} posts rated — need{" "}
+          <span className="text-[#ff6b4e] font-bold">{gate.feedbackNeeded} more</span>
+        </p>
+
+        <div className="bg-[#ff6b4e]/5 border border-[#ff6b4e]/20 rounded-2xl p-4 mb-6">
+          <p className="text-sm text-[#1a1a2e] font-semibold mb-1">How to rate posts:</p>
+          <div className="flex items-center gap-4 text-sm text-gray-500">
+            <span>🔥 Killed it</span>
+            <span>👍 Did okay</span>
+            <span>💀 Flopped</span>
+          </div>
+          <p className="text-xs text-gray-400 mt-2">
+            Expand any post above and tap one of the rating buttons.
+          </p>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full py-3 rounded-xl bg-[#1a1a2e] text-white text-sm font-bold hover:bg-black transition-colors"
+        >
+          Got it — I'll go rate some posts
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// GenerateNextWeekButton
+// Shows the CTA (or a locked state) below each week section.
+// ─────────────────────────────────────────────────────────────
+function GenerateNextWeekButton({
+  targetWeek,
+  playbookId,
+  onGenerate,
+  generating,
+}: {
+  targetWeek: number;
+  playbookId: string;
+  onGenerate: (weekNumber: number) => void;
+  generating: boolean;
+}) {
+  const [gate, setGate] = useState<WeekGateResult | null>(null);
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    // Re-check gate every 30 seconds in case timer expires
+    const check = () => setGate(checkWeekGate(playbookId, targetWeek));
+    check();
+    const interval = setInterval(check, 30_000);
+    return () => clearInterval(interval);
+  }, [playbookId, targetWeek]);
+
+  if (!gate) return null;
+
+  const handleClick = () => {
+    if (generating) return;
+    // Re-check fresh
+    const freshGate = checkWeekGate(playbookId, targetWeek);
+    setGate(freshGate);
+    if (!freshGate.allowed) {
+      if (freshGate.feedbackGateFailed) {
+        setShowModal(true);
+      }
+      // Time gate: just show the locked button UI (no modal needed)
+      return;
+    }
+    onGenerate(targetWeek);
+  };
+
+  const isLocked = !gate.allowed;
+  const timeGateOnly = gate.timeGateFailed && !gate.feedbackGateFailed;
+
+  return (
+    <>
+      {showModal && gate.feedbackGateFailed && (
+        <FeedbackGateModal
+          targetWeek={targetWeek}
+          gate={gate}
+          onClose={() => setShowModal(false)}
+        />
+      )}
+
+      <div className="rounded-2xl border-2 border-dashed border-gray-200 p-5 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50/50">
+        <div className="flex items-start gap-3 flex-1">
+          <div
+            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+              isLocked ? "bg-gray-100" : "bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a]"
+            }`}
+          >
+            {isLocked ? (
+              <Lock className="w-5 h-5 text-gray-400" />
+            ) : (
+              <Sparkles className="w-5 h-5 text-white" />
+            )}
+          </div>
+          <div>
+            <p className="text-sm font-bold text-[#1a1a2e]">
+              {generating
+                ? `Generating Week ${targetWeek}…`
+                : isLocked
+                ? `Week ${targetWeek} Locked`
+                : `Generate Week ${targetWeek}`}
+            </p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {generating ? (
+                "Writing AI-powered posts based on your Week-1 signals…"
+              ) : timeGateOnly ? (
+                <span className="flex items-center gap-1">
+                  <Timer className="w-3.5 h-3.5 text-amber-500" />
+                  Unlocks in{" "}
+                  <span className="font-semibold text-amber-600">
+                    {gate.hoursRemaining} hour{gate.hoursRemaining !== 1 ? "s" : ""}
+                  </span>{" "}
+                  — post Week {targetWeek - 1} content first
+                </span>
+              ) : gate.feedbackGateFailed ? (
+                <span className="flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                  Rate{" "}
+                  <span className="font-semibold text-amber-600">
+                    {gate.feedbackNeeded} more post{gate.feedbackNeeded !== 1 ? "s" : ""}
+                  </span>{" "}
+                  to unlock
+                </span>
+              ) : (
+                "AI learns from your Week-1 performance — content gets smarter each week"
+              )}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleClick}
+          disabled={generating}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0 ${
+            generating
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : isLocked
+              ? "bg-gray-100 text-gray-500 hover:bg-gray-200 cursor-pointer"
+              : "bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white hover:shadow-lg hover:shadow-[#ff6b4e]/20 hover:-translate-y-0.5 active:translate-y-0"
+          }`}
+        >
+          {generating ? (
+            <>
+              <div className="w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+              Writing…
+            </>
+          ) : isLocked ? (
+            <>
+              <Lock className="w-4 h-4" />
+              Locked
+            </>
+          ) : (
+            <>
+              <Zap className="w-4 h-4" />
+              Generate Week {targetWeek}
+            </>
+          )}
+        </button>
+      </div>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// PlaybookPosts — main export
+// ─────────────────────────────────────────────────────────────
+export function PlaybookPosts({
+  playbookId,
+  postsCalendars,
+  selectedChannels,
+  onWeekGenerated,
+}: {
+  playbookId: string;
+  postsCalendars: PostsCalendar[];
+  selectedChannels: string[];
+  onWeekGenerated: (updatedCalendars: PostsCalendar[]) => void;
+}) {
+  const [filterPlatform] = useState<string>("All");
+  const [generatingWeek, setGeneratingWeek] = useState<number | null>(null);
+  const [generationError, setGenerationError] = useState<string>("");
+
+  const handleGenerateWeek = useCallback(
+    async (weekNumber: number) => {
+      setGeneratingWeek(weekNumber);
+      setGenerationError("");
+
+      try {
+        const response = await fetch("/api/generate-content", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ playbookId, selectedChannels, weekNumber }),
+        });
+
+        if (!response.ok) throw new Error("Generation request failed");
+        if (!response.body) throw new Error("No response body");
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split("\n\n");
+          buffer = parts.pop() || "";
+
+          for (const part of parts) {
+            const line = part.replace(/^data: /, "").trim();
+            if (!line) continue;
+            try {
+              const event = JSON.parse(line);
+              if (event.type === "gate_error") {
+                setGenerationError(event.data.reason);
+                setGeneratingWeek(null);
+                return;
+              }
+              if (event.type === "error") {
+                setGenerationError(event.data.message);
+                setGeneratingWeek(null);
+                return;
+              }
+              if (event.type === "complete") {
+                const updatedCalendars: PostsCalendar[] = Array.isArray(
+                  event.data.playbook?.postsCalendar
+                )
+                  ? event.data.playbook.postsCalendar
+                  : event.data.playbook?.postsCalendar
+                  ? [event.data.playbook.postsCalendar]
+                  : postsCalendars;
+
+                // Also persist to localStorage
+                const raw = localStorage.getItem(`playbook_${playbookId}`);
+                if (raw) {
+                  try {
+                    const stored = JSON.parse(raw);
+                    const pb = stored.playbook || stored;
+                    pb.postsCalendar = updatedCalendars;
+                    stored.playbook = pb;
+                    localStorage.setItem(`playbook_${playbookId}`, JSON.stringify(stored));
+                  } catch {}
+                }
+
+                onWeekGenerated(updatedCalendars);
+                setGeneratingWeek(null);
+                return;
+              }
+            } catch {}
+          }
+        }
+      } catch (err) {
+        setGenerationError(err instanceof Error ? err.message : "Unknown error");
+        setGeneratingWeek(null);
+      }
+    },
+    [playbookId, selectedChannels, postsCalendars, onWeekGenerated]
+  );
+
+  // The latest week available
+  const latestWeekIndex = postsCalendars.length - 1;
+  const nextWeekNumber = (postsCalendars[latestWeekIndex]?.weekNumber ?? postsCalendars.length) + 1;
 
   return (
     <div className="space-y-6">
@@ -485,69 +910,69 @@ export function PlaybookPosts({
       <div className="bg-gradient-to-br from-[#ff6b4e]/5 to-transparent rounded-3xl p-6 sm:p-8 border border-[#ff6b4e]/10">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] flex items-center justify-center shadow-md">
-            <Calendar className="w-5 h-5 text-white" />
+            <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#1a1a2e]">
-              {postsCalendar.weekOf}
-            </h2>
+            <h2 className="text-lg font-bold text-[#1a1a2e]">Content Engine</h2>
             <p className="text-xs text-gray-500 font-medium">
-              {postsCalendar.posts.length} copy-paste ready posts across{" "}
-              {platforms.length} platform{platforms.length !== 1 ? "s" : ""}
+              {postsCalendars.length} week{postsCalendars.length !== 1 ? "s" : ""} generated —
+              feedback trains the AI for next week
             </p>
           </div>
         </div>
         <p className="text-sm text-gray-600 font-medium mt-3 leading-relaxed">
-          Every post below is ready to publish. Click any card to expand and copy the full text. The hooks and timing have been tuned for each platform.
+          Rate each post after you publish it. The AI uses your ratings to write smarter content
+          every week — more of what works, less of what doesn't.
         </p>
       </div>
 
-      {/* Platform Filter */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <button
-          onClick={() => setFilterPlatform("All")}
-          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
-            filterPlatform === "All"
-              ? "bg-[#1a1a2e] text-white border-[#1a1a2e]"
-              : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
-          }`}
-        >
-          All ({postsCalendar.posts.length})
-        </button>
-        {platforms.map((platform) => {
-          const cfg = getPlatformConfig(platform);
-          const count = postsCalendar.posts.filter(
-            (p) => p.platform === platform
-          ).length;
-          return (
-            <button
-              key={platform}
-              onClick={() => setFilterPlatform(platform)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
-                filterPlatform === platform
-                  ? `${cfg.bg} ${cfg.color} ${cfg.border}`
-                  : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
-              }`}
-            >
-              {cfg.icon} {cfg.label} ({count})
-            </button>
-          );
-        })}
-      </div>
+      {generationError && (
+        <div className="rounded-2xl bg-red-50 border border-red-200 p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-bold text-red-700">Generation failed</p>
+            <p className="text-xs text-red-500 mt-0.5">{generationError}</p>
+          </div>
+          <button
+            onClick={() => setGenerationError("")}
+            className="ml-auto text-red-400 hover:text-red-600"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
-      {/* Post Cards */}
-      <div className="space-y-3">
-        {filteredPosts.map((post, i) => (
-          <PostCard key={`${post.day}-${post.platform}`} post={post} index={i} playbookId={playbookId} />
+      {/* Week sections + generate buttons */}
+      <div className="space-y-4">
+        {postsCalendars.map((week, idx) => (
+          <div key={week.weekNumber ?? idx} className="space-y-4">
+            <WeekSection
+              week={week}
+              weekIndex={idx}
+              playbookId={playbookId}
+              defaultExpanded={idx === latestWeekIndex}
+              filterPlatform={filterPlatform}
+            />
+
+            {/* Show "Generate next week" button below the LAST generated week */}
+            {idx === latestWeekIndex && (
+              <GenerateNextWeekButton
+                targetWeek={nextWeekNumber}
+                playbookId={playbookId}
+                onGenerate={handleGenerateWeek}
+                generating={generatingWeek === nextWeekNumber}
+              />
+            )}
+          </div>
         ))}
       </div>
 
-      {/* Copy All CTA */}
+      {/* Footer CTA */}
       <div className="rounded-2xl bg-[#1a1a2e] p-5 flex items-center justify-between">
         <div>
           <p className="text-white font-bold text-sm">Post consistently. Win the algorithm.</p>
           <p className="text-gray-400 text-xs font-medium mt-0.5">
-            Expand each day and hit Copy Post to schedule it.
+            Expand each post and hit Copy Post to schedule it.
           </p>
         </div>
         <Calendar className="w-8 h-8 text-[#ff6b4e] shrink-0" />

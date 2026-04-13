@@ -101,7 +101,9 @@ export interface ReadyPost {
 }
 
 export interface PostsCalendar {
-  weekOf: string; // e.g. "Week 1"
+  weekOf: string; // e.g. "Week 1 — Launch Sprint"
+  weekNumber: number; // 1, 2, 3 …
+  generatedAt: string; // ISO 8601 timestamp of when this week was generated
   posts: ReadyPost[];
 }
 
@@ -151,7 +153,7 @@ export interface Playbook {
   marketSizing: MarketSizing;
   channels: ChannelStrategy[];
   outreach: OutreachSequence;
-  postsCalendar?: PostsCalendar;
+  postsCalendar?: PostsCalendar[]; // Array of weekly post calendars
 }
 
 // --- Stored Playbook (localStorage) ---

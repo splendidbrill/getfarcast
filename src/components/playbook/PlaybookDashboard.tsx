@@ -30,6 +30,21 @@ export function PlaybookDashboard({
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [activeTab, setActiveTab] = useState<"overview" | "icp" | "channels" | "outreach" | "posts" | "leads">("overview");
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
+
+  // Normalise postsCalendar to an array and ensure each week has weekNumber + generatedAt
+  function normaliseWeeks(pb: Playbook): Playbook {
+    if (!pb.postsCalendar) return pb;
+    const raw: any = pb.postsCalendar;
+    const arr: any[] = Array.isArray(raw) ? raw : [raw];
+    const normalised = arr.map((w: any, idx: number) => ({
+      weekNumber: w.weekNumber ?? idx + 1,
+      generatedAt: w.generatedAt ?? new Date().toISOString(),
+      weekOf: w.weekOf ?? `Week ${idx + 1}`,
+      posts: w.posts ?? [],
+    }));
+    return { ...pb, postsCalendar: normalised as any };
+  }
 
   useEffect(() => {
     async function loadPlaybook() {
@@ -41,7 +56,13 @@ export function PlaybookDashboard({
       if (raw) {
         try {
           const stored = JSON.parse(raw);
-          setPlaybook(stored.playbook);
+          setPlaybook(normaliseWeeks(stored.playbook));
+          // Extract selected channels from formData for week generation
+          if (stored.formData?.selectedChannels) {
+            setSelectedChannels(stored.formData.selectedChannels);
+          } else if (stored.playbook?.channels) {
+            setSelectedChannels(stored.playbook.channels.map((c: any) => c.name));
+          }
           setLoading(false);
           return;
         } catch (e) {
@@ -78,7 +99,12 @@ export function PlaybookDashboard({
 
         // Cache in localStorage for next time
         localStorage.setItem(`playbook_${playbookId}`, JSON.stringify({ playbook: pb, formData: fd }));
-        setPlaybook(pb);
+        setPlaybook(normaliseWeeks(pb));
+        if (fd?.selectedChannels) {
+          setSelectedChannels(fd.selectedChannels);
+        } else if (pb?.channels) {
+          setSelectedChannels(pb.channels.map((c: any) => c.name));
+        }
       } catch (err) {
         setLoadError("An unexpected error occurred loading the playbook.");
         console.error(err);
@@ -228,8 +254,15 @@ export function PlaybookDashboard({
             {activeTab === "channels" && <PlaybookChannels playbookId={playbookId} channels={playbook.channels} />}
             {activeTab === "outreach" && <PlaybookOutreach outreach={playbook.outreach} />}
             {activeTab === "posts" && (
-              playbook.postsCalendar
-                ? <PlaybookPosts playbookId={playbookId} postsCalendar={playbook.postsCalendar} />
+              playbook.postsCalendar && (playbook.postsCalendar as any[]).length > 0
+                ? <PlaybookPosts
+                    playbookId={playbookId}
+                    postsCalendars={playbook.postsCalendar as any}
+                    selectedChannels={selectedChannels}
+                    onWeekGenerated={(updatedCalendars) => {
+                      setPlaybook((prev) => prev ? { ...prev, postsCalendar: updatedCalendars as any } : prev);
+                    }}
+                  />
                 : (
                   <div className="text-center py-16 text-gray-400">
                     <p className="text-sm font-medium">Post calendar not available for this playbook.</p>

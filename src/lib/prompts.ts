@@ -265,7 +265,7 @@ Generate market sizing JSON now.`;
 // Posts are generated per-platform with the correct number based
 // on each platform's optimal_posting_cadence from the JSON data.
 // ==========================================
-export function buildPostsCalendarSystemPrompt(channels: string[]): string {
+export function buildPostsCalendarSystemPrompt(channels: string[], weekNumber: number = 1): string {
   // Import the loadPlatforms function dynamically to avoid circular dependencies
   const { loadPlatforms } = require("@/lib/platforms/loader") as { loadPlatforms: () => any[] };
   const platforms = loadPlatforms();
@@ -299,7 +299,17 @@ PLATFORM NATIVE TONE: Authentic, specific, platform-appropriate.`;
     return sum + getPostCountForPlatform(ch, cadence);
   }, 0);
 
-  return `You are GetFarcast AI — a world-class social media strategist and copywriter. Your job is to write a first-week post calendar where EVERY single post sounds like it was written by a real founder talking to their community — not a marketing AI.
+  const weekLabel = weekNumber === 1
+    ? "Week 1 — Launch Sprint"
+    : weekNumber === 2
+    ? "Week 2 — Momentum Sprint"
+    : `Week ${weekNumber} — Growth Sprint`;
+
+  const weekContext = weekNumber === 1
+    ? `Your job is to write a first-week post calendar where EVERY single post sounds like it was written by a real founder talking to their community — not a marketing AI.`
+    : `Your job is to write Week ${weekNumber}'s post calendar. This founder has already posted for ${weekNumber - 1} week(s). You have REAL performance data from those previous posts — use it to make Week ${weekNumber} meaningfully better. More of what worked. Less of what flopped.`;
+
+  return `You are GetFarcast AI — a world-class social media strategist and copywriter. ${weekContext}
 
 ## THE PLATFORMS YOU ARE WRITING FOR (STRICT LIMIT):
 ${channels.join(", ")}
@@ -344,7 +354,9 @@ ${ANTI_SLOP_RULES}
 
 ## JSON SCHEMA:
 {
-  "weekOf": "Week 1 — Launch Sprint",
+  "weekOf": "${weekLabel}",
+  "weekNumber": ${weekNumber},
+  "generatedAt": "FILL_WITH_CURRENT_ISO_TIMESTAMP",
   "posts": [
     {
       "day": 1,
@@ -440,7 +452,8 @@ export function getPostCountForPlatform(channelName: string, cadence: string): n
 export function buildPostsCalendarUserPrompt(
   icp: ICPProfile,
   data: WizardFormData,
-  channels: string[]
+  channels: string[],
+  weekNumber: number = 1
 ): string {
   const { loadPlatforms } = require("@/lib/platforms/loader") as { loadPlatforms: () => any[] };
   const platforms = loadPlatforms();
@@ -483,6 +496,120 @@ Write the post calendar now. Every post MUST:
 3. Reference real details about ${data.productName} and this exact ICP
 4. Use the exact hook formulas from the platform rules
 5. Have zero placeholders, zero generic statements, zero corporate language
+
+Do NOT write 7 posts per platform unless the cadence says so. Follow the post counts above exactly.`;
+}
+
+// ============================================================
+// buildWeekNPostsCalendarUserPrompt
+// Used for Week 2+ generation. Injects structured performance
+// signals from previous week(s) so the AI can improve quality.
+// ============================================================
+export interface PreviousWeekFeedback {
+  weekNumber: number;
+  platformBreakdown: {
+    platform: string;
+    fire: string[];   // hooks of fire-rated posts
+    ok: string[];     // hooks of ok-rated posts
+    flop: string[];   // hooks of flop-rated posts
+    postTypes: { type: string; rating: string }[];
+  }[];
+  allHooks: string[];          // ALL Week 1 hooks (to avoid copying)
+  userComments: string[];      // non-empty feedbackComments from any post
+}
+
+export function buildWeekNPostsCalendarUserPrompt(
+  icp: ICPProfile,
+  data: WizardFormData,
+  channels: string[],
+  weekNumber: number,
+  previousWeeksFeedback: PreviousWeekFeedback[]
+): string {
+  const { loadPlatforms } = require("@/lib/platforms/loader") as { loadPlatforms: () => any[] };
+  const platforms = loadPlatforms();
+
+  const cadenceSummary = channels.map((ch) => {
+    const platform = platforms.find((p: any) => p.channel === ch);
+    const cadence = platform?.algorithm_playbook?.optimal_posting_cadence || "daily";
+    const count = getPostCountForPlatform(ch, cadence);
+    return `${ch}: ${count} posts (cadence: ${cadence})`;
+  }).join("\n");
+
+  // Build the performance signals block from all previous weeks
+  const performanceBlock = previousWeeksFeedback.map((wf) => {
+    const platformLines = wf.platformBreakdown.map((pb) => {
+      const fireList = pb.fire.length ? `    🔥 KILLED IT: ${pb.fire.map(h => `"${h}"`).join(" | ")}` : "    🔥 KILLED IT: none";
+      const okList = pb.ok.length ? `    👍 DID OK: ${pb.ok.map(h => `"${h}"`).join(" | ")}` : "    👍 DID OK: none";
+      const flopList = pb.flop.length ? `    💀 FLOPPED: ${pb.flop.map(h => `"${h}"`).join(" | ")}` : "    💀 FLOPPED: none";
+      const flopTypes = pb.postTypes.filter(pt => pt.rating === "flop").map(pt => pt.type);
+      const flopTypeLine = flopTypes.length ? `    ⚠️  AVOID these post types on ${pb.platform}: ${flopTypes.join(", ")}` : "";
+      return `  ${pb.platform}:\n${fireList}\n${okList}\n${flopList}${flopTypeLine ? "\n" + flopTypeLine : ""}`;
+    }).join("\n");
+
+    const commentsBlock = wf.userComments.length
+      ? `  AUDIENCE COMMENTS / FOUNDER NOTES:\n${wf.userComments.map(c => `    - ${c}`).join("\n")}`
+      : "  AUDIENCE COMMENTS: None provided";
+
+    // Best performing platform
+    const platformScores = wf.platformBreakdown.map(pb => ({
+      platform: pb.platform,
+      score: pb.fire.length * 2 + pb.ok.length - pb.flop.length * 2,
+    })).sort((a, b) => b.score - a.score);
+    const bestPlatform = platformScores[0]?.platform;
+    const worstPlatform = platformScores[platformScores.length - 1]?.platform;
+
+    return `## WEEK ${wf.weekNumber} PERFORMANCE SIGNALS — CRITICAL: Read and apply every rule below
+${platformLines}
+
+${commentsBlock}
+
+  PLATFORM PERFORMANCE RANKING: ${platformScores.map(p => `${p.platform} (score: ${p.score})`).join(" > ")}
+  ${bestPlatform ? `→ LEAN IN harder on ${bestPlatform} this week — it's performing best` : ""}
+  ${worstPlatform && worstPlatform !== bestPlatform ? `→ Experiment with different angles on ${worstPlatform} — current approach isn't resonating` : ""}`;
+  }).join("\n\n");
+
+  // All previous hooks across all weeks
+  const allPreviousHooks = previousWeeksFeedback
+    .flatMap(wf => wf.allHooks)
+    .map((h, i) => `${i + 1}. "${h}"`);
+
+  return `## PRODUCT
+Name: ${data.productName}
+URL: ${data.productUrl || "Not provided"}
+Description: ${data.productDescription}
+Problem it solves: ${data.problemItSolves || "Not specified"}
+Pricing: ${data.pricingModel}${data.pricePoint ? ` at ${data.pricePoint}` : ""}
+Goal: ${data.primaryGoal === "first-100" ? "Get first 100 users" : data.primaryGoal === "launch" ? "Product launch buzz" : "Scale existing growth"}
+
+## ICP
+Title: ${icp.title}
+Summary: ${icp.summary}
+Age: ${icp.demographics.ageRange} | Location: ${icp.demographics.location}
+Job titles: ${icp.demographics.jobTitles.join(", ")}
+Core pain points: ${icp.painPoints.slice(0, 3).join("; ")}
+Buying triggers: ${icp.buyingTriggers.slice(0, 2).join("; ")}
+DISC personality: ${icp.discProfile.primaryType}/${icp.discProfile.secondaryType}
+How to communicate: ${icp.discProfile.communicationStyle}
+
+## MATCHED PLATFORMS AND POST COUNTS:
+${cadenceSummary}
+
+${performanceBlock}
+
+## HOOKS ALREADY USED — DO NOT COPY OR PARAPHRASE ANY OF THESE:
+${allPreviousHooks.join("\n")}
+
+## TASK FOR WEEK ${weekNumber}
+Write the Week ${weekNumber} post calendar now. Every post MUST:
+1. Sound like a real founder wrote it — specific, human, slightly informal
+2. Be immediately ready to copy-paste and post with zero editing needed
+3. Reference real details about ${data.productName} and this exact ICP
+4. Use the exact hook formulas from the platform rules
+5. Have zero placeholders, zero generic statements, zero corporate language
+6. NEVER copy, paraphrase, or be inspired by the hooks listed in "HOOKS ALREADY USED" above
+7. Build on what KILLED IT — use similar angles, tones, or emotional triggers — but with fresh hooks and new content
+8. Avoid post types that FLOPPED on any platform
+9. If audience comments are provided, write posts that address those specific questions or objections
 
 Do NOT write 7 posts per platform unless the cadence says so. Follow the post counts above exactly.`;
 }

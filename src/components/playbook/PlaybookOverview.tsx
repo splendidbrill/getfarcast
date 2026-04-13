@@ -65,7 +65,9 @@ export function PlaybookOverview({ playbook }: { playbook: Playbook }) {
           },
           {
             icon: <BarChart3 className="w-5 h-5 text-emerald-500 mx-auto mb-2" />,
-            val: playbook.postsCalendar?.posts?.length || 0,
+            val: Array.isArray(playbook.postsCalendar)
+              ? (playbook.postsCalendar as any[]).reduce((sum: number, w: any) => sum + (w.posts?.length ?? 0), 0)
+              : (playbook.postsCalendar as any)?.posts?.length ?? 0,
             label: "Content Templates",
             bg: "bg-emerald-50",
           },
