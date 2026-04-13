@@ -23,14 +23,26 @@ export default function DashboardPage() {
       const supabase = createClient();
 
       // Gate: check subscription status first
-      const { data: { user } } = await supabase.auth.getUser();
+      let { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         window.location.href = '/';
         return;
       }
       
-      const status = user.app_metadata?.subscription_status;
-      const trialEndDate = user.app_metadata?.trial_end_date;
+      let status = user.app_metadata?.subscription_status;
+      let trialEndDate = user.app_metadata?.trial_end_date;
+
+      // Stale token recovery: Auth callback might have just assigned a trial that isn't in our JWT yet
+      if (!status || status === 'none') {
+        console.log('[dashboard] Status missing, attempting to refresh stale session tokens...');
+        await supabase.auth.refreshSession();
+        const { data: refreshed } = await supabase.auth.getUser();
+        if (refreshed.user) {
+          user = refreshed.user;
+          status = user.app_metadata?.subscription_status;
+          trialEndDate = user.app_metadata?.trial_end_date;
+        }
+      }
       
       if (status === 'canceled') {
         setTrialData({ status: 'expired' });
