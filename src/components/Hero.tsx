@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Sparkles, Target, Zap, Users } from "lucide-react";
+import { ArrowRight, Flame, Sparkles, Target, Zap, Users } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLinkedin, faReddit, faTwitter, faYoutube, faTiktok, faInstagram, faThreads, faProductHunt, faDiscord, faSlack, faQuora, faDev, faGithub } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
@@ -181,7 +181,7 @@ export function Hero() {
             
             {/* Mock content */}
             <div className="p-8 bg-white">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 {/* Mock Card 1 */}
                 <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
                   <div className="flex items-center gap-3 mb-4">
@@ -237,6 +237,39 @@ export function Hero() {
                       <div className="h-2 bg-gray-200 rounded-full w-4/5 mb-1" />
                       <div className="h-2 bg-gray-100 rounded-full w-1/2" />
                     </div>
+                  </div>
+                </div>
+
+                {/* Mock Card 4 */}
+                <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
+                      <Flame className="w-4 h-4 text-amber-500" />
+                    </div>
+                    <span className="text-sm font-bold text-[#1a1a2e]">Warm Leads</span>
+                  </div>
+                  <div className="space-y-2.5">
+                    {[
+                      { label: "Founder", width: "88%" },
+                      { label: "PM", width: "72%" },
+                      { label: "Marketer", width: "60%" },
+                    ].map((lead) => (
+                      <div key={lead.label} className="rounded-xl border border-gray-100 bg-white px-3 py-2 shadow-sm hover:-translate-y-0.5 transition-all duration-300">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-gray-500">{lead.label}</span>
+                          <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            Active
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-amber-100 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-amber-400 to-[#ff6b4e] transition-all duration-700"
+                            style={{ width: lead.width }}
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

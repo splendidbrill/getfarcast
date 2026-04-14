@@ -1,154 +1,52 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Check, Sparkles, Zap, Crown } from "lucide-react";
+import { Check, Zap, Crown } from "lucide-react";
 import { SignInModal } from "./SignInModal";
 import { sendGAEvent } from "@next/third-parties/google";
 import { createClient } from "@/lib/supabase/client";
 
-type Region = "global" | "india";
-//new ssh key
-const plans = {
-  global: [
-    {
-      name: "Starter",
-      price: "$10",
-      period: "/month",
-      description: "Perfect for solo founders testing a single product idea.",
-      icon: Zap,
-      features: [
-        "1 product playbook",
-        "ICP profiling with demographics",
-        "Top 3 channel recommendations",
-        "10 ready-to-post content pieces",
-        "Basic cold outreach template",
-        "Export as PDF",
-      ],
-      cta: "Start Free Trial",
-      highlighted: false,
-      gradient: "from-blue-500 to-blue-600",
-      iconColor: "text-blue-500",
-      bgIcon: "bg-blue-50",
-    },
-    {
-      name: "Growth",
-      price: "$99",
-      period: "/month",
-      description: "For serious founders ready to build a distribution engine.",
-      icon: Sparkles,
-      features: [
-        "5 product playbooks",
-        "Deep ICP with DISC personality mapping",
-        "Full 5-channel strategy with algo insights",
-        "50 content pieces with A/B variants",
-        "Cold outreach sequences (email + DM)",
-        "Buying trigger analysis",
-        "Channel-specific templates",
-        "Anti-AI-slop guardrails",
-        "Priority AI processing",
-      ],
-      cta: "Start Free Trial",
-      highlighted: true,
-      gradient: "from-[#ff6b4e] to-[#ff8c5a]",
-      iconColor: "text-[#ff6b4e]",
-      bgIcon: "bg-[#ff6b4e]/10",
-    },
-    {
-      name: "Scale",
-      price: "$199",
-      period: "/month",
-      description: "For teams scaling distribution across multiple products.",
-      icon: Crown,
-      features: [
-        "Unlimited playbooks",
-        "Everything in Growth, plus:",
-        "Team members (up to 5)",
-        "Competitor analysis per channel",
-        "Influencer identification for ICP",
-        "Content calendar with scheduling",
-        "Playbook version history",
-        "Custom channel deep-dives",
-        "Dedicated support",
-      ],
-      cta: "Start Free Trial",
-      highlighted: false,
-      gradient: "from-purple-500 to-purple-600",
-      iconColor: "text-purple-500",
-      bgIcon: "bg-purple-50",
-    },
-  ],
-  india: [
-    {
-      name: "Starter",
-      price: "₹999",
-      period: "/month",
-      description: "Perfect for solo founders testing a single product idea.",
-      icon: Zap,
-      features: [
-        "1 product playbook",
-        "ICP profiling with demographics",
-        "Top 3 channel recommendations",
-        "10 ready-to-post content pieces",
-        "Basic cold outreach template",
-        "Export as PDF",
-      ],
-      cta: "Start Free Trial",
-      highlighted: false,
-      gradient: "from-blue-500 to-blue-600",
-      iconColor: "text-blue-500",
-      bgIcon: "bg-blue-50",
-    },
-    {
-      name: "Growth",
-      price: "₹4,999",
-      period: "/month",
-      description: "For serious founders ready to build a distribution engine.",
-      icon: Sparkles,
-      features: [
-        "5 product playbooks",
-        "Deep ICP with DISC personality mapping",
-        "Full 5-channel strategy with algo insights",
-        "50 content pieces with A/B variants",
-        "Cold outreach sequences (email + DM)",
-        "Buying trigger analysis",
-        "Channel-specific templates",
-        "Anti-AI-slop guardrails",
-        "Priority AI processing",
-      ],
-      cta: "Start Free Trial",
-      highlighted: true,
-      gradient: "from-[#ff6b4e] to-[#ff8c5a]",
-      iconColor: "text-[#ff6b4e]",
-      bgIcon: "bg-[#ff6b4e]/10",
-    },
-    {
-      name: "Scale",
-      price: "₹9,999",
-      period: "/month",
-      description: "For teams scaling distribution across multiple products.",
-      icon: Crown,
-      features: [
-        "Unlimited playbooks",
-        "Everything in Growth, plus:",
-        "Team members (up to 5)",
-        "Competitor analysis per channel",
-        "Influencer identification for ICP",
-        "Content calendar with scheduling",
-        "Playbook version history",
-        "Custom channel deep-dives",
-        "Dedicated support",
-      ],
-      cta: "Start Free Trial",
-      highlighted: false,
-      gradient: "from-purple-500 to-purple-600",
-      iconColor: "text-purple-500",
-      bgIcon: "bg-purple-50",
-    },
-  ],
-};
+const plans = [
+  {
+    name: "Starter",
+    price: "$10",
+    period: "/month",
+    description: "Everything Farcast does, up to 10 playbooks.",
+    icon: Zap,
+    features: [
+      "Full ICP profile for your product — demographics, psychographics, buying signals",
+      "Ranked channel strategy across 27 platforms — where your buyers actually are",
+      "Platform-native content across every recommended channel — ready to post",
+      "Cold outreach sequences — email and DM templates for your specific ICP",
+      "30-day action plan — what to do, where, and in what order",
+      "Export as PDF",
+    ],
+    cta: "Get Starter",
+    highlighted: true,
+    iconColor: "text-[#ff6b4e]",
+    bgIcon: "bg-[#ff6b4e]/10",
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "",
+    description: "For teams that need custom limits, rollout support, and a tailored distribution system.",
+    icon: Crown,
+    features: [
+      "Custom playbook volume and onboarding",
+      "Multi-seat access for teams",
+      "Tailored channel and outbound workflows",
+      "Priority support and implementation help",
+      "Enterprise-ready planning for larger GTM motions",
+    ],
+    cta: "Contact Us",
+    highlighted: false,
+    iconColor: "text-purple-500",
+    bgIcon: "bg-purple-50",
+  },
+];
 
 export function PricingSection() {
-  const [region, setRegion] = useState<Region>("global");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [nextUrl, setNextUrl] = useState<string | undefined>();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -180,8 +78,6 @@ export function PricingSection() {
     };
   }, []);
 
-  const currentPlans = plans[region];
-
   return (
     <section
       ref={sectionRef}
@@ -198,42 +94,15 @@ export function PricingSection() {
             Pricing
           </p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1a1a2e] tracking-tight mb-6">
-            Start free. Scale when ready.
+            Simple pricing for serious distribution.
           </h2>
           <p className="text-gray-500 font-medium text-lg leading-relaxed max-w-xl mx-auto mb-10">
-            Every plan starts with a 14-day free trial. No credit card required.
-            Cancel anytime.
+            Choose Starter for self-serve growth, or talk to us for an enterprise setup.
           </p>
-
-          {/* Region toggle */}
-          <div className="inline-flex items-center gap-1 bg-gray-50 rounded-xl p-1.5 border border-gray-200">
-            <button
-              id="pricing-toggle-global"
-              onClick={() => setRegion("global")}
-              className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 ${
-                region === "global"
-                  ? "bg-white text-[#1a1a2e] shadow-sm border border-gray-100"
-                  : "text-gray-500 hover:text-[#1a1a2e]"
-              }`}
-            >
-              🌍 Global (USD)
-            </button>
-            <button
-              id="pricing-toggle-india"
-              onClick={() => setRegion("india")}
-              className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 ${
-                region === "india"
-                  ? "bg-white text-[#1a1a2e] shadow-sm border border-gray-100"
-                  : "text-gray-500 hover:text-[#1a1a2e]"
-              }`}
-            >
-              🇮🇳 India (INR)
-            </button>
-          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12 items-center">
-          {currentPlans.map((plan, i) => {
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12 items-stretch max-w-5xl mx-auto">
+          {plans.map((plan, i) => {
             const Icon = plan.icon;
             return (
               <div
@@ -317,7 +186,7 @@ export function PricingSection() {
                         : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"
                     }`}
                     onClick={() => {
-                      sendGAEvent('event', 'buttonClicked', { value: `pricing_trial_${plan.name.toLowerCase()}_${region}` });
+                      sendGAEvent('event', 'buttonClicked', { value: `pricing_${plan.name.toLowerCase()}` });
                       
                       if (plan.name === "Starter") {
                         if (isLoggedIn) {
@@ -327,19 +196,18 @@ export function PricingSection() {
                           setIsModalOpen(true);
                         }
                       } else {
-                        // For other plans, just open the modal normally (without specific redirect)
-                        setNextUrl(undefined);
-                        setIsModalOpen(true);
+                        window.location.href = "/contact";
                       }
                     }}
                   >
                     {plan.cta}
                   </button>
 
-                  {/* Trial note */}
-                  <p className="text-center text-xs font-semibold text-gray-400 mt-4">
-                    14-day free trial included
-                  </p>
+                  {plan.name === "Enterprise" && (
+                    <p className="text-center text-xs font-semibold text-gray-400 mt-4">
+                      We&apos;ll get back to you with a tailored setup.
+                    </p>
+                  )}
                 </div>
               </div>
             );
