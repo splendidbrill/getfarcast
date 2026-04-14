@@ -27,7 +27,7 @@ export default async function Home() {
       <FeaturesGrid />
       <ChannelShowcase />
       <PricingSection />
-      <CtaSection />
+      {/* <CtaSection /> */}
       <Footer />
     </main>
   );
