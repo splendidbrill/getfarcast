@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Sparkles, Target, Zap, Users } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLinkedin, faReddit, faTwitter, faYoutube, faTiktok, faInstagram, faThreads, faProductHunt, faDiscord, faSlack, faQuora, faDev, faGithub } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
 
 export function Hero() {
@@ -100,30 +102,33 @@ export function Hero() {
           </Link>
         </div>
 
-        {/* Social Proof area */}
-        <div className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 animate-fade-in-up-delay-3 opacity-0">
-          <div className="flex -space-x-3">
-            {[
-              "bg-blue-100 text-blue-600",
-              "bg-purple-100 text-purple-600",
-              "bg-emerald-100 text-emerald-600",
-              "bg-amber-100 text-amber-600",
-              "bg-rose-100 text-rose-600",
-            ].map((color, i) => (
-              <div
-                key={i}
-                className={`w-10 h-10 rounded-full ${color} border-2 border-white flex items-center justify-center text-xs font-bold shadow-sm animate-bounce-slow`}
-                style={{ animationDelay: `${i * 0.15}s` }}
-              >
-                {String.fromCharCode(65 + i)}
+        {/* Social Proof - Logo Marquee */}
+        <div
+          className="mt-14 w-full max-w-4xl mx-auto animate-fade-in-up-delay-3 opacity-0"
+          style={{
+            maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)"
+          }}
+        >
+          <div className="marquee-track">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="flex items-center gap-12 md:gap-16 pr-12 md:pr-20">
+                {[
+                  faLinkedin, faReddit, faTwitter, faYoutube, faTiktok, faInstagram,
+                  faThreads, faProductHunt, faDiscord, faSlack, faQuora, faDev
+                ].map((icon, idx) => (
+                  <FontAwesomeIcon
+                    key={idx}
+                    icon={icon}
+                    className="w-9 h-9 md:w-11 md:h-11 shrink-0 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                  />
+                ))}
+                <FontAwesomeIcon
+                  icon={faGithub}
+                  className="w-9 h-9 md:w-11 md:h-11 shrink-0 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                />
               </div>
             ))}
-          </div>
-          <div className="text-center sm:text-left">
-            <p className="text-sm font-bold text-[#1a1a2e]">Join 2,400+ founders</p>
-            <p className="text-sm font-medium text-gray-500">
-              Getting their first 100 users.
-            </p>
           </div>
         </div>
 
