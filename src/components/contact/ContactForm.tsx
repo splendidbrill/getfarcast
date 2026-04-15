@@ -87,7 +87,7 @@ export function ContactForm() {
                         },
                         {
                             title: "Inbox delivery",
-                            text: "Messages are sent through Resend. Make sure CONTACT_TO_EMAIL and a verified RESEND_FROM_EMAIL are configured so submissions reach the right inbox.",
+                            text: "Messages are sent through partner's email service.",
                             icon: Send,
                         },
                     ].map((item) => {
