@@ -87,7 +87,7 @@ export function ContactForm() {
                         },
                         {
                             title: "Inbox delivery",
-                            text: "Messages are sent through Resend and routed to farcast93@gmail.com once your API key is added.",
+                            text: "Messages are sent through Resend. Make sure CONTACT_TO_EMAIL and a verified RESEND_FROM_EMAIL are configured so submissions reach the right inbox.",
                             icon: Send,
                         },
                     ].map((item) => {

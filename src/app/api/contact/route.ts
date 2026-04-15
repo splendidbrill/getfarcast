@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
+export const runtime = "nodejs";
+
 type ContactPayload = {
   name?: string;
   email?: string;
   company?: string;
   message?: string;
 };
-
-const resendApiKey = process.env.RESEND_API_KEY;
-const resendFromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-const contactToEmail = process.env.CONTACT_TO_EMAIL || "farcast93@gmail.com";
 
 export async function POST(request: Request) {
   try {
@@ -35,6 +33,12 @@ export async function POST(request: Request) {
       );
     }
 
+    const resendApiKey = process.env.RESEND_API_KEY?.trim();
+    const contactToEmail = process.env.CONTACT_TO_EMAIL?.trim();
+    const resendFromEmail =
+      process.env.RESEND_FROM_EMAIL?.trim() ||
+      (process.env.NODE_ENV === "development" ? "onboarding@resend.dev" : undefined);
+
     if (!resendApiKey || resendApiKey === "re_placeholder") {
       return NextResponse.json(
         { error: "Resend is not configured yet. Add your RESEND_API_KEY to .env.local." },
@@ -42,9 +46,29 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!contactToEmail) {
+      return NextResponse.json(
+        {
+          error:
+            "Email recipient is not configured. Add CONTACT_TO_EMAIL in your environment variables.",
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!resendFromEmail) {
+      return NextResponse.json(
+        {
+          error:
+            "Sender email is not configured. Add RESEND_FROM_EMAIL with a verified sender/domain in your environment variables.",
+        },
+        { status: 500 }
+      );
+    }
+
     const resend = new Resend(resendApiKey);
 
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: resendFromEmail,
       to: [contactToEmail],
       replyTo: email,
@@ -69,7 +93,24 @@ export async function POST(request: Request) {
       `,
     });
 
-    return NextResponse.json({ success: true });
+    if (error) {
+      console.error("Resend email send failed", {
+        error,
+        from: resendFromEmail,
+        to: contactToEmail,
+      });
+
+      return NextResponse.json(
+        {
+          error:
+            error.message ||
+            "Resend could not deliver the message. Verify CONTACT_TO_EMAIL, RESEND_FROM_EMAIL, and your Resend domain/sender configuration.",
+        },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json({ success: true, id: data?.id ?? null });
   } catch (error) {
     console.error("Contact form submission failed", error);
     return NextResponse.json(
