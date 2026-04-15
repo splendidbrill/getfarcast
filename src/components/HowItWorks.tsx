@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MessageSquare, Search, Layers, PenTool, Send } from "lucide-react";
+import { MessageSquare, Search, Layers, PenTool, Users, Send } from "lucide-react";
 
 const steps = [
   {
@@ -46,6 +46,16 @@ const steps = [
   },
   {
     number: "05",
+    icon: Users,
+    title: "Warm Leads",
+    description:
+      "We surface real people already talking about your problem across Reddit, LinkedIn, X, and other niche communities. Every lead is contextual — someone who posted about the exact pain your product solves, so your first message never feels cold.",
+    detail: "Niche-matched leads",
+    gradient: "from-rose-500 to-rose-400",
+    shadowColor: "shadow-rose-500/20"
+  },
+  {
+    number: "06",
     icon: Send,
     title: "Launch your outreach",
     description:

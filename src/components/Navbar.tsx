@@ -105,7 +105,7 @@ export function Navbar() {
             <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
           </div>
           <span className="text-xl font-extrabold tracking-tight text-[#1a1a2e]">
-            Get<span className="text-[#ff6b4e]">Farcast</span>
+            <span className="text-[#ff6b4e]">Farcast</span>
           </span>
         </Link>
 
@@ -183,7 +183,7 @@ export function Navbar() {
             onClick={() => sendGAEvent('event', 'buttonClicked', { value: 'nav_get_playbook_desktop' })}
             className="px-6 py-2.5 text-sm font-bold rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white hover:opacity-90 transition-all duration-200 shadow-md hover:shadow-xl hover:shadow-[#ff6b4e]/20 hover:-translate-y-0.5"
           >
-            Get Your Playbook
+            Start Your Growth Engine
           </Link>
         </div>
 

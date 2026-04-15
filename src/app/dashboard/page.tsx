@@ -150,10 +150,11 @@ export default function DashboardPage() {
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 pt-32 pb-24 relative z-10">
         <div className="mb-12">
           <h1 className="text-4xl sm:text-5xl font-black text-[#1a1a2e] tracking-tight mb-4">
-            Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a]">Engine</span>
+            Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a]">Growth Engine</span>
           </h1>
           <p className="text-lg text-gray-500 font-medium max-w-2xl">
-            Access and manage all the 30-day growth playbooks you've generated. Ready to conquer a new channel?
+            Every playbook can be a path to your first 1000 users.
+Built for your product, your ICP, and the channels they actually live on. Start one or continue where you left off.
           </p>
         </div>
 

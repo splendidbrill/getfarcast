@@ -58,12 +58,12 @@ export function Hero() {
 
       {/* Content Container */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-        
+
         {/* Animated Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#ff6b4e]/20 shadow-sm mb-8 animate-fade-in-up opacity-0">
           <Sparkles className="w-3.5 h-3.5 text-[#ff6b4e] animate-pulse-soft" />
           <span className="text-xs font-bold text-[#1a1a2e] tracking-wide uppercase">
-            The $5K Agency Blueprint, Automated.
+            Your always-on AI growth agent
           </span>
         </div>
 
@@ -78,8 +78,7 @@ export function Hero() {
 
         {/* Subheadline */}
         <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-600 font-medium leading-relaxed mb-10 animate-fade-in-up-delay-2 opacity-0">
-          Describe your product and our AI tells you exactly who your target customer is, 
-           where they hang out, and the full growth engine — in minutes.
+          Describe your product. Farcast finds your ICP, maps where they live, builds your content engine, and starts sending you warm leads — automatically
         </p>
 
         {/* CTAs */}
@@ -120,12 +119,12 @@ export function Hero() {
                   <FontAwesomeIcon
                     key={idx}
                     icon={icon}
-                    className="w-9 h-9 md:w-11 md:h-11 shrink-0 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                    className="w-[44px] h-[44px] md:w-[56px] md:h-[56px] shrink-0 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
                   />
                 ))}
                 <FontAwesomeIcon
                   icon={faGithub}
-                  className="w-9 h-9 md:w-11 md:h-11 shrink-0 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                  className="w-[44px] h-[44px] md:w-[56px] md:h-[56px] shrink-0 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
                 />
               </div>
             ))}
@@ -134,7 +133,7 @@ export function Hero() {
 
         {/* Floating Mock UI - Clean, White Gojiberry Style */}
         <div className="mt-20 relative max-w-4xl mx-auto animate-scale-in opacity-0" style={{ animationDelay: "0.8s" }}>
-          
+
           {/* Decorative floating sub-cards outside the main frame */}
           <div className="absolute -left-12 top-10 w-48 bg-white rounded-2xl shadow-xl shadow-black/5 p-4 border border-gray-100 animate-float hidden lg:block z-20" style={{ animationDelay: '1s' }}>
             <div className="flex items-center gap-3 mb-2">
@@ -178,7 +177,7 @@ export function Hero() {
                 </div>
               </div>
             </div>
-            
+
             {/* Mock content */}
             <div className="p-8 bg-white">
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -196,7 +195,7 @@ export function Hero() {
                     <div className="h-2.5 bg-blue-200 rounded-full w-1/2" />
                   </div>
                 </div>
-                
+
                 {/* Mock Card 2 */}
                 <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
                   <div className="flex items-center gap-3 mb-4">
@@ -210,8 +209,8 @@ export function Hero() {
                       <div key={ch} className="flex items-center gap-3">
                         <span className="text-[10px] font-bold text-gray-500 w-16">{ch}</span>
                         <div className="h-2 rounded-full flex-1 bg-gray-200 overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-purple-400 to-[#ff6b4e]" 
+                          <div
+                            className="h-full bg-gradient-to-r from-purple-400 to-[#ff6b4e]"
                             style={{ width: `${100 - i * 20}%` }}
                           />
                         </div>
@@ -275,7 +274,7 @@ export function Hero() {
               </div>
             </div>
           </div>
-          
+
           {/* Subtle Glow underneath the mock app */}
           <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-4/5 h-12 bg-black/10 blur-xl rounded-full z-0" />
         </div>

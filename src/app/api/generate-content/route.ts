@@ -247,7 +247,7 @@ export async function POST(req: Request) {
         }
 
         // 4. Generate Content
-        const postsCalendar = await callLLMWithTokens(systemPrompt, userPrompt, 8000);
+        const postsCalendar = await callLLMWithTokens(systemPrompt, userPrompt, 16000);
 
         // Stamp the generation time (override any AI hallucination of the timestamp)
         postsCalendar.generatedAt = new Date().toISOString();

@@ -276,9 +276,9 @@ export function PlaybookDashboard({
                   <Target className="w-10 h-10 text-[#ff6b4e]" />
                 </div>
                 <div className="max-w-md mx-auto">
-                  <h3 className="text-2xl font-bold text-[#1a1a2e] mb-2">Warm Lead Engine</h3>
+                  <h3 className="text-2xl font-bold text-[#1a1a2e] mb-2">Your Daily Warm Lead List</h3>
                   <p className="text-gray-500 font-medium leading-relaxed">
-                    Automatically identify and scrape warm leads from your matched distribution channels.
+                    Farcast tracks two signals — people actively expressing the problem your product solves across your channels, and your target customer who engaged with your content. Both land in your inbox every morning, ready to reach out.
                   </p>
                 </div>
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-bold border border-blue-100">

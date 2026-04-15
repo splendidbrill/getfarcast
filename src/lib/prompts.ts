@@ -265,6 +265,28 @@ Generate market sizing JSON now.`;
 // Posts are generated per-platform with the correct number based
 // on each platform's optimal_posting_cadence from the JSON data.
 // ==========================================
+// ==========================================
+// Platform name normaliser — strips punctuation, spaces, and
+// lowercases so "Twitter / X", "Twitter/X", "twitter x" all match.
+// ==========================================
+function normalizePlatformName(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function findPlatformByChannel(platforms: any[], channelName: string): any | undefined {
+  const target = normalizePlatformName(channelName);
+  // 1. Exact normalised match
+  const exact = platforms.find((p: any) => normalizePlatformName(p.channel) === target);
+  if (exact) return exact;
+  // 2. Partial match — the stored name is a substring of a compound JSON key
+  //    e.g. "Medium" matches "Medium / Hashnode"
+  const partial = platforms.find((p: any) => {
+    const jsonNorm = normalizePlatformName(p.channel);
+    return jsonNorm.includes(target) || target.includes(jsonNorm);
+  });
+  return partial;
+}
+
 export function buildPostsCalendarSystemPrompt(channels: string[], weekNumber: number = 1): string {
   // Import the loadPlatforms function dynamically to avoid circular dependencies
   const { loadPlatforms } = require("@/lib/platforms/loader") as { loadPlatforms: () => any[] };
@@ -272,7 +294,7 @@ export function buildPostsCalendarSystemPrompt(channels: string[], weekNumber: n
 
   // Build per-platform rules + cadence context
   const channelRules = channels.map((ch) => {
-    const platform = platforms.find((p: any) => p.channel === ch);
+    const platform = findPlatformByChannel(platforms, ch);
     if (platform) {
       const content = platform.content_system;
       const algo = platform.algorithm_playbook;
@@ -286,15 +308,67 @@ PLATFORM NATIVE TONE: ${content.platform_native_tone}
 CTA APPROACH: ${content.cta_approach}
 CONTENT TO AVOID: ${content.content_to_avoid}`;
     } else {
-      return `## ${ch.toUpperCase()} (generate exactly 7 posts)
-OPTIMAL POSTING CADENCE: 1 post per day for the first week
-PLATFORM NATIVE TONE: Authentic, specific, platform-appropriate.`;
+      // Smart fallback: derive sensible defaults from the channel name itself
+      const chLower = ch.toLowerCase();
+      let postCount = 3;
+      let cadenceNote = "3 posts this week";
+      let toneNote = "Authentic, value-first, platform-appropriate.";
+      let ctaNote = "Soft mention of the product only when contextually natural.";
+      let contentNote = "Mix: one educational post, one problem-awareness post, one soft-pitch post.";
+
+      if (chLower.includes("quora")) {
+        postCount = 3;
+        toneNote = "Answer questions like a knowledgeable peer, not a marketer. 300-600 words per answer. Reference real experience. Never open with the product name.";
+        ctaNote = "Mention the product only at the END of a detailed, genuinely helpful answer. One sentence max.";
+        contentNote = "Write detailed Q&A answers to real questions your ICP is asking on Quora. Each post must be a full Quora answer — heading, body paragraphs, bullet points where relevant, and a closing line.";
+      } else if (chLower.includes("indie hacker") || chLower.includes("indiehacker")) {
+        postCount = 2;
+        toneNote = "Radical transparency. Share EXACT numbers (MRR, DAU, conversion rates). First person. Vulnerable and honest about struggles. The community celebrates honesty, not polish.";
+        ctaNote = "Link your IH product page naturally. No hard sell. Context is everything.";
+        contentNote = "Post 1: Monthly milestone format — '$X MRR — here is what worked and what did not this month'. Post 2: Specific lesson or failure post with exact numbers.";
+      } else if (chLower.includes("discord")) {
+        postCount = 3;
+        toneNote = "Conversational, casual, community-first. Like a group chat message, not a blog post. Short paragraphs.";
+        ctaNote = "Share in relevant channels only. Lead with value, product mention at the end if at all.";
+        contentNote = "Short value posts, questions to spark discussion, quick tips relevant to the server's theme.";
+      } else if (chLower.includes("slack")) {
+        postCount = 3;
+        toneNote = "Professional but concise. Write like a respected team member contributing to a channel discussion. Under 150 words per post.";
+        ctaNote = "Only in communities/channels that explicitly allow product sharing. Otherwise, share value content only.";
+        contentNote = "Helpful tips, resource shares, or discussion-starting questions highly relevant to the community's topic.";
+      } else if (chLower.includes("whatsapp") || chLower.includes("telegram")) {
+        postCount = 2;
+        toneNote = "Ultra-casual. Short messages. Read like a message from a friend in a group chat. No marketing language.";
+        ctaNote = "Only in groups where the admin has approved. Personal, direct, non-salesy.";
+        contentNote = "Short, high-value updates or tips relevant to the group's topic. One or two sentences followed by a relevant insight.";
+      } else if (chLower.includes("medium") || chLower.includes("hashnode") || chLower.includes("substack") || chLower.includes("beehiiv") || chLower.includes("newsletter")) {
+        postCount = 1;
+        toneNote = "Long-form, thoughtful, educational. 800-1500 words. Write like a smart practitioner sharing real experience.";
+        ctaNote = "Product mention woven naturally into the article's conclusion, with a clear but soft one-sentence CTA.";
+        contentNote = "One high-quality long-form article or newsletter edition. Deep dive on a topic your ICP cares about, drawing on real product experience.";
+      } else if (chLower.includes("podcast")) {
+        postCount = 1;
+        toneNote = "Pitch format: 30-second verbal hook explaining who you are, what your product does, and why listeners care. Conversational.";
+        ctaNote = "Provide a unique discount code or landing page for the podcast's audience.";
+        contentNote = "Write a podcast guest pitch AND a talking-points outline for the episode.";
+      } else if (chLower.includes("lobster") || chLower.includes("tildes")) {
+        postCount = 1;
+        toneNote = "Technical, precise, honest. Even more niche and quality-focused than Hacker News. Zero marketing language.";
+        ctaNote = "Direct link to the technical product or open-source repo. No promotional framing.";
+        contentNote = "One high-quality technical post — a real technical insight, an open-source announcement, or a genuinely interesting engineering decision.";
+      }
+
+      return `## ${ch.toUpperCase()} (generate exactly ${postCount} posts)
+PLATFORM NATIVE TONE: ${toneNote}
+CTA APPROACH: ${ctaNote}
+CONTENT TYPES: ${contentNote}
+CONTENT TO AVOID: Never use marketing speak, buzzwords, or vague claims. Every post must sound like a real human wrote it.`;
     }
   }).join("\n\n");
 
   // Build the total post count summary
   const totalPosts = channels.reduce((sum, ch) => {
-    const platform = platforms.find((p: any) => p.channel === ch);
+    const platform = findPlatformByChannel(platforms, ch);
     const cadence = platform?.algorithm_playbook?.optimal_posting_cadence || "";
     return sum + getPostCountForPlatform(ch, cadence);
   }, 0);
@@ -460,10 +534,10 @@ export function buildPostsCalendarUserPrompt(
 
   // Build a cadence summary per platform for the user prompt context
   const cadenceSummary = channels.map((ch) => {
-    const platform = platforms.find((p: any) => p.channel === ch);
-    const cadence = platform?.algorithm_playbook?.optimal_posting_cadence || "daily";
+    const platform = findPlatformByChannel(platforms, ch);
+    const cadence = platform?.algorithm_playbook?.optimal_posting_cadence || "";
     const count = getPostCountForPlatform(ch, cadence);
-    return `${ch}: ${count} posts (cadence: ${cadence})`;
+    return `${ch}: ${count} posts`;
   }).join("\n");
 
   return `## PRODUCT
