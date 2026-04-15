@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Zap, ArrowLeft, Check, Loader2, ArrowRight, Sparkles } from "lucide-react";
+import { BrandLogoIcon } from "@/components/BrandLogo";
 import Link from "next/link";
 import { sendGAEvent } from "@next/third-parties/google";
 import type { WizardFormData, StoredPlaybook } from "@/lib/types";
@@ -122,13 +123,13 @@ export function OnboardingWizard() {
             const { playbook, formData: fd } = event.data;
             const stored: StoredPlaybook = { playbook, formData: fd };
             localStorage.setItem(`playbook_${playbook.id}`, JSON.stringify(stored));
-            
+
             setNewPlaybookId(playbook.id);
             setGeneratedPlaybook(playbook);
             // Default top 3 selected
             const topChannels = playbook.channels.filter((c: any) => c.pushType === "hard").map((c: any) => c.name);
             setSelectedChannels(topChannels.length > 0 ? topChannels : playbook.channels.slice(0, 3).map((c: any) => c.name));
-            
+
             setWizardPhase('selecting_channels');
             return;
           } else if (event.type === "error") {
@@ -170,7 +171,7 @@ export function OnboardingWizard() {
 
       const decoder = new TextDecoder();
       let buffer = "";
-      
+
       setContentProgress(30);
 
       while (true) {
@@ -194,7 +195,7 @@ export function OnboardingWizard() {
             const { playbook, formData: fd } = event.data;
             const stored: StoredPlaybook = { playbook, formData: fd };
             localStorage.setItem(`playbook_${playbook.id}`, JSON.stringify(stored));
-            
+
             setContentProgress(100);
             setWizardPhase('done');
             return;
@@ -236,11 +237,12 @@ export function OnboardingWizard() {
 
       {/* Header */}
       <header className="relative z-10 border-b border-black/5 bg-white/70 backdrop-blur-xl">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] flex items-center justify-center shadow-md transition-transform group-hover:scale-110">
-              <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
-            </div>
+            <BrandLogoIcon
+              size={18}
+              className="transition-transform group-hover:scale-110"
+            />
             <span className="text-lg font-bold tracking-tight text-[#1a1a2e]">
               Get<span className="text-[#ff6b4e]">Farcast</span>
             </span>
@@ -319,8 +321,8 @@ export function OnboardingWizard() {
             <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-sm text-center">
               <Loader2 className="w-10 h-10 text-[#ff6b4e] animate-spin mx-auto mb-6" />
               <div className="w-full bg-gray-100 rounded-full h-3 mb-4 overflow-hidden">
-                <div 
-                  className="bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] h-3 rounded-full transition-all duration-500" 
+                <div
+                  className="bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] h-3 rounded-full transition-all duration-500"
                   style={{ width: `${contentProgress}%` }}
                 ></div>
               </div>
@@ -345,8 +347,8 @@ export function OnboardingWizard() {
               {generatedPlaybook.channels.map((ch: any) => {
                 const isSelected = selectedChannels.includes(ch.name);
                 return (
-                  <div 
-                    key={ch.name} 
+                  <div
+                    key={ch.name}
                     onClick={() => {
                       if (isSelected) {
                         setSelectedChannels(prev => prev.filter(c => c !== ch.name));
@@ -354,11 +356,10 @@ export function OnboardingWizard() {
                         setSelectedChannels(prev => [...prev, ch.name]);
                       }
                     }}
-                    className={`cursor-pointer transition-all duration-200 rounded-2xl p-5 border-2 flex flex-col justify-between ${
-                      isSelected 
-                        ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-500/10' 
-                        : 'border-gray-200 bg-white hover:border-gray-300'
-                    }`}
+                    className={`cursor-pointer transition-all duration-200 rounded-2xl p-5 border-2 flex flex-col justify-between ${isSelected
+                      ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-500/10'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                      }`}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-3">
@@ -391,7 +392,7 @@ export function OnboardingWizard() {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
-            
+
             {error && (
               <div className="mt-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm text-center">
                 {error}
@@ -443,13 +444,12 @@ export function OnboardingWizard() {
                     {/* Step info */}
                     <div className="flex-1 min-w-0">
                       <p
-                        className={`text-sm font-medium ${
-                          p.status === "done"
-                            ? "text-emerald-600"
-                            : p.status === "running" || p.status === "partial"
-                              ? "text-[#1a1a2e]"
-                              : "text-gray-300"
-                        }`}
+                        className={`text-sm font-medium ${p.status === "done"
+                          ? "text-emerald-600"
+                          : p.status === "running" || p.status === "partial"
+                            ? "text-[#1a1a2e]"
+                            : "text-gray-300"
+                          }`}
                       >
                         {p.label}
                         {p.substep && (
@@ -477,7 +477,7 @@ export function OnboardingWizard() {
                 Each channel strategy is powered by our curated playbooks — not generic AI advice.
               </p>
             </div>
-            
+
             {error && (
               <div className="bg-red-50 rounded-2xl p-5 border border-red-100">
                 <p className="text-sm text-red-600">{error}</p>
@@ -504,20 +504,18 @@ export function OnboardingWizard() {
                     className={`flex items-center gap-2 transition-all duration-300 ${s.number < step ? "cursor-pointer" : "cursor-default"}`}
                   >
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                        s.number === step
-                          ? "bg-[#ff6b4e] text-white shadow-md"
-                          : s.number < step
-                            ? "bg-emerald-500 text-white"
-                            : "bg-black/5 text-gray-300"
-                      }`}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${s.number === step
+                        ? "bg-[#ff6b4e] text-white shadow-md"
+                        : s.number < step
+                          ? "bg-emerald-500 text-white"
+                          : "bg-black/5 text-gray-300"
+                        }`}
                     >
                       {s.number < step ? <Check className="w-3.5 h-3.5" /> : s.number}
                     </div>
                     <span
-                      className={`text-sm hidden sm:block font-medium transition-colors ${
-                        s.number === step ? "text-[#1a1a2e]" : s.number < step ? "text-emerald-500" : "text-gray-300"
-                      }`}
+                      className={`text-sm hidden sm:block font-medium transition-colors ${s.number === step ? "text-[#1a1a2e]" : s.number < step ? "text-emerald-500" : "text-gray-300"
+                        }`}
                     >
                       {s.label}
                     </span>
@@ -552,11 +550,10 @@ export function OnboardingWizard() {
               <div className="flex items-center justify-between mt-8 pt-6 border-t border-black/5">
                 <button
                   onClick={prevStep}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    step === 1
-                      ? "opacity-0 pointer-events-none"
-                      : "text-gray-500 hover:text-[#1a1a2e] border border-black/10 hover:border-black/20"
-                  }`}
+                  className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${step === 1
+                    ? "opacity-0 pointer-events-none"
+                    : "text-gray-500 hover:text-[#1a1a2e] border border-black/10 hover:border-black/20"
+                    }`}
                 >
                   Back
                 </button>
@@ -596,6 +593,6 @@ export function OnboardingWizard() {
           </>
         )}
       </div>
-    </div>
+    </div >
   );
 }

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Menu, X, Zap, LogOut, Settings, CreditCard } from "lucide-react";
+import { Menu, X, LogOut, Settings, CreditCard } from "lucide-react";
+import { BrandLogoIcon } from "./BrandLogo";
 import { createClient } from "@/lib/supabase/client";
 import { sendGAEvent } from "@next/third-parties/google";
 import { SignInModal } from "./SignInModal";
@@ -20,7 +21,7 @@ export function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
-      
+
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       const progress = (window.scrollY / totalHeight) * 100;
       setScrollProgress(progress);
@@ -35,7 +36,7 @@ export function Navbar() {
       }
     };
     window.addEventListener("scroll", handleScroll);
-    
+
     // Auth check
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -88,11 +89,10 @@ export function Navbar() {
   return (
     <nav
       id="navbar"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
           ? "bg-white/80 backdrop-blur-xl border-b border-black/5 shadow-sm"
           : "bg-transparent py-2"
-      }`}
+        }`}
     >
       <div
         className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] transition-all duration-150"
@@ -101,9 +101,10 @@ export function Navbar() {
 
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 group" id="logo-link">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] flex items-center justify-center shadow-md transition-transform group-hover:scale-110 group-hover:rotate-6">
-            <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
-          </div>
+          <BrandLogoIcon
+            size={18}
+            className="transition-transform group-hover:scale-110 group-hover:rotate-6"
+          />
           <span className="text-xl font-extrabold tracking-tight text-[#1a1a2e]">
             <span className="text-[#ff6b4e]">Farcast</span>
           </span>
@@ -116,17 +117,15 @@ export function Navbar() {
               key={link.href}
               href={link.href}
               id={`nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
-              className={`text-sm font-semibold transition-all duration-200 relative group ${
-                activeSection === link.section
+              className={`text-sm font-semibold transition-all duration-200 relative group ${activeSection === link.section
                   ? "text-[#ff6b4e]"
                   : "text-gray-500 hover:text-[#1a1a2e]"
-              }`}
+                }`}
             >
               {link.label}
               <span
-                className={`absolute -bottom-[14px] left-0 h-[2px] bg-[#ff6b4e] transition-all duration-300 ${
-                  activeSection === link.section ? "w-full" : "w-0 group-hover:w-full"
-                }`}
+                className={`absolute -bottom-[14px] left-0 h-[2px] bg-[#ff6b4e] transition-all duration-300 ${activeSection === link.section ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
               />
             </Link>
           ))}
@@ -206,16 +205,15 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className={`block text-base font-bold py-3 px-4 rounded-xl transition-colors ${
-                  activeSection === link.section
+                className={`block text-base font-bold py-3 px-4 rounded-xl transition-colors ${activeSection === link.section
                     ? "bg-[#ff6b4e]/10 text-[#ff6b4e]"
                     : "text-gray-600 hover:bg-gray-50 hover:text-[#1a1a2e]"
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
             ))}
-            
+
             <hr className="border-gray-100 my-4" />
 
             {userInitial ? (
@@ -248,7 +246,7 @@ export function Navbar() {
                 Log in
               </button>
             )}
-            
+
             <Link
               href="/onboarding"
               onClick={() => {

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Zap } from "lucide-react";
+import { BrandLogoIcon } from "@/components/BrandLogo";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
@@ -46,14 +46,15 @@ export default function LoginPage() {
 
       <div className="relative w-full max-w-md bg-white rounded-3xl p-10 border border-gray-100 shadow-xl z-10 text-center">
         <Link href="/" className="inline-flex items-center gap-2 mb-8 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] flex items-center justify-center shadow-md transition-transform group-hover:scale-110 group-hover:rotate-6">
-            <Zap className="w-5 h-5 text-white" strokeWidth={2.5} />
-          </div>
+          <BrandLogoIcon
+            size={22}
+            className="transition-transform group-hover:scale-110 group-hover:rotate-6"
+          />
           <span className="text-2xl font-extrabold tracking-tight text-[#1a1a2e]">
             Get<span className="text-[#ff6b4e]">Farcast</span>
           </span>
         </Link>
-        
+
         <h1 className="text-2xl font-bold mb-3">Welcome to the Engine</h1>
         <p className="text-gray-500 font-medium mb-10 text-sm">
           Sign in to generate and save your AI growth playbooks.
@@ -73,7 +74,14 @@ export default function LoginPage() {
         </button>
 
         <p className="text-xs font-semibold text-gray-400 mt-8">
-          By signing in, I agree to the <a href="#" className="underline hover:text-gray-600">Terms of Service</a> & <a href="#" className="underline hover:text-gray-600">Privacy Policy</a>
+          By signing in, I agree to the{" "}
+          <Link href="/terms" className="underline hover:text-gray-600">
+            Terms of Service
+          </Link>{" "}
+          &{" "}
+          <Link href="/privacy" className="underline hover:text-gray-600">
+            Privacy Policy
+          </Link>
         </p>
       </div>
     </div>

@@ -8,9 +8,11 @@ import {
   Share2,
   Mail,
   Download,
-  Zap,
   Target,
+  Sparkles,
+  Plus,
 } from "lucide-react";
+import { BrandLogoIcon } from "@/components/BrandLogo";
 import type { Playbook } from "@/lib/types";
 import { sendGAEvent } from "@next/third-parties/google";
 import { PlaybookOverview } from "./PlaybookOverview";
@@ -150,7 +152,7 @@ export function PlaybookDashboard({
     { id: "icp", label: "Audience Profiling", icon: Users },
     { id: "channels", label: "Distribution Channels", icon: Share2 },
     { id: "outreach", label: "Outreach & DMs", icon: Mail },
-    { id: "posts", label: "Content Engine", icon: Zap },
+    { id: "posts", label: "Content Engine", icon: Sparkles },
     { id: "leads", label: "Warm Leads", icon: Target },
   ] as const;
 
@@ -177,22 +179,20 @@ export function PlaybookDashboard({
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-black/5 bg-white/70 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] flex items-center justify-center shadow-md">
-                <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
-              </div>
+          <div className="flex items-center gap-4 min-w-0">
+            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+              <BrandLogoIcon size={18} />
               <span className="text-lg font-bold tracking-tight text-[#1a1a2e] hidden sm:block">
                 Get<span className="text-[#ff6b4e]">Farcast</span>
               </span>
             </Link>
             <div className="h-6 w-px bg-black/10 hidden sm:block" />
-            <h1 className="text-sm font-semibold text-[#1a1a2e]">
+            <h1 className="text-sm font-semibold text-[#1a1a2e] truncate">
               {playbook.productName} Playbook
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <button 
+            <button
               onClick={() => {
                 sendGAEvent('event', 'buttonClicked', { value: 'export_pdf' });
                 window.print();
@@ -216,11 +216,10 @@ export function PlaybookDashboard({
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
-                  isActive
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${isActive
                     ? "bg-white text-[#ff6b4e] shadow-sm border border-black/5"
                     : "text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5"
-                }`}
+                  }`}
               >
                 <Icon className={`w-4.5 h-4.5 ${isActive ? "text-[#ff6b4e]" : "text-gray-400"}`} />
                 {t.label}
@@ -240,7 +239,7 @@ export function PlaybookDashboard({
               href="/onboarding"
               className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5 transition-all"
             >
-              <Zap className="w-4.5 h-4.5 text-gray-400" />
+              <Plus className="w-4 h-4 text-gray-400" />
               New Playbook
             </Link>
           </div>
@@ -256,13 +255,13 @@ export function PlaybookDashboard({
             {activeTab === "posts" && (
               playbook.postsCalendar && (playbook.postsCalendar as any[]).length > 0
                 ? <PlaybookPosts
-                    playbookId={playbookId}
-                    postsCalendars={playbook.postsCalendar as any}
-                    selectedChannels={selectedChannels}
-                    onWeekGenerated={(updatedCalendars) => {
-                      setPlaybook((prev) => prev ? { ...prev, postsCalendar: updatedCalendars as any } : prev);
-                    }}
-                  />
+                  playbookId={playbookId}
+                  postsCalendars={playbook.postsCalendar as any}
+                  selectedChannels={selectedChannels}
+                  onWeekGenerated={(updatedCalendars) => {
+                    setPlaybook((prev) => prev ? { ...prev, postsCalendar: updatedCalendars as any } : prev);
+                  }}
+                />
                 : (
                   <div className="text-center py-16 text-gray-400">
                     <p className="text-sm font-medium">Post calendar not available for this playbook.</p>
@@ -282,7 +281,7 @@ export function PlaybookDashboard({
                   </p>
                 </div>
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-bold border border-blue-100">
-                  <Zap className="w-4 h-4" />
+                  <Sparkles className="w-4 h-4" />
                   Launching Soon with our Chrome Extension
                 </div>
               </div>
