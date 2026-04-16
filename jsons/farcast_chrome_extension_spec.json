@@ -1,0 +1,457 @@
+{
+  "project": "Farcast Chrome Extension",
+  "version": "1.0",
+  "author": "Shobit Gupta",
+  "purpose": "The extension is the feedback loop that makes the Farcast agent compound over time. It does three jobs: (1) passively read content performance data when the user browses their own posts, (2) capture warm leads from people who engaged with that content, (3) monitor intent signals across recommended channels for people expressing the problem the user's product solves. All data flows back to the Farcast backend and improves the next week's content generation cycle.",
+
+  "core_principle": "The extension is invisible unless it has something useful to show. No persistent overlays. No badges on every page. It reads passively when the user naturally browses their platforms, sends data to Farcast, and the value surfaces inside the Farcast dashboard and the daily digest email — not inside the extension itself.",
+
+  "how_it_connects_to_existing_product": {
+    "content_engine_rating_system": "Currently users manually rate posts (thumbs up/down/neutral). The extension automates this — it reads actual engagement data from the platform and replaces manual rating with real performance signals. The same rating UI stays but now pre-fills with real data.",
+    "warm_leads_section": "Currently shows 'Launching Soon'. Extension populates this section with real leads — both engagers on user's content and intent-signal leads from monitored channels.",
+    "outreach_and_dms": "The DM templates Farcast already generates get paired with specific leads captured by the extension. Each lead card in the dashboard gets a one-click 'Send this DM' button using the pre-generated template.",
+    "content_engine_regeneration": "Every Sunday, Farcast backend uses the week's performance data (fed by extension) to regenerate the next week's content. High-performing formats get more weight. Low-performing formats get replaced."
+  },
+
+  "platforms_supported": {
+    "phase_1": ["twitter_x", "reddit"],
+    "phase_2": ["linkedin"],
+    "phase_3": ["hacker_news", "indie_hackers"],
+    "detection_method": "URL pattern matching on tab load. Extension activates the relevant module based on the current URL hostname."
+  },
+
+  "url_patterns": {
+    "twitter_x": ["twitter.com", "x.com"],
+    "reddit": ["reddit.com", "old.reddit.com"],
+    "linkedin": ["linkedin.com"],
+    "hacker_news": ["news.ycombinator.com"],
+    "indie_hackers": ["indiehackers.com"]
+  },
+
+  "modules": {
+
+    "module_1_content_performance_tracker": {
+      "name": "Content Performance Tracker",
+      "job": "Read engagement data from the user's own posts and send it to Farcast backend to replace manual rating and inform content regeneration",
+      "triggers": "Activates when user visits their own post URL, their own profile page, or their native analytics page",
+      "approach": "DOM reading only. No API calls. Reads what is already visible on the page. Runs only on pages the user actively navigates to.",
+
+      "twitter_x": {
+        "trigger_urls": [
+          "x.com/[username]/status/[tweet_id]",
+          "x.com/[username] (profile page)",
+          "analytics.twitter.com"
+        ],
+        "data_to_extract": {
+          "post_id": "Tweet ID from URL",
+          "impressions": "Read from analytics overlay if available, else skip",
+          "likes": "Read from engagement bar below tweet",
+          "replies": "Reply count from engagement bar",
+          "retweets": "Retweet count from engagement bar",
+          "bookmarks": "Bookmark count from engagement bar",
+          "post_type": "Single tweet / thread / quote tweet — inferred from DOM structure",
+          "posted_at": "Timestamp from tweet metadata",
+          "content_preview": "First 100 chars of tweet text for matching to Farcast-generated content"
+        },
+        "how_to_identify_own_posts": "Compare page username with stored Farcast user's connected Twitter handle",
+        "performance_score_formula": "Farcast backend calculates: (likes * 1) + (replies * 3) + (retweets * 2) + (bookmarks * 4). Higher weight on bookmarks and replies as they signal genuine value."
+      },
+
+      "reddit": {
+        "trigger_urls": [
+          "reddit.com/r/[subreddit]/comments/[post_id]/",
+          "reddit.com/user/[username]"
+        ],
+        "data_to_extract": {
+          "post_id": "Post ID from URL",
+          "upvotes": "Vote count from post header",
+          "upvote_ratio": "Percentage shown on post (e.g. 94%)",
+          "comment_count": "Number of comments",
+          "subreddit": "r/[name] from URL",
+          "flair": "Post flair if present",
+          "posted_at": "Timestamp from post metadata",
+          "content_preview": "First 100 chars of post title for matching"
+        },
+        "how_to_identify_own_posts": "Compare post author username with stored Farcast user's connected Reddit handle"
+      },
+
+      "linkedin": {
+        "trigger_urls": [
+          "linkedin.com/feed/update/[post_id]",
+          "linkedin.com/in/[username] (profile page)"
+        ],
+        "data_to_extract": {
+          "post_id": "Activity URN from URL",
+          "reactions": "Total reaction count",
+          "comments": "Comment count",
+          "reposts": "Repost count",
+          "impressions": "Read from 'X impressions' link below post if visible",
+          "posted_at": "Timestamp from post metadata",
+          "content_preview": "First 100 chars of post text"
+        }
+      },
+
+      "data_sent_to_farcast_backend": {
+        "endpoint": "POST /api/extension/content-performance",
+        "payload": {
+          "user_id": "Farcast user ID from local storage",
+          "playbook_id": "Which playbook this post belongs to",
+          "platform": "twitter_x | reddit | linkedin",
+          "post_id": "Platform-native post ID",
+          "content_preview": "First 100 chars for matching",
+          "metrics": {
+            "likes_or_upvotes": "integer",
+            "replies_or_comments": "integer",
+            "shares_or_retweets": "integer",
+            "bookmarks": "integer (twitter only)",
+            "impressions": "integer (if available)",
+            "upvote_ratio": "float (reddit only)"
+          },
+          "captured_at": "ISO timestamp"
+        }
+      },
+
+      "what_farcast_does_with_this_data": [
+        "Matches post to the Farcast-generated content piece using content_preview",
+        "Auto-fills the rating (thumbs up/neutral/down) in the Content Engine UI based on performance score",
+        "Updates the performance score for that content format (e.g. 'Build-in-Public Update' threads perform well on Twitter for this user)",
+        "Stores format performance history per playbook",
+        "Uses this data every Sunday to regenerate the next week's content — high-performing formats get more slots, low-performing ones are replaced or rewritten"
+      ]
+    },
+
+    "module_2_engager_lead_capture": {
+      "name": "Engager Lead Capture",
+      "job": "When the user visits their own post, read who engaged with it and send them to Farcast as warm leads. These people already interacted with the user's content — they are the warmest possible leads.",
+      "triggers": "Activates when user visits their own post URL on any supported platform",
+
+      "twitter_x": {
+        "what_to_capture": "Read the list of accounts who liked or retweeted the post. Twitter shows this on the post's engagement page (x.com/[username]/status/[id]/likes and /retweets)",
+        "data_per_lead": {
+          "username": "@handle",
+          "display_name": "Full name shown on profile",
+          "bio_snippet": "Bio text visible on hover card or profile",
+          "engagement_type": "liked | retweeted | replied | quoted",
+          "engagement_weight": "replied=5, quoted=4, retweeted=3, liked=1",
+          "profile_url": "x.com/[username]",
+          "captured_from_post": "Post ID this lead came from",
+          "captured_at": "ISO timestamp"
+        },
+        "how_to_read": "Navigate to /likes or /retweets tab on the post. Read the list of profile cards rendered in the DOM. For replies, read comment author usernames directly from the thread."
+      },
+
+      "reddit": {
+        "what_to_capture": "Read usernames of people who commented on the post. Upvoters are anonymous on Reddit so only commenters are capturable.",
+        "data_per_lead": {
+          "username": "u/handle",
+          "comment_text_preview": "First 80 chars of their comment — used to assess intent quality",
+          "engagement_type": "commented",
+          "comment_score": "Upvotes on their comment — higher = more credible community member",
+          "profile_url": "reddit.com/user/[username]",
+          "captured_from_post": "Post ID",
+          "captured_at": "ISO timestamp"
+        }
+      },
+
+      "linkedin": {
+        "what_to_capture": "Read reactor names and commenter names from the post engagement view",
+        "data_per_lead": {
+          "name": "Full name",
+          "headline": "Job title / headline visible below name in reactor list",
+          "profile_url": "linkedin.com/in/[slug]",
+          "engagement_type": "reacted | commented",
+          "engagement_weight": "commented=4, reacted=1",
+          "captured_from_post": "Post activity URN",
+          "captured_at": "ISO timestamp"
+        }
+      },
+
+      "data_sent_to_farcast_backend": {
+        "endpoint": "POST /api/extension/engager-leads",
+        "payload": {
+          "user_id": "Farcast user ID",
+          "playbook_id": "Which playbook the post belongs to",
+          "platform": "twitter_x | reddit | linkedin",
+          "source_post_id": "The post they engaged with",
+          "leads": [
+            {
+              "username_or_name": "string",
+              "bio_or_headline": "string",
+              "profile_url": "string",
+              "engagement_type": "string",
+              "engagement_weight": "integer",
+              "comment_preview": "string (optional)"
+            }
+          ]
+        }
+      },
+
+      "what_farcast_does_with_this_data": [
+        "Adds each lead to the Warm Leads section in the playbook dashboard",
+        "Scores lead quality: engagement_weight + recency + bio relevance to ICP",
+        "Matches the lead's bio/headline against the user's ICP profile — flags if strong match",
+        "Pre-selects the appropriate DM template from the Outreach & DMs section for that platform",
+        "Includes in the daily morning digest email"
+      ]
+    },
+
+    "module_3_intent_signal_monitor": {
+      "name": "Intent Signal Monitor",
+      "job": "While the user naturally browses their recommended channels, the extension passively scans for posts and comments where someone is expressing the problem the user's product solves. These are people who don't know the user's product exists yet — but are actively in pain.",
+      "triggers": "Runs passively when user is browsing any supported platform, only on pages the user actively navigates to. Never runs headless or in background tabs.",
+
+      "how_intent_matching_works": "Each Farcast user's playbook stores a set of intent_keywords derived from their product description and ICP problem statement. The extension matches post titles and comment text against these keywords using simple substring matching client-side. Matches are sent to backend for deeper scoring.",
+
+      "intent_keywords_source": "Farcast backend generates intent_keywords when playbook is created. These are stored locally in extension storage and synced weekly. Example for Farcast itself: ['can't find users', 'getting first users', 'distribution', 'growth strategy', 'marketing for founders', 'stuck at 0 users', 'how to get users', 'growth agency too expensive', 'no traction', 'first 100 users']",
+
+      "twitter_x": {
+        "what_to_scan": "Posts visible in the user's feed and search results when they search for keywords related to their problem space",
+        "scan_trigger": "When user visits x.com/home or x.com/search — scan the rendered feed cards",
+        "data_to_capture_per_match": {
+          "username": "@handle",
+          "tweet_text": "Full tweet text",
+          "matched_keyword": "Which intent keyword triggered this",
+          "tweet_url": "Direct link",
+          "posted_at": "Timestamp",
+          "engagement_count": "Likes + replies as rough reach signal",
+          "bio_snippet": "From author's profile card if available"
+        }
+      },
+
+      "reddit": {
+        "what_to_scan": "Posts and comments in the subreddits recommended in the user's playbook",
+        "scan_trigger": "When user visits any recommended subreddit (e.g. reddit.com/r/SaaS, reddit.com/r/indiehackers)",
+        "data_to_capture_per_match": {
+          "username": "u/handle",
+          "post_or_comment_text": "Full text of the post title + body, or comment text",
+          "matched_keyword": "Which intent keyword triggered this",
+          "post_url": "Direct link",
+          "subreddit": "r/name",
+          "posted_at": "Timestamp",
+          "upvotes": "Score of the post or comment"
+        },
+        "note": "Only scan posts from the last 7 days. Skip posts where the matched user is a known brand or has very high karma (likely not a genuine lead)"
+      },
+
+      "linkedin": {
+        "what_to_scan": "Posts visible in the user's LinkedIn feed that match intent keywords",
+        "scan_trigger": "When user visits linkedin.com/feed",
+        "data_to_capture_per_match": {
+          "author_name": "Full name",
+          "author_headline": "Job title / headline",
+          "post_text_preview": "First 200 chars of post",
+          "matched_keyword": "Which intent keyword triggered this",
+          "post_url": "Link to post",
+          "author_profile_url": "LinkedIn profile link",
+          "posted_at": "Timestamp"
+        }
+      },
+
+      "data_sent_to_farcast_backend": {
+        "endpoint": "POST /api/extension/intent-leads",
+        "payload": {
+          "user_id": "Farcast user ID",
+          "playbook_id": "Playbook ID",
+          "platform": "twitter_x | reddit | linkedin",
+          "leads": [
+            {
+              "username_or_name": "string",
+              "bio_or_headline": "string",
+              "profile_url": "string",
+              "matched_text_preview": "string",
+              "matched_keyword": "string",
+              "source_url": "string",
+              "posted_at": "ISO timestamp"
+            }
+          ]
+        }
+      },
+
+      "what_farcast_does_with_this_data": [
+        "Scores lead quality: keyword match strength + recency + ICP profile match",
+        "Deduplicates — if same person appears across multiple signals, merges into one lead card",
+        "Adds to Warm Leads section with tag 'Intent Signal' (distinct from 'Engager' leads)",
+        "Generates a suggested opening message using the matched text as context: 'Saw your post about [problem]. Built something that addresses this exactly — [one line about product]. Happy to share.'",
+        "Includes in daily morning digest email"
+      ]
+    },
+
+    "module_4_daily_digest": {
+      "name": "Daily Lead Digest",
+      "job": "Every morning, compile all leads captured in the last 24 hours and deliver them to the user",
+      "delivery_method": "Email digest sent by Farcast backend (not the extension itself — extension feeds the data, backend sends the email)",
+      "send_time": "8:00am user's local timezone",
+      "email_subject_line": "Your 7 warm leads from yesterday — Farcast",
+
+      "email_structure": {
+        "section_1": "Engagers on your content — people who liked, commented, or shared your posts yesterday",
+        "section_2": "Intent signals — people actively expressing your problem across Reddit, Twitter, LinkedIn",
+        "section_3": "One suggested action — 'Your top lead today is [name] who [action]. Here is a suggested message: [pre-filled DM template]'"
+      },
+
+      "lead_card_per_person": {
+        "platform_icon": "Visual indicator of which platform",
+        "name_or_username": "Who they are",
+        "bio_or_headline": "Their context in one line",
+        "what_they_did": "Liked your post on Reddit / Posted about distribution challenges on Twitter",
+        "suggested_action_button": "Opens Farcast with pre-loaded outreach template for this specific person"
+      }
+    }
+  },
+
+  "local_storage_schema": {
+    "description": "Data stored locally in the extension. Synced from Farcast backend on install and weekly refresh.",
+    "keys": {
+      "farcast_user_id": "string — Farcast account ID",
+      "farcast_auth_token": "string — for authenticating API calls to Farcast backend",
+      "connected_handles": {
+        "twitter": "string — @username",
+        "reddit": "string — u/username",
+        "linkedin": "string — profile slug"
+      },
+      "active_playbooks": [
+        {
+          "playbook_id": "string",
+          "product_name": "string",
+          "recommended_subreddits": ["r/SaaS", "r/indiehackers"],
+          "intent_keywords": ["can't find users", "getting first users", "distribution"],
+          "icp_summary": "Solo Technical Founder, 26-35, launching first SaaS"
+        }
+      ],
+      "last_sync_at": "ISO timestamp",
+      "captured_lead_ids": ["array of already-captured lead identifiers to prevent duplicates"]
+    }
+  },
+
+  "api_endpoints_farcast_backend_needs_to_build": [
+    {
+      "endpoint": "GET /api/extension/config",
+      "purpose": "Extension calls this on install and weekly to get user config: connected handles, intent keywords, active playbooks",
+      "auth": "Bearer token"
+    },
+    {
+      "endpoint": "POST /api/extension/content-performance",
+      "purpose": "Receive performance data for a published post",
+      "auth": "Bearer token"
+    },
+    {
+      "endpoint": "POST /api/extension/engager-leads",
+      "purpose": "Receive list of people who engaged with the user's content",
+      "auth": "Bearer token"
+    },
+    {
+      "endpoint": "POST /api/extension/intent-leads",
+      "purpose": "Receive list of people flagged by intent signal monitoring",
+      "auth": "Bearer token"
+    }
+  ],
+
+  "chrome_extension_manifest": {
+    "manifest_version": 3,
+    "name": "Farcast",
+    "description": "Your Farcast growth agent — tracking content performance and finding warm leads as you browse",
+    "version": "1.0.0",
+    "permissions": ["storage", "activeTab", "scripting"],
+    "host_permissions": [
+      "https://x.com/*",
+      "https://twitter.com/*",
+      "https://www.reddit.com/*",
+      "https://old.reddit.com/*",
+      "https://www.linkedin.com/*",
+      "https://news.ycombinator.com/*",
+      "https://www.indiehackers.com/*",
+      "https://app.getfarcast.com/*"
+    ],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "content_scripts": [
+      {
+        "matches": ["https://x.com/*", "https://twitter.com/*"],
+        "js": ["content/twitter.js"]
+      },
+      {
+        "matches": ["https://www.reddit.com/*", "https://old.reddit.com/*"],
+        "js": ["content/reddit.js"]
+      },
+      {
+        "matches": ["https://www.linkedin.com/*"],
+        "js": ["content/linkedin.js"]
+      }
+    ],
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": "icons/farcast-16.png"
+    }
+  },
+
+  "popup_ui": {
+    "description": "Simple popup when user clicks the extension icon. Does not show on every page — only when clicked.",
+    "contents": [
+      "Status: Connected as @[handle]",
+      "Leads captured today: [N]",
+      "Content pieces tracked: [N]",
+      "Button: Open Farcast Dashboard",
+      "Button: Sync Now"
+    ]
+  },
+
+  "phase_plan": {
+    "phase_1": {
+      "timeline": "Week 1-2",
+      "scope": [
+        "Twitter/X content performance tracking (DOM read on own post pages)",
+        "Twitter/X engager lead capture (likers and retweeters on own posts)",
+        "Reddit post performance tracking (upvotes, comments on own posts)",
+        "Reddit commenter lead capture",
+        "Basic lead list in Farcast Warm Leads section (replaces 'Coming Soon')",
+        "Manual sync button in popup",
+        "Backend endpoints: content-performance, engager-leads, config"
+      ],
+      "success_metric": "User can see at least 5 real leads in their Warm Leads section after posting one piece of content"
+    },
+    "phase_2": {
+      "timeline": "Week 3-5",
+      "scope": [
+        "LinkedIn content tracking and engager capture",
+        "Reddit intent signal monitoring (passive scan of recommended subreddits while browsing)",
+        "Twitter intent signal monitoring (passive scan of feed)",
+        "Daily digest email — morning lead summary",
+        "Content Engine auto-rating (performance data pre-fills the thumbs rating)",
+        "Deduplication logic — same person across multiple signals = one lead card",
+        "Lead quality scoring on backend"
+      ],
+      "success_metric": "User receives a daily email with ranked leads and the Content Engine ratings update automatically without manual input"
+    },
+    "phase_3": {
+      "timeline": "Week 6-8",
+      "scope": [
+        "One-click outreach generation — each lead card gets a pre-loaded DM from Outreach & DMs section",
+        "LinkedIn intent signal monitoring",
+        "Lead source tagging — 'Engager' vs 'Intent Signal' clearly differentiated in UI",
+        "Hacker News and Indie Hackers basic monitoring",
+        "Performance-based content regeneration — backend uses accumulated data to improve Sunday content refresh"
+      ],
+      "success_metric": "The next week's content noticeably reflects what worked the previous week — users can see the agent is learning"
+    }
+  },
+
+  "privacy_and_compliance": {
+    "chrome_web_store_disclosure": "This extension reads engagement data (likes, comments, post text) from pages you actively visit on Twitter/X, Reddit, and LinkedIn. This data is sent to Farcast servers to improve your growth strategy and identify potential leads. We do not access any data without you actively visiting the page. We do not store passwords or private messages.",
+    "data_not_collected": [
+      "Private messages or DMs",
+      "Passwords or login credentials",
+      "Payment information",
+      "Data from pages the user has not actively navigated to"
+    ],
+    "platform_tos_compliance": "Extension only reads data from pages the user actively visits. No headless browsing, no automated navigation, no bulk scraping. All reading is passive and triggered by user navigation only."
+  },
+
+  "key_design_decisions": {
+    "no_persistent_overlay": "Extension does not inject any visible UI into platform pages. No analytics overlays like SuperX. The user's browsing experience on Twitter/Reddit/LinkedIn is unchanged.",
+    "passive_not_active": "Extension never navigates to pages, never clicks buttons, never performs any action on behalf of the user. It only reads what the user can already see.",
+    "single_extension_multi_platform": "One extension handles all platforms via URL pattern detection. Keeps installation simple and reduces permission complexity.",
+    "auth_via_farcast_account": "User authenticates through the Farcast web app. Extension reads the auth token from shared storage after user logs in on app.getfarcast.com. No separate extension login needed.",
+    "value_surfaces_in_farcast_not_extension": "The extension is infrastructure. The user experience is inside Farcast — the Warm Leads section, the Content Engine ratings, the daily digest email. The extension popup is just a status check."
+  }
+}
