@@ -13,6 +13,74 @@ const ink = "#1a1a2e";
 const muted = "#6b7280";
 const line = "#ece7e3";
 
+function Card({ title, accent }: { title: string; accent: string }) {
+    return (
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                width: "48%",
+                padding: "18px",
+                borderRadius: "20px",
+                background: "#fafafa",
+                border: `1px solid ${line}`,
+            }}
+        >
+            <div
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "14px",
+                }}
+            >
+                <div
+                    style={{
+                        display: "flex",
+                        width: "34px",
+                        height: "34px",
+                        borderRadius: "12px",
+                        background: accent,
+                        marginRight: "10px",
+                    }}
+                />
+                <div style={{ display: "flex", fontSize: "18px", fontWeight: 800 }}>
+                    {title}
+                </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+                <div
+                    style={{
+                        display: "flex",
+                        height: "10px",
+                        borderRadius: "9999px",
+                        background: line,
+                        marginBottom: "10px",
+                    }}
+                />
+                <div
+                    style={{
+                        display: "flex",
+                        height: "10px",
+                        width: "82%",
+                        borderRadius: "9999px",
+                        background: line,
+                        marginBottom: "10px",
+                    }}
+                />
+                <div
+                    style={{
+                        display: "flex",
+                        height: "10px",
+                        width: "58%",
+                        borderRadius: "9999px",
+                        background: accent,
+                    }}
+                />
+            </div>
+        </div>
+    );
+}
+
 export default function OpenGraphImage() {
     return new ImageResponse(
         (
@@ -21,7 +89,8 @@ export default function OpenGraphImage() {
                     width: "100%",
                     height: "100%",
                     display: "flex",
-                    background: "linear-gradient(135deg, #fff8f4 0%, #fff3ec 48%, #fdfdfd 100%)",
+                    background:
+                        "linear-gradient(135deg, #fff8f4 0%, #fff3ec 48%, #fdfdfd 100%)",
                     color: ink,
                     fontFamily: "Inter, sans-serif",
                     padding: "42px",
@@ -30,6 +99,7 @@ export default function OpenGraphImage() {
             >
                 <div
                     style={{
+                        display: "flex",
                         position: "absolute",
                         top: "-80px",
                         left: "-40px",
@@ -41,6 +111,7 @@ export default function OpenGraphImage() {
                 />
                 <div
                     style={{
+                        display: "flex",
                         position: "absolute",
                         right: "20px",
                         bottom: "-100px",
@@ -58,7 +129,7 @@ export default function OpenGraphImage() {
                         display: "flex",
                         borderRadius: "32px",
                         border: `1px solid ${line}`,
-                        background: "rgba(255,255,255,0.9)",
+                        background: "rgba(255,255,255,0.92)",
                         padding: "34px",
                         position: "relative",
                     }}
@@ -78,22 +149,22 @@ export default function OpenGraphImage() {
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: "12px",
                                     marginBottom: "24px",
                                 }}
                             >
                                 <div
                                     style={{
+                                        display: "flex",
                                         width: "52px",
                                         height: "52px",
                                         borderRadius: "16px",
                                         background: brand,
                                         color: "white",
-                                        display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
                                         fontSize: "24px",
                                         fontWeight: 800,
+                                        marginRight: "12px",
                                     }}
                                 >
                                     G
@@ -102,21 +173,23 @@ export default function OpenGraphImage() {
                                     style={{
                                         display: "flex",
                                         flexDirection: "column",
-                                        fontSize: "18px",
                                         color: muted,
                                     }}
                                 >
-                                    <span style={{ fontSize: "26px", fontWeight: 800, color: ink }}>
+                                    <div
+                                        style={{ display: "flex", fontSize: "26px", fontWeight: 800, color: ink }}
+                                    >
                                         GetFarcast
-                                    </span>
-                                    <span>AI-powered growth engine</span>
+                                    </div>
+                                    <div style={{ display: "flex", fontSize: "18px" }}>
+                                        AI-powered growth engine
+                                    </div>
                                 </div>
                             </div>
 
                             <div
                                 style={{
                                     display: "flex",
-                                    alignItems: "center",
                                     alignSelf: "flex-start",
                                     padding: "10px 16px",
                                     borderRadius: "9999px",
@@ -141,8 +214,10 @@ export default function OpenGraphImage() {
                                     letterSpacing: "-0.03em",
                                 }}
                             >
-                                <span>Building is easy.</span>
-                                <span style={{ color: brand }}>Distribution isn&apos;t.</span>
+                                <div style={{ display: "flex" }}>Building is easy.</div>
+                                <div style={{ display: "flex", color: brand }}>
+                                    Distribution isn&apos;t.
+                                </div>
                             </div>
 
                             <div
@@ -160,13 +235,7 @@ export default function OpenGraphImage() {
                             </div>
                         </div>
 
-                        <div
-                            style={{
-                                display: "flex",
-                                gap: "14px",
-                                alignItems: "center",
-                            }}
-                        >
+                        <div style={{ display: "flex", alignItems: "center" }}>
                             <div
                                 style={{
                                     display: "flex",
@@ -179,6 +248,7 @@ export default function OpenGraphImage() {
                                     color: "white",
                                     fontSize: "20px",
                                     fontWeight: 800,
+                                    marginRight: "14px",
                                 }}
                             >
                                 Start Your Growth Engine
@@ -215,11 +285,11 @@ export default function OpenGraphImage() {
                     >
                         <div
                             style={{
+                                display: "flex",
+                                flexDirection: "column",
                                 position: "absolute",
                                 left: "18px",
                                 top: "40px",
-                                display: "flex",
-                                flexDirection: "column",
                                 width: "170px",
                                 padding: "18px",
                                 borderRadius: "22px",
@@ -227,11 +297,29 @@ export default function OpenGraphImage() {
                                 border: `1px solid ${line}`,
                             }}
                         >
-                            <span style={{ fontSize: "18px", fontWeight: 800, marginBottom: "12px" }}>
+                            <div
+                                style={{ display: "flex", fontSize: "18px", fontWeight: 800, marginBottom: "12px" }}
+                            >
                                 Found ICP
-                            </span>
-                            <div style={{ height: "10px", borderRadius: "9999px", background: line, marginBottom: "8px" }} />
-                            <div style={{ height: "10px", width: "78%", borderRadius: "9999px", background: "#dbeafe" }} />
+                            </div>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    height: "10px",
+                                    borderRadius: "9999px",
+                                    background: line,
+                                    marginBottom: "8px",
+                                }}
+                            />
+                            <div
+                                style={{
+                                    display: "flex",
+                                    height: "10px",
+                                    width: "78%",
+                                    borderRadius: "9999px",
+                                    background: "#dbeafe",
+                                }}
+                            />
                         </div>
 
                         <div
@@ -255,10 +343,42 @@ export default function OpenGraphImage() {
                                     borderBottom: `1px solid ${line}`,
                                 }}
                             >
-                                <div style={{ display: "flex", gap: "8px", marginRight: "18px" }}>
-                                    <div style={{ width: "12px", height: "12px", borderRadius: "9999px", background: "#f87171" }} />
-                                    <div style={{ width: "12px", height: "12px", borderRadius: "9999px", background: "#fbbf24" }} />
-                                    <div style={{ width: "12px", height: "12px", borderRadius: "9999px", background: "#4ade80" }} />
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        marginRight: "18px",
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            width: "12px",
+                                            height: "12px",
+                                            borderRadius: "9999px",
+                                            background: "#f87171",
+                                            marginRight: "8px",
+                                        }}
+                                    />
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            width: "12px",
+                                            height: "12px",
+                                            borderRadius: "9999px",
+                                            background: "#fbbf24",
+                                            marginRight: "8px",
+                                        }}
+                                    />
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            width: "12px",
+                                            height: "12px",
+                                            borderRadius: "9999px",
+                                            background: "#4ade80",
+                                        }}
+                                    />
                                 </div>
                                 <div
                                     style={{
@@ -282,66 +402,40 @@ export default function OpenGraphImage() {
                             <div
                                 style={{
                                     display: "flex",
-                                    flexWrap: "wrap",
-                                    gap: "16px",
+                                    flexDirection: "column",
                                     padding: "20px",
                                     background: "white",
                                 }}
                             >
-                                {[
-                                    { title: "Your Market", accent: "#dbeafe" },
-                                    { title: "Channels", accent: "#ede9fe" },
-                                    { title: "Content Output", accent: brandSoft },
-                                    { title: "Warm Leads", accent: "#fef3c7" },
-                                ].map((card) => (
-                                    <div
-                                        key={card.title}
-                                        style={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            width: "calc(50% - 8px)",
-                                            padding: "18px",
-                                            borderRadius: "20px",
-                                            background: "#fafafa",
-                                            border: `1px solid ${line}`,
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "10px",
-                                                marginBottom: "14px",
-                                            }}
-                                        >
-                                            <div
-                                                style={{
-                                                    width: "34px",
-                                                    height: "34px",
-                                                    borderRadius: "12px",
-                                                    background: card.accent,
-                                                    display: "flex",
-                                                }}
-                                            />
-                                            <span style={{ fontSize: "18px", fontWeight: 800 }}>{card.title}</span>
-                                        </div>
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                                            <div style={{ height: "10px", borderRadius: "9999px", background: line }} />
-                                            <div style={{ height: "10px", width: "82%", borderRadius: "9999px", background: line }} />
-                                            <div style={{ height: "10px", width: "58%", borderRadius: "9999px", background: card.accent }} />
-                                        </div>
-                                    </div>
-                                ))}
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        marginBottom: "16px",
+                                    }}
+                                >
+                                    <Card title="Your Market" accent="#dbeafe" />
+                                    <Card title="Channels" accent="#ede9fe" />
+                                </div>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                    }}
+                                >
+                                    <Card title="Content Output" accent={brandSoft} />
+                                    <Card title="Warm Leads" accent="#fef3c7" />
+                                </div>
                             </div>
                         </div>
 
                         <div
                             style={{
+                                display: "flex",
+                                flexDirection: "column",
                                 position: "absolute",
                                 right: "12px",
                                 bottom: "28px",
-                                display: "flex",
-                                flexDirection: "column",
                                 width: "200px",
                                 padding: "18px",
                                 borderRadius: "22px",
@@ -349,9 +443,11 @@ export default function OpenGraphImage() {
                                 border: `1px solid ${line}`,
                             }}
                         >
-                            <span style={{ fontSize: "18px", fontWeight: 800, marginBottom: "10px" }}>
+                            <div
+                                style={{ display: "flex", fontSize: "18px", fontWeight: 800, marginBottom: "10px" }}
+                            >
                                 Warm leads
-                            </span>
+                            </div>
                             <div
                                 style={{
                                     display: "flex",
@@ -362,12 +458,22 @@ export default function OpenGraphImage() {
                                     marginBottom: "8px",
                                 }}
                             >
-                                <span>Founder</span>
-                                <span style={{ color: brand, fontWeight: 700 }}>Active</span>
+                                <div style={{ display: "flex" }}>Founder</div>
+                                <div style={{ display: "flex", color: brand, fontWeight: 700 }}>
+                                    Active
+                                </div>
                             </div>
-                            <div style={{ height: "10px", borderRadius: "9999px", background: "#fde7df" }}>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    height: "10px",
+                                    borderRadius: "9999px",
+                                    background: "#fde7df",
+                                }}
+                            >
                                 <div
                                     style={{
+                                        display: "flex",
                                         width: "84%",
                                         height: "100%",
                                         borderRadius: "9999px",
