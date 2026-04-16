@@ -8,6 +8,48 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+// export const metadata: Metadata = {
+//   metadataBase: new URL("https://www.getfarcast.com"),
+//   title: "GetFarcast — AI-Powered Growth Engine for Founders",
+//   description:
+//     "Tell us what you built. Get a complete distribution playbook — ICP profiling, channel strategy, ready-to-post content, and cold outreach sequences. Built for founders who ship fast but need users.",
+//   keywords: [
+//     "growth engine",
+//     "vibe marketing",
+//     "startup distribution",
+//     "ICP profiling",
+//     "content marketing AI",
+//     "founder marketing tool",
+//   ],
+//   alternates: {
+//     canonical: "/",
+//   },
+//   openGraph: {
+//     title: "GetFarcast — AI-Powered Growth Engine for Founders",
+//     description:
+//       "Your product is built. Now get users. GetFarcast generates a complete growth playbook tailored to your product and audience.",
+//     siteName: "GetFarcast",
+//     type: "website",
+//     url: "/",
+//     images: [
+//       {
+//         url: "/opengraph-image",
+//         width: 1200,
+//         height: 630,
+//         alt: "GetFarcast homepage preview",
+//       },
+//     ],
+//   },
+//   twitter: {
+//     card: "summary_large_image",
+//     title: "GetFarcast — AI-Powered Growth Engine for Founders",
+//     description:
+//       "Your product is built. Now get users. GetFarcast generates a complete growth playbook tailored to your product and audience.",
+//     images: ["/twitter-image"],
+//   },
+// };
+
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.getfarcast.com"),
   title: "GetFarcast — AI-Powered Growth Engine for Founders",
@@ -31,21 +73,14 @@ export const metadata: Metadata = {
     siteName: "GetFarcast",
     type: "website",
     url: "/",
-    images: [
-      {
-        url: "/opengraph-image",
-        width: 1200,
-        height: 630,
-        alt: "GetFarcast homepage preview",
-      },
-    ],
+    // ❌ REMOVED: The manual 'images' array. Let Next.js handle this automatically!
   },
   twitter: {
     card: "summary_large_image",
     title: "GetFarcast — AI-Powered Growth Engine for Founders",
     description:
       "Your product is built. Now get users. GetFarcast generates a complete growth playbook tailored to your product and audience.",
-    images: ["/twitter-image"],
+    // ❌ REMOVED: The manual 'images' array. 
   },
 };
 
