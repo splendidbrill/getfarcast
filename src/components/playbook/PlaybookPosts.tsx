@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
 import {
   Copy,
   Check,
@@ -837,14 +838,24 @@ export function PlaybookPosts({
       setGenerationError("");
 
       try {
+        // 1. Grab the active session from Supabase
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+
+        // 2. Pass the token in the Authorization header
         const response = await fetch("/api/generate-content", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session?.access_token}` // <--- THE FIX
+          },
           body: JSON.stringify({ playbookId, selectedChannels, weekNumber }),
         });
 
         if (!response.ok) throw new Error("Generation request failed");
         if (!response.body) throw new Error("No response body");
+
+        // ... keep the rest of your existing stream reading code ...
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();

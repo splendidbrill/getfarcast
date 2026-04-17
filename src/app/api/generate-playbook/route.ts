@@ -165,9 +165,10 @@ export async function POST(request: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       // HEARTBEAT: Send a tiny ping every 5 seconds to keep the connection alive
+      // HEARTBEAT: Send a real ping every 5 seconds to bypass 150s timeouts
       const heartbeat = setInterval(() => {
         try {
-          controller.enqueue(encoder.encode(": keep-alive\n\n"));
+          encodeEvent(controller, encoder, "ping", { message: "still thinking..." });
         } catch (e) {
           clearInterval(heartbeat);
         }
@@ -307,28 +308,36 @@ export async function POST(request: Request) {
         }
 
         // -- STEP 4: Outreach + Market Sizing (parallel) --------------------------
+        // -- STEP 4: Outreach + Market Sizing (Sequential) --------------------------
         encodeEvent(controller, encoder, "progress", {
           step: 4,
           total: 4,
-          label: "Writing outreach sequences + market sizing...",
+          label: "Writing outreach sequences...",
           status: "running",
         });
 
         if (signal.aborted) return cleanup();
-        const [outreach, marketSizing] = await Promise.all([
-          callLLM(
-            buildOutreachSystemPrompt(),
-            buildOutreachUserPrompt(
-              icp,
-              formData,
-              matchedChannels.slice(0, 3).map((c) => c.name)
-            )
-          ),
-          callLLM(
-            buildMarketSizingSystemPrompt(),
-            buildMarketSizingUserPrompt(icp, formData)
-          ),
-        ]);
+        
+        const outreach = await callLLM(
+          buildOutreachSystemPrompt(),
+          buildOutreachUserPrompt(
+            icp,
+            formData,
+            matchedChannels.slice(0, 3).map((c) => c.name)
+          )
+        );
+
+        encodeEvent(controller, encoder, "progress", {
+          step: 4,
+          total: 4,
+          label: "Calculating market sizing...",
+          status: "running",
+        });
+
+        const marketSizing = await callLLM(
+          buildMarketSizingSystemPrompt(),
+          buildMarketSizingUserPrompt(icp, formData)
+        );
 
         encodeEvent(controller, encoder, "progress", {
           step: 4,

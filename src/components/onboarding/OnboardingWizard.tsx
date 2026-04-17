@@ -11,6 +11,7 @@ import { StepProductInfo } from "./StepProductInfo";
 import { StepAudienceInfo } from "./StepAudienceInfo";
 import { StepPricingInfo } from "./StepPricingInfo";
 import { StepGoalInfo } from "./StepGoalInfo";
+import { createClient } from "@/lib/supabase/client";
 
 const STEPS = [
   { number: 1, label: "Your Product" },
@@ -84,9 +85,17 @@ export function OnboardingWizard() {
     setPipeline(INITIAL_PIPELINE);
 
     try {
+      // 1. Grab the active session from Supabase
+      const supabase = createClient(); // Or however you initialize it in your components
+      const { data: { session } } = await supabase.auth.getSession();
+
+      // 2. Pass the token in the Authorization header
       const res = await fetch("/api/generate-playbook", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session?.access_token}` // <--- THE FIX
+        },
         body: JSON.stringify(formData),
       });
 
@@ -94,6 +103,8 @@ export function OnboardingWizard() {
         const errData = await res.json();
         throw new Error(errData.error || "Generation failed");
       }
+
+      // ... keep the rest of your existing stream reading code ..
 
       const reader = res.body?.getReader();
       if (!reader) throw new Error("No response stream");
