@@ -14,6 +14,7 @@ const plans = [
     description: "Everything Farcast does, up to 10 playbooks.",
     icon: Zap,
     features: [
+      "14-day free trial",
       "Full ICP profile for your product — demographics, psychographics, buying signals",
       "Ranked channel strategy across 27 platforms — where your buyers actually are",
       "Platform-native content across every recommended channel — ready to post",

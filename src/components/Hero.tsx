@@ -89,7 +89,7 @@ export function Hero() {
             className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center gap-3 hover:-translate-y-1"
           >
             <Zap className="w-5 h-5 fill-white" />
-            Start Your Growth Engine
+            Start Your Free Trail
             <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
           </Link>
           <Link
