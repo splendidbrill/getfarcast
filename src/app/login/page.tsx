@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BrandLogoIcon } from "@/components/BrandLogo";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const nextUrl = searchParams.get("next") || "/dashboard";
 
   useEffect(() => {
@@ -87,5 +87,39 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+function LoginPageFallback() {
+  return (
+    <div className="min-h-screen bg-[#faf8f6] flex items-center justify-center p-6 text-[#1a1a2e]">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#ff6b4e]/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
+
+      <div className="relative w-full max-w-md bg-white rounded-3xl p-10 border border-gray-100 shadow-xl z-10 text-center">
+        <Link href="/" className="inline-flex items-center gap-2 mb-8 group">
+          <BrandLogoIcon
+            size={22}
+            className="transition-transform group-hover:scale-110 group-hover:rotate-6"
+          />
+          <span className="text-2xl font-extrabold tracking-tight text-[#1a1a2e]">
+            Get<span className="text-[#ff6b4e]">Farcast</span>
+          </span>
+        </Link>
+
+        <h1 className="text-2xl font-bold mb-3">Welcome to the Engine</h1>
+        <p className="text-gray-500 font-medium mb-10 text-sm">
+          Preparing secure sign in...
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginPageFallback />}>
+      <LoginPageContent />
+    </Suspense>
   );
 }
