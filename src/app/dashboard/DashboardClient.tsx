@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Trash2, ArrowRight, BookOpen, AlertCircle, Sparkles } from "lucide-react";
+import { deletePlaybook } from "./actions";
 
 export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks: any[]; onDelete: (id: string) => void; trialData?: any }) {
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
@@ -10,10 +11,14 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
   const [isCanceling, setIsCanceling] = useState(false);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent linking
+    e.preventDefault();
+    e.stopPropagation();
     if (!confirm("Are you sure you want to delete this playbook?")) return;
+
     setIsDeleting(id);
+
     try {
+      await deletePlaybook(id);
       localStorage.removeItem(`playbook_${id}`);
       onDelete(id);
     } catch (err) {
@@ -43,7 +48,7 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
     }
   };
 
-  const daysRemaining = trialData?.trialEndDate 
+  const daysRemaining = trialData?.trialEndDate
     ? Math.max(0, Math.ceil((new Date(trialData.trialEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
 
@@ -98,14 +103,14 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
               </div>
             </div>
             <div className="flex items-center gap-3 relative z-10 w-full sm:w-auto">
-              <button 
-                onClick={handleCancelTrialClick} 
+              <button
+                onClick={handleCancelTrialClick}
                 className="px-4 py-2 text-sm font-bold text-orange-700 hover:text-orange-900 hover:bg-orange-100 rounded-xl transition-colors flex-1 sm:flex-none"
               >
                 Cancel
               </button>
-              <Link 
-                href="/api/checkout/starter" 
+              <Link
+                href="/api/checkout/starter"
                 className="px-5 py-2 text-sm font-bold bg-[#ff6b4e] text-white rounded-xl shadow-md hover:bg-[#e05a3f] transition-colors flex-1 sm:flex-none text-center"
               >
                 Subscribe Now
@@ -124,7 +129,7 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
             <p className="text-gray-500 max-w-md mx-auto mb-8 font-medium text-sm relative z-10">
               You haven't generated any growth strategies yet. Let's create your first 30-day content engine!
             </p>
-            <Link 
+            <Link
               href="/onboarding"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold shadow-md hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all hover:-translate-y-0.5 relative z-10"
             >
@@ -196,8 +201,8 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
               Are you absolutely sure you want to cancel your free trial? <span className="font-bold text-[#1a1a2e]">You will immediately lose access to your dashboard and all generated playbooks</span>. This action cannot be undone.
             </p>
             <div className="flex flex-col gap-3 relative z-10">
-              <button 
-                onClick={executeCancelTrial} 
+              <button
+                onClick={executeCancelTrial}
                 disabled={isCanceling}
                 className="w-full py-4 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center"
               >
@@ -207,8 +212,8 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
                   "Yes, Cancel Trial"
                 )}
               </button>
-              <button 
-                onClick={() => setShowCancelModal(false)} 
+              <button
+                onClick={() => setShowCancelModal(false)}
                 disabled={isCanceling}
                 className="w-full py-4 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
               >

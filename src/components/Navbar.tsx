@@ -202,7 +202,7 @@ export function Navbar() {
           )}
           {userInitial ? (
             <Link
-              href="/dashboard"
+              href="/onboarding"
               id="nav-cta-start"
               onClick={() => sendGAEvent('event', 'buttonClicked', { value: 'nav_get_playbook_desktop' })}
               className="px-6 py-2.5 text-sm font-bold rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white hover:opacity-90 transition-all duration-200 shadow-md hover:shadow-xl hover:shadow-[#ff6b4e]/20 hover:-translate-y-0.5"
@@ -286,14 +286,14 @@ export function Navbar() {
 
             {userInitial ? (
               <Link
-                href="/dashboard"
+                href="/onboarding"
                 onClick={() => {
                   setMobileOpen(false);
                   sendGAEvent('event', 'buttonClicked', { value: 'nav_get_playbook_mobile' });
                 }}
                 className="block mt-4 px-6 py-3.5 text-base font-bold rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white text-center shadow-md"
               >
-                Get Your Playbook
+                Start Your Growth Engine
               </Link>
             ) : (
               <button

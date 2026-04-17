@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { DashboardClient } from "./DashboardClient";
@@ -148,17 +150,32 @@ export default function DashboardPage() {
       />
 
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 pt-32 pb-24 relative z-10">
-        <div className="mb-12">
-          <h1 className="text-4xl sm:text-5xl font-black text-[#1a1a2e] tracking-tight mb-4">
-            Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a]">Growth Engine</span>
-          </h1>
-          <p className="text-lg text-gray-500 font-medium max-w-2xl">
-            Every playbook can be a path to your first 1000 users.
+        <div className="mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+          <div>
+            <h1 className="text-4xl sm:text-5xl font-black text-[#1a1a2e] tracking-tight mb-4">
+              Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a]">Growth Engine</span>
+            </h1>
+            <p className="text-lg text-gray-500 font-medium max-w-2xl">
+              Every playbook can be a path to your first 1000 users.
 Built for your product, your ICP, and the channels they actually live on. Start one or continue where you left off.
-          </p>
+            </p>
+          </div>
+          <Link
+            href="/onboarding"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold shadow-md hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all hover:-translate-y-0.5 shrink-0 self-start sm:self-auto"
+          >
+            <Sparkles className="w-4 h-4" />
+            New Playbook
+          </Link>
         </div>
 
-        {trialData && <DashboardClient playbooks={playbooks} onDelete={handleDelete} trialData={trialData} />}
+        {!trialData ? (
+        <div className="flex items-center justify-center py-24">
+          <div className="w-10 h-10 border-4 border-[#ff6b4e] border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : (
+        <DashboardClient playbooks={playbooks} onDelete={handleDelete} trialData={trialData} />
+      )}
       </div>
 
       <Footer />
