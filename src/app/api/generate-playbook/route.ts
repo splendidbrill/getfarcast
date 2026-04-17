@@ -1,4 +1,4 @@
-import { getLLMClient, getModelId, callAzureLLM, getProvider } from "@/lib/llm";
+import { generateLLMText, type LLMTextResult } from "@/lib/llm";
 import {
   buildICPSystemPrompt,
   buildICPUserPrompt,
@@ -8,115 +8,60 @@ import {
   buildOutreachUserPrompt,
   buildMarketSizingSystemPrompt,
   buildMarketSizingUserPrompt,
-  buildPostsCalendarSystemPrompt,
-  buildPostsCalendarUserPrompt,
 } from "@/lib/prompts";
-import { jsonrepair } from "jsonrepair";
 import { matchChannels } from "@/lib/channelMatcher";
 import { getChannelPlaybook } from "@/lib/knowledgeBase";
-import type { WizardFormData, ICPProfile, Playbook } from "@/lib/types";
+import { generateStructuredOutput } from "@/lib/llm-validation";
+import {
+  ChannelStrategyLLMSchema,
+  ICPProfileSchema,
+  MarketSizingSchema,
+  OutreachSequenceSchema,
+  PlaybookSchema,
+  WizardFormDataSchema,
+} from "@/lib/llm-schemas";
+import type { ChannelStrategy, WizardFormData } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-// ==========================================
-// Helper: normalise + JSON-parse an LLM response string
-// ==========================================
-function parseJsonResponse(raw: string): unknown {
-  raw = raw.trim();
+function emitProviderNotice(
+  controller: ReadableStreamDefaultController,
+  encoder: TextEncoder,
+  meta: LLMTextResult
+) {
+  if (!meta.notice) return;
 
-  // 1. Strip markdown code fences (```json...``` or ```...```)
-  if (raw.includes("```")) {
-    const fenceMatch = raw.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
-    if (fenceMatch) {
-      raw = fenceMatch[1].trim();
-    } else {
-      raw = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
-    }
-  }
+  encodeEvent(controller, encoder, "notice", {
+    message: meta.notice,
+    provider: meta.provider,
+    fallbackUsed: meta.fallbackUsed,
+    scrubbedInput: meta.scrubbedInput,
+  });
+}
 
-  // 2. Strip any leading prose before the first { or [
-  if (!raw.startsWith("{") && !raw.startsWith("[")) {
-    const objIdx = raw.indexOf("{");
-    const arrIdx = raw.indexOf("[");
-    let startIdx = -1;
-    if (objIdx === -1) startIdx = arrIdx;
-    else if (arrIdx === -1) startIdx = objIdx;
-    else startIdx = Math.min(objIdx, arrIdx);
-    if (startIdx !== -1) raw = raw.slice(startIdx);
-  }
-
-  // 3. Trim trailing prose after the last } or ]
-  const lastBrace = raw.lastIndexOf("}");
-  const lastBracket = raw.lastIndexOf("]");
-  const endIdx = Math.max(lastBrace, lastBracket);
-  if (endIdx !== -1 && endIdx < raw.length - 1) {
-    raw = raw.slice(0, endIdx + 1);
-  }
-
-  // 4. Sanitize illegal control characters inside JSON string values
-  raw = raw.replace(
-    /"((?:[^"\\]|\\.)*)"/g,
-    (_match, inner: string) => {
-      const sanitized = inner
-        .replace(/\n/g, "\\n")
-        .replace(/\r/g, "\\r")
-        .replace(/\t/g, "\\t")
-        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
-      return `"${sanitized}"`;
-    }
-  );
-
-  try {
-    const repaired = jsonrepair(raw.trim());
-    return JSON.parse(repaired);
-  } catch (parseError) {
-    console.error("\n\n====== [FATAL LLM JSON ERROR] ======\n");
-    console.error(raw);
-    console.error("\n====================================\n\n");
-    throw new Error("AI returned malformed JSON that could not be repaired. Please retry.");
+function emitProviderNotices(
+  controller: ReadableStreamDefaultController,
+  encoder: TextEncoder,
+  metaList: LLMTextResult[]
+) {
+  for (const meta of metaList) {
+    emitProviderNotice(controller, encoder, meta);
   }
 }
 
-// ==========================================
-// Helper: call LLM and parse JSON response (default 4000 tokens)
-// ==========================================
-async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknown> {
-  return callLLMWithTokens(systemPrompt, userPrompt, 4000);
-}
+function buildPlaybookSummary(productName: string, channelStrategies: ChannelStrategy[]): string {
+  const [topChannel, secondChannel] = channelStrategies;
 
-// ==========================================
-// Helper: call LLM with a custom max_tokens budget
-// Used for the posts calendar which can be much larger when
-// many platforms are matched.
-// ==========================================
-async function callLLMWithTokens(
-  systemPrompt: string,
-  userPrompt: string,
-  maxTokens: number
-): Promise<unknown> {
-  const provider = getProvider();
-  let raw: string;
-
-  if (provider === "azure") {
-    raw = await callAzureLLM(systemPrompt, userPrompt);
-  } else {
-    const client = getLLMClient();
-    const model = getModelId();
-
-    const completion = await client.chat.completions.create({
-      model,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.7,
-      max_tokens: maxTokens,
-    });
-    raw = completion.choices[0]?.message?.content || "";
+  if (!topChannel) {
+    return `${productName} playbook generated successfully.`;
   }
 
-  return parseJsonResponse(raw);
+  if (!secondChannel) {
+    return `GetFarcast identified your best-fit distribution channel as ${topChannel.name} (${topChannel.fitScore}%).`;
+  }
+
+  return `GetFarcast matched ${channelStrategies.length} distribution channels. Your top channels are ${topChannel.name} (${topChannel.fitScore}%) and ${secondChannel.name} (${secondChannel.fitScore}%).`;
 }
 
 // ==========================================
@@ -150,14 +95,17 @@ function safeClose(controller: ReadableStreamDefaultController) {
 // Multi-step SSE orchestration pipeline
 // ==========================================
 export async function POST(request: Request) {
-  const formData: WizardFormData = await request.json();
+  const requestBody = await request.json();
+  const formDataResult = WizardFormDataSchema.safeParse(requestBody);
 
-  if (!formData.productName || !formData.productDescription) {
+  if (!formDataResult.success) {
     return Response.json(
-      { error: "Product name and description are required." },
+      { error: "Invalid playbook request payload." },
       { status: 400 }
     );
   }
+
+  const formData: WizardFormData = formDataResult.data;
 
   const encoder = new TextEncoder();
   const signal = request.signal;
@@ -184,20 +132,26 @@ export async function POST(request: Request) {
         // -- STEP 1: Generate ICP --------------------------------------------------
         encodeEvent(controller, encoder, "progress", {
           step: 1,
-          total: 5,
+          total: 4,
           label: "Profiling your ideal customer...",
           status: "running",
         });
 
         if (signal.aborted) return cleanup();
-        const icp = (await callLLM(
-          buildICPSystemPrompt(),
-          buildICPUserPrompt(formData)
-        )) as ICPProfile;
+        const icpResult = await generateStructuredOutput({
+          label: "ICP profile",
+          schema: ICPProfileSchema,
+          systemPrompt: buildICPSystemPrompt(),
+          userPrompt: buildICPUserPrompt(formData),
+          maxTokens: 4000,
+          maxRetries: 1,
+        });
+        emitProviderNotices(controller, encoder, icpResult.attemptMeta);
+        const icp = icpResult.data;
 
         encodeEvent(controller, encoder, "progress", {
           step: 1,
-          total: 5,
+          total: 4,
           label: "ICP identified",
           status: "done",
           preview: icp.title,
@@ -262,7 +216,7 @@ export async function POST(request: Request) {
         }
 
         // -- STEP 3: Channel Strategies (sequential, KB-injected) -----------------
-        const channelStrategies = [];
+        const channelStrategies: ChannelStrategy[] = [];
 
         for (let i = 0; i < matchedChannels.length; i++) {
           if (signal.aborted) return cleanup();
@@ -285,16 +239,30 @@ export async function POST(request: Request) {
                 `No specific playbook available. Generate a comprehensive strategy based on your knowledge of ${ch.name} best practices for early-stage startups.`
               );
 
-          const strategy = (await callLLM(
+          const strategyResult = await generateStructuredOutput({
+            label: `${ch.name} strategy`,
+            schema: ChannelStrategyLLMSchema,
             systemPrompt,
-            buildChannelUserPrompt(icp, formData, ch.name, i + 1, ch.pushType, feedbackContextStr)
-          )) as Record<string, unknown>;
+            userPrompt: buildChannelUserPrompt(
+              icp,
+              formData,
+              ch.name,
+              i + 1,
+              ch.pushType,
+              feedbackContextStr
+            ),
+            maxTokens: 4000,
+            maxRetries: 1,
+          });
+          emitProviderNotices(controller, encoder, strategyResult.attemptMeta);
+          const strategy = strategyResult.data;
 
           channelStrategies.push({
             ...strategy,
             rank: i + 1,
             fitScore: ch.score,
             pushType: ch.pushType,
+            contentCalendar: [],
           });
 
           encodeEvent(controller, encoder, "progress", {
@@ -315,20 +283,32 @@ export async function POST(request: Request) {
         });
 
         if (signal.aborted) return cleanup();
-        const [outreach, marketSizing] = await Promise.all([
-          callLLM(
-            buildOutreachSystemPrompt(),
-            buildOutreachUserPrompt(
+        const [outreachResult, marketSizingResult] = await Promise.all([
+          generateStructuredOutput({
+            label: "Outreach sequence",
+            schema: OutreachSequenceSchema,
+            systemPrompt: buildOutreachSystemPrompt(),
+            userPrompt: buildOutreachUserPrompt(
               icp,
               formData,
               matchedChannels.slice(0, 3).map((c) => c.name)
-            )
-          ),
-          callLLM(
-            buildMarketSizingSystemPrompt(),
-            buildMarketSizingUserPrompt(icp, formData)
-          ),
+            ),
+            maxTokens: 4000,
+            maxRetries: 1,
+          }),
+          generateStructuredOutput({
+            label: "Market sizing",
+            schema: MarketSizingSchema,
+            systemPrompt: buildMarketSizingSystemPrompt(),
+            userPrompt: buildMarketSizingUserPrompt(icp, formData),
+            maxTokens: 4000,
+            maxRetries: 1,
+          }),
         ]);
+        emitProviderNotices(controller, encoder, outreachResult.attemptMeta);
+        emitProviderNotices(controller, encoder, marketSizingResult.attemptMeta);
+        const outreach = outreachResult.data;
+        const marketSizing = marketSizingResult.data;
 
         encodeEvent(controller, encoder, "progress", {
           step: 4,
@@ -340,16 +320,17 @@ export async function POST(request: Request) {
 
         // -- Assemble final playbook ----------------------------------------------
         const id = crypto.randomUUID();
-        const playbook: Playbook = {
+        const playbook = PlaybookSchema.parse({
           id,
           createdAt: new Date().toISOString(),
           productName: formData.productName,
-          summary: `GetFarcast identified your ideal customer as "${icp.title}" and matched ${channelStrategies.length} distribution channels (all with genuine fit scores above 50%). Your top channel is ${matchedChannels[0]?.name} (${matchedChannels[0]?.score}%), followed by ${matchedChannels[1]?.name} (${matchedChannels[1]?.score}%).`,
+          summary: buildPlaybookSummary(formData.productName, channelStrategies),
           icp,
-          marketSizing: marketSizing as Playbook["marketSizing"],
-          channels: channelStrategies as Playbook["channels"],
-          outreach: outreach as Playbook["outreach"],
-        };
+          marketSizing,
+          channels: channelStrategies,
+          outreach,
+          postsCalendar: [],
+        });
 
         // -- SAVE TO SUPABASE  -----------------------------------------------------
         const supabase = await createClient();

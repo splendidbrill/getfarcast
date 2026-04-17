@@ -603,7 +603,7 @@ export function buildWeekNPostsCalendarUserPrompt(
   const platforms = loadPlatforms();
 
   const cadenceSummary = channels.map((ch) => {
-    const platform = platforms.find((p: any) => p.channel === ch);
+    const platform = findPlatformByChannel(platforms, ch);
     const cadence = platform?.algorithm_playbook?.optimal_posting_cadence || "daily";
     const count = getPostCountForPlatform(ch, cadence);
     return `${ch}: ${count} posts (cadence: ${cadence})`;

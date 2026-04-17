@@ -1,12 +1,25 @@
-import { getLLMClient, getModelId, callAzureLLM, getProvider } from "@/lib/llm";
+import type { LLMTextResult } from "@/lib/llm";
 import {
   buildPostsCalendarSystemPrompt,
   buildPostsCalendarUserPrompt,
   buildWeekNPostsCalendarUserPrompt,
+  getPostCountForPlatform,
   type PreviousWeekFeedback,
 } from "@/lib/prompts";
-import { jsonrepair } from "jsonrepair";
+import { loadPlatforms } from "@/lib/platforms/loader";
+import {
+  assemblePostsCalendar,
+  assertPostsCalendarBatch,
+  finalizePostsCalendarBatch,
+} from "@/lib/content-generation";
+import { generateStructuredOutput } from "@/lib/llm-validation";
+import {
+  PlaybookSchema,
+  PostsCalendarSchema,
+  StoredPlaybookSchema,
+} from "@/lib/llm-schemas";
 import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300; // Vercel higher timeout
@@ -20,37 +33,49 @@ function encodeEvent(
   controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type, data })}\n\n`));
 }
 
-async function callLLMWithTokens(system: string, user: string, maxTokens: number) {
-  const provider = getProvider();
-  if (provider === "azure") {
-    const raw = await callAzureLLM(system, user);
-    try {
-      return JSON.parse(jsonrepair(raw));
-    } catch {
-      throw new Error("Failed to parse JSON from Azure OpenAI (Content Generation)");
-    }
-  }
+function emitProviderNotice(
+  controller: ReadableStreamDefaultController,
+  encoder: TextEncoder,
+  meta: LLMTextResult
+) {
+  if (!meta.notice) return;
 
-  const client = getLLMClient();
-  const rawResponse = await client.chat.completions.create({
-    model: getModelId(),
-    messages: [
-      { role: "system", content: system },
-      { role: "user", content: user },
-    ],
-    temperature: 0.7,
-    max_tokens: maxTokens,
+  encodeEvent(controller, encoder, "notice", {
+    message: meta.notice,
+    provider: meta.provider,
+    fallbackUsed: meta.fallbackUsed,
+    scrubbedInput: meta.scrubbedInput,
+  });
+}
+
+function emitProviderNotices(
+  controller: ReadableStreamDefaultController,
+  encoder: TextEncoder,
+  metaList: LLMTextResult[]
+) {
+  for (const meta of metaList) {
+    emitProviderNotice(controller, encoder, meta);
+  }
+}
+
+function findPlatformCadence(channelName: string): string {
+  const platforms = loadPlatforms();
+  const normalizedChannel = channelName.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  const platform = platforms.find((entry) => {
+    const normalizedEntry = entry.channel.toLowerCase().replace(/[^a-z0-9]/g, "");
+    return (
+      normalizedEntry === normalizedChannel ||
+      normalizedEntry.includes(normalizedChannel) ||
+      normalizedChannel.includes(normalizedEntry)
+    );
   });
 
-  const content = rawResponse.choices[0]?.message?.content;
-  if (!content) throw new Error("No response from AI.");
+  return platform?.algorithm_playbook?.optimal_posting_cadence || "";
+}
 
-  try {
-    return JSON.parse(jsonrepair(content));
-  } catch (err) {
-    console.error("Raw LLM response (failed to parse):", content);
-    throw new Error("AI returned invalid JSON.");
-  }
+function getBatchMaxTokens(expectedPostCount: number): number {
+  return Math.min(8000, Math.max(2500, expectedPostCount * 1200));
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -151,6 +176,13 @@ function buildFeedbackContext(weeks: any[]): PreviousWeekFeedback[] {
 
 export async function POST(req: Request) {
   const encoder = new TextEncoder();
+  const requestBodySchema = z
+    .object({
+      playbookId: z.string().trim().min(1),
+      selectedChannels: z.array(z.string().trim().min(1)).min(1),
+      weekNumber: z.coerce.number().int().min(1).default(1),
+    })
+    .strict();
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -164,11 +196,14 @@ export async function POST(req: Request) {
 
       try {
         const body = await req.json();
-        const { playbookId, selectedChannels, weekNumber = 1 } = body;
+        const parsedBody = requestBodySchema.safeParse(body);
 
-        if (!playbookId || !selectedChannels || !selectedChannels.length) {
-          throw new Error("Missing playbookId or selected channels.");
+        if (!parsedBody.success) {
+          throw new Error("Missing or invalid playbookId, selected channels, or week number.");
         }
+
+        const { playbookId, weekNumber } = parsedBody.data;
+        const selectedChannels = Array.from(new Set(parsedBody.data.selectedChannels));
 
         const supabase = await createClient();
         const {
@@ -192,19 +227,34 @@ export async function POST(req: Request) {
         }
 
         const storedData = playbookRecord.data;
-        const playbook = storedData.playbook || storedData;
-        const formData = storedData.formData;
+        const normalizedStoredData = {
+          playbook:
+            storedData && typeof storedData === "object" && "playbook" in storedData
+              ? (storedData as { playbook: unknown }).playbook
+              : storedData,
+          formData:
+            storedData && typeof storedData === "object" && "formData" in storedData
+              ? (storedData as { formData: unknown }).formData
+              : undefined,
+        };
 
-        if (!playbook || !formData) {
-          throw new Error("Invalid playbook data format");
+        const storedPlaybookResult = StoredPlaybookSchema.safeParse(normalizedStoredData);
+
+        if (!storedPlaybookResult.success) {
+          throw new Error("Stored playbook is invalid or incomplete.");
+        }
+
+        const { playbook, formData } = storedPlaybookResult.data;
+
+        const knownChannels = new Set(playbook.channels.map((channel) => channel.name));
+        const unknownChannels = selectedChannels.filter((channel) => !knownChannels.has(channel));
+
+        if (unknownChannels.length > 0) {
+          throw new Error(`Unknown channels requested: ${unknownChannels.join(", ")}.`);
         }
 
         // Normalize postsCalendar to array
-        let weeksArray: any[] = Array.isArray(playbook.postsCalendar)
-          ? playbook.postsCalendar
-          : playbook.postsCalendar
-          ? [playbook.postsCalendar]
-          : [];
+        let weeksArray = Array.isArray(playbook.postsCalendar) ? playbook.postsCalendar : [];
 
         // 2. Server-side gate validation for Week 2+
         if (weekNumber > 1) {
@@ -216,42 +266,89 @@ export async function POST(req: Request) {
           }
         }
 
-        encodeEvent(controller, encoder, "progress", {
-          step: 1,
-          total: 1,
-          label:
-            weekNumber === 1
-              ? "Writing post calendar (cadence-matched per platform)..."
-              : `Analysing Week ${weekNumber - 1} performance and writing Week ${weekNumber} content...`,
-          status: "running",
-        });
+        const previousWeeksFeedback = weekNumber > 1 ? buildFeedbackContext(weeksArray) : [];
+        const validatedBatches = [];
 
-        // 3. Build prompts — week 1 uses standard prompt, week 2+ uses feedback-aware prompt
-        let systemPrompt: string;
-        let userPrompt: string;
-
-        if (weekNumber === 1) {
-          systemPrompt = buildPostsCalendarSystemPrompt(selectedChannels, 1);
-          userPrompt = buildPostsCalendarUserPrompt(playbook.icp, formData, selectedChannels, 1);
-        } else {
-          // Pass all previous weeks as feedback context
-          const previousWeeksFeedback = buildFeedbackContext(weeksArray);
-          systemPrompt = buildPostsCalendarSystemPrompt(selectedChannels, weekNumber);
-          userPrompt = buildWeekNPostsCalendarUserPrompt(
-            playbook.icp,
-            formData,
-            selectedChannels,
-            weekNumber,
-            previousWeeksFeedback
+        for (let index = 0; index < selectedChannels.length; index += 1) {
+          const channel = selectedChannels[index];
+          const expectedPostCount = getPostCountForPlatform(
+            channel,
+            findPlatformCadence(channel)
           );
+
+          encodeEvent(controller, encoder, "progress", {
+            step: index + 1,
+            total: selectedChannels.length,
+            label:
+              weekNumber === 1
+                ? `Writing ${channel} content batch...`
+                : `Analysing previous performance and writing ${channel} batch...`,
+            status: "running",
+          });
+
+          const systemPrompt = buildPostsCalendarSystemPrompt([channel], weekNumber);
+          const userPrompt =
+            weekNumber === 1
+              ? buildPostsCalendarUserPrompt(playbook.icp, formData, [channel], weekNumber)
+              : buildWeekNPostsCalendarUserPrompt(
+                  playbook.icp,
+                  formData,
+                  [channel],
+                  weekNumber,
+                  previousWeeksFeedback
+                );
+
+          const batchResult = await generateStructuredOutput({
+            label: `${channel} week ${weekNumber} post batch`,
+            schema: PostsCalendarSchema,
+            systemPrompt,
+            userPrompt,
+            maxTokens: getBatchMaxTokens(expectedPostCount),
+            maxRetries: 2,
+            validate: (batch) => {
+              assertPostsCalendarBatch(batch, {
+                channel,
+                expectedPostCount,
+                weekNumber,
+              });
+            },
+            retryInstruction: () =>
+              [
+                `Generate posts for ${channel} only.`,
+                `Return exactly ${expectedPostCount} posts.`,
+                `Use weekNumber ${weekNumber}.`,
+                "Do not include any other platform.",
+              ].join("\n"),
+            onRetry: ({ failedAttempt, nextAttempt, error }) => {
+              encodeEvent(controller, encoder, "retry", {
+                channel,
+                failedAttempt,
+                nextAttempt,
+                reason: error.message,
+              });
+            },
+          });
+
+          emitProviderNotices(controller, encoder, batchResult.attemptMeta);
+          validatedBatches.push(
+            finalizePostsCalendarBatch(batchResult.data, {
+              channel,
+              expectedPostCount,
+              weekNumber,
+            })
+          );
+
+          encodeEvent(controller, encoder, "progress", {
+            step: index + 1,
+            total: selectedChannels.length,
+            label: `${channel} batch validated`,
+            status: "done",
+          });
         }
 
-        // 4. Generate Content
-        const postsCalendar = await callLLMWithTokens(systemPrompt, userPrompt, 16000);
-
-        // Stamp the generation time (override any AI hallucination of the timestamp)
-        postsCalendar.generatedAt = new Date().toISOString();
-        postsCalendar.weekNumber = weekNumber;
+        const postsCalendar = PostsCalendarSchema.parse(
+          assemblePostsCalendar(weekNumber, validatedBatches)
+        );
 
         // 5. Update the weeks array
         if (weekNumber === 1) {
@@ -269,30 +366,35 @@ export async function POST(req: Request) {
           }
         }
 
-        playbook.postsCalendar = weeksArray;
-        storedData.playbook = playbook;
+        const updatedPlaybook = PlaybookSchema.parse({
+          ...playbook,
+          postsCalendar: weeksArray,
+        });
 
         // 6. Save to Supabase
         const { error: saveError } = await supabase
           .from("playbooks")
-          .update({ data: storedData })
+          .update({ data: { playbook: updatedPlaybook, formData } })
           .eq("id", playbookId)
           .eq("user_id", user.id);
 
         if (saveError) {
-          console.error("Supabase Save Error:", saveError);
-        } else {
-          console.log(`Week ${weekNumber} content for ${playbookId} saved successfully.`);
+          throw new Error(`Failed to save content: ${saveError.message}`);
         }
 
+        console.log(`Week ${weekNumber} content for ${playbookId} saved successfully.`);
+
         encodeEvent(controller, encoder, "progress", {
-          step: 1,
-          total: 1,
+          step: selectedChannels.length,
+          total: selectedChannels.length,
           label: `Week ${weekNumber} post calendar ready`,
           status: "done",
         });
 
-        encodeEvent(controller, encoder, "complete", { playbook, formData });
+        encodeEvent(controller, encoder, "complete", {
+          playbook: updatedPlaybook,
+          formData,
+        });
         cleanup();
       } catch (err) {
         const message = err instanceof Error ? err.message : "Unknown error";
