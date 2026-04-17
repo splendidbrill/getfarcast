@@ -49,7 +49,6 @@ const plans = [
 
 export function PricingSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [nextUrl, setNextUrl] = useState<string | undefined>();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -108,15 +107,13 @@ export function PricingSection() {
             return (
               <div
                 key={plan.name}
-                className={`relative rounded-3xl transition-all duration-500 bg-white shadow-xl ${
-                  plan.highlighted
+                className={`relative rounded-3xl transition-all duration-500 bg-white shadow-xl ${plan.highlighted
                     ? "border-2 border-[#ff6b4e] shadow-[#ff6b4e]/10 lg:scale-105 z-10"
                     : "border border-gray-100 shadow-black/5 hover:-translate-y-2 hover:shadow-black/10 hover:border-gray-200"
-                } ${
-                  isVisible
+                  } ${isVisible
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-12"
-                }`}
+                  }`}
                 style={{ transitionDelay: `${i * 120}ms` }}
               >
                 {/* Popular badge */}
@@ -169,9 +166,8 @@ export function PricingSection() {
                         className="flex items-start gap-3 text-sm transition-all duration-300"
                       >
                         <Check
-                          className={`w-5 h-5 shrink-0 ${
-                            plan.highlighted ? "text-[#ff6b4e]" : "text-blue-500"
-                          }`}
+                          className={`w-5 h-5 shrink-0 ${plan.highlighted ? "text-[#ff6b4e]" : "text-blue-500"
+                            }`}
                         />
                         <span className="text-gray-600 font-medium leading-tight">{feature}</span>
                       </li>
@@ -181,19 +177,17 @@ export function PricingSection() {
                   {/* CTA */}
                   <button
                     id={`pricing-cta-${plan.name.toLowerCase()}`}
-                    className={`w-full py-4 rounded-xl font-bold text-sm transition-all duration-300 cursor-pointer text-center ${
-                      plan.highlighted
+                    className={`w-full py-4 rounded-xl font-bold text-sm transition-all duration-300 cursor-pointer text-center ${plan.highlighted
                         ? "bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white shadow-lg shadow-[#ff6b4e]/20 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#ff6b4e]/30"
                         : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"
-                    }`}
+                      }`}
                     onClick={() => {
                       sendGAEvent('event', 'buttonClicked', { value: `pricing_${plan.name.toLowerCase()}` });
-                      
+
                       if (plan.name === "Starter") {
                         if (isLoggedIn) {
-                          window.location.href = "/api/checkout/starter";
+                          window.location.href = "/dashboard";
                         } else {
-                          setNextUrl("/api/checkout/starter");
                           setIsModalOpen(true);
                         }
                       } else {
@@ -215,7 +209,7 @@ export function PricingSection() {
           })}
         </div>
       </div>
-      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} nextUrl={nextUrl} />
+      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} nextUrl="/dashboard" />
     </section>
   );
 }

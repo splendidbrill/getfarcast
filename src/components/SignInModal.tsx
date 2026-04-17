@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -10,6 +11,17 @@ interface SignInModalProps {
 }
 
 export function SignInModal({ isOpen, onClose, nextUrl }: SignInModalProps) {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -18,11 +30,11 @@ export function SignInModal({ isOpen, onClose, nextUrl }: SignInModalProps) {
 
   const handleGoogleSignIn = async () => {
     const supabase = createClient();
-    let redirectValue = `${window.location.origin}/auth/callback`;
-    if (nextUrl) {
-      redirectValue += `?next=${encodeURIComponent(nextUrl)}`;
-      document.cookie = `nextUrl=${encodeURIComponent(nextUrl)}; path=/; max-age=300; secure`;
-    }
+    const destination = nextUrl ?? "/dashboard";
+    const redirectValue = `${window.location.origin}/auth/callback?next=${encodeURIComponent(destination)}`;
+
+    sessionStorage.setItem("postLoginRedirect", destination);
+    document.cookie = `nextUrl=${encodeURIComponent(destination)}; path=/; max-age=300; secure`;
 
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -62,7 +74,7 @@ export function SignInModal({ isOpen, onClose, nextUrl }: SignInModalProps) {
           </div>
 
           {/* Google Sign In Button */}
-          <button 
+          <button
             onClick={handleGoogleSignIn}
             className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-gray-50 text-gray-800 font-semibold text-sm flex items-center justify-center gap-3 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg group"
           >

@@ -5,10 +5,14 @@ import { ArrowRight, Flame, Sparkles, Target, Zap, Users } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLinkedin, faReddit, faTwitter, faYoutube, faTiktok, faInstagram, faThreads, faProductHunt, faDiscord, faSlack, faQuora, faDev, faGithub } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { SignInModal } from "./SignInModal";
 
 export function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
 
   useEffect(() => {
     const hero = heroRef.current;
@@ -24,7 +28,20 @@ export function Hero() {
     };
 
     hero.addEventListener("mousemove", handleMouseMove);
-    return () => hero.removeEventListener("mousemove", handleMouseMove);
+
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsLoggedIn(!!user);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session?.user);
+    });
+
+    return () => {
+      hero.removeEventListener("mousemove", handleMouseMove);
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
@@ -83,15 +100,27 @@ export function Hero() {
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up-delay-3 opacity-0">
-          <Link
-            href="/onboarding"
-            id="hero-cta-primary"
-            className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center gap-3 hover:-translate-y-1"
-          >
-            <Zap className="w-5 h-5 fill-white" />
-            Start Your Free Trial
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href="/dashboard"
+              id="hero-cta-primary"
+              className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center gap-3 hover:-translate-y-1"
+            >
+              <Zap className="w-5 h-5 fill-white" />
+              Start Your Free Trial
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </Link>
+          ) : (
+            <button
+              id="hero-cta-primary"
+              onClick={() => setIsSignInOpen(true)}
+              className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center gap-3 hover:-translate-y-1"
+            >
+              <Zap className="w-5 h-5 fill-white" />
+              Start Your Free Trial
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </button>
+          )}
           <Link
             href="#how-it-works"
             id="hero-cta-secondary"
@@ -100,6 +129,7 @@ export function Hero() {
             See How It Works
           </Link>
         </div>
+        <SignInModal isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} nextUrl="/dashboard" />
 
         {/* Social Proof - Logo Marquee */}
         <div

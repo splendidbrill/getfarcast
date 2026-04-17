@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, LogOut, Settings, CreditCard } from "lucide-react";
 import { BrandLogoIcon } from "./BrandLogo";
 import { createClient } from "@/lib/supabase/client";
@@ -9,6 +10,8 @@ import { sendGAEvent } from "@next/third-parties/google";
 import { SignInModal } from "./SignInModal";
 
 export function Navbar() {
+  const pathname = usePathname();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -17,6 +20,16 @@ export function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handlePostLoginRedirect = () => {
+    if (pathname !== "/") return;
+
+    const destination = window.sessionStorage.getItem("postLoginRedirect");
+    if (!destination) return;
+
+    window.sessionStorage.removeItem("postLoginRedirect");
+    router.replace(destination);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,6 +56,7 @@ export function Navbar() {
       if (user) {
         const name = user.user_metadata?.full_name || user.email || 'U';
         setUserInitial(name.charAt(0).toUpperCase());
+        handlePostLoginRedirect();
       }
     });
 
@@ -50,6 +64,7 @@ export function Navbar() {
       if (session?.user) {
         const name = session.user.user_metadata?.full_name || session.user.email || 'U';
         setUserInitial(name.charAt(0).toUpperCase());
+        handlePostLoginRedirect();
       } else {
         setUserInitial(null);
       }
@@ -59,7 +74,7 @@ export function Navbar() {
       window.removeEventListener("scroll", handleScroll);
       subscription.unsubscribe();
     };
-  }, []);
+  }, [pathname, router]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -86,12 +101,14 @@ export function Navbar() {
     { label: "Pricing", href: "#pricing", section: "pricing" },
   ];
 
+  const isHomePage = pathname === "/";
+
   return (
     <nav
       id="navbar"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-          ? "bg-white/80 backdrop-blur-xl border-b border-black/5 shadow-sm"
-          : "bg-transparent py-2"
+        ? "bg-white/80 backdrop-blur-xl border-b border-black/5 shadow-sm"
+        : "bg-transparent py-2"
         }`}
     >
       <div
@@ -100,7 +117,12 @@ export function Navbar() {
       />
 
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5 group" id="logo-link">
+        <Link
+          href="/"
+          className="flex items-center gap-2.5 group"
+          id="logo-link"
+          onClick={() => window.sessionStorage.removeItem("postLoginRedirect")}
+        >
           <BrandLogoIcon
             size={18}
             className="transition-transform group-hover:scale-110 group-hover:rotate-6"
@@ -111,25 +133,27 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-8 bg-white/50 backdrop-blur-md px-6 py-2 rounded-full border border-black/5 shadow-sm">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              id={`nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
-              className={`text-sm font-semibold transition-all duration-200 relative group ${activeSection === link.section
+        {isHomePage && (
+          <div className="hidden md:flex items-center gap-8 bg-white/50 backdrop-blur-md px-6 py-2 rounded-full border border-black/5 shadow-sm">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                id={`nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
+                className={`text-sm font-semibold transition-all duration-200 relative group ${activeSection === link.section
                   ? "text-[#ff6b4e]"
                   : "text-gray-500 hover:text-[#1a1a2e]"
-                }`}
-            >
-              {link.label}
-              <span
-                className={`absolute -bottom-[14px] left-0 h-[2px] bg-[#ff6b4e] transition-all duration-300 ${activeSection === link.section ? "w-full" : "w-0 group-hover:w-full"
                   }`}
-              />
-            </Link>
-          ))}
-        </div>
+              >
+                {link.label}
+                <span
+                  className={`absolute -bottom-[14px] left-0 h-[2px] bg-[#ff6b4e] transition-all duration-300 ${activeSection === link.section ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
+                />
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* CTA */}
         <div className="hidden md:flex items-center gap-4">
@@ -176,14 +200,27 @@ export function Navbar() {
               Log in
             </button>
           )}
-          <Link
-            href="/onboarding"
-            id="nav-cta-start"
-            onClick={() => sendGAEvent('event', 'buttonClicked', { value: 'nav_get_playbook_desktop' })}
-            className="px-6 py-2.5 text-sm font-bold rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white hover:opacity-90 transition-all duration-200 shadow-md hover:shadow-xl hover:shadow-[#ff6b4e]/20 hover:-translate-y-0.5"
-          >
-            Start Your Growth Engine
-          </Link>
+          {userInitial ? (
+            <Link
+              href="/dashboard"
+              id="nav-cta-start"
+              onClick={() => sendGAEvent('event', 'buttonClicked', { value: 'nav_get_playbook_desktop' })}
+              className="px-6 py-2.5 text-sm font-bold rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white hover:opacity-90 transition-all duration-200 shadow-md hover:shadow-xl hover:shadow-[#ff6b4e]/20 hover:-translate-y-0.5"
+            >
+              Start Your Growth Engine
+            </Link>
+          ) : (
+            <button
+              id="nav-cta-start"
+              onClick={() => {
+                sendGAEvent('event', 'buttonClicked', { value: 'nav_get_playbook_desktop' });
+                setIsLoginModalOpen(true);
+              }}
+              className="px-6 py-2.5 text-sm font-bold rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white hover:opacity-90 transition-all duration-200 shadow-md hover:shadow-xl hover:shadow-[#ff6b4e]/20 hover:-translate-y-0.5"
+            >
+              Start Your Growth Engine
+            </button>
+          )}
         </div>
 
         <button
@@ -200,21 +237,21 @@ export function Navbar() {
       {mobileOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-black/5 animate-fade-in-up shadow-xl absolute w-full left-0">
           <div className="px-6 py-6 space-y-4">
-            {navLinks.map((link) => (
+            {isHomePage && navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className={`block text-base font-bold py-3 px-4 rounded-xl transition-colors ${activeSection === link.section
-                    ? "bg-[#ff6b4e]/10 text-[#ff6b4e]"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-[#1a1a2e]"
+                  ? "bg-[#ff6b4e]/10 text-[#ff6b4e]"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-[#1a1a2e]"
                   }`}
               >
                 {link.label}
               </Link>
             ))}
 
-            <hr className="border-gray-100 my-4" />
+            {isHomePage && <hr className="border-gray-100 my-4" />}
 
             {userInitial ? (
               <div className="space-y-2">
@@ -247,20 +284,33 @@ export function Navbar() {
               </button>
             )}
 
-            <Link
-              href="/onboarding"
-              onClick={() => {
-                setMobileOpen(false);
-                sendGAEvent('event', 'buttonClicked', { value: 'nav_get_playbook_mobile' });
-              }}
-              className="block mt-4 px-6 py-3.5 text-base font-bold rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white text-center shadow-md"
-            >
-              Get Your Playbook
-            </Link>
+            {userInitial ? (
+              <Link
+                href="/dashboard"
+                onClick={() => {
+                  setMobileOpen(false);
+                  sendGAEvent('event', 'buttonClicked', { value: 'nav_get_playbook_mobile' });
+                }}
+                className="block mt-4 px-6 py-3.5 text-base font-bold rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white text-center shadow-md"
+              >
+                Get Your Playbook
+              </Link>
+            ) : (
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  sendGAEvent('event', 'buttonClicked', { value: 'nav_get_playbook_mobile' });
+                  setIsLoginModalOpen(true);
+                }}
+                className="block w-full mt-4 px-6 py-3.5 text-base font-bold rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white text-center shadow-md"
+              >
+                Get Your Playbook
+              </button>
+            )}
           </div>
         </div>
       )}
-      <SignInModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} nextUrl="/api/checkout/starter" />
+      <SignInModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} nextUrl="/dashboard" />
     </nav>
   );
 }

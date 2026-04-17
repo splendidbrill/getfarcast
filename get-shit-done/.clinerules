@@ -1,0 +1,6 @@
+CRITICAL INSTRUCTION FOR AZURE OPENAI: 
+Always read the entire contents of a file in a single operation using the read_file tool. You are strictly forbidden from using line-by-line chunk reading or grepping for partial file context. Rely entirely on system prompt caching for large files.
+
+GET-SHIT-DONE (GSD) FRAMEWORK INITIALIZATION:
+You are operating within the Get-Shit-Done (GSD) framework. Before beginning any task, you must strictly adhere to the project management rules defined in this repository. 
+Immediately review the contents of the `get-shit-done/` directory (specifically looking for rules, STATE.md, or ROADMAP.md) to adopt your phase-based workflow (Discuss -> Plan -> Execute -> Verify).
