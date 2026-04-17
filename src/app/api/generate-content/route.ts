@@ -186,7 +186,18 @@ export async function POST(req: Request) {
 
   const stream = new ReadableStream({
     async start(controller) {
+      // 1. SET UP THE HEARTBEAT PING
+      const heartbeat = setInterval(() => {
+        try {
+          // Send a tiny ping every 10 seconds to keep the connection alive
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "ping" })}\n\n`));
+        } catch (e) {
+          clearInterval(heartbeat);
+        }
+      }, 10000);
+
       function cleanup() {
+        clearInterval(heartbeat); // 2. CLEAR IT WHEN DONE
         try {
           controller.close();
         } catch (e) {
@@ -291,12 +302,12 @@ export async function POST(req: Request) {
             weekNumber === 1
               ? buildPostsCalendarUserPrompt(playbook.icp, formData, [channel], weekNumber)
               : buildWeekNPostsCalendarUserPrompt(
-                  playbook.icp,
-                  formData,
-                  [channel],
-                  weekNumber,
-                  previousWeeksFeedback
-                );
+                playbook.icp,
+                formData,
+                [channel],
+                weekNumber,
+                previousWeeksFeedback
+              );
 
           const batchResult = await generateStructuredOutput({
             label: `${channel} week ${weekNumber} post batch`,
@@ -352,10 +363,8 @@ export async function POST(req: Request) {
 
         // 5. Update the weeks array
         if (weekNumber === 1) {
-          // Week 1: replace any existing week 1 (or initialise)
           weeksArray = [postsCalendar];
         } else {
-          // Week N: replace or append
           const existingIdx = weeksArray.findIndex(
             (w: any) => (w.weekNumber || 1) === weekNumber
           );
@@ -405,6 +414,7 @@ export async function POST(req: Request) {
     },
     cancel() {
       // Stream cancelled by browser (tab closed)
+      console.log("Stream cancelled by client");
     },
   });
 
