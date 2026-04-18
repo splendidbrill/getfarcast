@@ -1,19 +1,131 @@
-Task: Dockerize the Next.js Application for EC2
+Restructure channel selection into three tiers: weekly content, content ideas, and launch posts
 
-We are migrating our Next.js application off Vercel to a standard AWS EC2 instance to bypass serverless timeouts. We need to containerize the app.
 
-Your Instructions:
+The three tiers
 
-Update Next Config: Modify next.config.js (or .mjs) to enable output: 'standalone'.
+Tier 1 — Weekly Content Engine (full copy-paste posts, generated every week) Channels: Twitter/X, Reddit, LinkedIn Output: Complete platform-native posts, ready to copy and publish Cadence: Generated fresh every week as part of the content engine cycle
 
-Create .dockerignore: Add standard Next.js and Node ignores (e.g., node_modules, .next, .env, .git).
+Tier 2 — Content Ideas (video concepts and hook scripts, not full posts) Channels: YouTube, Instagram, TikTok Output: Video title + 3-sentence concept + recommended hook + content format suggestion Rationale: We cannot fully automate video content. But the creative direction — what to make, what hook to use — is 60% of the work. This is honest and still genuinely valuable. Cadence: Generated with the playbook, not refreshed weekly (evergreen concepts)
 
-Create Dockerfile: Write a multi-stage Dockerfile optimized for Next.js standalone mode. Use node:18-alpine (or current LTS). Ensure it copies the standalone output and public static files correctly. Expose port 3000.
+Tier 3 — Launch Posts (one-time posts per platform, separate flow) Channels: Product Hunt, Hacker News (Show HN), Indie Hackers, Betalist, Dev.to, AppSumo, Lobsters/Tildes, GitHub (for open source products) Output: One carefully crafted post per platform, written in that platform's exact native language using the channel knowledge base Cadence: One-time, triggered separately from the content engine via a "Launch your product" CTA in the dashboard
 
-Create docker-compose.yml: Create a simple compose file for production deployment. It should map port 80 on the host to 3000 on the container, pull an image named ghcr.io/splendidbrill/getfarcast:latest, and pass an env_file named .env.production.
 
-Constraints:
+User flow changes
 
-Do not hardcode any API keys or secrets in the Dockerfile. They must be injected at runtime via the docker-compose env file.
+Channel selection screen (current): Single grid of all channels, checkboxes, "Generate Content (N)" button
 
-Ensure the CMD in the Dockerfile runs node server.js from the standalone directory.
+Channel selection screen (new):
+
+Three visually distinct sections on the same screen, separated by headers:
+
+── WEEKLY CONTENT ENGINE ──────────────────────────────
+Full posts generated every week. Copy, paste, publish.
+
+[ Twitter / X  100% ]  [ LinkedIn  98% ]  [ Reddit  68% ]
+
+── CONTENT IDEAS ──────────────────────────────────────
+Video concepts and hooks — not full posts, but the
+creative direction your content needs.
+
+[ YouTube  92% ]  [ Instagram  66% ]  [ TikTok  58% ]
+
+── LAUNCH POSTS ───────────────────────────────────────
+One-time posts for your product launch.
+Written in each platform's native language.
+
+[ Product Hunt  80% ]  [ Hacker News  66% ]  [ Indie Hackers  78% ]
+[ Betalist ]  [ Dev.to  88% ]  [ AppSumo ]  [ + more]
+
+Dashboard — new "Launch your product" CTA:
+
+Separate card in the main playbook dashboard sidebar, below the 6 nav items
+
+Label: "Launch your product" with a rocket icon
+
+On click: opens a dedicated launch post generator screen (see below)
+
+This replaces launch channels being embedded in the main content engine flow
+
+Launch post generator screen (new):
+
+Separate route: /playbook/[id]/launch
+
+Shows all Tier 3 channels as a grid
+
+User selects which platforms they're launching on
+
+Generates one post per platform, displayed as individual cards with Copy button
+
+Each post uses the channel knowledge base for that specific platform's native language, tone, and format rules (HN = no hype, precise title; PH = founder story in first comment; IH = transparent metrics preferred)
+
+One-time generation — no weekly refresh. User can regenerate manually if needed.
+
+CHANNEL_TIERS = {
+    "weekly content engine": ["twitter_x", "reddit", "linkedin"],
+    "weekly content_ideas": ["youtube", "instagram", "tiktok"],
+    "launch posts": ["product_hunt", "hacker_news", "indie_hackers", 
+               "betalist", "devto", "appsumo", "lobsters_tildes"]
+}
+
+Content engine split under 3:
+1. Weekly Content Engine - Linkedin, X, Reddit
+2. Weekly Content Ideas - Video and Image platforms
+3. Launch Posts - User should click and create the launch post, option to multiselect
+
+Under Weekly Content Engine and Weekly Content Ideas content needs to be of 3 type - 
+1. Generic gyaan/quote
+2. Personalised story
+3. Takes on trending topics for that use serper api
+
+After onboarding just generate day 1 posts for user; give option to regenerate if they don't like it, then there should be a biutton to generate posts for each individual day so that we get always latest context
+
+content_ideas_prompt= Generate content ideas for {channel_name} for a product called {product_name}.
+
+Do NOT generate a full post or script.
+Return:
+- video_title: one strong title for a video on this topic
+- concept: 3 sentences describing the video content
+- hook: the opening 2 sentences that would hook a viewer in the first 5 seconds
+- format: recommended format (tutorial / story / hot take / case study / etc.)
+- why_this_works: one sentence explaining why this format works for this ICP on this platform
+
+launch_prompt = Write a launch post for {product_name} on {platform_name}.
+
+Product description: {product_description}
+ICP: {icp_summary}
+Key differentiator: {key_differentiator}
+
+Channel-specific rules (inject from knowledge base for {platform_name}):
+{channel_knowledge_base[platform_name]["content_system"]}
+{channel_knowledge_base[platform_name]["community_outreach_playbook"]}
+
+Write one complete, platform-native launch post.
+For Hacker News: use Show HN format, no marketing language, be technically precise.
+For Product Hunt: write the maker's first comment (personal story, why you built it).
+For Indie Hackers: transparent tone, mention any early numbers even if small.
+
+Return the full post text only, no JSON wrapper
+
+Acceptance criteria
+
+Channel selection screen shows three clearly labelled tiers with descriptions explaining what each tier generates
+
+Fit scores display correctly within each tier section
+
+Selecting YouTube/Instagram/TikTok generates content ideas (title, concept, hook, format) — not full posts
+
+Content Engine correctly differentiates Tier 1 posts (copy-paste) from Tier 2 cards (content ideas)
+
+"Launch your product" CTA appears in the playbook dashboard sidebar
+
+Launch post generator page generates one platform-native post per selected Tier 3 channel
+
+HN launch post follows Show HN format with no marketing language
+
+PH launch post generates the maker's first comment copy, not the tagline
+
+Launch posts are stored and retrievable; user can regenerate manually
+
+Existing playbooks with previously selected channels are migrated correctly to tier assignments
+
+i want another tab above "Outreach & DMs" that says "Daily Logs", it should have a calender and when i user clicks a particular date a modal should pop up and in there they can write stuff and attach a picture

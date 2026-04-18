@@ -65,7 +65,7 @@ export function PlaybookOverview({ playbook }: { playbook: Playbook }) {
           },
           {
             icon: <BarChart3 className="w-5 h-5 text-emerald-500 mx-auto mb-2" />,
-            val: playbook.channels.reduce((sum, c) => sum + c.contentTemplates.length, 0),
+            val: playbook.channels.reduce((sum, c) => sum + (c.contentCalendar?.length ?? 0), 0),
             label: "Content Templates",
             bg: "bg-emerald-50",
           },

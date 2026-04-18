@@ -1,35 +1,136 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { DashboardClient } from "./DashboardClient";
+import { createClient } from "@/lib/supabase/client";
 
-export const dynamic = "force-dynamic";
+interface LocalPlaybook {
+  id: string;
+  product_name: string;
+  created_at: string;
+  data: any;
+}
 
-export default async function DashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function DashboardPage() {
+  const [playbooks, setPlaybooks] = useState<LocalPlaybook[]>([]);
 
-  if (!user) {
-    redirect("/login");
-  }
+  const [trialData, setTrialData] = useState<any>(null);
 
-  const { data: playbooks, error } = await supabase
-    .from("playbooks")
-    .select("id, product_name, created_at, data")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  useEffect(() => {
+    async function loadPlaybooks() {
+      const supabase = createClient();
 
-  if (error) {
-    console.error("Failed to load playbooks:", error);
-  }
+      // Gate: check subscription status first
+      let { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = '/';
+        return;
+      }
+
+      let status = user.app_metadata?.subscription_status;
+      let trialEndDate = user.app_metadata?.trial_end_date;
+
+      // Stale token recovery: Auth callback might have just assigned a trial that isn't in our JWT yet
+      if (!status || status === 'none') {
+        console.log('[dashboard] Status missing, falling back to /api/ensure-trial for strict bypass...');
+        try {
+          const res = await fetch('/api/ensure-trial');
+          if (res.ok) {
+            const data = await res.json();
+            status = data.subscription_status;
+            trialEndDate = data.trial_end_date;
+            // Best effort token refresh so next clicks are fast
+            supabase.auth.refreshSession();
+          }
+        } catch (e) {
+          console.error('[dashboard] Fallback failed', e);
+        }
+      }
+
+      if (status === 'canceled') {
+        setTrialData({ status: 'canceled', trialEndDate });
+        // User can still access dashboard during their trial period, just with canceled status
+      } else if (status === 'trial_exhausted') {
+        setTrialData({ status: 'expired' });
+        return;
+      } else if (status === 'on_trial' && trialEndDate) {
+        if (new Date() > new Date(trialEndDate)) {
+          setTrialData({ status: 'expired' });
+          return;
+        }
+      }
+
+      // For users without active subscription (on trial or canceled), let them into the dashboard
+      // They will see the appropriate banner
+      setTrialData({
+        status: status || 'on_trial',
+        trialEndDate
+      });
+
+      const loadedPlaybooks: LocalPlaybook[] = [];
+
+      // 1. Load from Supabase
+      const { data: cloudPlaybooks, error } = await supabase
+        .from("playbooks")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Supabase load error:", error);
+      } else if (cloudPlaybooks) {
+        cloudPlaybooks.forEach((p: any) => {
+          loadedPlaybooks.push({
+            id: p.id,
+            product_name: p.product_name,
+            created_at: p.created_at,
+            data: p.data,
+          });
+        });
+      }
+
+      // 2. Load from localStorage (as fallback or migration)
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith("playbook_")) {
+          try {
+            const stored = JSON.parse(localStorage.getItem(key)!);
+            const { playbook, formData } = stored;
+
+            // Avoid duplicates if already in cloud
+            if (!loadedPlaybooks.some(p => p.id === playbook.id)) {
+              loadedPlaybooks.push({
+                id: playbook.id,
+                product_name: playbook.productName,
+                created_at: playbook.createdAt,
+                data: { playbook, formData },
+              });
+            }
+          } catch (e) {
+            console.error("Failed to parse local playbook:", key, e);
+          }
+        }
+      }
+
+      // Sort final unified list by created_at descending
+      loadedPlaybooks.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setPlaybooks(loadedPlaybooks);
+    }
+
+    loadPlaybooks();
+  }, []);
+
+  const handleDelete = (id: string) => {
+    setPlaybooks(prev => prev.filter(p => p.id !== id));
+  };
 
   return (
     <main className="bg-[#faf8f6] text-[#1a1a2e] min-h-screen font-sans selection:bg-[#ff6b4e]/20 selection:text-[#ff6b4e] flex flex-col">
       <Navbar />
-      
+
       {/* Background aesthetics */}
       <div
         className="fixed inset-0 opacity-40 pointer-events-none"
@@ -49,16 +150,32 @@ export default async function DashboardPage() {
       />
 
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 pt-32 pb-24 relative z-10">
-        <div className="mb-12">
-          <h1 className="text-4xl sm:text-5xl font-black text-[#1a1a2e] tracking-tight mb-4">
-            Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a]">Engine</span>
-          </h1>
-          <p className="text-lg text-gray-500 font-medium max-w-2xl">
-            Access and manage all the 30-day growth playbooks you've generated. Ready to conquer a new channel?
-          </p>
+        <div className="mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+          <div>
+            <h1 className="text-4xl sm:text-5xl font-black text-[#1a1a2e] tracking-tight mb-4">
+              Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a]">Growth Engine</span>
+            </h1>
+            <p className="text-lg text-gray-500 font-medium max-w-2xl">
+              Every playbook can be a path to your first 1000 users.
+Built for your product, your ICP, and the channels they actually live on. Start one or continue where you left off.
+            </p>
+          </div>
+          <Link
+            href="/onboarding"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold shadow-md hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all hover:-translate-y-0.5 shrink-0 self-start sm:self-auto"
+          >
+            <Sparkles className="w-4 h-4" />
+            New Playbook
+          </Link>
         </div>
 
-        <DashboardClient playbooks={playbooks || []} />
+        {!trialData ? (
+        <div className="flex items-center justify-center py-24">
+          <div className="w-10 h-10 border-4 border-[#ff6b4e] border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : (
+        <DashboardClient playbooks={playbooks} onDelete={handleDelete} trialData={trialData} />
+      )}
       </div>
 
       <Footer />

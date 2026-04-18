@@ -12,5 +12,5 @@ export default async function PlaybookPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <PlaybookDashboard id={id} />;
+  return <PlaybookDashboard playbookId={id} />;
 }
