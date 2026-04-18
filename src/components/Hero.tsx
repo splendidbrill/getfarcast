@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Sparkles, Target, Zap, Users } from "lucide-react";
+import { ArrowRight, Flame, Sparkles, Target, Zap, Users } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLinkedin, faReddit, faTwitter, faYoutube, faTiktok, faInstagram, faThreads, faProductHunt, faDiscord, faSlack, faQuora, faDev, faGithub } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { SignInModal } from "./SignInModal";
 
 export function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
 
   useEffect(() => {
     const hero = heroRef.current;
@@ -22,7 +28,20 @@ export function Hero() {
     };
 
     hero.addEventListener("mousemove", handleMouseMove);
-    return () => hero.removeEventListener("mousemove", handleMouseMove);
+
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsLoggedIn(!!user);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session?.user);
+    });
+
+    return () => {
+      hero.removeEventListener("mousemove", handleMouseMove);
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
@@ -56,12 +75,12 @@ export function Hero() {
 
       {/* Content Container */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-        
+
         {/* Animated Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#ff6b4e]/20 shadow-sm mb-8 animate-fade-in-up opacity-0">
           <Sparkles className="w-3.5 h-3.5 text-[#ff6b4e] animate-pulse-soft" />
           <span className="text-xs font-bold text-[#1a1a2e] tracking-wide uppercase">
-            The $5K Agency Blueprint, Automated.
+            Your always-on AI growth agent
           </span>
         </div>
 
@@ -76,21 +95,32 @@ export function Hero() {
 
         {/* Subheadline */}
         <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-600 font-medium leading-relaxed mb-10 animate-fade-in-up-delay-2 opacity-0">
-          Describe your product and our AI tells you exactly who your target customer is, 
-           where they hang out, and the full growth engine — in minutes.
+          Describe your product. Farcast finds your ICP, maps where they live, builds your content engine, and starts sending you warm leads — automatically
         </p>
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up-delay-3 opacity-0">
-          <Link
-            href="/onboarding"
-            id="hero-cta-primary"
-            className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center gap-3 hover:-translate-y-1"
-          >
-            <Zap className="w-5 h-5 fill-white" />
-            Build Your Playbook
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href="/dashboard"
+              id="hero-cta-primary"
+              className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center gap-3 hover:-translate-y-1"
+            >
+              <Zap className="w-5 h-5 fill-white" />
+              Start Your Free Trial
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </Link>
+          ) : (
+            <button
+              id="hero-cta-primary"
+              onClick={() => setIsSignInOpen(true)}
+              className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center gap-3 hover:-translate-y-1"
+            >
+              <Zap className="w-5 h-5 fill-white" />
+              Start Your Free Trial
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </button>
+          )}
           <Link
             href="#how-it-works"
             id="hero-cta-secondary"
@@ -99,37 +129,41 @@ export function Hero() {
             See How It Works
           </Link>
         </div>
+        <SignInModal isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} />
 
-        {/* Social Proof area */}
-        <div className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 animate-fade-in-up-delay-3 opacity-0">
-          <div className="flex -space-x-3">
-            {[
-              "bg-blue-100 text-blue-600",
-              "bg-purple-100 text-purple-600",
-              "bg-emerald-100 text-emerald-600",
-              "bg-amber-100 text-amber-600",
-              "bg-rose-100 text-rose-600",
-            ].map((color, i) => (
-              <div
-                key={i}
-                className={`w-10 h-10 rounded-full ${color} border-2 border-white flex items-center justify-center text-xs font-bold shadow-sm animate-bounce-slow`}
-                style={{ animationDelay: `${i * 0.15}s` }}
-              >
-                {String.fromCharCode(65 + i)}
+        {/* Social Proof - Logo Marquee */}
+        <div
+          className="mt-14 w-full max-w-4xl mx-auto animate-fade-in-up-delay-3 opacity-0"
+          style={{
+            maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)"
+          }}
+        >
+          <div className="marquee-track">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="flex items-center gap-12 md:gap-16 pr-12 md:pr-20">
+                {[
+                  faLinkedin, faReddit, faTwitter, faYoutube, faTiktok, faInstagram,
+                  faThreads, faProductHunt, faDiscord, faSlack, faQuora, faDev
+                ].map((icon, idx) => (
+                  <FontAwesomeIcon
+                    key={idx}
+                    icon={icon}
+                    className="w-[44px] h-[44px] md:w-[56px] md:h-[56px] shrink-0 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                  />
+                ))}
+                <FontAwesomeIcon
+                  icon={faGithub}
+                  className="w-[44px] h-[44px] md:w-[56px] md:h-[56px] shrink-0 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                />
               </div>
             ))}
-          </div>
-          <div className="text-center sm:text-left">
-            <p className="text-sm font-bold text-[#1a1a2e]">Join 2,400+ founders</p>
-            <p className="text-sm font-medium text-gray-500">
-              Getting their first 100 users.
-            </p>
           </div>
         </div>
 
         {/* Floating Mock UI - Clean, White Gojiberry Style */}
         <div className="mt-20 relative max-w-4xl mx-auto animate-scale-in opacity-0" style={{ animationDelay: "0.8s" }}>
-          
+
           {/* Decorative floating sub-cards outside the main frame */}
           <div className="absolute -left-12 top-10 w-48 bg-white rounded-2xl shadow-xl shadow-black/5 p-4 border border-gray-100 animate-float hidden lg:block z-20" style={{ animationDelay: '1s' }}>
             <div className="flex items-center gap-3 mb-2">
@@ -173,10 +207,10 @@ export function Hero() {
                 </div>
               </div>
             </div>
-            
+
             {/* Mock content */}
             <div className="p-8 bg-white">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 {/* Mock Card 1 */}
                 <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
                   <div className="flex items-center gap-3 mb-4">
@@ -191,7 +225,7 @@ export function Hero() {
                     <div className="h-2.5 bg-blue-200 rounded-full w-1/2" />
                   </div>
                 </div>
-                
+
                 {/* Mock Card 2 */}
                 <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
                   <div className="flex items-center gap-3 mb-4">
@@ -205,8 +239,8 @@ export function Hero() {
                       <div key={ch} className="flex items-center gap-3">
                         <span className="text-[10px] font-bold text-gray-500 w-16">{ch}</span>
                         <div className="h-2 rounded-full flex-1 bg-gray-200 overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-purple-400 to-[#ff6b4e]" 
+                          <div
+                            className="h-full bg-gradient-to-r from-purple-400 to-[#ff6b4e]"
                             style={{ width: `${100 - i * 20}%` }}
                           />
                         </div>
@@ -234,10 +268,43 @@ export function Hero() {
                     </div>
                   </div>
                 </div>
+
+                {/* Mock Card 4 */}
+                <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
+                      <Flame className="w-4 h-4 text-amber-500" />
+                    </div>
+                    <span className="text-sm font-bold text-[#1a1a2e]">Warm Leads</span>
+                  </div>
+                  <div className="space-y-2.5">
+                    {[
+                      { label: "Founder", width: "88%" },
+                      { label: "PM", width: "72%" },
+                      { label: "Marketer", width: "60%" },
+                    ].map((lead) => (
+                      <div key={lead.label} className="rounded-xl border border-gray-100 bg-white px-3 py-2 shadow-sm hover:-translate-y-0.5 transition-all duration-300">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-gray-500">{lead.label}</span>
+                          <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            Active
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-amber-100 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-amber-400 to-[#ff6b4e] transition-all duration-700"
+                            style={{ width: lead.width }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          
+
           {/* Subtle Glow underneath the mock app */}
           <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-4/5 h-12 bg-black/10 blur-xl rounded-full z-0" />
         </div>

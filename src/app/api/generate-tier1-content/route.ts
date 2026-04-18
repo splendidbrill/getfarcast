@@ -10,39 +10,68 @@ interface Tier1Request {
   icpSummary: string;
 }
 
-async function generateChannelPosts(
+// ── Serper ──────────────────────────────────────────────────────────────────
+
+async function fetchTrendingContext(
+  channelName: string,
+  icpSummary: string,
+): Promise<string> {
+  const apiKey = process.env.SERPER_API_KEY;
+  if (!apiKey) return "";
+
+  const channel = channelName.toLowerCase();
+  const painPoint = icpSummary.split("Pain points:")[1]?.split(",")[0]?.trim() || icpSummary.slice(0, 80);
+
+  const query = channel.includes("reddit")
+    ? `site:reddit.com ${painPoint}`
+    : painPoint;
+
+  try {
+    const res = await fetch("https://google.serper.dev/search", {
+      method: "POST",
+      headers: { "X-API-KEY": apiKey, "Content-Type": "application/json" },
+      body: JSON.stringify({ q: query, num: 1, tbs: "qdr:w" }),
+    });
+    if (!res.ok) return "";
+    const data = await res.json();
+    const top = data.organic?.[0];
+    if (!top) return "";
+    return `Title: ${top.title}\nSnippet: ${top.snippet}\nURL: ${top.link}`;
+  } catch {
+    return "";
+  }
+}
+
+// ── LLM calls ───────────────────────────────────────────────────────────────
+
+async function generateBasePosts(
   channelName: string,
   productName: string,
   productDescription: string,
-  icpSummary: string
-) {
+  icpSummary: string,
+  channelKnowledge: string,
+): Promise<{ gyaan: string; story: string }> {
   const client = getLLMClient();
   const model = getModelId();
-  const channelKnowledge = getTier1ChannelContext(channelName);
 
-  const systemPrompt = `You are a growth expert writing social media content. You have deep, channel-specific knowledge and always write posts that feel completely native to the platform.
+  const systemPrompt = `You are a growth expert writing social media content. Write posts that feel completely native to the platform.
 
-${channelKnowledge ? `Use the following channel playbook to inform every decision — tone, format, hook style, CTA approach, and what to avoid:\n\n${channelKnowledge}` : `Write posts that feel native to ${channelName}.`}
+${channelKnowledge ? `Use this channel playbook for tone, format, hook style, and what to avoid:\n\n${channelKnowledge}` : `Write posts native to ${channelName}.`}
 
 Return valid JSON only, no markdown wrapper.`;
 
-  const userPrompt = `Generate 2 posts for ${channelName} for Day 1 of a growth push.
+  const userPrompt = `Generate 2 posts for ${channelName}.
 
 Product: ${productName}
 What it does: ${productDescription}
 Target user: ${icpSummary}
 
-Post 1 — "gyaan": An educational insight, sharp observation, or punchy quote tied to the core problem this product solves. Apply the hook formulas and platform-native tone from the playbook above. Make it genuinely useful to read even if the reader never hears of this product.
+Post 1 — "gyaan": A sharp educational insight or observation tied to the core problem. Make it worth reading even if the reader never hears of ${productName}.
 
-Post 2 — "story": A founder's personal story about why they built this, or a short user transformation story. Use the personalisation layer guidance from the playbook — make it feel like a real moment from this week, not a polished PR piece.
-
-Apply the platform's content-to-avoid rules strictly. The posts should pass the test: would someone who has never heard of ${productName} still find this post worth reading?
+Post 2 — "story": A founder's personal story about why they built this, or a user transformation. Make it feel like a real moment from this week, not a PR piece.
 
 Return JSON exactly:
-{
-  "gyaan": "full post text here",
-  "story": "full post text here"
-}`;
+{ "gyaan": "...", "story": "..." }`;
 
   const completion = await client.chat.completions.create({
     model,
@@ -51,16 +80,59 @@ Return JSON exactly:
       { role: "user", content: userPrompt },
     ],
     temperature: 0.75,
-    max_tokens: 1800,
+    max_tokens: 1200,
   });
 
   let raw = completion.choices[0]?.message?.content || "";
   raw = raw.trim().replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
   const start = raw.indexOf("{");
   const end = raw.lastIndexOf("}");
-  if (start === -1 || end === -1) throw new Error(`No JSON object in response: ${raw.slice(0, 200)}`);
+  if (start === -1 || end === -1) throw new Error(`No JSON in response: ${raw.slice(0, 200)}`);
   return JSON.parse(raw.slice(start, end + 1));
 }
+
+async function generateTrendingPost(
+  channelName: string,
+  productName: string,
+  productDescription: string,
+  icpSummary: string,
+  channelKnowledge: string,
+  trendingContext: string,
+): Promise<string> {
+  const client = getLLMClient();
+  const model = getModelId();
+
+  const systemPrompt = `You are a founder writing a single social media post on ${channelName}. You just came across a real conversation happening right now and you're reacting to it. Write like a human — specific, opinionated, slightly imperfect. Never mention AI.
+
+${channelKnowledge ? `Platform tone guide:\n\n${channelKnowledge}` : ""}
+
+Return plain text only — just the post, no JSON, no labels.`;
+
+  const userPrompt = trendingContext
+    ? `You found this real conversation happening right now:
+
+${trendingContext}
+
+Your product: ${productName} — ${productDescription}
+Your audience: ${icpSummary}
+
+Write a single ${channelName} post that hooks into this specific conversation. Reference the actual topic or pain being discussed. Don't pitch the product directly — position yourself as someone who deeply understands this problem. The post should feel like a natural reaction to what you just read, written in ${channelName}'s native style.`
+    : `Write a trending-hook post for ${channelName} about the biggest current conversation in the ${icpSummary} space. React to a specific pain point as if you just saw it discussed somewhere online. Product context: ${productName} — ${productDescription}.`;
+
+  const completion = await client.chat.completions.create({
+    model,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
+    temperature: 0.8,
+    max_tokens: 600,
+  });
+
+  return completion.choices[0]?.message?.content?.trim() || "";
+}
+
+// ── Route ────────────────────────────────────────────────────────────────────
 
 export async function POST(request: Request) {
   const body: Tier1Request = await request.json();
@@ -73,22 +145,25 @@ export async function POST(request: Request) {
   try {
     const results = await Promise.all(
       selectedChannels.map(async (channelName) => {
-        const posts = await generateChannelPosts(
-          channelName,
-          productName,
-          productDescription,
-          icpSummary
+        const channelKnowledge = getTier1ChannelContext(channelName);
+
+        // Fetch Serper and base posts in parallel
+        const [basePosts, trendingContext] = await Promise.all([
+          generateBasePosts(channelName, productName, productDescription, icpSummary, channelKnowledge),
+          fetchTrendingContext(channelName, icpSummary),
+        ]);
+
+        const trendingPost = await generateTrendingPost(
+          channelName, productName, productDescription, icpSummary,
+          channelKnowledge, trendingContext,
         );
+
         return {
           channelName,
           posts: [
-            { type: "gyaan" as const, content: posts.gyaan },
-            { type: "story" as const, content: posts.story },
-            {
-              type: "trending" as const,
-              content:
-                "Trending topics coming soon — Serper API integration in progress. Once live, this post will be based on real-time conversations your ICP is having right now.",
-            },
+            { type: "gyaan" as const, content: basePosts.gyaan },
+            { type: "story" as const, content: basePosts.story },
+            { type: "trending" as const, content: trendingPost },
           ],
         };
       })
