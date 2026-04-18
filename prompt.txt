@@ -1,0 +1,19 @@
+Task: Dockerize the Next.js Application for EC2
+
+We are migrating our Next.js application off Vercel to a standard AWS EC2 instance to bypass serverless timeouts. We need to containerize the app.
+
+Your Instructions:
+
+Update Next Config: Modify next.config.js (or .mjs) to enable output: 'standalone'.
+
+Create .dockerignore: Add standard Next.js and Node ignores (e.g., node_modules, .next, .env, .git).
+
+Create Dockerfile: Write a multi-stage Dockerfile optimized for Next.js standalone mode. Use node:18-alpine (or current LTS). Ensure it copies the standalone output and public static files correctly. Expose port 3000.
+
+Create docker-compose.yml: Create a simple compose file for production deployment. It should map port 80 on the host to 3000 on the container, pull an image named ghcr.io/splendidbrill/getfarcast:latest, and pass an env_file named .env.production.
+
+Constraints:
+
+Do not hardcode any API keys or secrets in the Dockerfile. They must be injected at runtime via the docker-compose env file.
+
+Ensure the CMD in the Dockerfile runs node server.js from the standalone directory.

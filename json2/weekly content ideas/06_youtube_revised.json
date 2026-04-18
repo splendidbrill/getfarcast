@@ -1,0 +1,133 @@
+{
+  "channel": "YouTube",
+  "tier": 2,
+  "content_output_type": "content_ideas_only",
+  "content_output_note": "Farcast generates content IDEAS for YouTube — video title, concept, hook strategy, chapter structure suggestion, and personalisation angle — not full scripts. YouTube videos require significant production effort from the founder. The strategic direction is provided; the founder scripts, films, and edits.",
+
+  "channel_dna": {
+    "platform_type": "World's second largest search engine and dominant long-form video platform. Owned by Google — content indexes in Google Search as well as YouTube Search. The only platform where a single video published today can still drive meaningful traffic in 3 years.",
+    "algorithm_type": "Hybrid search + recommendation. YouTube Search = keyword-based, intent-driven discovery. Suggested videos = watch history and interest graph. Homepage = personalised recommendations. Unlike TikTok — subscribers and watch history matter significantly.",
+    "primary_audience": "Broadest demographic of any video platform. Highly intent-based — people search for specific solutions. Tutorial and educational content dominates. People watching YouTube are in research and learning mode, not casual browsing mode.",
+    "native_content_formats": "Long-form video (8-20 minutes sweet spot for most niches), YouTube Shorts (under 60 seconds for discovery), Playlists, Live streams, Community posts. Long-form drives subscriptions and compounding value; Shorts drive new audience discovery.",
+    "platform_culture_code": "Value density is everything — viewers leave immediately if content wastes their time. Credibility and expertise are earned through depth, not polish. Authenticity still wins but at a higher production bar than TikTok. The creator-audience relationship on YouTube is the strongest of any platform — subscribers genuinely trust the creators they follow.",
+    "account_warmup_requirements": "Channel art, channel icon, and About section must be complete before any videos go live. Minimum 10-15 videos before the channel feels legitimate to new visitors. First videos often get low views — treat them as practice and SEO seeds."
+  },
+
+  "profile_setup": {
+    "step_1_channel_branding": "Create a consistent channel identity: channel name, channel art (2560x1440px banner), channel icon (800x800px — use your face or a clean logo). The banner should clearly communicate what the channel is about and who it is for. Example banner text: 'Distribution & GTM for founders — new video every [day]'.",
+    "step_2_about_section": "Write the About section in the first 100 characters as if it is a search result — this is what shows in YouTube Search. Include your primary keywords: 'founder', 'distribution', 'growth', 'SaaS' — whatever your content focuses on. Then expand with a full channel description covering who you are, what you make, and who it is for.",
+    "step_3_channel_trailer": "Create a 60-90 second channel trailer — this autoplays for non-subscribers who visit your channel. It should answer: who are you, what do you make, and why should someone subscribe. Film this before you have any real content — it primes the channel for growth.",
+    "step_4_featured_sections": "Organise your channel page with sections: Featured Video (your best or most recent), Playlists by topic, Popular Uploads. A well-organised channel page converts casual visitors into subscribers significantly better than a raw video list.",
+    "step_5_handle_and_url": "Claim your YouTube handle (@handle) immediately — this appears in all collaboration credits and links. Keep it consistent with your Twitter/Instagram handles if possible.",
+    "step_6_links": "In the About section, add your product URL, Twitter, and any other relevant links. These appear on your channel banner as overlay icons and in the About tab.",
+    "step_7_thumbnail_style": "Establish a consistent thumbnail template before publishing — same font, same colour palette, same general layout. Viewers who see your thumbnail repeatedly start to recognise it before they click. This recognition drives higher CTR over time."
+  },
+
+  "engagement_strategy": {
+    "comment_on_other_channels": "The fastest way to grow early on YouTube is to be genuinely present in the comment sections of channels your ICP watches. YouTube prominently features top comments — if your comment rises to the top of a popular video in your niche, thousands of people see your channel name. Leave 5-10 substantive comments per day on videos from channels with 10K-200K subscribers in your space. Do NOT drop your channel link — just add genuine value.",
+    "comment_quality_rules": "YouTube comments that get upvoted and pinned are: (1) insightful additions to the video's topic that the creator didn't cover, (2) specific personal experiences that validate the video's point, (3) smart questions that generate discussion, (4) respectful disagreements with a reason. 'Great video!' comments are invisible and a waste of your time.",
+    "reply_to_your_own_comments": "In the first 24-48 hours after publishing a video, reply to every single comment. This signals to YouTube's algorithm that your video is generating conversation. The comment velocity in the first 24 hours is a major distribution signal.",
+    "community_posts": "Once you reach 500 subscribers, use YouTube Community posts for text, image, and poll posts that appear in subscribers' feeds without a new video. This maintains presence between videos and generates engagement signals that help your videos when they do post.",
+    "collaboration_strategy": "Comment consistently on 5-10 channels in your niche for 4-6 weeks. Then reach out to the creator via email (in their About section) to propose a collaboration — either a mention, a co-video, or a guest appearance. This is the fastest path to cross-channel audience sharing.",
+    "respond_in_first_48_hours": "Algorithm treats comments as the primary engagement signal. Responding to comments within 24-48 hours keeps the comment section active, which extends the video's algorithmic distribution window."
+  },
+
+  "fit_scoring_matrix": {
+    "best_product_types": "Developer tools (tutorial-heavy content), SaaS products with workflow demonstrations, edtech, productivity apps, AI tools, business software — anything that benefits from being shown rather than described",
+    "worst_product_types": "Products with no visual demonstration value, hyper-local services, products solving problems nobody searches for",
+    "best_pricing_models": "All models work. Tutorial content works especially well for freemium — show the free tier value in the video itself.",
+    "icp_match_signals": "Search '[your product category] tutorial' or '[problem] how to solve' on YouTube. If top results have 100K+ views and comments asking for tool recommendations, your ICP is here and searching.",
+    "red_flags_skip_this_channel": "Skip if you cannot commit to regular video production. Skip if your product has no screen-recordable or demonstrable component. Skip if you need results in under 3 months — YouTube is a 6-12 month minimum commitment.",
+    "geographic_strength": "Global reach. India, US, Brazil, Russia, Japan, UK largest markets. Tutorial content performs across all geographies."
+  },
+
+  "growth_mechanics": {
+    "expected_cac": "$0 cash for organic. Time cost: 4-8 hours per video (scripting, filming, editing, thumbnail, SEO). The compounding value is extraordinary — a video published today still drives traffic in 3 years.",
+    "time_to_first_traffic_spike": "3-6 months for most channels. Shorts can spike faster. SEO-targeted tutorials can rank in 4-8 weeks for long-tail keywords.",
+    "time_to_first_paying_user": "3-6 months for organic YouTube strategy. Faster if video content drives to a high-intent landing page.",
+    "effort_level": "Very High — scripting, filming, editing, thumbnail design, SEO optimisation per video. Use batch filming to reduce overhead.",
+    "virality_coefficient": "Low for individual videos in the traditional sense. Very high for search traffic — well-optimised videos drive consistent traffic for years.",
+    "compounding_potential": "Highest of any platform. A video published today compounds for years. Subscriber base compounds. Watch hours compound. Channel authority compounds."
+  },
+
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Click-through rate (CTR) from thumbnail + title determines initial push. Average view duration determines ongoing distribution. Suggested video placement is the biggest traffic source after search — you earn it by keeping viewers on YouTube.",
+    "what_algorithm_rewards": "High CTR thumbnails (6%+ is good). Long average view duration (50%+ video watched). Likes, comments, shares early after publish. Consistent uploads on predictable schedule. Videos that lead viewers to watch more YouTube (not leave the platform).",
+    "what_kills_reach": "Low CTR thumbnails. Short average view duration. Long gaps between uploads. Clickbait that doesn't deliver. Telling viewers to leave YouTube to visit a website in the first half of the video.",
+    "peak_posting_windows": "Thursday-Saturday 2pm-4pm EST for maximum first-weekend viewership. Tuesday-Wednesday for business content. Publish 2-3 days before your target peak day so the algorithm has time to push it.",
+    "optimal_posting_cadence": "1 video per week minimum for consistent growth. 2 per week for faster growth. Consistency matters far more than frequency — every week on the same day trains the algorithm and your audience.",
+    "content_freshness_window": "Evergreen tutorials remain active indefinitely — some drive traffic for 5+ years. Trending/news content spikes in first 2 weeks then drops. Aim for 70% evergreen, 30% topical."
+  },
+
+  "content_ideas_system": {
+    "output_format_note": "Farcast generates content IDEAS for YouTube — not scripts. Each idea includes: video title options (for SEO), core concept, chapter structure suggestion, hook strategy for the first 30 seconds, personalisation angle, and why this video works for this ICP. The founder scripts, films, and produces.",
+
+    "seo_approach": "Every YouTube video idea should be paired with a keyword strategy. The title, description, and tags all contribute to search ranking. Before generating a video concept, identify: what exact phrase would someone type into YouTube to find this video? That phrase becomes the primary keyword around which the concept is built.",
+
+    "content_idea_categories": {
+      "how_to_tutorial": {
+        "concept": "Step-by-step walkthrough of how to accomplish a specific task your ICP struggles with — not featuring your product necessarily, but demonstrating expertise in the problem space your product solves",
+        "title_formula": "'How to [achieve specific outcome] in [timeframe]' | 'The [N]-step [process/system] for [outcome]' | '[Problem]: How I [solved it] (and what I'd do differently)'",
+        "chapter_structure": "1. Hook: tell them what they'll learn and show a preview of the outcome (30 seconds). 2. Why this matters: establish why solving this problem is important (1-2 min). 3. The method: walk through step by step (main content). 4. Common mistakes to avoid (2-3 min). 5. Summary and next steps (1-2 min).",
+        "hook_strategy": "Open with the outcome — show what they will be able to do by the end before you explain anything. 'By the end of this video, you will have [specific outcome]. Here is exactly how.'",
+        "personalisation_prompt": "The best tutorial topics come from questions your users or ICP have asked you directly. What did someone ask you how to do this week? That is the next tutorial. Specific questions from real people perform better than topics you invented.",
+        "why_it_works": "How-to tutorials are the most searched content type on YouTube. They drive high intent traffic — people searching for a solution are ready to act on what they learn, and your product is the natural next step."
+      },
+      "founder_story_video": {
+        "concept": "A documentary-style video about your journey building the product — the real story, the hard parts, the decisions, the numbers",
+        "title_formula": "'I built [product] in [timeframe] — here is what happened' | 'From 0 to [milestone]: The honest story' | 'Why I quit [previous thing] to build [product] (and what I learned)'",
+        "chapter_structure": "1. Where you started (the problem you faced). 2. What you tried that didn't work. 3. What changed. 4. How you built it. 5. Where you are now and what is next.",
+        "hook_strategy": "Open with the most dramatic or surprising moment of the story. Then go back to the beginning. 'Three months ago I had zero users. Last week, 500 people signed up in a single day. Here is what happened in between.'",
+        "personalisation_prompt": "Use the founder's diary entries and weekly logs as source material. The best founder story videos are built from accumulated real moments — not reconstructed after the fact. Every week of building is a chapter.",
+        "why_it_works": "Founder story videos attract other founders — your exact ICP. They drive high engagement (comments, shares, saves) and build strong channel loyalty. Viewers who watch to the end are extremely likely to subscribe."
+      },
+      "product_deep_dive": {
+        "concept": "Comprehensive walkthrough of how your product works — honest, showing real UI, real limitations, real strengths",
+        "title_formula": "'[Product name] Review: Honest thoughts after [timeframe] of use' | 'Is [product name] worth it? Full walkthrough' | '[Product name]: everything you need to know before signing up'",
+        "chapter_structure": "1. What this product does (30 sec). 2. Who it is for — and who it is NOT for. 3. Full walkthrough of key features. 4. Real examples of output or results. 5. Pricing and where to get it. 6. Honest pros and cons.",
+        "hook_strategy": "Start with the outcome — show a real example of what the product produces before explaining how it works. The output is more compelling than any feature list.",
+        "personalisation_prompt": "If you have user testimonials or case studies, build the demo around a real user's scenario. 'A founder came to us with this exact problem — here is what we did together.' This is more compelling than a generic demo.",
+        "why_it_works": "Product deep-dive videos rank for '[product name] review' searches — high-intent queries from people actively evaluating your product. These videos convert significantly higher than any other content type."
+      },
+      "comparison_video": {
+        "concept": "Fair comparison of your product against alternatives — showing where each option is better and for whom",
+        "title_formula": "'[Your product] vs [Competitor]: Which is better in [year]?' | '[Category] tools compared: [Your product] vs [Competitor] vs [Option 3]'",
+        "chapter_structure": "1. Why this comparison matters. 2. Overview of each option (30-60 sec each). 3. Head-to-head comparison on 3-5 specific criteria. 4. Who should use each one. 5. Verdict.",
+        "hook_strategy": "Start with the verdict — 'Here is the honest answer' — then explain the nuance. Viewers searching for comparisons want a clear recommendation first, context second.",
+        "personalisation_prompt": "Only do comparison videos if you can be genuinely fair. A biased comparison gets called out in comments immediately and damages credibility. The best comparison videos acknowledge real limitations of your product.",
+        "why_it_works": "Comparison videos capture high-intent searchers who are actively evaluating options. These searches have the highest conversion intent of any YouTube query type."
+      },
+      "educational_deep_dive": {
+        "concept": "A comprehensive educational video on a topic in your problem space — not about your product, but about the domain your product helps with",
+        "title_formula": "'The complete guide to [topic] for [ICP]' | 'Everything you need to know about [topic] in [timeframe]' | '[N] things I wish I knew about [topic] before I started'",
+        "chapter_structure": "1. Why this topic matters (30 sec). 2. The fundamentals. 3. The advanced concepts. 4. Common mistakes. 5. Recommended resources and tools (your product as one option, not the only option).",
+        "hook_strategy": "Open with the biggest mistake or misconception — 'Most [ICP] get [topic] completely wrong. Here is what they miss.'",
+        "personalisation_prompt": "Educational deep-dives perform best when they include real examples from your own experience or your users' experiences. Abstract concepts + concrete examples = retention and saves.",
+        "why_it_works": "Comprehensive educational content builds channel authority and compounds through search for years. Viewers who find your educational content trust you as an expert — they are more likely to try your product and subscribe."
+      }
+    }
+  },
+
+  "community_outreach_playbook": {
+    "where_icp_clusters": "YouTube comment sections of channels your ICP watches. Subscribe and engage with top channels in your niche — your comments get seen by their audiences.",
+    "contribution_before_pitch_rule": "Comment thoughtfully on 5-10 videos per day in your niche before starting your channel. Never drop your channel link in other creators' comments — just add value. The profile visit comes naturally from a good comment.",
+    "dm_outreach_approach": "YouTube has no native DM for public users. For creator collaboration: email (found in About section). For community: YouTube Community posts and comment section responses.",
+    "influencer_partner_strategy": "Mid-tier creators (100K-500K subscribers) offer best ROI for sponsorships. Niche channels with 10K-50K subscribers for B2B products have highly intent audiences at much lower cost. Always provide clear brief, free product access, and creative freedom.",
+    "broadcast_vs_community_mode": "Primarily broadcast with community in comments. Respond to every comment in first 48 hours — this is both an algorithm signal and relationship building. Community posts for subscriber engagement between videos.",
+    "banned_behaviours": "Clickbait that doesn't deliver. Buying views or subscribers. Keyword stuffing in descriptions. Re-uploading others' content. Misleading thumbnails. Asking people to leave YouTube to visit a website in the first half of the video."
+  },
+
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Start YouTube channel around the PROBLEM space before launching. 'I am trying to solve X — here is what I am learning' documentary format. Build subscribers who are invested in your mission before you ask them to use anything.",
+    "early_traction_1_to_100": "Product tutorial series showing real use cases. Honest first-impressions demo video. Founder story — why you built this. These early videos serve as evergreen sales material for years.",
+    "growth_100_to_1k": "Case study videos with real customers (permission required). Comparison videos against alternatives. SEO-optimised tutorial content targeting your ICP's specific search queries.",
+    "scale_1k_plus": "YouTube Ads to amplify best-performing content. Channel membership for exclusive content. Creator partnerships for mutual audience growth. Shorts as a discovery funnel for the main channel."
+  },
+
+  "proof_of_play": {
+    "early_stage_win": "Basecamp — Jason Fried and DHH built a massive YouTube following through opinionated business content, not product tutorials. The content drove brand awareness and inbound that fuelled growth for years.",
+    "growth_stage_win": "HubSpot Academy — built the dominant YouTube channel for inbound marketing education. Tutorials drove certified users who became paying customers. 500K+ subscribers became a significant acquisition channel.",
+    "what_made_it_work": "Both focused on education first — genuine value regardless of whether the viewer bought the product. The product was the natural next step for viewers who wanted to implement what they learned.",
+    "what_would_have_killed_it": "A channel full of product demos and feature announcements would have had zero organic search traffic and near-zero subscriber retention."
+  }
+}

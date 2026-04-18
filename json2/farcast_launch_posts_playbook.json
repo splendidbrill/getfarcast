@@ -1,0 +1,633 @@
+{
+  "document": "Farcast Launch Posts Playbook",
+  "version": "1.0",
+  "purpose": "Defines how to generate platform-native launch posts for Farcast. Each platform section contains: post format, context injection rules (how to pull from the user's diary/journey), generation prompt, and what to avoid. Launch posts are one-time, high-craft posts. They are NOT generated as part of the weekly content engine — they are triggered separately by clicking 'Launch your product' in the dashboard.",
+
+  "context_injection_system": {
+    "what_it_means": "When a user triggers a launch post, Farcast pulls available context from their journey so far and injects it into the post generation. The post becomes personalised to what this specific founder has lived — not a generic template with placeholders.",
+    "data_sources": {
+      "diary_entries": {
+        "what_to_pull": "specific_moments, honest_struggles, numbers, decisions_made, surprising_learnings, tone",
+        "how_to_use": "Use the most compelling 1-2 specific moments as the human anchor of the post. A diary entry that says 'talked to 40 founders and they all said the same thing' becomes the opener. A number from the diary ('150 waitlist signups') becomes the traction proof."
+      },
+      "content_engine_performance": {
+        "what_to_pull": "Which post types got rated thumbs up, which topics generated the most engagement signals, which platform performed best",
+        "how_to_use": "If the user's best-performing content was 'build in public updates', the launch post should lean into that voice. If their Twitter hot takes performed well, the LinkedIn launch post borrows that directness."
+      },
+      "playbook_data": {
+        "what_to_pull": "ICP summary, product description, problem statement, goal type, pricing model, top channels",
+        "how_to_use": "The ICP and problem statement inform who the post is written for and what pain it references. The goal type (Get First 100 Users vs Scale) shapes the urgency of the CTA."
+      }
+    },
+    "fallback_if_no_diary": "If no diary entry exists, use the original onboarding answers (what does it do, what problem does it solve, who is it for) as the base context. The post will be less personalised but still platform-native."
+  },
+
+  "must_have_platforms": {
+
+    "product_hunt": {
+      "platform_name": "Product Hunt",
+      "url": "producthunt.com",
+      "why_must_have": "Single highest-leverage launch platform for B2B SaaS and indie products. A good PH launch drives 200-2000 signups on day one. The maker's first comment is more important than the listing itself.",
+      "tier": "launch",
+      "post_type": "product_listing_plus_maker_comment",
+
+      "format": {
+        "tagline": {
+          "description": "One line under your product name. Max 60 characters. This is the most important copy on your listing.",
+          "rules": "No buzzwords. No 'AI-powered'. No 'next-gen'. One clear sentence saying what the product does and who it is for.",
+          "formula": "[What it does] for [who it is for]",
+          "example": "Your AI growth agent for founders who can't afford an agency"
+        },
+        "description": {
+          "description": "The main product description shown on your listing. 150-300 words.",
+          "structure": [
+            "Open with the problem — 1-2 sentences describing the specific pain your ICP feels",
+            "What Farcast does — 3-4 bullet points of specific outcomes, not features",
+            "What makes it different — one honest differentiator",
+            "Who it is for — be specific about your ICP",
+            "Soft CTA — invite people to try it"
+          ]
+        },
+        "maker_comment": {
+          "description": "The first comment on your own listing, posted immediately after launch goes live. This is the most-read text on any Product Hunt listing. It is a personal letter from you to the community.",
+          "structure": [
+            "Hey PH! personal opener — 1-2 sentences",
+            "The honest story of why you built this — a specific personal moment that started everything",
+            "What you built and what it actually does — plain language, no hype",
+            "Where you are right now — honest traction numbers if you have them",
+            "What you need from the community — specific ask (feedback, roast, try it)",
+            "Gratitude — brief, genuine"
+          ],
+          "tone": "Founder speaking directly to humans. Vulnerable, honest, specific. NOT a press release. NOT marketing copy. The best maker comments feel like a message from a friend who built something cool and wants honest feedback.",
+          "length": "200-400 words. Long enough to be genuine, short enough to be read."
+        }
+      },
+
+      "context_injection": {
+        "for_tagline": "Use the product description from onboarding. Strip all adjectives. Keep the verb and the audience.",
+        "for_description": "Pull the problem statement from onboarding. Pull any specific numbers from diary entries (waitlist size, user count, conversations had). Use the ICP summary for the 'who it is for' section.",
+        "for_maker_comment": "This is where the diary does the most work. Pull: (1) the specific moment that made the founder start building, (2) any honest struggle from the diary, (3) current traction numbers. The maker comment should feel like a genuine founder update, not a pitch.",
+        "context_prompt_addition": "If the founder has diary entries: use the most emotionally honest moment as the opening anecdote. If they have numbers (waitlist, users, signups), include the specific number. If they have a struggle, acknowledge it — PH community respects honesty."
+      },
+
+      "generation_prompt": {
+        "system": "You are writing a Product Hunt launch post for a founder. Product Hunt rewards honesty, specificity, and founder vulnerability. The community is sophisticated and immediately detects marketing language. Your job is to write: (1) a tagline that is clear and specific, (2) a product description that explains the product without hype, (3) a maker comment that feels like a personal letter from the founder to the community. Never use the words 'revolutionary', 'game-changing', 'next-gen', 'AI-powered' in the tagline. Never open the maker comment with 'I am excited to announce'. The maker comment must include at least one specific personal detail from the founder's journey.",
+        "user_prompt_template": "Product: {product_name}\nTagline goal: {tagline}\nProblem solved: {problem_statement}\nICP: {icp_summary}\nKey differentiator: {differentiator}\nCurrent traction: {traction_numbers}\nFounder journey moment: {diary_specific_moment}\nHonest struggle: {diary_honest_struggle}\n\nGenerate: (1) tagline (max 60 chars), (2) product description (150-300 words), (3) maker comment (200-400 words). Return JSON with keys: tagline, description, maker_comment."
+      },
+
+      "timing": "Launch on Tuesday or Wednesday. Go live at 12:01am PST (start of PH day). Spend all of day one replying to every comment — comment velocity is a ranking signal.",
+      "follow_up": "Reply to every comment within 2 hours all day. At end of day, post an update comment thanking the community and sharing one thing you learned from the feedback.",
+      "what_to_avoid": [
+        "Launching on Friday or weekend — lowest traffic days",
+        "Ignoring comments after launch — comment engagement is a ranking signal",
+        "Maker comment that reads like marketing copy",
+        "Tagline with adjectives ('powerful', 'smart', 'intelligent')",
+        "Not having 5-10 friends ready to upvote and comment in the first hour"
+      ]
+    },
+
+    "hacker_news": {
+      "platform_name": "Hacker News",
+      "url": "news.ycombinator.com",
+      "why_must_have": "HN Show HN posts drive high-intent technical traffic. A good Show HN can reach the front page and drive 500-5000 visits in 24 hours. The audience is developers, founders, and technical decision-makers — exactly Farcast's secondary ICP.",
+      "tier": "launch",
+      "post_type": "show_hn_post",
+
+      "format": {
+        "title": {
+          "description": "The Show HN title is everything. HN is a ruthless title meritocracy.",
+          "rules": [
+            "Must start with 'Show HN:'",
+            "No exclamation marks",
+            "No superlatives (best, fastest, most powerful)",
+            "No vague descriptions ('a new way to...')",
+            "Technical precision — say exactly what it is",
+            "Include who it is for if space allows"
+          ],
+          "formula": "Show HN: [Exact description of what it is] for [who]",
+          "example": "Show HN: AI agent that builds your go-to-market strategy and generates platform-native content"
+        },
+        "post_body": {
+          "description": "The text body of the Show HN post. This is optional on HN but strongly recommended. Keep it under 300 words.",
+          "structure": [
+            "What it is — one precise sentence. No hype.",
+            "Why you built it — a specific personal experience that motivated you. One paragraph.",
+            "How it works — 3-4 bullet points of what it technically does. Be specific.",
+            "Current state — honest: what works, what doesn't yet, what you want feedback on",
+            "Link — clean URL, no tracking parameters"
+          ],
+          "tone": "Technical, honest, intellectual curiosity. HN readers are building things too — talk to them as a peer. Acknowledge limitations. Invite technical feedback. Never pitch. The goal is a conversation, not a conversion."
+        }
+      },
+
+      "context_injection": {
+        "for_title": "Use the product's core technical action — what does it DO specifically? Pull from the product description's 'what does it do' field. Distil to the most concrete single-sentence description.",
+        "for_body": "Pull: (1) the specific personal experience that led to building this (diary or onboarding 'why'), (2) a technical description of how it works (from product description), (3) honest current state (from diary — what's working, what's not yet built). HN especially rewards honest acknowledgment of limitations.",
+        "context_prompt_addition": "HN values intellectual honesty above all. If there is a diary entry showing a specific learning or honest struggle, include it. If there are traction numbers, include them but frame as data not as social proof. If the product is new, say so directly."
+      },
+
+      "generation_prompt": {
+        "system": "You are writing a Hacker News Show HN post. HN has extremely specific culture. Rules you must follow: (1) Title starts with 'Show HN:' and is technically precise with zero marketing language. (2) Body is written as one builder talking to other builders — intellectual, honest, specific. (3) Acknowledge what is not built yet. (4) Invite technical feedback and criticism. (5) Never use the words 'excited', 'proud', 'thrilled', 'game-changing', 'revolutionary', 'amazing'. (6) Do not ask people to upvote. (7) If the product is new or has limited traction, say so directly — HN respects honesty about stage. The post should feel like sharing a project with smart colleagues, not launching a product.",
+        "user_prompt_template": "Product: {product_name}\nURL: {product_url}\nWhat it does technically: {technical_description}\nWhy built: {founder_reason_specific}\nCurrent state (honest): {current_state_and_limitations}\nWhat feedback you want: {specific_feedback_request}\nFounder journey moment (if any): {diary_specific_moment}\n\nGenerate: (1) Show HN title (precise, no hype), (2) post body (max 300 words, honest, technical). Return JSON with keys: title, body."
+      },
+
+      "timing": "Post on weekday between 7am-9am EST. Avoid Mondays (low traffic) and Fridays (people leave early). Tuesday-Thursday mornings are peak HN traffic.",
+      "follow_up": "Reply to every single comment — HN's algorithm weights comment responses from the OP. Engage with technical criticism thoughtfully. If someone points out a flaw, acknowledge it genuinely.",
+      "what_to_avoid": [
+        "Marketing language of any kind — instant downvotes",
+        "Asking for upvotes in any form",
+        "Vague titles that don't explain what the product technically is",
+        "Ignoring critical comments — engagement drives HN ranking",
+        "Posting on Monday or Friday",
+        "Posting multiple Show HNs — once per product"
+      ]
+    },
+
+    "indie_hackers": {
+      "platform_name": "Indie Hackers",
+      "url": "indiehackers.com",
+      "why_must_have": "Indie Hackers is the most targeted community for Farcast's exact ICP — solo founders, bootstrappers, small teams. A genuine milestone post or product launch here drives high-intent signups from people who are already in founder mode.",
+      "tier": "launch",
+      "post_type": "product_launch_or_milestone_post",
+
+      "format": {
+        "post_title": {
+          "rules": "Specific metrics or milestones in the title perform significantly better. 'I launched [product] and here's what happened in the first week' outperforms 'Launching [product] today'.",
+          "formula": "I [launched/built] [product] — [honest result or specific milestone] in [timeframe]",
+          "examples": [
+            "I built an AI growth agent for founders — 150 waitlist signups before I wrote a line of marketing copy",
+            "Launched Farcast after 3 months of building — here's what I learned"
+          ]
+        },
+        "post_body": {
+          "structure": [
+            "The problem — 1 paragraph describing the specific pain, with a personal story",
+            "What I built — plain description of the product and what it does",
+            "How I validated it — what signals told you this was worth building",
+            "Current numbers — be specific and honest. Even small numbers are respected.",
+            "What I learned so far — 2-3 genuine learnings from the journey",
+            "What I am working on next — shows momentum",
+            "CTA — honest ask for feedback or trial"
+          ],
+          "tone": "Transparent, data-driven, honest. IH community respects founders who share real numbers even when small. 'We have 12 paying users' is better than 'growing fast'. Vulnerability is valued. Hustle porn is not."
+        }
+      },
+
+      "context_injection": {
+        "for_title": "Pull the most impressive specific number available — waitlist size, user count, conversations had, signups in first week. If no numbers, use a specific milestone (shipped in X days, talked to X founders).",
+        "for_body": "This is the richest context injection opportunity. Pull from: (1) all diary entries — IH loves the real journey, (2) current traction numbers, (3) specific user conversations and what they said, (4) decisions made and why, (5) honest struggles. The more specific and honest the better. IH readers have a sharp BS detector.",
+        "context_prompt_addition": "If the founder has diary entries with specific moments, weave them throughout the post. IH posts that read like honest founder diaries get the most upvotes and comments. If they have early user testimonials or quotes, include them."
+      },
+
+      "generation_prompt": {
+        "system": "You are writing an Indie Hackers post for a product launch. IH culture values: transparency (share real numbers even if small), honesty (acknowledge what didn't work), specific learnings (not generic advice), and founder authenticity. The post should read like a genuine founder update — the kind you would send to a fellow founder you trust. Include specific numbers wherever possible. Reference real moments from the journey. The tone is direct, honest, and slightly vulnerable. Never hype. Never hide failures. IH rewards founders who share the real story.",
+        "user_prompt_template": "Product: {product_name}\nWhat it does: {product_description}\nProblem solved: {problem_statement}\nICP: {icp_summary}\nCurrent numbers (any): {traction_numbers}\nJourney moments (from diary): {diary_moments}\nHonest struggles: {diary_honest_struggle}\nKey learnings: {diary_surprising_learnings}\nDecisions made: {diary_decisions}\nWhat feedback you want: {feedback_ask}\n\nGenerate: (1) post title (specific, honest, metric-led), (2) post body (400-700 words, structured, real). Return JSON with keys: title, body."
+      },
+
+      "timing": "No strict time — IH is slower-moving than PH or HN. Post when you have a genuine milestone. Don't post just to post.",
+      "follow_up": "Reply to every comment. The IH community specifically looks for founders who engage — it signals that you are serious and worth following.",
+      "what_to_avoid": [
+        "Vanity metrics without context",
+        "Generic motivational content",
+        "Not sharing any real numbers — even small ones",
+        "Posting without a genuine milestone or learning to share",
+        "Treating IH as a promotional channel — it is a community of builders sharing honestly"
+      ]
+    },
+
+    "reddit_saas": {
+      "platform_name": "Reddit — r/SaaS",
+      "url": "reddit.com/r/SaaS",
+      "why_must_have": "r/SaaS has 200K+ members who are active founders and builders — the highest concentration of Farcast's ICP on Reddit. A well-crafted post here drives direct signups and feedback from exactly the right people.",
+      "tier": "launch",
+      "post_type": "community_native_founder_post",
+      "reddit_rule_reminder": "r/SaaS allows product mentions but penalises obvious promotion. The post must lead with value or story. Product mention works best as context within a genuine learning post.",
+
+      "format": {
+        "title": {
+          "rules": "No promotional language. Frame as a genuine learning, question, or milestone share. Reddit titles that work: specific numbers, honest confessions, counterintuitive takes.",
+          "formula_options": [
+            "I [built/launched] [product type] after [specific experience] — here is what I learned",
+            "After [N conversations/months/attempts], I figured out why [common problem] — and built this",
+            "[Honest milestone] — what I would do differently"
+          ],
+          "example": "I built an AI growth agent for founders after trying to get users for 3 months with no system — here is what I learned"
+        },
+        "body": {
+          "structure": [
+            "The personal experience — specific, honest, relatable opener that establishes credibility",
+            "What I discovered — the insight that led to building",
+            "What I built and why — brief, no promotional language",
+            "Early results — honest numbers",
+            "Asking the community — a genuine question that invites engagement",
+            "Product link — in the body is acceptable in r/SaaS if the post is genuine"
+          ],
+          "tone": "Community member sharing a journey, not a founder promoting a product. The post should be genuinely useful to readers even if they never use the product."
+        }
+      },
+
+      "context_injection": {
+        "for_title": "Use the most specific and relatable founder struggle from the diary or the founding story. Numbers make titles perform better on Reddit.",
+        "for_body": "Pull the most authentic moments from the diary — the specific user conversations, the specific struggles, the decisions that felt uncertain. Reddit r/SaaS rewards radical authenticity over polished narratives.",
+        "context_prompt_addition": "Use real language from the founder's diary if available — the raw, unpolished voice of a real founder building in real time is the most compelling thing in this community. Avoid anything that sounds like it went through a marketing team."
+      },
+
+      "generation_prompt": {
+        "system": "You are writing a Reddit post for r/SaaS. Reddit community rules: (1) Never sound promotional. (2) Lead with personal story or value, never with the product. (3) No exclamation marks. No hype. No marketing language. (4) The post should be genuinely useful to read even if the reader never uses the product. (5) Product mention is allowed in r/SaaS if the post provides real value first. (6) First-person always. (7) Specific numbers are more believable than vague claims. (8) The title must not read like an ad. The test: would a founder who has never heard of this product find this post genuinely interesting and click through? If yes, it is a good Reddit post.",
+        "user_prompt_template": "Product: {product_name}\nProblem solved: {problem_statement}\nFounding story moment: {diary_specific_moment}\nHonest struggle: {diary_honest_struggle}\nCurrent traction: {traction_numbers}\nKey learning: {diary_surprising_learnings}\nURL: {product_url}\n\nGenerate: (1) Reddit title (no promotion, specific and honest), (2) post body (300-500 words, community-native, genuine). Return JSON with keys: title, body."
+      },
+
+      "also_post_in": ["r/indiehackers", "r/startups", "r/microsaas"],
+      "subreddit_notes": {
+        "r_indiehackers": "More personal/journey focused than r/SaaS. Lead with the founder story even more than the product.",
+        "r_startups": "Broader audience. Works best with the problem framing rather than the product.",
+        "r_microsaas": "Smaller but very targeted. This community specifically loves small SaaS products and will give detailed feedback."
+      },
+      "timing": "Tuesday-Thursday 9am-11am EST",
+      "follow_up": "Reply to every comment the same day. Ask follow-up questions to commenters — turns one-time readers into engaged community members.",
+      "what_to_avoid": [
+        "Promotional title or body language",
+        "Posting to multiple subreddits on the same day with identical content",
+        "Not engaging with comments",
+        "Using marketing buzzwords",
+        "Having your first-ever comment on r/SaaS be your product post — builds karma first"
+      ]
+    },
+
+    "devto": {
+      "platform_name": "Dev.to",
+      "url": "dev.to",
+      "why_must_have": "Dev.to has 1M+ developer readers and strong Google indexing. A launch article here gives you a backlink, developer audience exposure, and long-term SEO value. The content lives forever and continues to drive traffic.",
+      "tier": "launch",
+      "post_type": "article_launch_post",
+
+      "format": {
+        "title": {
+          "rules": "Dev.to titles should be specific, useful, and slightly technical. Can be longer than Twitter or Reddit titles.",
+          "formula": "I built [product] — here is [specific thing they will learn from reading this]",
+          "example": "I built an AI growth agent for founders — here is how it identifies your ICP and maps your distribution channels automatically"
+        },
+        "body": {
+          "structure": [
+            "The problem — as a developer/technical founder, what specifically frustrated you (2-3 paragraphs)",
+            "Why existing solutions didn't work — specific technical or UX gaps",
+            "What I built — product overview with screenshots or demo GIF",
+            "How it works technically — 3-5 sentences on the technical stack and approach",
+            "What the output looks like — show real examples of the product working",
+            "Current state and roadmap — what is done, what is coming",
+            "CTA — try it / give feedback / follow for updates",
+            "Tags: productivity, startup, saas, webdev, beginners"
+          ],
+          "tone": "Technical peer sharing a build project. Slightly more formal than Reddit but less polished than a press release. Developers appreciate specificity about how things were built.",
+          "length": "600-1000 words. Long enough to be substantive, short enough to be read."
+        }
+      },
+
+      "context_injection": {
+        "for_title": "Lead with the specific technical capability — what does the product do that is technically interesting?",
+        "for_body": "Pull: (1) the founder's technical background and what made them qualified to build this, (2) the technical stack from the product spec, (3) screenshots or descriptions of real output. Dev.to readers want to see how the sausage is made.",
+        "context_prompt_addition": "If the founder has diary entries about specific technical decisions or challenges, include them. Dev.to community specifically appreciates 'here is the hard technical problem I had to solve' content."
+      },
+
+      "generation_prompt": {
+        "system": "You are writing a Dev.to launch article. Dev.to is a developer community that values technical specificity, genuine building stories, and practical learning. Rules: (1) Be technically specific — mention the stack, the approach, the interesting problems solved. (2) Show rather than tell — describe what the product actually produces. (3) Be honest about technical limitations and what is not built yet. (4) Use markdown formatting — headers, code blocks if relevant, bullet points. (5) The tone is 'developer peer sharing a project' not 'startup founder launching a product'. Include tags at the end: #productivity #startup #saas #buildinpublic",
+        "user_prompt_template": "Product: {product_name}\nURL: {product_url}\nTech stack: {tech_stack}\nWhat it does technically: {technical_description}\nProblem solved: {problem_statement}\nFounder background: {founder_background}\nJourney moments: {diary_moments}\nCurrent state: {current_state}\n\nGenerate: (1) Dev.to article title, (2) full article body in markdown (600-1000 words). Return JSON with keys: title, body_markdown."
+      },
+
+      "timing": "Any weekday — Dev.to does not have strong peak timing dependency. Content is indexed by Google within days.",
+      "follow_up": "Reply to comments. Dev.to comments are rare but engaged — each one represents a genuine interested reader.",
+      "what_to_avoid": [
+        "Article that is only marketing copy — developers skip immediately",
+        "No technical detail — what makes it interesting to build?",
+        "No screenshots or product output examples",
+        "Too short — Dev.to SEO value increases with content length"
+      ]
+    },
+
+    "betalist": {
+      "platform_name": "BetaList",
+      "url": "betalist.com",
+      "why_must_have": "BetaList is specifically for early-stage startups. It drives early adopters — exactly the right audience for Farcast's current stage. Also a strong backlink and appears in Google search for startup tool queries.",
+      "tier": "launch",
+      "post_type": "product_listing",
+
+      "format": {
+        "tagline": {
+          "description": "One line, max 100 characters. Clear and specific.",
+          "formula": "What it does for who",
+          "example": "AI growth agent that builds your distribution strategy and runs your content engine"
+        },
+        "description": {
+          "description": "150-250 words describing the product for early adopters — people who love finding and using new tools before they are mainstream.",
+          "structure": [
+            "Problem statement — what pain does this solve, described from the user's perspective",
+            "Solution — what Farcast does, in plain language",
+            "Who it is for — be specific about the ICP",
+            "Where it is in development — BetaList audiences appreciate honesty about current stage",
+            "What early adopters get — early access, influence on roadmap, founding user status"
+          ],
+          "tone": "Excited but grounded. BetaList readers are product-curious early adopters who want to be first — appeal to that identity. Acknowledge you are early stage; they like that."
+        }
+      },
+
+      "context_injection": {
+        "for_description": "Use traction numbers if available (waitlist size signals validation). Use the problem statement and ICP from onboarding. If there are diary entries about early user feedback, reference it briefly.",
+        "context_prompt_addition": "BetaList readers want to feel like they are getting in early on something real. If the founder has genuine early signals (waitlist, early users, strong feedback), emphasise these as 'join before it goes mainstream' framing."
+      },
+
+      "generation_prompt": {
+        "system": "You are writing a BetaList product listing for an early-stage startup. BetaList is for products in beta/early access — readers are specifically looking for new products to try before the mainstream. Rules: (1) Be clear about the early stage — it is an asset here, not a liability. (2) Emphasise what early adopters get (first access, founding user status, influence on roadmap). (3) Use clear non-technical language. (4) Lead with the pain the product solves. (5) Be honest about current functionality.",
+        "user_prompt_template": "Product: {product_name}\nURL: {product_url}\nTagline: {tagline}\nProblem solved: {problem_statement}\nICP: {icp_summary}\nCurrent state: {current_state}\nTraction: {traction_numbers}\nWhat early adopters get: {early_adopter_benefit}\n\nGenerate: (1) tagline (max 100 chars), (2) product description (150-250 words). Return JSON with keys: tagline, description."
+      },
+
+      "timing": "Submit when product is live and functional. BetaList review takes 24-48 hours. Plan 3-5 days before target launch date.",
+      "what_to_avoid": [
+        "Submitting before product is actually usable",
+        "Pretending to be more complete than you are",
+        "Generic product description that could apply to any tool"
+      ]
+    },
+
+    "uneed": {
+      "platform_name": "Uneed",
+      "url": "uneed.best",
+      "why_must_have": "Uneed is a fast-growing Product Hunt alternative with an active daily voter community and a dedicated email newsletter. Lower competition than PH and strong SEO value. Good for getting early traction signals.",
+      "tier": "launch",
+      "post_type": "product_listing",
+
+      "format": {
+        "description": "Similar to Product Hunt in format — tagline, description, and hunter comment. More casual community than PH. Less competitive but similar mechanics.",
+        "tagline": {
+          "rules": "Same as Product Hunt — clear, specific, no adjectives",
+          "formula": "What it does for who",
+          "max_length": "70 characters"
+        },
+        "description": {
+          "structure": [
+            "Problem — 1-2 sentences",
+            "Solution — 3-4 bullet points of specific outcomes",
+            "Who it is for — named ICP",
+            "Current pricing and access — be transparent"
+          ],
+          "length": "100-200 words"
+        },
+        "maker_comment": {
+          "description": "Slightly shorter than PH maker comment. Same personal, honest tone.",
+          "structure": [
+            "Personal opener — why you built this",
+            "What it does — plain language",
+            "Current state — honest",
+            "Ask for feedback"
+          ],
+          "length": "150-250 words"
+        }
+      },
+
+      "context_injection": {
+        "approach": "Reuse the Product Hunt content as a base. Adapt the tagline to be slightly more casual (Uneed community is less formal than PH). Shorten the maker comment slightly.",
+        "context_prompt_addition": "If the Product Hunt listing has already been generated, adapt from that. If not, use the same context sources: product description + diary specific moments + traction numbers."
+      },
+
+      "generation_prompt": {
+        "system": "You are adapting a product launch post for Uneed — a Product Hunt alternative with a similar but slightly more casual community. The format is similar to Product Hunt but the community is less formal and more forgiving. Rules: (1) Tagline must be under 70 characters, clear and specific. (2) Description is slightly shorter than PH — 100-200 words. (3) Maker comment is personal and honest but can be slightly more casual in tone than PH. (4) Avoid buzzwords. (5) Be honest about current stage.",
+        "user_prompt_template": "Reuse context from Product Hunt listing if available, or: Product: {product_name}\nURL: {product_url}\nProblem: {problem_statement}\nICP: {icp_summary}\nJourney moment: {diary_specific_moment}\nTraction: {traction_numbers}\n\nGenerate: (1) tagline (max 70 chars), (2) description (100-200 words), (3) maker comment (150-250 words). Return JSON with keys: tagline, description, maker_comment."
+      },
+
+      "timing": "Launch same week as Product Hunt or the following week. Do not launch on same day.",
+      "what_to_avoid": "Identical copy to Product Hunt listing — Google may see as duplicate. Slightly rephrase."
+    },
+
+    "microlaunch": {
+      "platform_name": "MicroLaunch",
+      "url": "microlaunch.net",
+      "why_must_have": "MicroLaunch is specifically built for indie hackers and solo founders — Farcast's exact ICP. Smaller and more targeted than PH. Strong community engagement and SEO backlink value.",
+      "tier": "launch",
+      "post_type": "product_listing",
+
+      "format": {
+        "tagline": {
+          "formula": "What it does in one clear sentence",
+          "max_length": "80 characters"
+        },
+        "description": {
+          "structure": [
+            "Problem in 1 sentence",
+            "What the product does in 2-3 sentences",
+            "Key features as 3-4 bullets",
+            "Who it is for in 1 sentence",
+            "Current pricing/access"
+          ],
+          "length": "100-200 words"
+        }
+      },
+
+      "context_injection": {
+        "approach": "Reuse the Uneed or Product Hunt content, shortened and tailored to indie hacker vocabulary. This community speaks 'bootstrapper', 'side project', 'solo founder' — use that language.",
+        "context_prompt_addition": "MicroLaunch audience are themselves solo builders. Speak their language: acknowledge it is a small team, that you are building in public, that early users shape the product. This community specifically values founder transparency."
+      },
+
+      "generation_prompt": {
+        "system": "You are writing a MicroLaunch listing for an indie product. MicroLaunch audience are indie hackers and solo founders — they want to support other builders. Rules: (1) Acknowledge it is built by a small team or solo founder. (2) Use indie hacker vocabulary: bootstrapped, building in public, early access, shape the roadmap. (3) Be honest about what stage the product is at. (4) The tone is peer-to-peer, not startup-to-customer. (5) Clear and simple — no enterprise vocabulary.",
+        "user_prompt_template": "Product: {product_name}\nURL: {product_url}\nFounder context: {founder_background}\nProblem: {problem_statement}\nWhat it does: {product_description}\nICP: {icp_summary}\nStage: {current_state}\n\nGenerate: (1) tagline (max 80 chars), (2) description (100-200 words in indie hacker tone). Return JSON with keys: tagline, description."
+      },
+
+      "timing": "Any weekday. No strict timing dependency.",
+      "what_to_avoid": "Corporate language, feature-list descriptions without context, launching before the product is usable."
+    },
+
+    "medium_hashnode": {
+      "platform_name": "Medium / Hashnode",
+      "url": "medium.com / hashnode.com",
+      "why_must_have": "Long-form launch articles on Medium or Hashnode get indexed by Google and can rank for long-tail search queries for years. A well-written launch story drives backlinks when other publications reference it. Best for establishing the founding narrative.",
+      "tier": "launch",
+      "post_type": "long_form_launch_article",
+
+      "format": {
+        "title": {
+          "formula": "I built [product] — the honest story of [what happened or what was learned]",
+          "examples": [
+            "I built an AI growth agent for founders after failing at distribution for 6 months",
+            "Why I built Farcast: the problem every founder ignores until it kills them"
+          ]
+        },
+        "body": {
+          "structure": [
+            "The inciting moment — the specific experience that made this feel necessary (250-400 words)",
+            "What already existed and why it wasn't enough — honest competitor analysis (150-200 words)",
+            "What I built and how it works — product walkthrough with screenshots (300-500 words)",
+            "The unexpected things — surprises, pivots, honest learnings (200-300 words)",
+            "Where it is today — honest current state with real numbers (150-200 words)",
+            "What is next — roadmap teaser (100-150 words)",
+            "CTA — try it, follow the journey, give feedback"
+          ],
+          "tone": "Long-form personal essay. This is the founding story told in full. It can be vulnerable, specific, detailed. This is not a blog post for a content calendar — it is the canonical 'why Farcast exists' document that lives forever.",
+          "length": "1200-2000 words"
+        }
+      },
+
+      "context_injection": {
+        "for_opening": "The diary is the most valuable source for the inciting moment. What specific thing happened that made the founder start building? If it is in the diary — use it verbatim or very close to verbatim, then expand.",
+        "for_honest_learnings": "Pull all honest struggles and surprising learnings from diary entries. The medium article is the place to be most vulnerable — this is long-form, Google-indexed content that demonstrates authentic founder voice.",
+        "for_current_state": "All traction numbers available. Be specific.",
+        "context_prompt_addition": "This is the richest use of journal data. Every diary entry from the founding journey can contribute to this article. The goal is to write the founding story so specifically and honestly that when someone searches 'why did [product] get built' or '[product name] story', this article is the answer."
+      },
+
+      "generation_prompt": {
+        "system": "You are writing the founding story article for a startup — a long-form Medium or Hashnode post that serves as the canonical narrative of why the product was built. Rules: (1) Open with the most specific, emotionally resonant moment from the founding journey. (2) Be honest about failures, false starts, and uncertainties. (3) Show the product working with specific examples — not just descriptions. (4) Include real numbers whenever possible. (5) Write in a voice that feels like the founder speaking directly. (6) Avoid startup clichés: no 'disrupting', no 'passionate', no 'mission-driven'. (7) The article should work as a standalone piece of writing — not just a product launch announcement. A reader who never uses the product should find it genuinely worth reading.",
+        "user_prompt_template": "Product: {product_name}\nURL: {product_url}\nFounding moment (most specific): {diary_specific_moment}\nHonest struggles: {diary_honest_struggle}\nKey decisions: {diary_decisions}\nSurprising learnings: {diary_surprising_learnings}\nProduct description: {product_description}\nICP: {icp_summary}\nCompetitor gaps: {competitor_weaknesses}\nCurrent traction: {traction_numbers}\nWhat is next: {roadmap_next}\n\nGenerate: (1) article title, (2) full article body (1200-2000 words, honest, personal, story-driven). Return JSON with keys: title, body."
+      },
+
+      "timing": "Publish 3-7 days after Product Hunt launch to capture people who search for more information after discovering on PH.",
+      "follow_up": "Share on Twitter, LinkedIn, Reddit after publishing. Respond to all comments.",
+      "what_to_avoid": [
+        "Generic founding story with no specific moments",
+        "Not including real numbers",
+        "Writing it as a press release rather than a personal essay",
+        "Under 800 words — too short for Google to index as substantive content"
+      ]
+    },
+
+    "linkedin_personal": {
+      "platform_name": "LinkedIn (Founder Personal Post)",
+      "url": "linkedin.com",
+      "why_must_have": "A launch post on the founder's personal LinkedIn reaches their existing professional network — the highest-trust audience they have. This is often overlooked but drives the first batch of warm signups from people who already know and trust the founder.",
+      "tier": "launch",
+      "post_type": "personal_post",
+
+      "format": {
+        "post": {
+          "structure": [
+            "Hook — a specific, personal, scroll-stopping first line that makes the reader want to click 'see more' (must be under 150 chars — the cutoff before 'see more')",
+            "The problem paragraph — what frustrated you specifically (3-5 sentences)",
+            "What you built — plain language, what it does (3-5 sentences)",
+            "Proof — one honest number or early signal",
+            "Personal meaning — why this matters to you specifically (2-3 sentences)",
+            "CTA — explicit ask: 'If you are building something and struggling with distribution, try it free: [link in first comment]'"
+          ],
+          "note_on_link": "Put the product URL in the FIRST COMMENT, not the post body. LinkedIn suppresses external links in post body. End the post with 'Link in comments' and immediately post the first comment with the URL.",
+          "length": "200-400 words",
+          "tone": "The most personal of all launch posts. This is speaking directly to your professional network — people who know you. It can reference the personal journey more intimately. It is appropriate to be more emotionally direct here than on any other platform."
+        }
+      },
+
+      "context_injection": {
+        "for_hook": "The most relatable specific moment from the founder's journey — what they were frustrated by, what they struggled with, what made them finally build this. The hook should make someone who builds products stop scrolling.",
+        "for_body": "Pull from diary entries — the honest moments, the specific user conversations, any numbers. LinkedIn posts with real numbers and real vulnerability get significantly more engagement.",
+        "context_prompt_addition": "The LinkedIn launch post should feel most personal of all platforms because it is going to people who already know the founder. Reference the journey since they started building. If there are diary entries spanning weeks of building, this post should feel like a reunion update — 'I have been heads-down building for 3 months and I wanted to share what I made with this community first.'"
+      },
+
+      "generation_prompt": {
+        "system": "You are writing a LinkedIn launch post for a founder's personal profile — this goes to their professional network, people who know and trust them. Rules: (1) First line must hook before the 'see more' cutoff — under 150 characters, must be emotionally resonant or specific. (2) Post is personal — the most personal of all launch posts. Reference the journey, not just the product. (3) No external link in post body — end with 'Link in first comment'. (4) Short paragraphs — 1-2 sentences each for LinkedIn readability. (5) One clear CTA at the end. (6) Do not sound like a press release — this should sound like a message to people you know. (7) Tone is warm, direct, honest.",
+        "user_prompt_template": "Product: {product_name}\nFounder name: {founder_name}\nJourney months: {journey_duration}\nFounding moment: {diary_specific_moment}\nHonest struggle: {diary_honest_struggle}\nWhat was built: {product_description}\nICP: {icp_summary}\nTraction: {traction_numbers}\nPersonal meaning: {why_this_matters_to_founder}\n\nGenerate: full LinkedIn post (200-400 words, personal, hook in first line, link in comments note at end). Return JSON with key: post."
+      },
+
+      "timing": "Tuesday-Thursday 7:30am-9am local time. Publish and immediately post the first comment with the product URL.",
+      "follow_up": "Reply to every comment within 2 hours — the first hour is critical for LinkedIn reach. If connections share or comment, thank them personally.",
+      "what_to_avoid": [
+        "Putting product URL in post body",
+        "Generic 'excited to announce' opening",
+        "Posting without a personal story",
+        "Not replying to comments immediately"
+      ]
+    },
+
+    "twitter_launch_thread": {
+      "platform_name": "Twitter / X (Launch Thread)",
+      "url": "twitter.com / x.com",
+      "why_must_have": "Twitter is where build-in-public founders live. A launch thread done well gets retweeted by other founders, reaches the ICP directly, and drives significant profile visits and signups. It also establishes the public record of the launch.",
+      "tier": "launch",
+      "post_type": "launch_thread",
+
+      "format": {
+        "thread_structure": {
+          "tweet_1_hook": {
+            "description": "The most important tweet. This determines whether anyone reads the rest.",
+            "formula": "Specific number or counterintuitive statement + what you built + who it is for. Max 280 chars.",
+            "example": "After 3 months of building and 150 founders on the waitlist — Farcast is live.\n\nAI growth agent for founders who can't afford an agency.\n\nHere is what we built 🧵"
+          },
+          "tweet_2_problem": {
+            "description": "The problem in specific terms. One tweet.",
+            "content": "Use the most relatable specific moment from the founding story or diary. Make the ICP say 'this is me.'"
+          },
+          "tweet_3_solution": {
+            "description": "What Farcast does — the most compelling version. One tweet.",
+            "format": "4-5 bullet points with emojis as bullet markers for scannability."
+          },
+          "tweet_4_differentiation": {
+            "description": "Why it is different — one specific contrast to how things are done today.",
+            "format": "Before Farcast vs After Farcast. Or: Every other tool does X. Farcast does Y."
+          },
+          "tweet_5_proof": {
+            "description": "Early traction or validation. One tweet.",
+            "content": "Whatever honest number is available — waitlist, users, conversations, feedback quotes."
+          },
+          "tweet_6_story": {
+            "description": "The personal founding story moment — why you built this. One tweet. This is optional but highly recommended.",
+            "content": "Pull directly from diary — the most specific moment."
+          },
+          "tweet_7_cta": {
+            "description": "The final tweet with clear CTA and link.",
+            "format": "Try it free at [URL]. Building in public — follow for updates.",
+            "note": "Link goes in the tweet body of this final tweet, not in the first tweet."
+          }
+        },
+        "total_tweets": "6-8 tweets. Long enough to tell the story, short enough to read in 2 minutes."
+      },
+
+      "context_injection": {
+        "for_tweet_1": "Best number available from traction. If no number, use the most specific description of who it is for.",
+        "for_problem_tweet": "Most relatable founding moment from diary. The specific thing that made the founder say 'someone needs to build this.'",
+        "for_proof_tweet": "All traction numbers — waitlist, signups, users, feedback received. Anything honest and specific.",
+        "for_story_tweet": "The most emotionally resonant moment from the diary. The raw version.",
+        "context_prompt_addition": "The launch thread is the most followed content Farcast's ICP reads. Use every piece of specific context available. Generic launch threads get scrolled past. Specific ones — with real numbers, real moments, real founder voice — get retweeted."
+      },
+
+      "generation_prompt": {
+        "system": "You are writing a Twitter/X launch thread for a founder. Rules: (1) Tweet 1 must hook immediately — a specific number, counterintuitive statement, or direct announcement that makes someone stop. (2) Each subsequent tweet should work as a standalone thought — someone who sees any individual tweet should be able to understand it and want to see more. (3) No buzzwords. No 'excited to announce'. No 'game-changing'. (4) Real numbers where available. (5) The product link goes in the last tweet — not in tweet 1. (6) The thread should tell a story in 6-8 tweets. (7) Write each tweet as if it will be read by a founder who is building something and struggling with distribution — they are the audience.",
+        "user_prompt_template": "Product: {product_name}\nURL: {product_url}\nHook number/stat: {traction_numbers}\nProblem statement: {problem_statement}\nWhat it does (bullets): {product_description_bullets}\nKey differentiator: {differentiator}\nFounding moment: {diary_specific_moment}\nICP: {icp_summary}\nProof/validation: {early_proof}\n\nGenerate: launch thread of 6-8 tweets. Return JSON with key: tweets (array of tweet strings)."
+      },
+
+      "timing": "Tuesday-Thursday 8-10am EST. Launch thread first, then post the link in a reply to the thread (not the first tweet) after going live.",
+      "follow_up": "Reply to every quote tweet and reply within the first 4 hours. Ask the community a question at the end of day ('What feature would you want to see next?') to restart engagement.",
+      "what_to_avoid": [
+        "Product URL in first tweet — algorithm penalises",
+        "Generic opener ('Excited to announce')",
+        "Thread longer than 10 tweets — loses readers",
+        "Not engaging with replies same day"
+      ]
+    }
+  },
+
+  "directory_submissions_template": {
+    "description": "For all other directories in the list (Futurepedia, AI directories, Crunchbase, AngelList, SaaSHub, AlternativeTo, etc.) — these are form fills, not crafted posts. Use this standardised description template and submit across all directories. These are backlinks and listings, not community posts.",
+    "standardised_fields": {
+      "product_name": "Farcast",
+      "tagline": "AI growth agent for founders — ICP, channels, content, and warm leads, automatically.",
+      "short_description": "Farcast is an always-on AI growth agent for founders. Describe your product and Farcast identifies your ideal customer profile, maps the right distribution channels across 27 platforms, generates platform-native content every week, and identifies warm leads through your Chrome extension. Built for vibe coders, indie hackers, and day-zero founders who can't afford a $5K/month growth agency.",
+      "long_description": "Farcast solves the most painful problem for modern founders: building is easy now, but getting users still isn't. AI coding tools let anyone ship a product in a weekend — but the same founders who can now build anything have no system for distribution.\n\nFarcast is their growth engine.\n\nDescribe your product → Farcast identifies your ICP with demographics, psychology, and buying triggers → ranks the right channels out of 27 platforms with fit scores → generates platform-native content for each channel every week → and tracks performance through a Chrome extension that identifies warm leads daily.\n\nThe agent compounds over time. Every piece of content you rate teaches it what works for your specific product and audience. After 90 days, it knows your ICP, your top-performing content formats, and the people already looking for what you built.\n\nOne plan. $10/month. Full access to everything.",
+      "website": "https://getfarcast.com",
+      "category": "AI Tools, Marketing, SaaS, Productivity",
+      "pricing_model": "Subscription — $10/month",
+      "target_audience": "Indie hackers, solo founders, vibe coders, early-stage startup founders",
+      "stage": "Early Access / Beta",
+      "founded": "2026",
+      "founders": "Shobit Gupta, Tushar Karan"
+    },
+    "submission_tracking": "Track all submissions in a Google Sheet with columns: Directory Name | URL | Submission Date | Status (Submitted/Approved/Live) | Notes | Backlink URL once approved"
+  },
+
+  "platform_priority_order": [
+    "1. Twitter/X launch thread — do this first, day of launch",
+    "2. Product Hunt — biggest single-day impact",
+    "3. Hacker News Show HN — same week as PH, not same day",
+    "4. Indie Hackers — same week or week after",
+    "5. LinkedIn personal post — same day as PH launch",
+    "6. Reddit r/SaaS — day after PH launch",
+    "7. Betalist — 3-5 days before PH launch (drives early signups)",
+    "8. Dev.to — week after PH launch",
+    "9. Medium/Hashnode article — 3-7 days after PH launch",
+    "10. Uneed — same week as PH or week after",
+    "11. MicroLaunch — same week or week after",
+    "12. All directory submissions — start immediately, run over 2 weeks doing 20-30/day"
+  ]
+}

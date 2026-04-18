@@ -1,0 +1,126 @@
+{
+  "channel": "Instagram",
+  "tier": 2,
+  "content_output_type": "content_ideas_only",
+  "content_output_note": "Farcast generates content IDEAS for Instagram — Reel concept, hook, format, and personalisation angle — not full scripts or captions. Instagram requires the founder's visual presence, face, and environment. The creative direction is provided; the founder films and produces.",
+
+  "channel_dna": {
+    "platform_type": "Visual-first social platform. Dominant for lifestyle, consumer brands, creator economy, and increasingly B2B thought leadership via Reels.",
+    "algorithm_type": "Interest graph (Reels — primary discovery to non-followers) + social graph (Feed — existing followers). Reels get algorithmic distribution far beyond your follower count. Stories only reach existing followers. Saves and shares are the highest-weighted signals.",
+    "primary_audience": "18-35 core demographic. Strong female skew (57%). Lifestyle, fashion, beauty, food, travel dominant — but tech and business growing rapidly via Reels. High purchase intent for consumer products.",
+    "native_content_formats": "Reels (15-90 seconds — primary reach driver), Feed posts (single image or carousel), Stories (24-hour ephemeral), Live. Carousels have highest save rates. Reels drive discovery; Stories deepen relationships with existing followers.",
+    "platform_culture_code": "Aesthetics matter more than Twitter or Reddit but less than a polished ad. Authentic and aspirational co-exist — the sweet spot is real moments that look intentional. Caption engagement drives reach. The comment section is community; Stories are intimacy.",
+    "account_warmup_requirements": "Switch to Creator or Business account. Complete bio with clear value prop. Have 9+ posts in your grid before pushing for growth — an empty grid is a credibility killer. Stories should be active daily from day one."
+  },
+
+  "profile_setup": {
+    "step_1_account_type": "Switch to Creator Account (Settings → Account → Switch to Professional Account → Creator). This gives you access to Instagram Insights, Creator Studio, and follower analytics.",
+    "step_2_profile_photo": "Real face headshot — clear, good lighting, looking at camera. Not a logo. Not an abstract image. On Instagram, a recognisable face builds trust faster than any brand asset.",
+    "step_3_bio": "Instagram bio is 150 characters. Formula: '[Who you are] | Building [product] | [One line what you post about]'. Line breaks matter — use them to create visual rhythm. Include your product URL in the link field. Example:\n'Founder & CEO, Farcast\nBuilding AI growth agents for founders\nWriting about distribution & building in public ⚡'",
+    "step_4_link": "Use the bio link field for your product URL. If you need multiple destinations, use a Linktree or similar. Update this when you have a specific launch or content piece to drive traffic to.",
+    "step_5_highlight_covers": "Create 3-4 Story Highlights with consistent cover designs: About / Product / Build Log / User Stories. These are the first things a new visitor sees after your bio. They serve as a permanent profile for people who discover you through Reels.",
+    "step_6_grid_foundation": "Before aggressive growth activity, post 9 foundational grid posts covering: who you are, what you are building, why you built it, and your journey so far. The grid is your resume — make sure it tells a coherent story to someone who just discovered you.",
+    "step_7_creator_mode_features": "Enable Professional Dashboard. Use Instagram's native scheduling tool or Later/Buffer for consistency. Turn on 'Show your account to people in [niche]' in discoverability settings."
+  },
+
+  "engagement_strategy": {
+    "comment_to_drive_visits": "The fastest way to grow on Instagram without posting is to leave the most insightful comment on a Reel that your ICP watches. Instagram shows commenter usernames prominently — a thoughtful comment under a viral Reel in your niche drives profile visits. Target: 15-20 substantive comments per day on Reels from accounts your ICP follows or that are trending in your category.",
+    "comment_quality_rules": "Comments must add genuine value to earn a profile visit. Options: (1) Add a specific insight or data point the creator didn't mention. (2) Share a personal experience that relates to their point. (3) Ask a smart follow-up question. (4) Offer a counterpoint respectfully. Generic comments ('Love this!', '🔥🔥🔥') are invisible.",
+    "follow_engage_connect": "Follow 20-30 accounts per day in your target niche — creators, competitors, accounts your ICP follows. Engage genuinely with their Reels and posts within 24 hours of posting. This builds mutual recognition and eventual collaboration opportunity.",
+    "stories_for_depth": "Post Stories daily — polls, questions, behind-the-scenes moments, quick updates. Stories don't grow your audience but they deepen relationships with existing followers and convert casual followers into engaged ones. An engaged follower base dramatically improves Reel performance when you post.",
+    "dm_warm_leads": "After someone engages with your Reel (likes, saves, or comments), visit their profile. If they match your ICP, send a genuine DM: 'Saw you saved my post on [topic] — if you're dealing with [problem], would love to share what we built.' This is warm outreach, not cold. High conversion.",
+    "respond_to_comments_fast": "Reply to every comment within the first 2 hours of posting a Reel. Instagram's algorithm weights comment velocity heavily — replies count as additional comment signals. Replying to comments also shows in your followers' feeds, giving the Reel a second reach wave."
+  },
+
+  "fit_scoring_matrix": {
+    "best_product_types": "E-commerce/D2C, consumer apps, creator economy tools, health and wellness, lifestyle brands, education for visual subjects",
+    "worst_product_types": "Pure B2B enterprise software, developer tools, anything with no visual component, professional services requiring formal tone",
+    "best_pricing_models": "All models work for consumer. Freemium with visual product demonstration works well. Instagram Shopping for direct e-commerce purchase.",
+    "icp_match_signals": "Search your product category hashtag — if top Reels have 50K+ views and comments discussing your problem space, your ICP is here. Check if competitors have 10K+ Instagram followers.",
+    "red_flags_skip_this_channel": "Skip if product has no visual story to tell. Skip if target audience is 45+ male professionals. Skip if you cannot maintain visual content quality consistently.",
+    "geographic_strength": "US, India, Brazil, Indonesia dominant. Strong globally in visual-first consumer markets."
+  },
+
+  "growth_mechanics": {
+    "expected_cac": "$0 organic. Instagram Ads average $0.20-$2 CPC. Organic Reels strategy is the primary play for early-stage.",
+    "time_to_first_traffic_spike": "A strong Reel can spike within 24-48 hours. Feed content takes 2-4 weeks to build meaningful reach.",
+    "time_to_first_paying_user": "2-6 weeks for consumer products with a clear demo Reel. Link in bio friction reduces conversion vs. direct-intent channels.",
+    "effort_level": "High — Reels production, daily Stories, caption writing, and comment engagement. Medium with batch filming approach.",
+    "virality_coefficient": "High for Reels. Medium for Feed. Stories do not spread organically.",
+    "compounding_potential": "Medium — followers compound well. Saved Reels have long-tail visibility and can resurface 2-4 weeks after posting."
+  },
+
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Reels: watch completion rate, shares (most important), saves, comments in that order. Feed: immediate engagement from followers in first 30-60 minutes. Stories: direct replies and poll interactions.",
+    "what_algorithm_rewards": "Reels that get shared to Stories by viewers. High save rates on carousels. Comments that generate reply threads. Consistent posting cadence. Reels with trending audio (small additional boost).",
+    "what_kills_reach": "Posting Reels with TikTok watermarks (actively suppressed). Very low completion rate. Hashtag stuffing (5-10 relevant hashtags max, not 30). Buying followers. Long gaps between posts.",
+    "peak_posting_windows": "Reels: Tuesday-Friday 9am-11am and 1pm-3pm local time. Feed: Wednesday 11am. Stories: 7-9am and 7-9pm for highest views.",
+    "optimal_posting_cadence": "Reels: 3-5 per week minimum for growth. Stories: daily. Feed: 3-4 per week.",
+    "content_freshness_window": "Reels: resurface 2-4 weeks. Feed posts: 48-72 hours active. Stories: 24 hours only."
+  },
+
+  "content_ideas_system": {
+    "output_format_note": "Farcast generates content IDEAS for Instagram — not full captions or scripts. Each idea includes: visual concept, hook angle, recommended format, personalisation prompt, and why it works. The founder films, edits, and publishes in their own voice and aesthetic.",
+
+    "content_idea_categories": {
+      "founder_reel": {
+        "concept": "Short, personal video from the founder — a real moment, decision, or update from building the product",
+        "hook_angles": ["'I just did something most founders never do — [specific action]'", "'Day [N] of building [product] — here is what actually happened'", "'The thing nobody tells you about [topic relevant to your ICP]'"],
+        "format": "Talking head or B-roll with voiceover. 30-60 seconds. Text overlay on key points. No intro — hook in first frame.",
+        "personalisation_prompt": "Use the founder's diary entry from that week. The best founder Reels reference a specific moment — a user call, a metric, a product decision — not a generic reflection. Ask: what happened to you specifically this week that your ICP would relate to?",
+        "why_it_works": "Founder content on Instagram is rare. Most accounts post polished brand content. A real person showing the behind-the-scenes gets saves and shares because people want to show their friends 'this is what building actually looks like'."
+      },
+      "carousel_educational": {
+        "concept": "A multi-slide post (5-10 slides) that teaches one useful concept your ICP searches for or struggles with",
+        "hook_angles": ["Slide 1 should state the outcome: 'How I [did X] in [timeframe]'", "'The [N]-step system for [outcome]'", "'Everything I know about [topic] in [N] slides'"],
+        "format": "Carousel with consistent design. First slide = bold hook. Last slide = CTA. Each intermediate slide = one point. Use text heavy, minimal graphics for professional/founder audience.",
+        "personalisation_prompt": "Carousel topics should come from real questions your users or ICP members have asked. If someone asked you how to do something this week, that is a carousel topic. Specific practical knowledge always outperforms generic advice.",
+        "why_it_works": "Carousels have the highest save rate of any Instagram format. Saves compound — every save gets the post re-served to more people. A saved carousel positions you as a reference resource."
+      },
+      "product_demo_reel": {
+        "concept": "Show the product solving a real, specific problem — start with the problem, show the solution in action, end with the outcome",
+        "hook_angles": ["'We spent 3 hours doing this manually. Farcast does it in 5 minutes — here is how'", "'The thing my product does that I was not expecting'", "'If you are a [ICP], you need to see this'"],
+        "format": "Screen recording + voiceover or talking head + demo. 45-75 seconds. Show real UI, real output.",
+        "personalisation_prompt": "Use a real user scenario if you have one. 'A founder I spoke to last week was struggling with X. Here is what we built for exactly that.' Real context converts better than hypothetical.",
+        "why_it_works": "Product demo Reels drive saves and bio link clicks — people save to come back later and also click through to learn more. The specific problem-solution format makes the value immediately concrete."
+      },
+      "trend_adaptation": {
+        "concept": "Take a trending audio or visual format and apply it to your founder or product angle",
+        "hook_angles": "Determined by the trending audio/format. The hook comes from the trend itself — your job is to apply it to your niche so it feels native and relevant.",
+        "format": "Match the trending format exactly. Add text overlays to make it specific to your niche.",
+        "personalisation_prompt": "Check Instagram's Reels tab and filter by 'Most Popular' weekly. A trend adapted within 48 hours of emerging gets maximum algorithmic boost. After 2 weeks it feels late.",
+        "why_it_works": "Trending audio gives an algorithmic boost because Instagram actively promotes trending content. Adapting trends to your niche captures that boost while staying relevant to your audience."
+      },
+      "behind_the_scenes": {
+        "concept": "Show what building actually looks like — the workspace, the tools, the process, the unglamorous reality",
+        "hook_angles": ["'A day in the life of a solo founder — unfiltered'", "'What my [product type] startup actually looks like from the inside'", "'The tools I use to [run/build/grow] [product]'"],
+        "format": "B-roll montage with voiceover, or talking head walk-through. 30-60 seconds.",
+        "personalisation_prompt": "The most effective BTS content references the specific stage of the journey — 'Day 45 of building' is more specific than 'building a startup'. Real metrics, real problems, real moments.",
+        "why_it_works": "BTS content builds parasocial connection and is highly shareable — people tag friends who are building things. The authenticity also counteracts the polished Instagram aesthetic and gets algorithm attention through high completion rate."
+      }
+    }
+  },
+
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Follow hashtags your ICP uses. Study the Explore page from your ICP's perspective. Look at who comments on competitor accounts — those are your potential users.",
+    "contribution_before_pitch_rule": "Comment genuinely on 15-20 Reels from ICP accounts every day. Add specific value — an insight, an experience, a smart question. Be visible in comment sections before you push your own content.",
+    "dm_outreach_approach": "Warm DMs only — after they have engaged with your content or after you have engaged with theirs. Reference something specific from their profile. Keep under 3 sentences. Voice notes convert 2x higher than text DMs.",
+    "influencer_partner_strategy": "Micro-influencers (10K-100K followers) in your niche have highest engagement rates. UGC creators — who create content for you without posting to their own large audience — are very cost-effective for demos and testimonials.",
+    "broadcast_vs_community_mode": "Reels = broadcast to new audiences. Stories = community with existing followers. DMs = conversion channel.",
+    "banned_behaviours": "Follow/unfollow bots. Buying fake likes or followers. Spam commenting. Mass DM blasting. TikTok watermarked reposts."
+  },
+
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Build aesthetic and following around the problem space before product launch. Tease product through 'building this thing' Reels. Collect email list from bio link. Run polls in Stories to validate features. Build 500+ followers before launch day.",
+    "early_traction_1_to_100": "Product demo Reels showing product solving a real problem. Founder BTS content. Launch day Reel with strong bio link CTA.",
+    "growth_100_to_1k": "UGC campaign — incentivise users to create content featuring your product. Partner with 3-5 micro-influencers for honest reviews. Carousel educational content positioning your category.",
+    "scale_1k_plus": "Instagram Ads retargeting website visitors. Affiliate program for creators. Instagram Shopping if applicable. Branded hashtag to aggregate user content."
+  },
+
+  "proof_of_play": {
+    "early_stage_win": "Gymshark — built from zero to $1.3B valuation through Instagram influencer marketing and community building. Started with gifting to micro-influencers with almost no budget.",
+    "growth_stage_win": "Canva — used Instagram to showcase design templates created BY users, driving aspiration and demonstration simultaneously. Built 1M+ Instagram following organically.",
+    "what_made_it_work": "Both led with what you can achieve or become — not product features. Instagram is an aspirational platform. Show the outcome, let the product be the vehicle.",
+    "what_would_have_killed_it": "Feature-led product posts ('New feature available') have zero engagement on Instagram. The audience is not in evaluation mode."
+  }
+}

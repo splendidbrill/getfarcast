@@ -1,0 +1,124 @@
+{
+  "channel": "TikTok",
+  "tier": 2,
+  "content_output_type": "content_ideas_only",
+  "content_output_note": "Farcast generates content IDEAS for TikTok — video concept, hook, format, and why it works — not full scripts. Video creation requires the founder's face, voice, and environment. The creative direction is 60% of the work; the founder supplies the rest.",
+
+  "channel_dna": {
+    "platform_type": "Short-form video platform with the most powerful interest-based recommendation algorithm in existence. Content discovery-first — followers matter less than content quality.",
+    "algorithm_type": "Pure interest graph. The For You Page (FYP) serves content to non-followers based on watch time, completion rate, shares, comments, and saves. A zero-follower account can go viral on day one. Every video is evaluated independently.",
+    "primary_audience": "Dominant 18-30 demographic. Gen Z core but Millennial presence growing fast. StudyTok, FinTok, TechTok, ProductivityTok all have large engaged communities. Not just entertainment — educational content dominates in professional niches.",
+    "native_content_formats": "Vertical short video (15 seconds to 10 minutes — 60-90 second sweet spot). Trending audio/sounds. Duets (split-screen with another creator's video). Stitches (clip another video then respond). Text overlays. First 3 seconds determine everything.",
+    "platform_culture_code": "Authenticity over production quality. Raw, real, imperfect content outperforms polished ads. Trending sounds and formats give small accounts an algorithmic boost. Self-awareness and humour work. The comment section is where community lives — a single clever comment under a viral video can drive hundreds of profile visits.",
+    "account_warmup_requirements": "No warmup needed — TikTok actively surfaces new accounts if content is strong. But spend 30-60 minutes watching and engaging with videos in your target niche before posting your first video. This calibrates your FYP and signals your category to the algorithm."
+  },
+
+  "profile_setup": {
+    "step_1_account_type": "Switch to a Creator Account (Settings → Manage Account → Switch to Creator Account). This gives you access to analytics, the Creator Marketplace, and trending audio tools.",
+    "step_2_profile_photo": "Use your real face — a clear, friendly photo or a short looping video as your profile. Founder-led accounts with a visible person behind them build trust significantly faster than logo accounts.",
+    "step_3_username": "Keep your username clean and close to your name or product name. Avoid numbers, underscores, or anything hard to remember. If your product name is taken, try 'building[productname]' or '[yourname]builds'.",
+    "step_4_bio": "TikTok bio is 80 characters — use them precisely. Formula: '[Who you are] building [product] | [Topic you post about]'. Example: 'Founder building Farcast | Distribution tips for founders'. Include your product URL in the link field — use a Linktree or similar if you need multiple destinations.",
+    "step_5_niche_calibration": "Before posting your first video, spend 30 minutes watching, liking, and saving videos in your target niche. This tells TikTok's algorithm what category you belong to, which determines which FYPs your first video gets served to.",
+    "step_6_content_category": "Pin 2-3 of your best videos once you have them. The pinned videos are the first thing visitors see when they land on your profile — treat them as a permanent landing page."
+  },
+
+  "engagement_strategy": {
+    "comment_to_drive_visits": "The fastest way to grow on TikTok without posting is to leave the single most interesting, funny, or insightful comment on a viral video in your niche. TikTok sorts comments by likes — if your comment rises to the top of a video with 1M+ views, you get hundreds of profile visits from people clicking your username. Target: 10-20 comments per day on trending videos in your space.",
+    "duet_and_stitch": "Duet or Stitch videos from creators your ICP follows — this is native TikTok contribution. Your video appears alongside theirs, exposing you to their entire audience. Strategy: find a video in your niche that has strong engagement but has an angle you can add to, correct, or build on. Stitch the first 5 seconds and then give your take.",
+    "reply_with_video": "When someone comments a question on your video, reply with a video response rather than text. TikTok prominently features video replies and they get significant additional reach. This is one of the highest-leverage engagement moves on the platform.",
+    "consistency_signal": "Post at minimum 3x per week to maintain algorithmic presence. TikTok de-prioritises accounts that go quiet. Batch filming — record 5-7 videos in one session, publish over the week — is the most sustainable approach.",
+    "reply_to_all_comments": "Reply to every comment in the first hour after posting. This signals to the algorithm that your video is generating active conversation and pushes it to more FYPs."
+  },
+
+  "fit_scoring_matrix": {
+    "best_product_types": "B2C consumer apps (especially 18-30 audience), edtech, health and wellness, lifestyle e-commerce, fintech for young adults, creator tools, productivity apps, student tools",
+    "worst_product_types": "Enterprise B2B software, products for 50+ demographic, highly technical developer tools (very small TikTok audience), professional services requiring formal tone",
+    "best_pricing_models": "Freemium and free tier strongly preferred — TikTok viewers are not in purchase mode. Low-friction signups work. Impulse purchase products under $50 convert best.",
+    "icp_match_signals": "Search your product category hashtag on TikTok. If the hashtag has 1B+ views and your product serves that audience, your ICP is active here. Check if creators in your niche have 100K+ followers.",
+    "red_flags_skip_this_channel": "Skip if your ICP is 45+ professionals. Skip if your product requires a long explanation before value is clear. Skip if you genuinely cannot create video content consistently.",
+    "geographic_strength": "US, UK, Southeast Asia, Brazil dominant. Strong globally with younger demographics."
+  },
+
+  "growth_mechanics": {
+    "expected_cac": "$0 cash for organic. Time cost: 2-4 hours/week with batch filming approach.",
+    "time_to_first_traffic_spike": "Can happen within 24-48 hours of first video if it catches the algorithm. More realistic: 2-4 weeks of consistent posting.",
+    "time_to_first_paying_user": "3-6 weeks if driving to a freemium product. Link in bio friction means conversion is lower than search-intent channels.",
+    "effort_level": "High for video production. Medium with batch filming system. 1-3 videos per day for aggressive growth, 3-5 per week for sustainable growth.",
+    "virality_coefficient": "Highest of any platform. A single video can reach millions with zero followers. Algorithm is completely egalitarian.",
+    "compounding_potential": "Medium. Each video is evaluated independently. Popular videos resurface on FYP for months — TikTok content has much longer tail than Twitter."
+  },
+
+  "algorithm_playbook": {
+    "how_reach_is_determined": "Watch completion rate is the #1 signal — if people watch to the end, the video gets distributed more. Shares weighted most heavily after completion. Comments signal engagement. Saves indicate high value. Hooks in the first 3 seconds determine whether the video gets an initial push at all.",
+    "what_algorithm_rewards": "High completion rate. Content that gets rewatched. Videos that generate comments asking questions. Trending audio (small additional boost). Consistent posting from the same account. Video replies to comments.",
+    "what_kills_reach": "Watermarks from other apps (TikTok actively suppresses). Low completion rate. Blurry or poor audio quality. Inconsistent niche — posting about completely different topics confuses the algorithm's category signals.",
+    "peak_posting_windows": "Tuesday-Friday 7-9am, 12-2pm, 7-9pm local time. Volume matters — TikTok is a volume game unlike most platforms.",
+    "optimal_posting_cadence": "1-3 videos per day for aggressive growth. 3-5 per week for sustainable growth. Minimum 1 per week to maintain presence.",
+    "content_freshness_window": "Individual videos can resurface on FYP for 90+ days. Trending sounds have a 1-2 week window before they feel stale."
+  },
+
+  "content_ideas_system": {
+    "output_format_note": "Farcast generates content IDEAS for TikTok — not scripts. Each idea includes: video concept, hook angle, recommended format, personalisation prompt, and why it works for this ICP. The founder films and delivers in their own voice.",
+
+    "content_idea_categories": {
+      "founder_journey": {
+        "concept": "Day-in-the-life or week-in-review from the founder's perspective — real moments, real emotions, real numbers",
+        "hook_angles": ["'What building a startup actually looks like' — contrast between expectation and reality", "'Day 7 of trying to get my first user' — specific milestone documentation", "'The one thing I wish someone told me before I launched'"],
+        "format": "Talking head or screen recording with text overlays. 45-75 seconds.",
+        "personalisation_prompt": "Use the founder's diary entry from that week — a specific conversation, a specific metric, a decision made. Generic founder journey videos are common. Specific ones (with real numbers and real names of things that happened) are rare and perform better.",
+        "why_it_works": "Founder journey content attracts other founders — exactly your ICP. It also builds parasocial connection that converts to followers and eventually to product users."
+      },
+      "quick_tutorial": {
+        "concept": "Solve one specific, narrow problem in under 60 seconds that your ICP faces regularly",
+        "hook_angles": ["'You have been doing X wrong' — corrects a common mistake", "'The 30-second way to do X' — speed and specificity", "'Nobody tells founders about this — [specific tactic]'"],
+        "format": "Screen recording or demonstration. 30-60 seconds. One problem, one solution, no extras.",
+        "personalisation_prompt": "The best tutorial topics come from real user conversations and questions. If someone asked you how to do something this week, that is a tutorial video idea.",
+        "why_it_works": "Tutorial content ranks in TikTok search, drives saves, and positions you as an expert. Saves are heavily weighted by the algorithm as a quality signal."
+      },
+      "hot_take_opinion": {
+        "concept": "A clear, confident opinion on something your ICP believes — either confirming it with data or challenging it with a counterintuitive angle",
+        "hook_angles": ["'Stop doing X — here is why it is hurting you'", "'The reason [common tactic] does not work anymore'", "'Unpopular opinion: [something your ICP does that you disagree with]'"],
+        "format": "Talking head, fast delivery, text overlay reinforcing the key point. 30-45 seconds.",
+        "personalisation_prompt": "Use something you genuinely disagree with that you observed this week — in a user conversation, a Reddit thread, a Twitter discussion. Specific observed behaviour makes hot takes feel real rather than manufactured.",
+        "why_it_works": "Opinion content drives comments — people agree or disagree and both responses are algorithmically equivalent. High comment velocity signals engagement to the FYP."
+      },
+      "before_after": {
+        "concept": "Show the transformation your product or approach enables — before state (the problem) vs. after state (the result)",
+        "hook_angles": ["'This is what [problem] looks like — and this is what we did instead'", "'I spent 6 months doing X the hard way. Then I tried this.'"],
+        "format": "Split screen or sequential demonstration. 45-60 seconds. Show, don't just tell.",
+        "personalisation_prompt": "Use a real user story if you have one. Even early-stage products often have 1-2 users with before/after outcomes. With permission, their story is better than a hypothetical.",
+        "why_it_works": "Before/after is the highest-converting content format on video platforms because it makes the value concrete and visual."
+      },
+      "trend_response": {
+        "concept": "Take a trending audio, format, or topic and add your niche angle to it",
+        "hook_angles": "Determined by the trend — use the trending audio and adapt the visual concept to your topic. The trend provides the distribution boost; your niche angle provides the relevance.",
+        "format": "Match the format of the trend. Add on-screen text to make it relevant to your audience.",
+        "personalisation_prompt": "Check TikTok's Trending tab and Creative Center weekly. A trend used within 48-72 hours of it emerging gets maximum boost. After 2 weeks, the window is closing.",
+        "why_it_works": "Trending audio gives a small but meaningful algorithmic boost. More importantly, it signals that your account is current and platform-native — not cross-posting from elsewhere."
+      }
+    }
+  },
+
+  "community_outreach_playbook": {
+    "where_icp_clusters": "Niche hashtag communities: #buildinpublic, #saastok, #foundertok, #productivitytok, #indiehacker. Follow these hashtags to find your ICP. Also look at who comments on competitor or adjacent product accounts.",
+    "contribution_before_pitch_rule": "Leave 10-20 substantive comments per day on videos your ICP watches. Duet or Stitch relevant creator content — this is native TikTok contribution and gets you in front of their audience.",
+    "dm_outreach_approach": "TikTok DMs are low-conversion for product promotion. Use video replies to comments as the primary engagement mechanism. DMs work best for creator collaboration inquiries only.",
+    "influencer_partner_strategy": "Creators with 10K-100K followers in your niche convert better than mega-influencers. Nano-influencers (1K-10K) have highest engagement rates. Product access in exchange for honest review is the most credible model.",
+    "broadcast_vs_community_mode": "Primarily broadcast — TikTok is a content discovery platform. Community happens in comment sections. Reply to every comment in the first hour after posting.",
+    "banned_behaviours": "Buying fake followers or views. Spam commenting. Using banned sounds or copyrighted music. Posting other creators' content without credit. Watermarked reposts from other platforms."
+  },
+
+  "business_stage_playbook": {
+    "pre_launch_0_users": "Build audience around the PROBLEM before you have a product. 'Why I am building [product type]' series. Show the problem visually — demonstrate the pain in a way that makes people say 'I feel this'. Collect email signups via bio link.",
+    "early_traction_1_to_100": "Product demo videos — show the product solving a real problem in under 60 seconds. Founder journey content. 'I built this in X days' behind-the-scenes. Real reaction from first users.",
+    "growth_100_to_1k": "User testimonial videos with permission. Before/after content with real user stories. Tutorial content that naturally features your product. Partner with 3-5 nano-creators for honest reviews.",
+    "scale_1k_plus": "TikTok Ads to amplify best-performing organic. Creator Marketplace for paid partnerships. Branded hashtag challenges for community engagement."
+  },
+
+  "proof_of_play": {
+    "early_stage_win": "Duolingo — viral through self-aware, humorous content featuring their owl mascot. Zero promotional content. Built 8M+ followers. App downloads directly attributable to TikTok spikes.",
+    "growth_stage_win": "Notion — StudyTok creators organically adopted Notion for aesthetic study setups. Notion amplified it by partnering with study creators — drove millions of student signups.",
+    "what_made_it_work": "Both met the TikTok audience in their native content format. Neither made ads. Both made TikToks.",
+    "what_would_have_killed_it": "A traditional product demo in corporate tone would have been scrolled past immediately."
+  }
+}
