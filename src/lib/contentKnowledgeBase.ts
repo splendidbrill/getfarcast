@@ -150,6 +150,105 @@ export function getTier2ChannelContext(channelName: string): string {
 
 // ── Launch posts: per-platform context ────────────────────────────────────
 
+// ── Channel strategy context (for playbook generation) ────────────────────
+
+const ALL_CHANNEL_FILE_MAP: Record<string, string> = {
+  ...TIER1_FILE_MAP,
+  ...TIER2_FILE_MAP,
+};
+
+export function getChannelStrategyContext(channelName: string): string {
+  const key = normalise(channelName);
+  const filePath = ALL_CHANNEL_FILE_MAP[key];
+  if (!filePath) return "";
+
+  const data = readJSON(filePath);
+  if (!data) return "";
+
+  const dna = data.channel_dna ?? {};
+  const fit = data.fit_scoring_matrix ?? {};
+  const growth = data.growth_mechanics ?? {};
+  const algo = data.algorithm_playbook ?? {};
+  const exec = data.execution_sequence ?? {};
+  const cs = data.content_system ?? {};
+  const outreach = data.community_outreach_playbook ?? {};
+  const stages = data.business_stage_playbook ?? {};
+  const proof = data.proof_of_play ?? {};
+  const ideas = data.content_ideas_system ?? {};
+
+  const parts: string[] = [
+    `=== ${data.channel} EXPERT CHANNEL PLAYBOOK ===`,
+    "",
+    "PLATFORM DNA:",
+    dna.platform_type ?? "",
+    dna.platform_culture_code ?? "",
+    "",
+    "ALGORITHM:",
+    dna.algorithm_type ?? "",
+    algo.how_reach_is_determined ?? "",
+    `What it rewards: ${algo.what_algorithm_rewards ?? ""}`,
+    `What kills reach: ${algo.what_kills_reach ?? ""}`,
+    `Peak posting windows: ${algo.peak_posting_windows ?? ""}`,
+    `Optimal cadence: ${algo.optimal_posting_cadence ?? ""}`,
+    "",
+    "GROWTH MECHANICS:",
+    `Expected CAC: ${growth.expected_cac ?? ""}`,
+    `Time to first traffic spike: ${growth.time_to_first_traffic_spike ?? ""}`,
+    `Time to first paying user: ${growth.time_to_first_paying_user ?? ""}`,
+    `Effort level: ${growth.effort_level ?? ""}`,
+    `Compounding potential: ${growth.compounding_potential ?? ""}`,
+    "",
+    "FIT SCORING:",
+    `Best product types: ${fit.best_product_types ?? ""}`,
+    `Worst product types: ${fit.worst_product_types ?? ""}`,
+    `ICP match signals: ${fit.icp_match_signals ?? ""}`,
+    `Red flags — skip this channel: ${fit.red_flags_skip_this_channel ?? ""}`,
+    "",
+    "CONTENT SYSTEM:",
+    `Winning content types: ${cs.winning_content_types ?? ""}`,
+    `Hook formulas: ${cs.hook_formulas ?? ""}`,
+    `Platform-native tone: ${cs.platform_native_tone ?? ""}`,
+    `Personalisation layer: ${cs.personalisation_layer ?? ""}`,
+    `CTA approach: ${cs.cta_approach ?? ""}`,
+    `Content to avoid: ${cs.content_to_avoid ?? ""}`,
+  ];
+
+  // Tier 2 content idea categories
+  const categories = ideas.content_idea_categories ?? {};
+  if (Object.keys(categories).length > 0) {
+    parts.push("", "CONTENT IDEA CATEGORIES:");
+    for (const [k, v] of Object.entries(categories) as [string, any][]) {
+      parts.push(`${k}: ${v.concept ?? ""} | Hooks: ${Array.isArray(v.hook_angles) ? v.hook_angles.join(" | ") : (v.hook_angles ?? "")}`);
+    }
+  }
+
+  parts.push(
+    "",
+    "EXECUTION PHASES:",
+    exec.phase_1_comment_only ?? exec.phase_1_observe_and_optimise ?? "",
+    exec.phase_2_interleave_posts ?? exec.phase_2_content_acceleration ?? "",
+    exec.phase_3_post_content_rules ?? exec.phase_3_content_mix ?? "",
+    "",
+    "BUSINESS STAGE GUIDANCE:",
+    `Pre-launch: ${stages.pre_launch_0_users ?? ""}`,
+    `Early traction (1-100 users): ${stages.early_traction_1_to_100 ?? ""}`,
+    `Growth (100-1K): ${stages.growth_100_to_1k ?? ""}`,
+    "",
+    "REAL EXAMPLES THAT WORKED:",
+    proof.early_stage_win ?? "",
+    proof.what_made_it_work ?? "",
+    "",
+    "OUTREACH PLAYBOOK:",
+    outreach.where_icp_clusters ?? outreach.where_icp_watches ?? "",
+    outreach.contribution_before_pitch_rule ?? "",
+    outreach.dm_outreach_approach ?? "",
+  );
+
+  return parts.filter((l) => l !== null && l !== undefined).join("\n").trim();
+}
+
+// ── Launch posts: per-platform context ────────────────────────────────────
+
 export function getLaunchPostContext(platformName: string): string {
   const data = readJSON(LAUNCH_FILE);
   if (!data) return "";

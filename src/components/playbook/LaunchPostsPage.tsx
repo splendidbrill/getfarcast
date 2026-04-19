@@ -260,7 +260,7 @@ export function LaunchPostsPage({ playbook }: Props) {
         <div>
           <h2 className="text-2xl font-bold text-[#1a1a2e] mb-2">Platform-native launch posts</h2>
           <p className="text-sm text-gray-500 max-w-2xl leading-relaxed">
-            One carefully crafted post per platform — each written in that platform&apos;s exact native language. Select where you&apos;re launching and generate. If you have Daily Log entries, they&apos;ll be used to make posts more personal.
+            Reddit hates promotion. HN hates hype. Product Hunt loves the founder story. Each post is written to match how that community thinks - so it lands instead of getting ignored. Select your platforms and generate.
           </p>
         </div>
 

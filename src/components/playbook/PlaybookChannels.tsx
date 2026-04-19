@@ -1,53 +1,20 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import {
   ChevronDown,
   ChevronUp,
   CheckCircle,
   XCircle,
   Cpu,
-  Copy,
-  Check,
   TrendingUp,
   Clock,
   Target,
-  Flame,
-  ThumbsUp,
-  Frown,
-  MessageSquare
 } from "lucide-react";
 import type { ChannelStrategy } from "@/lib/types";
-import { updatePostFeedback } from "@/app/playbook/actions";
 
-function ChannelCard({ playbookId, channel }: { playbookId: string; channel: ChannelStrategy }) {
+function ChannelCard({ channel }: { channel: ChannelStrategy }) {
   const [expanded, setExpanded] = useState(false);
-  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
-  
-  // Local state for instant UI updates
-  const [feedbackState, setFeedbackState] = useState<Record<number, { rating?: "fire"|"ok"|"flop", comments?: string }>>({});
-  const timeoutRefs = useRef<Record<number, NodeJS.Timeout>>({});
-
-  const handleCopy = async (text: string, idx: number) => {
-    await navigator.clipboard.writeText(text);
-    setCopiedIdx(idx);
-    setTimeout(() => setCopiedIdx(null), 2000);
-  };
-
-  const handleRating = (idx: number, rating: "fire"|"ok"|"flop") => {
-    setFeedbackState(prev => ({...prev, [idx]: { ...prev[idx], rating }}));
-    updatePostFeedback(playbookId, channel.name, idx, rating, undefined).catch(console.error);
-  };
-
-  const handleCommentsChange = (idx: number, val: string) => {
-    setFeedbackState(prev => ({...prev, [idx]: { ...prev[idx], comments: val }}));
-    
-    // Auto-save logic
-    if (timeoutRefs.current[idx]) clearTimeout(timeoutRefs.current[idx]);
-    timeoutRefs.current[idx] = setTimeout(() => {
-      updatePostFeedback(playbookId, channel.name, idx, undefined, val).catch(console.error);
-    }, 1000);
-  };
 
   return (
     <div className={`bg-white rounded-3xl border transition-all duration-300 ${expanded ? 'border-[#ff6b4e]/30 shadow-md shadow-[#ff6b4e]/5' : 'border-black/5 shadow-sm hover:border-black/10 hover:shadow-md'}`}>
@@ -85,15 +52,8 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
           </div>
         </div>
         
-        {/* Fit Score & Metrics (Hidden on small screens when collapsed) */}
-        <div className={`mt-4 sm:mt-0 flex items-center gap-6 sm:ml-4`}>
-          <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:gap-0">
-            <p className={`text-lg font-extrabold ${channel.pushType === 'hard' ? 'text-emerald-500' : 'text-gray-500'}`}>
-              {channel.fitScore}%
-            </p>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fit Score</p>
-          </div>
-          <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 shrink-0">
+        <div className="mt-4 sm:mt-0 sm:ml-4 shrink-0">
+          <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
             {expanded ? (
               <ChevronUp className="w-5 h-5 text-gray-500" />
             ) : (
@@ -208,136 +168,6 @@ function ChannelCard({ playbookId, channel }: { playbookId: string; channel: Cha
               </div>
             </div>
 
-            {/* 30-Day Content Timeline */}
-            <div>
-              <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-6">
-                30-Day Content Timeline
-              </h4>
-              <div className="relative border-l-2 border-gray-100 ml-4 space-y-6 pb-4">
-                {channel.contentCalendar?.sort((a, b) => a.day - b.day).map((tmpl, i) => (
-                  <div
-                    key={i}
-                    className="relative pl-8"
-                  >
-                    {/* Timeline dot */}
-                    <div className="absolute -left-[11px] top-4 w-5 h-5 rounded-full bg-white border-4 border-blue-500 shadow-sm" />
-                    
-                    <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                      {/* Day Label */}
-                      <div className="absolute top-0 right-0 bg-blue-50 text-blue-600 px-4 py-1.5 rounded-bl-2xl font-black text-sm shadow-sm pointer-events-none group-hover:bg-[#ff6b4e] group-hover:text-white transition-colors">
-                        Day {tmpl.day}
-                      </div>
-
-                      <div className="flex items-center justify-between mb-5 border-b border-gray-100 pb-4 pr-20">
-                        <div className="flex items-center gap-3">
-                          <span className="text-[10px] px-2.5 py-1 rounded-md bg-[#1a1a2e] text-white uppercase font-bold tracking-wider">
-                            {tmpl.type}
-                          </span>
-                          <h5 className="text-base font-bold text-[#1a1a2e]">
-                            {tmpl.title}
-                          </h5>
-                        </div>
-                      </div>
-                      
-                      {/* Hook section */}
-                      <div className="bg-[#ff6b4e]/5 rounded-xl px-5 py-4 mb-4 border-l-4 border-[#ff6b4e]">
-                        <p className="text-sm text-[#ce4a2f] font-bold leading-relaxed">
-                          {tmpl.hook}
-                        </p>
-                      </div>
-                      
-                      {/* Body section */}
-                      <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-medium mb-5">
-                        {tmpl.body}
-                      </p>
-
-                      {/* Copy action */}
-                      <div className="flex justify-end pt-4 border-t border-gray-100">
-                        <button
-                          onClick={() => handleCopy(`${tmpl.hook}\n\n${tmpl.body}`, i)}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-95 ${
-                            copiedIdx === i
-                              ? "bg-emerald-500 text-white shadow-emerald-500/20"
-                              : "bg-gray-50 text-gray-600 hover:bg-[#1a1a2e] hover:text-white border border-gray-200 hover:border-[#1a1a2e]"
-                          }`}
-                        >
-                          {copiedIdx === i ? (
-                            <>
-                              <Check className="w-4 h-4" /> Copied to Clipboard
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" /> Copy Post
-                            </>
-                          )}
-                        </button>
-                      </div>
-
-                      {/* Performance Feedback Loop */}
-                      <div className="mt-4 pt-4 border-t border-gray-100/50 bg-gray-50/50 -mx-6 -mb-6 px-6 pb-6 shadow-inner">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Rate Performance</span>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleRating(i, "fire")}
-                              className={`p-2 rounded-lg transition-all ${
-                                (feedbackState[i]?.rating || tmpl.feedbackRating) === "fire" 
-                                ? "bg-orange-100 text-orange-500 scale-110 shadow-sm" 
-                                : "text-gray-400 hover:bg-orange-50 hover:text-orange-400"
-                              }`}
-                              title="Killed It"
-                            >
-                              <Flame className="w-5 h-5" />
-                            </button>
-                            <button
-                              onClick={() => handleRating(i, "ok")}
-                              className={`p-2 rounded-lg transition-all ${
-                                (feedbackState[i]?.rating || tmpl.feedbackRating) === "ok" 
-                                ? "bg-blue-100 text-blue-500 scale-110 shadow-sm" 
-                                : "text-gray-400 hover:bg-blue-50 hover:text-blue-400"
-                              }`}
-                              title="Did Okay"
-                            >
-                              <ThumbsUp className="w-5 h-5" />
-                            </button>
-                            <button
-                              onClick={() => handleRating(i, "flop")}
-                              className={`p-2 rounded-lg transition-all ${
-                                (feedbackState[i]?.rating || tmpl.feedbackRating) === "flop" 
-                                ? "bg-gray-200 text-gray-600 scale-110 shadow-sm" 
-                                : "text-gray-400 hover:bg-gray-100 hover:text-gray-500"
-                              }`}
-                              title="Flopped"
-                            >
-                              <Frown className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Raw Comments Dropdown (Visible if rated) */}
-                        {((feedbackState[i]?.rating || tmpl.feedbackRating) !== undefined) && (
-                          <div className="animate-in slide-in-from-top-2 fade-in duration-200 mt-2">
-                            <div className="relative">
-                              <MessageSquare className="absolute top-3 left-3 w-4 h-4 text-gray-400" />
-                              <textarea
-                                value={feedbackState[i]?.comments !== undefined ? feedbackState[i]?.comments : (tmpl.feedbackComments || "")}
-                                onChange={(e) => handleCommentsChange(i, e.target.value)}
-                                placeholder="Paste the exact comments this got (or your raw thoughts) to train the AI for next time..."
-                                className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1a1a2e] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff6b4e]/20 focus:border-[#ff6b4e]/40 transition-all resize-none h-20 shadow-sm"
-                              />
-                              <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-50">
-                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Auto-saving</span>
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       )}
@@ -357,7 +187,7 @@ export function PlaybookChannels({
       {channels
         .sort((a, b) => a.rank - b.rank)
         .map((ch) => (
-          <ChannelCard key={ch.name} playbookId={playbookId} channel={ch} />
+          <ChannelCard key={ch.name} channel={ch} />
         ))}
     </div>
   );

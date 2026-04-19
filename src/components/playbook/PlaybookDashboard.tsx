@@ -97,7 +97,7 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
   const contentSubTabs = [
     { id: "weekly-engine" as const, label: "Weekly Content Engine", icon: CalendarDays },
     { id: "weekly-ideas" as const, label: "Weekly Content Ideas", icon: Lightbulb },
-    { id: "launch-posts" as const, label: "Launch Posts", icon: Rocket },
+    // 
   ];
 
   const isContentEngineVisible = contentEngineOpen || activeTab === "posts";
@@ -140,10 +140,10 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <button className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5 transition-colors">
+            {/* <button className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5 transition-colors">
               <Share className="w-4 h-4" />
               Share
-            </button>
+            </button> */}
             <button
               onClick={() => window.print()}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a2e] text-white text-sm font-medium hover:bg-black transition-colors shadow-sm"

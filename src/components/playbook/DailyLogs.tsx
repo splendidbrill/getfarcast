@@ -252,7 +252,7 @@ export function DailyLogs() {
         <div>
           <h2 className="text-xl font-bold text-[#1a1a2e] mb-1">Daily Growth Log</h2>
           <p className="text-sm text-gray-500">
-            Journal your daily growth activities. In future, these logs will help generate authentic Reddit and X posts.
+            Personalised posts get 5x more engagement than generic ones. Write what actually happened today - a user said something, something broke, you made a call
           </p>
         </div>
         {logCount > 0 && (

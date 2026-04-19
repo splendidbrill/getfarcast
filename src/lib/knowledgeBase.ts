@@ -1,24 +1,18 @@
 import fs from "fs";
 import path from "path";
+import { getChannelStrategyContext } from "./contentKnowledgeBase";
 
 // ==========================================
 // Knowledge Base Reader
-// Reads expert channel playbooks from markdown files
+// Primary: json2 expert playbooks (via contentKnowledgeBase)
+// Fallback: markdown files for channels not in json2
 // ==========================================
 
 const CHANNEL_FILE_MAP: Record<string, string> = {
-  reddit: "reddit.md",
-  linkedin: "linkedin.md",
-  instagram: "instagram.md",
   "hacker news": "hackernews.md",
   hackernews: "hackernews.md",
   "product hunt": "producthunt.md",
   producthunt: "producthunt.md",
-  "x (twitter)": "twitter_x.md",
-  twitter: "twitter_x.md",
-  x: "twitter_x.md",
-  youtube: "youtube.md",
-  tiktok: "tiktok.md",
 };
 
 const KB_BASE_PATH = path.join(process.cwd(), "src", "knowledge", "channels");
@@ -26,13 +20,16 @@ const KB_BASE_PATH = path.join(process.cwd(), "src", "knowledge", "channels");
 export async function getChannelPlaybook(
   channelName: string
 ): Promise<string | null> {
+  // Try json2 expert playbooks first
+  const json2Context = getChannelStrategyContext(channelName);
+  if (json2Context) return json2Context;
+
+  // Fall back to markdown for channels not in json2 (HN, Product Hunt, etc.)
   const key = channelName.toLowerCase().trim();
   const fileName = CHANNEL_FILE_MAP[key];
-
   if (!fileName) return null;
 
   const filePath = path.join(KB_BASE_PATH, fileName);
-
   try {
     return fs.readFileSync(filePath, "utf-8");
   } catch {
