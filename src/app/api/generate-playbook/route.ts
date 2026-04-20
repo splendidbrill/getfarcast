@@ -4,8 +4,6 @@ import {
   buildICPUserPrompt,
   buildChannelSystemPrompt,
   buildChannelUserPrompt,
-  buildOutreachSystemPrompt,
-  buildOutreachUserPrompt,
   buildMarketSizingSystemPrompt,
   buildMarketSizingUserPrompt,
 } from "@/lib/prompts";
@@ -193,28 +191,18 @@ export async function POST(request: Request) {
           });
         }
 
-        // ── STEP 4: Outreach + Market Sizing ─────────────────────────
+        // ── STEP 4: Market Sizing ────────────────────────────────────
         encodeEvent(controller, encoder, "progress", {
           step: 4,
           total: 4,
-          label: "Writing outreach sequences...",
+          label: "Sizing the market...",
           status: "running",
         });
 
-        const [outreach, marketSizing] = await Promise.all([
-          callLLM(
-            buildOutreachSystemPrompt(),
-            buildOutreachUserPrompt(
-              icp,
-              formData,
-              matchedChannels.slice(0, 3).map((c) => c.name)
-            )
-          ),
-          callLLM(
-            buildMarketSizingSystemPrompt(),
-            buildMarketSizingUserPrompt(icp, formData)
-          ),
-        ]);
+        const marketSizing = await callLLM(
+          buildMarketSizingSystemPrompt(),
+          buildMarketSizingUserPrompt(icp, formData)
+        );
 
         encodeEvent(controller, encoder, "progress", {
           step: 4,
@@ -233,7 +221,6 @@ export async function POST(request: Request) {
           icp,
           marketSizing: marketSizing as Playbook["marketSizing"],
           channels: channelStrategies as Playbook["channels"],
-          outreach: outreach as Playbook["outreach"],
         };
 
         // ── Save to Supabase ──────────────────────────────────────────

@@ -101,7 +101,6 @@ export interface ChannelStrategy {
   algorithmInsights: string[];
   bestPractices: string[];
   antiPatterns: string[];
-  influencerTargets?: { handle: string; platform: string; audienceSize: string; why: string }[];
   contentCalendar: CalendarPost[];
 }
 
@@ -131,7 +130,7 @@ export interface Playbook {
   icp: ICPProfile;
   marketSizing: MarketSizing;
   channels: ChannelStrategy[];
-  outreach: OutreachSequence;
+  outreach?: OutreachSequence;
 }
 
 // --- Stored Playbook (localStorage) ---

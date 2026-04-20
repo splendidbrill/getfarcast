@@ -128,14 +128,6 @@ ${ANTI_SLOP_RULES}
   "antiPatterns": [
     "Specific thing NOT to do, from the expert playbook"
   ],
-  "influencerTargets": [
-    {
-      "handle": "Account name or description",
-      "platform": "${channelName}",
-      "audienceSize": "e.g. 45K followers",
-      "why": "Why this influencer/community fits this product"
-    }
-  ],
   "contentCalendar": [
     {
       "day": 1,

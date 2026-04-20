@@ -9,6 +9,7 @@ import type { Playbook } from "@/lib/types";
 
 interface Post {
   type: "gyaan" | "story" | "trending";
+  title?: string;
   content: string;
 }
 
@@ -55,8 +56,10 @@ function PostCard({ post }: { post: Post }) {
   const meta = POST_TYPE_META[post.type];
   const Icon = meta.icon;
 
+  const copyPayload = post.title ? `${post.title}\n\n${post.content}` : post.content;
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(post.content);
+    navigator.clipboard.writeText(copyPayload);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -76,6 +79,9 @@ function PostCard({ post }: { post: Post }) {
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
+      {post.title && (
+        <p className="text-sm font-bold text-[#1a1a2e] leading-snug">{post.title}</p>
+      )}
       <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{post.content}</p>
     </div>
   );

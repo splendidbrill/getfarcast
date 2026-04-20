@@ -7,9 +7,7 @@ import {
   LayoutDashboard,
   Users,
   Share2,
-  Mail,
   Download,
-  Share,
   Zap,
   Sparkles,
   Target,
@@ -25,13 +23,12 @@ import type { Playbook } from "@/lib/types";
 import { PlaybookOverview } from "./PlaybookOverview";
 import { PlaybookICP } from "./PlaybookICP";
 import { PlaybookChannels } from "./PlaybookChannels";
-import { PlaybookOutreach } from "./PlaybookOutreach";
 import { WeeklyContentEngine } from "./WeeklyContentEngine";
 import { WeeklyContentIdeas } from "./WeeklyContentIdeas";
 import { DailyLogs } from "./DailyLogs";
 import Link from "next/link";
 
-type MainTab = "overview" | "icp" | "channels" | "logs" | "outreach" | "posts" | "leads";
+type MainTab = "overview" | "icp" | "channels" | "logs" | "posts" | "leads";
 type ContentSubTab = "weekly-engine" | "weekly-ideas" | "launch-posts";
 
 export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
@@ -91,7 +88,6 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
     { id: "icp" as const, label: "Audience Profiling", icon: Users },
     { id: "channels" as const, label: "Distribution Channels", icon: Share2 },
     { id: "logs" as const, label: "Daily Logs", icon: NotebookPen },
-    { id: "outreach" as const, label: "Outreach & DMs", icon: Mail },
   ];
 
   const contentSubTabs = [
@@ -276,7 +272,6 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
             {activeTab === "icp" && <PlaybookICP icp={playbook.icp} />}
             {activeTab === "channels" && <PlaybookChannels playbookId={playbook.id} channels={playbook.channels} />}
             {activeTab === "logs" && <DailyLogs />}
-            {activeTab === "outreach" && <PlaybookOutreach outreach={playbook.outreach} />}
 
             {activeTab === "posts" && contentSubTab === "weekly-engine" && (
               <WeeklyContentEngine playbook={playbook} />

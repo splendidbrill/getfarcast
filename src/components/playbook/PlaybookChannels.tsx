@@ -112,28 +112,6 @@ function ChannelCard({ channel }: { channel: ChannelStrategy }) {
               </ul>
             </div>
 
-            {/* Influencer Targets (If provided) */}
-            {channel.influencerTargets && channel.influencerTargets.length > 0 && (
-              <div>
-                <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4">
-                  Influencer / Community Targets
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {channel.influencerTargets.map((inf, i) => (
-                    <div key={i} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                      <div className="flex justify-between items-start mb-2">
-                        <p className="text-sm font-bold text-[#1a1a2e]">{inf.handle}</p>
-                        <span className="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md">
-                          {inf.audienceSize}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-600 font-medium">{inf.why}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Best Practices vs Anti-Patterns */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="bg-white rounded-2xl p-5 border border-emerald-100 shadow-sm relative overflow-hidden">

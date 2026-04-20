@@ -43,7 +43,7 @@ const INITIAL_PIPELINE: PipelineStep[] = [
   { step: 1, total: 4, label: "Profiling your ideal customer...", status: "waiting" },
   { step: 2, total: 4, label: "Matching distribution channels...", status: "waiting" },
   { step: 3, total: 4, label: "Crafting channel strategies (expert rules applied)...", status: "waiting" },
-  { step: 4, total: 4, label: "Writing outreach sequences...", status: "waiting" },
+  { step: 4, total: 4, label: "Sizing the market...", status: "waiting" },
 ];
 
 export function OnboardingWizard() {
