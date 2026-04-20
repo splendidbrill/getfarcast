@@ -21,11 +21,7 @@ interface Props {
   playbook: Playbook;
 }
 
-const TIER_2_NAMES = ["youtube", "instagram", "tiktok"];
-
-function isTier2(name: string) {
-  return TIER_2_NAMES.some((t) => name.toLowerCase().includes(t));
-}
+const TIER_2_CHANNELS = ["YouTube", "Instagram", "TikTok"];
 
 function buildIcpSummary(playbook: Playbook) {
   const icp = playbook.icp;
@@ -121,7 +117,7 @@ function IdeaCard({ idea, onRegenerate, regenerating, readOnly }: {
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export function WeeklyContentIdeas({ playbook }: Props) {
-  const tier2Channels = playbook.channels.filter((c) => isTier2(c.name));
+  const tier2Channels = TIER_2_CHANNELS;
 
   const today = todayStr();
   const now = new Date();
@@ -132,9 +128,7 @@ export function WeeklyContentIdeas({ playbook }: Props) {
   const [calMonth, setCalMonth] = useState(now.getMonth());
   const [datesWithContent, setDatesWithContent] = useState<Set<string>>(new Set());
 
-  const [selectedChannels, setSelectedChannels] = useState<string[]>(
-    tier2Channels.map((c) => c.name)
-  );
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([...tier2Channels]);
   const [ideas, setIdeas] = useState<ContentIdea[]>([]);
   const [loading, setLoading] = useState(false);
   const [regeneratingChannel, setRegeneratingChannel] = useState<string | null>(null);
@@ -157,7 +151,7 @@ export function WeeklyContentIdeas({ playbook }: Props) {
     setSelectedDate(dateStr);
     const saved = localStorage.getItem(storageKey(playbook.id, dateStr));
     setIdeas(saved ? JSON.parse(saved) : []);
-    setSelectedChannels(tier2Channels.map((c) => c.name));
+    setSelectedChannels([...tier2Channels]);
     setError("");
     setView("content");
   };
@@ -256,19 +250,6 @@ export function WeeklyContentIdeas({ playbook }: Props) {
   };
 
   const canClick = (dateStr: string) => isToday(dateStr) || hasContent(dateStr);
-
-  if (tier2Channels.length === 0) {
-    return (
-      <div className="text-center py-16 space-y-3">
-        <p className="text-sm font-medium text-gray-500">
-          No Tier 2 channels (YouTube, Instagram, TikTok) found in your playbook.
-        </p>
-        <p className="text-xs text-gray-400">
-          These channels may not have been a strong fit for your product profile.
-        </p>
-      </div>
-    );
-  }
 
   // ── Calendar View ─────────────────────────────────────────────────────────
 
@@ -370,21 +351,20 @@ export function WeeklyContentIdeas({ playbook }: Props) {
         <div className="space-y-3">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Select Channels</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {tier2Channels.map((ch) => {
-              const isSelected = selectedChannels.includes(ch.name);
+            {tier2Channels.map((name) => {
+              const isSelected = selectedChannels.includes(name);
               return (
                 <button
-                  key={ch.name}
-                  onClick={() => toggleChannel(ch.name)}
+                  key={name}
+                  onClick={() => toggleChannel(name)}
                   className={`flex items-center justify-between p-4 rounded-2xl border-2 text-left transition-all ${
                     isSelected ? "border-purple-400 bg-purple-50" : "border-gray-200 bg-white hover:border-gray-300"
                   }`}
                 >
                   <div>
                     <p className={`text-sm font-bold ${isSelected ? "text-purple-700" : "text-gray-800"}`}>
-                      {ch.name}
+                      {name}
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5">{ch.fitScore}% match</p>
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                     isSelected ? "border-purple-500 bg-purple-500" : "border-gray-300"

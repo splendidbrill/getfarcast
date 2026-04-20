@@ -21,11 +21,7 @@ interface Props {
   playbook: Playbook;
 }
 
-const TIER_1_NAMES = ["reddit", "linkedin", "twitter", "x"];
-
-function isTier1(name: string) {
-  return TIER_1_NAMES.some((t) => name.toLowerCase().includes(t));
-}
+const TIER_1_CHANNELS = ["Reddit", "LinkedIn", "X (Twitter)"];
 
 function buildIcpSummary(playbook: Playbook) {
   const icp = playbook.icp;
@@ -250,14 +246,14 @@ function Calendar({
 // ── Main component ──────────────────────────────────────────────────────────
 
 export function WeeklyContentEngine({ playbook }: Props) {
-  const tier1Channels = playbook.channels.filter((c) => isTier1(c.name));
+  const tier1Channels = TIER_1_CHANNELS;
 
   const [view, setView] = useState<"calendar" | "content">("calendar");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [datesWithContent, setDatesWithContent] = useState<Set<string>>(new Set());
   const [trialDays, setTrialDays] = useState(365);
 
-  const [selectedChannels, setSelectedChannels] = useState<string[]>(tier1Channels.map((c) => c.name));
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([...tier1Channels]);
   const [generatedContent, setGeneratedContent] = useState<ChannelContent[]>([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -384,15 +380,6 @@ export function WeeklyContentEngine({ playbook }: Props) {
   const isToday = selectedDate === today;
   const readOnly = !isToday;
 
-  if (tier1Channels.length === 0) {
-    return (
-      <div className="text-center py-16 space-y-3">
-        <p className="text-sm font-medium text-gray-500">No Tier 1 channels (Reddit, LinkedIn, Twitter/X) found in your playbook.</p>
-        <p className="text-xs text-gray-400">These channels may not have been a strong fit for your product profile.</p>
-      </div>
-    );
-  }
-
   // ── Calendar view ──────────────────────────────────────────────────────────
   if (view === "calendar") {
     return (
@@ -459,19 +446,18 @@ export function WeeklyContentEngine({ playbook }: Props) {
         <div className="space-y-3">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Select Channels</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {tier1Channels.map((ch) => {
-              const isSelected = selectedChannels.includes(ch.name);
+            {tier1Channels.map((name) => {
+              const isSelected = selectedChannels.includes(name);
               return (
                 <button
-                  key={ch.name}
-                  onClick={() => toggleChannel(ch.name)}
+                  key={name}
+                  onClick={() => toggleChannel(name)}
                   className={`flex items-center justify-between p-4 rounded-2xl border-2 text-left transition-all ${
                     isSelected ? "border-[#ff6b4e] bg-[#ff6b4e]/5" : "border-gray-200 bg-white hover:border-gray-300"
                   }`}
                 >
                   <div>
-                    <p className={`text-sm font-bold ${isSelected ? "text-[#ce4a2f]" : "text-gray-800"}`}>{ch.name}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{ch.fitScore}% match</p>
+                    <p className={`text-sm font-bold ${isSelected ? "text-[#ce4a2f]" : "text-gray-800"}`}>{name}</p>
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? "border-[#ff6b4e] bg-[#ff6b4e]" : "border-gray-300"}`}>
                     {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
