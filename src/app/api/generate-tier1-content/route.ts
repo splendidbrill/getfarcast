@@ -85,7 +85,7 @@ Return JSON exactly:
   });
 
   const raw = completion.choices[0]?.message?.content || "";
-  return parseJSON(raw);
+  return parseJSON<Record<string, unknown>>(raw);
 }
 
 async function generateTrendingPost(

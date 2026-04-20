@@ -35,7 +35,7 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
   });
 
   const raw = completion.choices[0]?.message?.content || "";
-  return parseJSON(raw);
+  return parseJSON<Record<string, unknown>>(raw);
 }
 
 // ==========================================
