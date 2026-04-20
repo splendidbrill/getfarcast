@@ -1,6 +1,7 @@
 import { getLLMClient, getModelId } from "@/lib/llm";
 import { getLaunchPlatformData } from "@/lib/contentKnowledgeBase";
 import { parseJSON } from "@/lib/extractJSON";
+import { LAUNCH_VOICE_RULES, scrubAITells } from "@/lib/humanVoice";
 
 export const dynamic = "force-dynamic";
 
@@ -137,10 +138,10 @@ function normaliseSections(
 
     let content: string;
     if (Array.isArray(val)) {
-      // Twitter tweets — number each one
-      content = (val as string[]).map((t, i) => `Tweet ${i + 1}:\n${t}`).join("\n\n---\n\n");
+      // Twitter tweets - number each one
+      content = (val as string[]).map((t, i) => `Tweet ${i + 1}:\n${scrubAITells(String(t))}`).join("\n\n---\n\n");
     } else {
-      content = String(val);
+      content = scrubAITells(String(val));
     }
 
     sections.push({ label: SECTION_LABELS[key] ?? key, content });
@@ -165,9 +166,11 @@ export async function POST(request: Request) {
   const client = getLLMClient();
   const model = getModelId();
 
-  const systemPrompt = platformData.generation_prompt?.system
-    ? `${platformData.generation_prompt.system}\n\nReturn valid JSON only, no markdown wrapper.`
-    : `You are writing a launch post for ${platformData.platform_name}. Write in that platform's native language and tone. Return valid JSON only.`;
+  const basePrompt = platformData.generation_prompt?.system
+    ? platformData.generation_prompt.system
+    : `You are writing a launch post for ${platformData.platform_name}. Write in that platform's native language and tone.`;
+
+  const systemPrompt = `${basePrompt}\n\n${LAUNCH_VOICE_RULES}\n\nReturn valid JSON only, no markdown wrapper.`;
 
   const userPrompt = buildUserPrompt(platformData, body);
 
@@ -178,7 +181,7 @@ export async function POST(request: Request) {
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      temperature: 0.7,
+      temperature: 0.9,
       max_tokens: 2500,
     });
 

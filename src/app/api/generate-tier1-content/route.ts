@@ -1,6 +1,7 @@
 import { getLLMClient, getModelId } from "@/lib/llm";
 import { getTier1ChannelContext } from "@/lib/contentKnowledgeBase";
 import { parseJSON } from "@/lib/extractJSON";
+import { HUMAN_VOICE_RULES, scrubAITells } from "@/lib/humanVoice";
 
 export const dynamic = "force-dynamic";
 
@@ -55,23 +56,25 @@ async function generateBasePosts(
   const client = getLLMClient();
   const model = getModelId();
 
-  const systemPrompt = `You are a growth expert writing social media content. Write posts that feel completely native to the platform.
+  const systemPrompt = `You are a founder writing your own social posts at night after a long day. You are NOT a marketing team. The posts must feel completely native to ${channelName} and unmistakably human.
 
-${channelKnowledge ? `Use this channel playbook for tone, format, hook style, and what to avoid:\n\n${channelKnowledge}` : `Write posts native to ${channelName}.`}
+${HUMAN_VOICE_RULES}
+
+${channelKnowledge ? `Platform playbook (tone, format, hooks, what to avoid):\n\n${channelKnowledge}` : `Write posts native to ${channelName}.`}
 
 Return valid JSON only, no markdown wrapper.`;
 
-  const userPrompt = `Generate 2 posts for ${channelName}.
+  const userPrompt = `Write 2 posts for ${channelName}.
 
 Product: ${productName}
 What it does: ${productDescription}
 Target user: ${icpSummary}
 
-Post 1 — "gyaan": A sharp educational insight or observation tied to the core problem. Make it worth reading even if the reader never hears of ${productName}.
+Post 1 "gyaan": A sharp, opinionated observation about the underlying problem. One concrete detail or number. No product mention. No moral at the end. Stop when the thought is done, even if it ends abruptly.
 
-Post 2 — "story": A founder's personal story about why they built this, or a user transformation. Make it feel like a real moment from this week, not a PR piece.
+Post 2 "story": A real-feeling moment from this week. A specific place, time, or person. The kind of post a friend sends you at midnight, not a case study. Product can appear but only as a detail, never as the subject of the post.
 
-Return JSON exactly:
+Return JSON exactly (do not output anything else):
 { "gyaan": "...", "story": "..." }`;
 
   const completion = await client.chat.completions.create({
@@ -80,12 +83,16 @@ Return JSON exactly:
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt },
     ],
-    temperature: 0.75,
+    temperature: 0.9,
     max_tokens: 1200,
   });
 
   const raw = completion.choices[0]?.message?.content || "";
-  return parseJSON<{ gyaan: string; story: string }>(raw);
+  const parsed = parseJSON<{ gyaan: string; story: string }>(raw);
+  return {
+    gyaan: scrubAITells(parsed.gyaan),
+    story: scrubAITells(parsed.story),
+  };
 }
 
 async function generateTrendingPost(
@@ -99,22 +106,24 @@ async function generateTrendingPost(
   const client = getLLMClient();
   const model = getModelId();
 
-  const systemPrompt = `You are a founder writing a single social media post on ${channelName}. You just came across a real conversation happening right now and you're reacting to it. Write like a human — specific, opinionated, slightly imperfect. Never mention AI.
+  const systemPrompt = `You are a founder writing one reply-style post on ${channelName} right after seeing a conversation that made you react. Specific, opinionated, slightly imperfect. Never mention AI. Never explain what you are doing.
+
+${HUMAN_VOICE_RULES}
 
 ${channelKnowledge ? `Platform tone guide:\n\n${channelKnowledge}` : ""}
 
-Return plain text only — just the post, no JSON, no labels.`;
+Return plain text only. Just the post itself. No JSON, no labels, no quotes wrapping the output.`;
 
   const userPrompt = trendingContext
-    ? `You found this real conversation happening right now:
+    ? `You just saw this conversation happening:
 
 ${trendingContext}
 
-Your product: ${productName} — ${productDescription}
+Your product: ${productName}, ${productDescription}
 Your audience: ${icpSummary}
 
-Write a single ${channelName} post that hooks into this specific conversation. Reference the actual topic or pain being discussed. Don't pitch the product directly — position yourself as someone who deeply understands this problem. The post should feel like a natural reaction to what you just read, written in ${channelName}'s native style.`
-    : `Write a trending-hook post for ${channelName} about the biggest current conversation in the ${icpSummary} space. React to a specific pain point as if you just saw it discussed somewhere online. Product context: ${productName} — ${productDescription}.`;
+Write one ${channelName} post reacting to it. Reference the actual topic. Do not pitch the product. Sound like someone who has lived this exact problem. Match ${channelName}'s native rhythm. End when you're done talking, not with a call to action.`
+    : `Write one ${channelName} post reacting to a specific pain point in the ${icpSummary} space. Make it feel like you just had a conversation about it and needed to vent. Product context: ${productName}, ${productDescription}. Do not pitch the product.`;
 
   const completion = await client.chat.completions.create({
     model,
@@ -122,11 +131,11 @@ Write a single ${channelName} post that hooks into this specific conversation. R
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt },
     ],
-    temperature: 0.8,
+    temperature: 0.95,
     max_tokens: 600,
   });
 
-  return completion.choices[0]?.message?.content?.trim() || "";
+  return scrubAITells(completion.choices[0]?.message?.content?.trim() || "");
 }
 
 // ── Route ────────────────────────────────────────────────────────────────────

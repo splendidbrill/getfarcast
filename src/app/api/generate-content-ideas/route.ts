@@ -1,6 +1,7 @@
 import { getLLMClient, getModelId } from "@/lib/llm";
 import { getTier2ChannelContext } from "@/lib/contentKnowledgeBase";
 import { parseJSON } from "@/lib/extractJSON";
+import { HUMAN_VOICE_RULES, scrubAITells } from "@/lib/humanVoice";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +22,11 @@ async function generateIdea(
   const model = getModelId();
   const channelKnowledge = getTier2ChannelContext(channelName);
 
-  const systemPrompt = `You are a video content strategist. You generate content IDEAS — not full scripts. The creative direction is your output; the founder films and delivers in their own voice.
+  const systemPrompt = `You are a video content strategist. You generate content IDEAS, not full scripts. The founder films and delivers in their own voice, so every field you write must sound like a human founder talking, not a brand script.
 
-${channelKnowledge ? `Use the following channel playbook to inform the idea — pick the most appropriate content category, apply the hook angles, and use the personalisation guidance:\n\n${channelKnowledge}` : `Generate a content idea for ${channelName}.`}
+${HUMAN_VOICE_RULES}
+
+${channelKnowledge ? `Channel playbook (pick the most appropriate content category, apply hook angles, use personalisation guidance):\n\n${channelKnowledge}` : `Generate a content idea for ${channelName}.`}
 
 Return valid JSON only, no markdown wrapper.`;
 
@@ -35,11 +38,13 @@ Target user: ${icpSummary}
 
 Choose the content category from the playbook above that best fits this product and ICP. Apply the hook angles, format recommendation, and personalisation prompt from that category.
 
+The "hook" field in particular must sound like a real person said it out loud on camera. If it reads like a LinkedIn quote-graphic, rewrite it. Include at least one specific detail (a number, a brand, a timestamp, a place).
+
 Return JSON exactly:
 {
-  "video_title": "one strong, specific title",
-  "concept": "3 sentences describing what the video covers",
-  "hook": "the opening 2 sentences that would hook a viewer in the first 5 seconds",
+  "video_title": "one strong, specific title the way a real creator would caption it, not a headline from a marketing blog",
+  "concept": "3 sentences describing what the video covers in plain talk",
+  "hook": "the opening 2 sentences said out loud on camera in the first 5 seconds, with one specific detail",
   "format": "the recommended format from the playbook (e.g. founder_journey / quick_tutorial / hot_take_opinion / before_after / trend_response)",
   "why_this_works": "one sentence explaining why this format and angle works for this ICP on this platform",
   "personalisation_tip": "one specific instruction for the founder on how to make this idea personal using their own story or data"
@@ -51,12 +56,16 @@ Return JSON exactly:
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt },
     ],
-    temperature: 0.75,
+    temperature: 0.9,
     max_tokens: 700,
   });
 
   const raw = completion.choices[0]?.message?.content || "";
-  return parseJSON<Record<string, unknown>>(raw);
+  const parsed = parseJSON<Record<string, unknown>>(raw);
+  for (const key of ["video_title", "concept", "hook", "why_this_works", "personalisation_tip"]) {
+    if (typeof parsed[key] === "string") parsed[key] = scrubAITells(parsed[key] as string);
+  }
+  return parsed;
 }
 
 export async function POST(request: Request) {
