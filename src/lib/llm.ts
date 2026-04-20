@@ -1,21 +1,33 @@
-import OpenAI from "openai";
+import OpenAI, { AzureOpenAI } from "openai";
 
 // ==========================================
 // Flexible LLM Client
-// Supports OpenRouter (now) and OpenAI (later)
+// Supports OpenRouter, OpenAI, and Azure OpenAI
 // ==========================================
 
-export type LLMProvider = "openrouter" | "openai";
+export type LLMProvider = "openrouter" | "openai" | "azure";
 
 interface LLMConfig {
   provider: LLMProvider;
   apiKey: string;
-  baseURL: string;
+  baseURL?: string;
   model: string;
+  azureEndpoint?: string;
+  azureApiVersion?: string;
 }
 
 function getConfig(): LLMConfig {
   const provider = (process.env.LLM_PROVIDER || "openrouter") as LLMProvider;
+
+  if (provider === "azure") {
+    return {
+      provider: "azure",
+      apiKey: process.env.AZURE_API_KEY || "",
+      model: process.env.AZURE_MODEL || "gpt-4o",
+      azureEndpoint: process.env.AZURE_ENDPOINT || "",
+      azureApiVersion: process.env.AZURE_API_VERSION || "2024-08-01-preview",
+    };
+  }
 
   if (provider === "openai") {
     return {
@@ -35,12 +47,22 @@ function getConfig(): LLMConfig {
   };
 }
 
-let clientInstance: OpenAI | null = null;
+let clientInstance: OpenAI | AzureOpenAI | null = null;
 
 export function getLLMClient(): OpenAI {
-  if (clientInstance) return clientInstance;
+  if (clientInstance) return clientInstance as OpenAI;
 
   const config = getConfig();
+
+  if (config.provider === "azure") {
+    clientInstance = new AzureOpenAI({
+      apiKey: config.apiKey,
+      endpoint: config.azureEndpoint,
+      apiVersion: config.azureApiVersion,
+      deployment: config.model,
+    });
+    return clientInstance as unknown as OpenAI;
+  }
 
   clientInstance = new OpenAI({
     apiKey: config.apiKey,

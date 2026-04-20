@@ -127,10 +127,10 @@ export function ChannelShowcase2() {
           ))}
         </div>
 
-        <p className="mt-12 text-center text-sm font-bold text-gray-500">
+        {/* <p className="mt-12 text-center text-sm font-bold text-gray-500">
           More channels coming soon:{" "}
           <span className="text-gray-400">Product Hunt, Hacker News, TikTok, Discord, Slack Communities</span>
-        </p>
+        </p> */}
       </div>
     </section>
   );
