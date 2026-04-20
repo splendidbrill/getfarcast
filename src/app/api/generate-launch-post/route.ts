@@ -1,6 +1,6 @@
 import { getLLMClient, getModelId } from "@/lib/llm";
 import { getLaunchPlatformData } from "@/lib/contentKnowledgeBase";
-import { extractJSON } from "@/lib/extractJSON";
+import { parseJSON } from "@/lib/extractJSON";
 
 export const dynamic = "force-dynamic";
 
@@ -183,7 +183,7 @@ export async function POST(request: Request) {
     });
 
     const rawContent = completion.choices[0]?.message?.content || "";
-    const parsed = JSON.parse(extractJSON(rawContent));
+    const parsed = parseJSON(rawContent);
     const sections = normaliseSections(platformKey, parsed);
 
     return Response.json({

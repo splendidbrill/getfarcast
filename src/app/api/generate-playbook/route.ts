@@ -13,7 +13,7 @@ import { matchChannels } from "@/lib/channelMatcher";
 import { getChannelPlaybook } from "@/lib/knowledgeBase";
 import type { WizardFormData, ICPProfile, Playbook } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
-import { extractJSON } from "@/lib/extractJSON";
+import { parseJSON } from "@/lib/extractJSON";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +35,7 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
   });
 
   const raw = completion.choices[0]?.message?.content || "";
-  return JSON.parse(extractJSON(raw));
+  return parseJSON(raw);
 }
 
 // ==========================================

@@ -1,3 +1,5 @@
+import { jsonrepair } from "jsonrepair";
+
 export function extractJSON(raw: string): string {
   raw = raw.trim();
 
@@ -34,9 +36,14 @@ export function extractJSON(raw: string): string {
     if (ch === openChar) depth++;
     if (ch === closeChar) {
       depth--;
-      if (depth === 0) return raw.slice(start, i + 1);
+      if (depth === 0) return jsonrepair(raw.slice(start, i + 1));
     }
   }
 
-  throw new Error("Unterminated JSON structure in response");
+  // Fallback: repair the whole string
+  return jsonrepair(raw);
+}
+
+export function parseJSON<T>(raw: string): T {
+  return JSON.parse(extractJSON(raw)) as T;
 }

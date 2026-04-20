@@ -80,7 +80,11 @@ export function ChannelShowcase2() {
             >
               <div className="flex items-center gap-4 mb-6">
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${channel.color} flex items-center justify-center text-2xl shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300`}>
-                  {channel.icon}
+                  {channel.name === "X (Twitter)" ? (
+                    <svg className="w-6 h-6" fill="white" viewBox="0 0 24 24">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                  ) : channel.icon}
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-[#1a1a2e] group-hover:text-blue-600 transition-colors">{channel.name}</h3>

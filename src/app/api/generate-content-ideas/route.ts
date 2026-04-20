@@ -1,6 +1,6 @@
 import { getLLMClient, getModelId } from "@/lib/llm";
 import { getTier2ChannelContext } from "@/lib/contentKnowledgeBase";
-import { extractJSON } from "@/lib/extractJSON";
+import { parseJSON } from "@/lib/extractJSON";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +56,7 @@ Return JSON exactly:
   });
 
   const raw = completion.choices[0]?.message?.content || "";
-  return JSON.parse(extractJSON(raw));
+  return parseJSON(raw);
 }
 
 export async function POST(request: Request) {
