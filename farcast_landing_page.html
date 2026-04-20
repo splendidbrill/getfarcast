@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farcast — Always-on AI growth agent for founders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1a1611;
+    --ink-soft:#2d2620;
+    --cream:#faf7f2;
+    --cream-warm:#f3ede2;
+    --paper:#ffffff;
+    --orange:#ff5a1f;
+    --orange-deep:#e63e00;
+    --orange-soft:#ffe5d9;
+    --moss:#2d4a2b;
+    --ink-60:rgba(26,22,17,0.6);
+    --ink-40:rgba(26,22,17,0.4);
+    --ink-15:rgba(26,22,17,0.15);
+    --ink-08:rgba(26,22,17,0.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Geist',system-ui,sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.5;
+    font-weight:400;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-0.01em}
+  .mono{font-family:'Geist Mono',monospace}
+  .container{max-width:1200px;margin:0 auto;padding:0 24px}
+  .container-narrow{max-width:960px;margin:0 auto;padding:0 24px}
+
+  /* NAV */
+  nav{
+    position:sticky;top:0;z-index:100;
+    background:rgba(250,247,242,0.85);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--ink-08);
+  }
+  .nav-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 24px;max-width:1200px;margin:0 auto;
+  }
+  .logo{
+    font-family:'Instrument Serif',serif;
+    font-size:24px;
+    color:var(--ink);
+    text-decoration:none;
+    display:flex;align-items:center;gap:8px;
+  }
+  .logo-mark{
+    width:28px;height:28px;
+    background:var(--orange);
+    border-radius:50%;
+    position:relative;
+  }
+  .logo-mark::after{
+    content:'';position:absolute;
+    top:50%;left:50%;transform:translate(-50%,-50%);
+    width:10px;height:10px;
+    background:var(--cream);
+    border-radius:50%;
+  }
+  .nav-links{display:flex;gap:32px;align-items:center}
+  .nav-links a{
+    color:var(--ink-60);text-decoration:none;
+    font-size:14px;font-weight:500;
+    transition:color 0.15s;
+  }
+  .nav-links a:hover{color:var(--ink)}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:12px 20px;
+    background:var(--ink);color:var(--cream);
+    border-radius:6px;
+    font-size:14px;font-weight:500;
+    text-decoration:none;
+    transition:all 0.15s ease;
+    border:none;cursor:pointer;
+  }
+  .btn:hover{background:var(--ink-soft);transform:translateY(-1px)}
+  .btn-primary{background:var(--orange);color:white}
+  .btn-primary:hover{background:var(--orange-deep)}
+  .btn-large{padding:16px 28px;font-size:15px}
+
+  /* HERO */
+  .hero{
+    position:relative;
+    padding:100px 24px 120px;
+    text-align:center;
+    overflow:hidden;
+  }
+  .hero-bg{
+    position:absolute;inset:0;z-index:0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,90,31,0.12) 0%, transparent 60%),
+      radial-gradient(circle at 20% 20%, rgba(255,90,31,0.06) 0%, transparent 40%);
+  }
+  .hero-grid{
+    position:absolute;inset:0;z-index:0;
+    background-image:
+      linear-gradient(var(--ink-08) 1px,transparent 1px),
+      linear-gradient(90deg,var(--ink-08) 1px,transparent 1px);
+    background-size:80px 80px;
+    mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%);
+    -webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%);
+  }
+  .hero-content{position:relative;z-index:1;max-width:900px;margin:0 auto}
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 14px;
+    background:var(--paper);
+    border:1px solid var(--ink-15);
+    border-radius:100px;
+    font-size:12px;font-weight:500;
+    color:var(--ink-soft);
+    margin-bottom:28px;
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+    box-shadow:0 2px 8px rgba(0,0,0,0.02);
+  }
+  .hero-badge-dot{
+    width:6px;height:6px;background:var(--orange);
+    border-radius:50%;
+    box-shadow:0 0 0 3px rgba(255,90,31,0.2);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 3px rgba(255,90,31,0.2)}
+    50%{box-shadow:0 0 0 6px rgba(255,90,31,0.1)}
+  }
+  h1.hero-title{
+    font-family:'Instrument Serif',serif;
+    font-size:clamp(56px,9vw,104px);
+    line-height:0.95;
+    letter-spacing:-0.035em;
+    margin-bottom:28px;
+    color:var(--ink);
+    font-weight:400;
+  }
+  .hero-title em{
+    font-style:italic;
+    color:var(--orange);
+    position:relative;
+  }
+  .hero-subtitle{
+    font-size:clamp(17px,1.6vw,19px);
+    color:var(--ink-60);
+    max-width:620px;
+    margin:0 auto 40px;
+    line-height:1.5;
+  }
+  .hero-ctas{
+    display:flex;gap:12px;justify-content:center;
+    flex-wrap:wrap;
+    margin-bottom:64px;
+  }
+  .btn-secondary{
+    background:transparent;color:var(--ink);
+    border:1px solid var(--ink-15);
+  }
+  .btn-secondary:hover{background:var(--paper);border-color:var(--ink-40)}
+
+  /* HERO PRODUCT VISUAL */
+  .hero-product{
+    position:relative;
+    max-width:960px;margin:0 auto;
+    background:var(--paper);
+    border:1px solid var(--ink-15);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:
+      0 1px 2px rgba(0,0,0,0.04),
+      0 8px 24px rgba(26,22,17,0.08),
+      0 32px 64px rgba(26,22,17,0.08);
+  }
+  .browser-bar{
+    display:flex;align-items:center;gap:8px;
+    padding:12px 16px;
+    background:var(--cream-warm);
+    border-bottom:1px solid var(--ink-08);
+  }
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--ink-15)}
+  .dot.red{background:#ff5f57}
+  .dot.yellow{background:#ffbd2e}
+  .dot.green{background:#28ca42}
+  .browser-url{
+    margin-left:12px;
+    padding:4px 12px;
+    background:var(--paper);
+    border-radius:4px;
+    font-family:'Geist Mono',monospace;
+    font-size:11px;
+    color:var(--ink-60);
+  }
+  .product-ui{padding:32px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .ui-card{
+    padding:20px;
+    background:var(--cream);
+    border:1px solid var(--ink-08);
+    border-radius:8px;
+  }
+  .ui-card-header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:12px;
+    font-size:12px;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.05em;
+    color:var(--ink-60);
+  }
+  .check{
+    width:16px;height:16px;
+    background:var(--moss);
+    border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    color:white;font-size:10px;
+  }
+  .ui-card h4{
+    font-size:14px;font-weight:600;color:var(--ink);
+    margin-bottom:6px;
+  }
+  .ui-card p{font-size:13px;color:var(--ink-60);line-height:1.5}
+  .ui-channels{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .channel-pill{
+    padding:3px 10px;
+    background:var(--paper);
+    border:1px solid var(--ink-15);
+    border-radius:100px;
+    font-size:11px;font-weight:500;
+    color:var(--ink-soft);
+  }
+  .channel-pill.match{background:var(--orange-soft);border-color:var(--orange);color:var(--orange-deep)}
+
+  /* SOCIAL PROOF STRIP */
+  .trust-strip{
+    padding:48px 24px;
+    background:var(--cream-warm);
+    border-top:1px solid var(--ink-08);
+    border-bottom:1px solid var(--ink-08);
+  }
+  .trust-inner{
+    max-width:1100px;margin:0 auto;
+    text-align:center;
+  }
+  .trust-label{
+    font-size:11px;font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--ink-40);
+    margin-bottom:20px;
+  }
+  .trust-logos{
+    display:flex;justify-content:center;align-items:center;
+    gap:48px;flex-wrap:wrap;
+    font-family:'Instrument Serif',serif;
+    font-size:24px;
+    color:var(--ink-40);
+  }
+  .trust-logos span{font-style:italic}
+
+  /* SECTIONS */
+  section{padding:120px 24px}
+  .section-label{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:11px;font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.12em;
+    color:var(--orange);
+    margin-bottom:20px;
+  }
+  .section-label::before{
+    content:'';width:20px;height:1px;background:var(--orange);
+  }
+  h2.section-title{
+    font-family:'Instrument Serif',serif;
+    font-size:clamp(42px,5.5vw,64px);
+    line-height:1.05;
+    letter-spacing:-0.025em;
+    margin-bottom:24px;
+    color:var(--ink);
+    font-weight:400;
+    max-width:800px;
+  }
+  h2.section-title em{font-style:italic;color:var(--orange)}
+  .section-sub{
+    font-size:18px;color:var(--ink-60);
+    max-width:620px;margin-bottom:64px;
+    line-height:1.5;
+  }
+
+  /* PROBLEM SECTION */
+  .problem-section{background:var(--ink);color:var(--cream)}
+  .problem-section .section-label{color:var(--orange)}
+  .problem-section h2{color:var(--cream)}
+  .problem-section .section-sub{color:rgba(250,247,242,0.6)}
+  .problem-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);
+    gap:1px;background:rgba(250,247,242,0.1);
+    border:1px solid rgba(250,247,242,0.1);
+    border-radius:12px;overflow:hidden;
+  }
+  .problem-card{
+    background:var(--ink);
+    padding:40px 36px;
+    transition:background 0.2s;
+  }
+  .problem-card:hover{background:var(--ink-soft)}
+  .problem-num{
+    font-family:'Instrument Serif',serif;
+    font-size:48px;color:var(--orange);
+    font-style:italic;
+    line-height:1;
+    margin-bottom:16px;
+  }
+  .problem-card h3{
+    font-size:22px;font-weight:600;
+    margin-bottom:12px;color:var(--cream);
+    line-height:1.2;
+  }
+  .problem-card p{
+    font-size:15px;line-height:1.6;
+    color:rgba(250,247,242,0.6);
+  }
+  .problem-stat{
+    text-align:center;
+    margin-top:56px;
+    padding:32px;
+    background:rgba(255,90,31,0.08);
+    border:1px solid rgba(255,90,31,0.2);
+    border-radius:12px;
+  }
+  .problem-stat-num{
+    font-family:'Instrument Serif',serif;
+    font-size:72px;color:var(--orange);
+    font-style:italic;line-height:1;
+    margin-bottom:8px;
+  }
+  .problem-stat-text{
+    font-size:16px;color:rgba(250,247,242,0.8);
+  }
+
+  /* COST TABLE */
+  .cost-section{background:var(--paper)}
+  .cost-table-wrapper{
+    max-width:900px;margin:0 auto;
+    border:1px solid var(--ink-15);
+    border-radius:12px;overflow:hidden;
+    background:var(--cream);
+  }
+  .cost-table{width:100%;border-collapse:collapse}
+  .cost-table thead th{
+    padding:20px 24px;
+    text-align:left;
+    font-size:12px;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.08em;
+    color:var(--ink-60);
+    border-bottom:1px solid var(--ink-15);
+    background:var(--cream-warm);
+  }
+  .cost-table thead th:nth-child(2){text-align:right}
+  .cost-table thead th:nth-child(3){text-align:center;color:var(--orange)}
+  .cost-table tbody td{
+    padding:18px 24px;
+    border-bottom:1px solid var(--ink-08);
+    font-size:15px;
+    color:var(--ink);
+  }
+  .cost-table tbody tr:last-child td{border-bottom:none}
+  .cost-table tbody td:nth-child(2){
+    text-align:right;
+    font-family:'Geist Mono',monospace;
+    color:var(--ink-60);
+    text-decoration:line-through;
+    text-decoration-color:rgba(26,22,17,0.3);
+  }
+  .cost-table tbody td:nth-child(3){text-align:center}
+  .cost-check{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;
+    background:var(--orange);
+    border-radius:50%;
+    color:white;
+    font-size:12px;font-weight:700;
+  }
+  .cost-total{
+    background:var(--ink);
+    color:var(--cream);
+  }
+  .cost-total td{
+    padding:22px 24px !important;
+    font-weight:600 !important;
+    border-bottom:none !important;
+    color:var(--cream) !important;
+  }
+  .cost-total td:nth-child(2){
+    text-decoration:none !important;
+    color:var(--orange) !important;
+    font-size:18px !important;
+  }
+  .cost-total td:nth-child(3){
+    color:var(--cream) !important;
+    font-family:'Instrument Serif',serif;
+    font-size:22px !important;
+    font-style:italic;
+  }
+
+  /* HOW IT WORKS */
+  .how-section{background:var(--cream)}
+  .steps-list{max-width:820px;margin:0 auto;position:relative}
+  .steps-list::before{
+    content:'';position:absolute;
+    left:35px;top:40px;bottom:40px;
+    width:1px;
+    background:linear-gradient(to bottom,
+      var(--orange) 0%,
+      var(--orange) 20%,
+      var(--ink-15) 100%);
+  }
+  .step{
+    display:grid;
+    grid-template-columns:72px 1fr;
+    gap:28px;
+    padding:24px 0;
+    position:relative;
+  }
+  .step-num{
+    width:72px;height:72px;
+    background:var(--paper);
+    border:1px solid var(--ink-15);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Instrument Serif',serif;
+    font-size:28px;font-style:italic;
+    color:var(--orange);
+    position:relative;z-index:1;
+    box-shadow:0 2px 8px rgba(0,0,0,0.04);
+  }
+  .step-content{padding-top:14px}
+  .step-content h3{
+    font-family:'Instrument Serif',serif;
+    font-size:30px;font-weight:400;
+    line-height:1.1;
+    margin-bottom:10px;
+    color:var(--ink);
+  }
+  .step-content p{
+    font-size:16px;color:var(--ink-60);
+    line-height:1.6;max-width:520px;
+  }
+  .step-tag{
+    display:inline-block;
+    padding:3px 10px;
+    background:var(--orange-soft);
+    color:var(--orange-deep);
+    font-size:11px;font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    border-radius:100px;
+    margin-top:10px;
+  }
+
+  /* CHANNELS TIER */
+  .tiers-section{background:var(--paper)}
+  .tiers-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+    margin-top:40px;
+  }
+  .tier-card{
+    padding:32px;
+    background:var(--cream);
+    border:1px solid var(--ink-15);
+    border-radius:12px;
+    position:relative;
+    overflow:hidden;
+  }
+  .tier-card-accent{
+    position:absolute;top:0;left:0;right:0;height:3px;
+  }
+  .tier-1 .tier-card-accent{background:var(--orange)}
+  .tier-2 .tier-card-accent{background:#8b6fb8}
+  .tier-3 .tier-card-accent{background:var(--moss)}
+  .tier-label{
+    font-size:11px;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.08em;
+    color:var(--ink-40);margin-bottom:12px;
+  }
+  .tier-card h3{
+    font-family:'Instrument Serif',serif;
+    font-size:26px;font-weight:400;
+    margin-bottom:12px;
+    line-height:1.15;
+  }
+  .tier-card > p{
+    font-size:14px;color:var(--ink-60);
+    margin-bottom:20px;line-height:1.5;
+  }
+  .tier-platforms{
+    display:flex;flex-wrap:wrap;gap:6px;
+    margin-bottom:20px;
+  }
+  .tier-platform{
+    padding:4px 10px;
+    background:var(--paper);
+    border:1px solid var(--ink-15);
+    border-radius:4px;
+    font-size:12px;font-weight:500;
+    color:var(--ink-soft);
+  }
+  .tier-output{
+    padding-top:20px;
+    border-top:1px solid var(--ink-08);
+    font-size:13px;
+    color:var(--ink-60);
+  }
+  .tier-output strong{color:var(--ink);display:block;margin-bottom:4px;font-weight:600}
+
+  /* CONTENT TYPES */
+  .content-types{background:var(--cream-warm)}
+  .types-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+    margin-top:40px;
+  }
+  .type-card{
+    padding:32px;
+    background:var(--paper);
+    border:1px solid var(--ink-15);
+    border-radius:12px;
+  }
+  .type-card h3{
+    font-family:'Instrument Serif',serif;
+    font-size:28px;font-weight:400;font-style:italic;
+    color:var(--orange);
+    margin-bottom:12px;
+  }
+  .type-card > p{
+    font-size:14px;color:var(--ink-60);
+    line-height:1.6;margin-bottom:20px;
+  }
+  .type-example{
+    padding:16px;background:var(--cream);
+    border-radius:8px;
+    font-family:'Geist Mono',monospace;
+    font-size:12px;color:var(--ink-soft);
+    line-height:1.5;
+    border-left:2px solid var(--orange);
+  }
+
+  /* TEAM / CREDIBILITY */
+  .team-section{background:var(--ink);color:var(--cream);position:relative;overflow:hidden}
+  .team-bg{
+    position:absolute;inset:0;
+    background-image:radial-gradient(circle at 90% 10%, rgba(255,90,31,0.1) 0%, transparent 40%);
+  }
+  .team-section .section-label{color:var(--orange)}
+  .team-section h2{color:var(--cream);position:relative}
+  .team-section .section-sub{color:rgba(250,247,242,0.7);position:relative}
+  .team-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:32px;
+    position:relative;
+    margin-top:20px;
+  }
+  .team-card{
+    padding:40px 36px;
+    background:rgba(250,247,242,0.04);
+    border:1px solid rgba(250,247,242,0.1);
+    border-radius:12px;
+  }
+  .team-role{
+    font-size:11px;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.1em;
+    color:var(--orange);margin-bottom:12px;
+  }
+  .team-card h3{
+    font-family:'Instrument Serif',serif;
+    font-size:36px;font-weight:400;
+    margin-bottom:16px;color:var(--cream);
+    line-height:1.1;
+  }
+  .team-card p{
+    font-size:15px;color:rgba(250,247,242,0.75);
+    line-height:1.6;margin-bottom:8px;
+  }
+  .team-card p strong{color:var(--cream);font-weight:500}
+  .logos-line{
+    margin-top:20px;padding-top:20px;
+    border-top:1px solid rgba(250,247,242,0.1);
+    font-size:12px;
+    color:rgba(250,247,242,0.5);
+    font-family:'Geist Mono',monospace;
+  }
+  .logos-line span{color:var(--cream);margin-right:16px}
+
+  /* PRICING */
+  .pricing-section{background:var(--cream);text-align:center}
+  .pricing-section h2{margin:0 auto 24px}
+  .pricing-section .section-sub{margin-left:auto;margin-right:auto}
+  .price-card{
+    max-width:460px;margin:0 auto;
+    padding:44px 40px;
+    background:var(--paper);
+    border:2px solid var(--ink);
+    border-radius:16px;
+    position:relative;
+    text-align:left;
+    box-shadow:0 20px 60px rgba(26,22,17,0.08);
+  }
+  .price-badge{
+    position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+    padding:6px 16px;
+    background:var(--orange);color:white;
+    border-radius:100px;
+    font-size:11px;font-weight:700;
+    text-transform:uppercase;letter-spacing:0.1em;
+  }
+  .price-amount{
+    display:flex;align-items:baseline;gap:8px;
+    margin:8px 0 8px;
+  }
+  .price-dollar{
+    font-family:'Instrument Serif',serif;
+    font-size:72px;color:var(--ink);
+    line-height:1;
+    font-weight:400;
+  }
+  .price-period{font-size:16px;color:var(--ink-60)}
+  .price-tag{
+    font-size:13px;
+    color:var(--ink-60);
+    margin-bottom:32px;
+    padding-bottom:24px;
+    border-bottom:1px solid var(--ink-08);
+  }
+  .price-tag strong{color:var(--orange-deep);font-weight:600}
+  .price-features{list-style:none;margin-bottom:32px}
+  .price-features li{
+    padding:10px 0;
+    font-size:15px;color:var(--ink);
+    display:flex;align-items:flex-start;gap:12px;
+    line-height:1.5;
+  }
+  .price-features li::before{
+    content:'→';
+    color:var(--orange);
+    font-weight:600;
+    flex-shrink:0;
+    margin-top:2px;
+  }
+  .price-cta{
+    display:block;text-align:center;
+    padding:16px;
+    background:var(--orange);color:white;
+    border-radius:8px;
+    font-size:15px;font-weight:600;
+    text-decoration:none;
+    transition:all 0.15s;
+  }
+  .price-cta:hover{background:var(--orange-deep);transform:translateY(-1px)}
+  .price-fine{
+    text-align:center;
+    margin-top:12px;
+    font-size:12px;
+    color:var(--ink-40);
+  }
+
+  /* FINAL CTA */
+  .final-cta{
+    background:var(--ink);color:var(--cream);
+    text-align:center;
+    padding:120px 24px;
+    position:relative;
+    overflow:hidden;
+  }
+  .final-cta-bg{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(255,90,31,0.2) 0%, transparent 70%),
+      radial-gradient(ellipse at 30% 50%, rgba(255,90,31,0.08) 0%, transparent 60%);
+  }
+  .final-cta-content{position:relative;z-index:1}
+  .final-cta h2{
+    font-family:'Instrument Serif',serif;
+    font-size:clamp(48px,7vw,88px);
+    line-height:1;
+    letter-spacing:-0.03em;
+    margin-bottom:24px;
+    color:var(--cream);
+    font-weight:400;
+  }
+  .final-cta h2 em{color:var(--orange);font-style:italic}
+  .final-cta p{
+    font-size:18px;
+    color:rgba(250,247,242,0.7);
+    max-width:540px;margin:0 auto 40px;
+    line-height:1.5;
+  }
+
+  /* FOOTER */
+  footer{
+    background:var(--ink);
+    color:rgba(250,247,242,0.5);
+    padding:56px 24px 32px;
+    border-top:1px solid rgba(250,247,242,0.08);
+  }
+  .footer-inner{
+    max-width:1200px;margin:0 auto;
+    display:flex;justify-content:space-between;
+    align-items:flex-start;flex-wrap:wrap;gap:32px;
+  }
+  .footer-left{max-width:360px}
+  .footer-logo{
+    color:var(--cream);
+    font-family:'Instrument Serif',serif;
+    font-size:24px;
+    margin-bottom:12px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .footer-tag{font-size:13px;line-height:1.6}
+  .footer-cols{display:flex;gap:48px}
+  .footer-col h4{
+    font-size:11px;text-transform:uppercase;
+    letter-spacing:0.1em;font-weight:600;
+    color:var(--cream);margin-bottom:14px;
+  }
+  .footer-col a{
+    display:block;font-size:13px;
+    color:rgba(250,247,242,0.5);
+    text-decoration:none;
+    padding:6px 0;
+    transition:color 0.15s;
+  }
+  .footer-col a:hover{color:var(--cream)}
+  .footer-bottom{
+    max-width:1200px;margin:40px auto 0;
+    padding-top:24px;
+    border-top:1px solid rgba(250,247,242,0.08);
+    display:flex;justify-content:space-between;
+    font-size:12px;color:rgba(250,247,242,0.4);
+    flex-wrap:wrap;gap:12px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width:860px){
+    .product-ui{grid-template-columns:1fr}
+    .problem-grid{grid-template-columns:1fr}
+    .tiers-grid,.types-grid,.team-grid{grid-template-columns:1fr}
+    .footer-cols{width:100%;justify-content:space-between}
+    .nav-links{display:none}
+    section{padding:80px 24px}
+    .hero{padding:60px 24px 80px}
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp{
+    from{opacity:0;transform:translateY(20px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .fade-in{animation:fadeUp 0.8s ease-out both}
+  .fade-in-1{animation-delay:0.1s}
+  .fade-in-2{animation-delay:0.2s}
+  .fade-in-3{animation-delay:0.3s}
+  .fade-in-4{animation-delay:0.4s}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <span class="logo-mark"></span>
+      Farcast
+    </a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#channels">Channels</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#cta" class="btn btn-primary">Start free trial</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge fade-in">
+      <span class="hero-badge-dot"></span>
+      Always-on growth agent · Live
+    </div>
+    <h1 class="hero-title fade-in fade-in-1">
+      Building is easy.<br>
+      <em>Distribution isn't.</em>
+    </h1>
+    <p class="hero-subtitle fade-in fade-in-2">
+      Farcast finds your ICP, runs your weekly content across X, LinkedIn, and Reddit,
+      maps 20+ launch platforms, and sends warm leads to your inbox daily.
+      What a $5K/month agency does — for $10.
+    </p>
+    <div class="hero-ctas fade-in fade-in-3">
+      <a href="#cta" class="btn btn-primary btn-large">
+        Build your first playbook free →
+      </a>
+      <a href="#how" class="btn btn-secondary btn-large">
+        See how it works
+      </a>
+    </div>
+
+    <!-- Product visual -->
+    <div class="hero-product fade-in fade-in-4">
+      <div class="browser-bar">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+        <span class="browser-url">app.getfarcast.com/playbook</span>
+      </div>
+      <div class="product-ui">
+        <div class="ui-card">
+          <div class="ui-card-header">
+            <span>ICP Identified</span>
+            <span class="check">✓</span>
+          </div>
+          <h4>Solo Technical Founder, 26–35</h4>
+          <p>Launching first SaaS · 0–100 users · Builds in public · Active on X + Reddit</p>
+        </div>
+        <div class="ui-card">
+          <div class="ui-card-header">
+            <span>Channels Mapped</span>
+            <span class="check">✓</span>
+          </div>
+          <h4>3 weekly, 3 ideas, 20+ launch</h4>
+          <div class="ui-channels">
+            <span class="channel-pill match">X 100%</span>
+            <span class="channel-pill match">LinkedIn 98%</span>
+            <span class="channel-pill match">Reddit 92%</span>
+            <span class="channel-pill">+6 more</span>
+          </div>
+        </div>
+        <div class="ui-card">
+          <div class="ui-card-header">
+            <span>Content Engine</span>
+            <span class="check">✓</span>
+          </div>
+          <h4>Week 1 — 18 posts ready</h4>
+          <p>7 X · 4 LinkedIn · 3 Reddit · 3 YT ideas · 1 IH launch</p>
+        </div>
+        <div class="ui-card">
+          <div class="ui-card-header">
+            <span>Warm Leads</span>
+            <span class="check">✓</span>
+          </div>
+          <h4>Delivered daily to your inbox</h4>
+          <p>People posting your problem on Reddit, X, LinkedIn — ready to message</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+  <div class="trust-inner">
+    <div class="trust-label">Built by operators who scaled 0→1 at</div>
+    <div class="trust-logos">
+      <span>Accel</span>
+      <span>·</span>
+      <span>Insight Partners</span>
+      <span>·</span>
+      <span>PeakXV</span>
+      <span>·</span>
+      <span>Blume Ventures</span>
+      <span>·</span>
+      <span>JPMorgan</span>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem-section">
+  <div class="container">
+    <div class="section-label">The problem</div>
+    <h2 class="section-title">
+      Building is the easy part now.<br>
+      <em>Getting users is where founders fail.</em>
+    </h2>
+    <p class="section-sub">
+      AI coding tools let anyone ship in a weekend. The same founders now sit on working products with zero distribution system. Here's what that looks like.
+    </p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-num">01</div>
+        <h3>Posted for 3 weeks. Zero traction.</h3>
+        <p>Guessed at channels. Wrote generic content. Got 4 likes and one sympathy reply from your cousin.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">02</div>
+        <h3>ChatGPT gives the same advice to everyone.</h3>
+        <p>"Post on Reddit, share on Twitter." Great. Which subs? Which hours? What language do they reward? No AI tool knows.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">03</div>
+        <h3>Hired an agency. Got a 40-page PDF.</h3>
+        <p>$5K/month for strategy nobody executes. And nothing in it talked to each other — ICP, channels, content, all in silos.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">04</div>
+        <h3>Tried 5 tools. None talk to each other.</h3>
+        <p>One for content. One for leads. One for scheduling. You still do the integration — the part that actually matters.</p>
+      </div>
+    </div>
+    <div class="problem-stat">
+      <div class="problem-stat-num">90%</div>
+      <div class="problem-stat-text">of startups fail due to distribution — not the product.</div>
+    </div>
+  </div>
+</section>
+
+<!-- COST TABLE -->
+<section class="cost-section">
+  <div class="container-narrow">
+    <div class="section-label">The math</div>
+    <h2 class="section-title">
+      A $5K/month agency, <em>automated.</em>
+    </h2>
+    <p class="section-sub">
+      Farcast replaces every job a growth team does for a fraction of the cost. Here's exactly what you're getting.
+    </p>
+    <div class="cost-table-wrapper">
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>What you need</th>
+            <th>Without Farcast</th>
+            <th>With Farcast</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ICP research with DISC profiling</td>
+            <td>$1,500/mo</td>
+            <td><span class="cost-check">✓</span></td>
+          </tr>
+          <tr>
+            <td>Channel strategy across 27 platforms</td>
+            <td>$1,000/mo</td>
+            <td><span class="cost-check">✓</span></td>
+          </tr>
+          <tr>
+            <td>Weekly content — X, LinkedIn, Reddit</td>
+            <td>$2,000/mo</td>
+            <td><span class="cost-check">✓</span></td>
+          </tr>
+          <tr>
+            <td>Video content ideas (YT, Insta, TikTok)</td>
+            <td>$1,500/mo</td>
+            <td><span class="cost-check">✓</span></td>
+          </tr>
+          <tr>
+            <td>Launch posts for 20+ platforms</td>
+            <td>$2,500 (one-time)</td>
+            <td><span class="cost-check">✓</span></td>
+          </tr>
+          <tr>
+            <td>Cold outreach sequences + DMs</td>
+            <td>$500/mo</td>
+            <td><span class="cost-check">✓</span></td>
+          </tr>
+          <tr>
+            <td>Warm lead sourcing (high intent)</td>
+            <td>$1,000/mo</td>
+            <td><span class="cost-check">✓</span></td>
+          </tr>
+          <tr class="cost-total">
+            <td>Every month</td>
+            <td>$7,500+</td>
+            <td>$10</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="container-narrow">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">
+      From zero to growth playbook <em>in under 5 minutes.</em>
+    </h2>
+    <p class="section-sub">
+      No onboarding calls. No 20-field forms. Describe what you built — Farcast handles the rest.
+    </p>
+    <div class="steps-list">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h3>Tell us what you built</h3>
+          <p>Product name, what it does, who you think it's for. Two minutes.</p>
+          <span class="step-tag">Takes ~2 min</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h3>AI maps your exact ICP</h3>
+          <p>Demographics, psychographics, DISC profile, buying triggers, competitor weaknesses. The research a $1,500/month consultant would do.</p>
+          <span class="step-tag">Agency-level depth</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h3>Your channels, ranked by fit</h3>
+          <p>27 platforms scored with algorithm insights, peak times, and what kills reach on each. Split into weekly content, video ideas, and launch posts.</p>
+          <span class="step-tag">Expert playbooks, not AI slop</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <h3>Week 1 content, ready to post</h3>
+          <p>Three types every week: generic gyaan, your personal story (from your daily log), and takes on trending topics — written in each platform's native voice.</p>
+          <span class="step-tag">Human-sounding, copy-paste ready</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div class="step-content">
+          <h3>Warm leads in your inbox, daily</h3>
+          <p>Chrome extension surfaces people already talking about your problem on Reddit, X, LinkedIn. First message never feels cold.</p>
+          <span class="step-tag">No cold outreach</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHANNEL TIERS -->
+<section class="tiers-section" id="channels">
+  <div class="container">
+    <div class="section-label">Channels</div>
+    <h2 class="section-title">
+      Three tiers. <em>Each written how that platform actually works.</em>
+    </h2>
+    <p class="section-sub">
+      Most tools spray the same post everywhere. Farcast understands that Reddit hates promotion, LinkedIn rewards dwell time, and HN punishes hype.
+    </p>
+    <div class="tiers-grid">
+      <div class="tier-card tier-1">
+        <div class="tier-card-accent"></div>
+        <div class="tier-label">Tier 1 · Weekly Content</div>
+        <h3>Full posts, ready to copy</h3>
+        <p>New posts every week, written for each platform's algorithm and culture.</p>
+        <div class="tier-platforms">
+          <span class="tier-platform">Twitter / X</span>
+          <span class="tier-platform">LinkedIn</span>
+          <span class="tier-platform">Reddit</span>
+        </div>
+        <div class="tier-output">
+          <strong>Output</strong>
+          Complete copy-paste posts across 3 content types: gyaan, personal story, trending take
+        </div>
+      </div>
+      <div class="tier-card tier-2">
+        <div class="tier-card-accent"></div>
+        <div class="tier-label">Tier 2 · Weekly Ideas</div>
+        <h3>Video concepts + hooks</h3>
+        <p>You don't need to figure out what to make. Just pick one and film it.</p>
+        <div class="tier-platforms">
+          <span class="tier-platform">YouTube</span>
+          <span class="tier-platform">Instagram</span>
+          <span class="tier-platform">TikTok</span>
+        </div>
+        <div class="tier-output">
+          <strong>Output</strong>
+          Concept + hook + format recommendation per video. The 60% of the work that determines reach.
+        </div>
+      </div>
+      <div class="tier-card tier-3">
+        <div class="tier-card-accent"></div>
+        <div class="tier-label">Tier 3 · Launch Posts</div>
+        <h3>One-click launch, 20+ channels</h3>
+        <p>Each post native to the community. Reddit gets honesty. HN gets no hype. PH gets your founder story.</p>
+        <div class="tier-platforms">
+          <span class="tier-platform">Product Hunt</span>
+          <span class="tier-platform">Hacker News</span>
+          <span class="tier-platform">Indie Hackers</span>
+          <span class="tier-platform">Dev.to</span>
+          <span class="tier-platform">+16 more</span>
+        </div>
+        <div class="tier-output">
+          <strong>Output</strong>
+          One-time crafted post per platform, built from your Daily Log for real founder voice
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENT TYPES -->
+<section class="content-types">
+  <div class="container">
+    <div class="section-label">Every week, three types</div>
+    <h2 class="section-title">
+      Not AI slop. <em>Your voice, three angles.</em>
+    </h2>
+    <p class="section-sub">
+      Every week of Tier 1 content comes in three distinct types so your feed never feels repetitive — and always sounds like you.
+    </p>
+    <div class="types-grid">
+      <div class="type-card">
+        <h3>Generic gyaan</h3>
+        <p>A shareable framework or insight from your domain. Positions you as the expert your ICP turns to.</p>
+        <div class="type-example">
+          "The 3-step distribution audit most founders skip (and why it costs them their first 100 users)."
+        </div>
+      </div>
+      <div class="type-card">
+        <h3>Personal story</h3>
+        <p>Built directly from your Daily Log. A real moment from this week — a user conversation, a decision, a surprise.</p>
+        <div class="type-example">
+          "Had a call Tuesday with a founder who shipped on Replit in 4 days. 8 weeks later: 0 users. Here's what we figured out."
+        </div>
+      </div>
+      <div class="type-card">
+        <h3>Trending take</h3>
+        <p>Your opinion on a current news story or trend in your space. Makes your feed feel current and opinionated.</p>
+        <div class="type-example">
+          "Dario says 50% of entry-level jobs get wiped in 1–5 years. I ran IB at JPMorgan. He's describing the jobs he knows — not the ones he doesn't."
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team-section">
+  <div class="team-bg"></div>
+  <div class="container">
+    <div class="section-label">Why trust us</div>
+    <h2 class="section-title">
+      Built by operators who've done this <em>at scale.</em>
+    </h2>
+    <p class="section-sub">
+      We're not marketers building an AI tool. We're the operators who ran growth at venture-backed startups, now building the system we wish we had.
+    </p>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-role">Founder & CEO</div>
+        <h3>Shobit Gupta</h3>
+        <p><strong>Ex-JPMorgan Investment Banking.</strong> 5+ years leading GTM from 0→1 at startups backed by Accel, Insight Partners, and Blume Ventures.</p>
+        <p>Built distribution systems for consumer and B2B SaaS that took products from stealth to series A.</p>
+        <div class="logos-line">
+          Backed <span>Accel</span> <span>Insight Partners</span> <span>Blume</span>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="team-role">Co-founder & CTO</div>
+        <h3>Tushar Karan</h3>
+        <p><strong>Serial entrepreneur.</strong> 10+ years full-stack engineering with multiple AI and ML applications shipped to production.</p>
+        <p>Handles everything from infrastructure to AI prompt engineering. The reason Farcast ships weekly instead of quarterly.</p>
+        <div class="logos-line">
+          <span>Next.js</span> <span>FastAPI</span> <span>Claude API</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">
+      Simple pricing. <em>Serious distribution.</em>
+    </h2>
+    <p class="section-sub">
+      No free tier games. No enterprise tiers you'll never need. One plan, full access.
+    </p>
+    <div class="price-card">
+      <span class="price-badge">Everything included</span>
+      <div class="price-amount">
+        <span class="price-dollar">$10</span>
+        <span class="price-period">/month</span>
+      </div>
+      <p class="price-tag"><strong>Replaces $7,500+/month</strong> of agency work</p>
+      <ul class="price-features">
+        <li>Full ICP profile with DISC psychology mapping</li>
+        <li>Channel strategy ranked across 27 platforms</li>
+        <li>Weekly content engine for X, LinkedIn, Reddit</li>
+        <li>Video concepts for YouTube, Instagram, TikTok</li>
+        <li>Launch posts for 20+ one-time channels</li>
+        <li>Cold outreach + DM templates per platform</li>
+        <li>Chrome extension with daily warm leads</li>
+        <li>Daily Log that personalises every post</li>
+        <li>Up to 10 playbooks per month</li>
+      </ul>
+      <a href="#cta" class="price-cta">Build your first playbook free →</a>
+      <p class="price-fine">14-day free trial · Cancel anytime · No card required</p>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta" id="cta">
+  <div class="final-cta-bg"></div>
+  <div class="final-cta-content">
+    <h2>Distribution,<br><em>figured out.</em></h2>
+    <p>
+      Two minutes of setup. One minute to generate. Then your growth engine runs — and learns what works for your specific product.
+    </p>
+    <a href="#" class="btn btn-primary btn-large">
+      Build your first playbook free →
+    </a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <div class="footer-logo">
+        <span class="logo-mark"></span>
+        Farcast
+      </div>
+      <p class="footer-tag">
+        The always-on AI growth engine for founders. Tell us what you built and get a complete, agency-grade distribution playbook in minutes.
+      </p>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#how">How it works</a>
+        <a href="#channels">Channels</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#">Blog</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Team</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Refunds</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Farcast. All rights reserved.</span>
+    <span>Built by founders, for founders.</span>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -121,7 +121,7 @@ export function ProblemSection() {
         <div className="mt-20 text-center">
           <div className="inline-flex items-center gap-4 bg-gray-50 border border-gray-100 rounded-full px-8 py-4 hover:scale-105 transition-transform duration-300 shadow-sm group">
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] animate-pulse-soft">90%</span>
+              <span className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] animate-pulse-soft">99%</span>
             </div>
             <span className="text-base font-medium text-gray-600 transition-colors group-hover:text-[#1a1a2e]">
               of startups fail due to distribution, not the product.
