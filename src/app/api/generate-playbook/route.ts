@@ -30,7 +30,7 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
       { role: "user", content: userPrompt },
     ],
     temperature: 0.6,
-    max_tokens: 4000,
+    max_tokens: 8000,
   });
 
   let raw = completion.choices[0]?.message?.content || "";
@@ -287,7 +287,8 @@ export async function POST(request: Request) {
     headers: {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
-      Connection: "keep-alive",
+      "Connection": "keep-alive",
+      "X-Accel-Buffering": "no",
     },
   });
 }
