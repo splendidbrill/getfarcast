@@ -1,5 +1,6 @@
 import { getLLMClient, getModelId } from "@/lib/llm";
 import { getTier2ChannelContext } from "@/lib/contentKnowledgeBase";
+import { extractJSON } from "@/lib/extractJSON";
 
 export const dynamic = "force-dynamic";
 
@@ -54,12 +55,8 @@ Return JSON exactly:
     max_tokens: 700,
   });
 
-  let raw = completion.choices[0]?.message?.content || "";
-  raw = raw.trim().replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
-  const start = raw.indexOf("{");
-  const end = raw.lastIndexOf("}");
-  if (start === -1 || end === -1) throw new Error(`No JSON in response: ${raw.slice(0, 200)}`);
-  return JSON.parse(raw.slice(start, end + 1));
+  const raw = completion.choices[0]?.message?.content || "";
+  return JSON.parse(extractJSON(raw));
 }
 
 export async function POST(request: Request) {

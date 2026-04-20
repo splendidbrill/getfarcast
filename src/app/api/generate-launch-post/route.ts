@@ -1,5 +1,6 @@
 import { getLLMClient, getModelId } from "@/lib/llm";
 import { getLaunchPlatformData } from "@/lib/contentKnowledgeBase";
+import { extractJSON } from "@/lib/extractJSON";
 
 export const dynamic = "force-dynamic";
 
@@ -181,12 +182,8 @@ export async function POST(request: Request) {
       max_tokens: 2500,
     });
 
-    let raw = completion.choices[0]?.message?.content || "";
-    raw = raw.trim().replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
-    const start = raw.indexOf("{");
-    const end = raw.lastIndexOf("}");
-    if (start === -1 || end === -1) throw new Error(`No JSON in response: ${raw.slice(0, 200)}`);
-    const parsed = JSON.parse(raw.slice(start, end + 1));
+    const rawContent = completion.choices[0]?.message?.content || "";
+    const parsed = JSON.parse(extractJSON(rawContent));
     const sections = normaliseSections(platformKey, parsed);
 
     return Response.json({

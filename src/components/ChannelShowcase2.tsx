@@ -21,11 +21,11 @@ const channels = [
     bestFor: "B2B founders, SaaS, enterprise tools",
   },
   {
-    name: "Instagram", icon: "📸", color: "from-pink-500 to-purple-600", textLight: "text-pink-500",
-    stats: { users: "3B+", engagement: "High", cost: "Free" },
-    pros: ["Reels algorithm favors new creators", "Visual storytelling builds brand", "Massive Gen Z and Millennial audience"],
-    caution: "Needs consistent visual quality. Not text-first.",
-    bestFor: "Consumer products, D2C, creator tools",
+    name: "X (Twitter)", icon: "𝕏", color: "from-gray-700 to-gray-900", textLight: "text-gray-700",
+    stats: { users: "600M+", engagement: "High", cost: "Free" },
+    pros: ["Real-time distribution to early adopters", "Build in public resonates with founders", "Threads and quote tweets amplify reach"],
+    caution: "Short shelf life. Post consistently or go dark fast.",
+    bestFor: "SaaS founders, dev tools, build-in-public",
   },
 ];
 
@@ -125,7 +125,7 @@ export function ChannelShowcase2() {
 
         <p className="mt-12 text-center text-sm font-bold text-gray-500">
           More channels coming soon:{" "}
-          <span className="text-gray-400">X (Twitter), Product Hunt, Hacker News, TikTok, Discord, Slack Communities</span>
+          <span className="text-gray-400">Product Hunt, Hacker News, TikTok, Discord, Slack Communities</span>
         </p>
       </div>
     </section>

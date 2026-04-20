@@ -13,6 +13,7 @@ import { matchChannels } from "@/lib/channelMatcher";
 import { getChannelPlaybook } from "@/lib/knowledgeBase";
 import type { WizardFormData, ICPProfile, Playbook } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
+import { extractJSON } from "@/lib/extractJSON";
 
 export const dynamic = "force-dynamic";
 
@@ -33,23 +34,8 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
     max_tokens: 8000,
   });
 
-  let raw = completion.choices[0]?.message?.content || "";
-
-  // Strip potential markdown code blocks
-  raw = raw.trim();
-  if (raw.startsWith("```")) {
-    raw = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
-  }
-
-  // Extract first complete JSON object/array, ignoring trailing content
-  const firstBrace = raw.indexOf("{") !== -1 ? raw.indexOf("{") : raw.indexOf("[");
-  const isObject = raw.indexOf("{") !== -1 && (raw.indexOf("[") === -1 || raw.indexOf("{") < raw.indexOf("["));
-  const lastBrace = isObject ? raw.lastIndexOf("}") : raw.lastIndexOf("]");
-  if (firstBrace !== -1 && lastBrace !== -1) {
-    raw = raw.slice(firstBrace, lastBrace + 1);
-  }
-
-  return JSON.parse(raw.trim());
+  const raw = completion.choices[0]?.message?.content || "";
+  return JSON.parse(extractJSON(raw));
 }
 
 // ==========================================
