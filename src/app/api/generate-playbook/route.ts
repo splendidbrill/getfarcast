@@ -41,6 +41,14 @@ async function callLLM(systemPrompt: string, userPrompt: string): Promise<unknow
     raw = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
   }
 
+  // Extract first complete JSON object/array, ignoring trailing content
+  const firstBrace = raw.indexOf("{") !== -1 ? raw.indexOf("{") : raw.indexOf("[");
+  const isObject = raw.indexOf("{") !== -1 && (raw.indexOf("[") === -1 || raw.indexOf("{") < raw.indexOf("["));
+  const lastBrace = isObject ? raw.lastIndexOf("}") : raw.lastIndexOf("]");
+  if (firstBrace !== -1 && lastBrace !== -1) {
+    raw = raw.slice(firstBrace, lastBrace + 1);
+  }
+
   return JSON.parse(raw.trim());
 }
 
