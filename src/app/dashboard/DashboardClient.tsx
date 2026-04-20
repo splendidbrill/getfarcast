@@ -69,7 +69,7 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
             : 'You have already used up your free trial. Subscribe now to restore full access to your content playbooks and strategy dashboards!'}
         </p>
         <Link
-          href="/api/checkout/starter"
+          href="/checkout"
           className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold shadow-[0_8px_30px_rgb(255,107,78,0.3)] hover:shadow-[0_8px_40px_rgb(255,107,78,0.5)] transition-all hover:-translate-y-1 relative z-10 text-lg"
         >
           <Sparkles className="w-6 h-6" />
@@ -110,7 +110,7 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
                 Cancel
               </button>
               <Link
-                href="/api/checkout/starter"
+                href="/checkout"
                 className="px-5 py-2 text-sm font-bold bg-[#ff6b4e] text-white rounded-xl shadow-md hover:bg-[#e05a3f] transition-colors flex-1 sm:flex-none text-center"
               >
                 Subscribe Now

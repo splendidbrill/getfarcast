@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npx tsc *)",
       "WebFetch(domain:www.getfarcast.com)",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(xargs grep *)",
+      "Bash(npm install *)"
     ]
   }
 }
