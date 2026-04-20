@@ -85,7 +85,7 @@ Return JSON exactly:
   });
 
   const raw = completion.choices[0]?.message?.content || "";
-  return parseJSON<Record<string, unknown>>(raw);
+  return parseJSON<{ gyaan: string; story: string }>(raw);
 }
 
 async function generateTrendingPost(
