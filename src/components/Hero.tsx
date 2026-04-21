@@ -94,8 +94,8 @@ export function Hero() {
         </h1>
 
         {/* Subheadline */}
-        <p className=" px-40 md:px-0 max-w-2xl mx-auto text-base sm:text-xl text-gray-600 font-medium leading-relaxed mb-10 animate-fade-in-up-delay-2 opacity-0">
-          You can ship in a weekend. Getting users takes months - unless you have a system. Farcast agents build and run it for you end to end.
+        <p className="max-w-sm sm:max-w-2xl mx-auto text-base sm:text-xl text-gray-600 font-medium leading-relaxed mb-10 animate-fade-in-up-delay-2 opacity-0">
+          You can ship in a weekend. Getting users takes months — unless you have a system. Farcast agents build and run it for you end to end.
         </p>
 
         {/* CTAs */}
@@ -161,8 +161,66 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Floating Mock UI - Clean, White Gojiberry Style */}
-        <div className="mt-12 sm:mt-20 relative max-w-4xl mx-auto animate-scale-in opacity-0" style={{ animationDelay: "0.8s" }}>
+        {/* ── MOBILE stats grid (phones only) ── */}
+        <div className="mt-10 sm:hidden animate-scale-in opacity-0" style={{ animationDelay: "0.8s" }}>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm text-left">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center mb-3">
+                <Target className="w-4 h-4 text-emerald-500" />
+              </div>
+              <p className="text-2xl font-extrabold text-[#1a1a2e]">ICP</p>
+              <p className="text-xs font-semibold text-gray-400 mt-0.5">Found & profiled</p>
+              <div className="mt-3 flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] font-bold text-emerald-600">Ready</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm text-left">
+              <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center mb-3">
+                <Zap className="w-4 h-4 text-purple-500" />
+              </div>
+              <p className="text-2xl font-extrabold text-[#1a1a2e]">10</p>
+              <p className="text-xs font-semibold text-gray-400 mt-0.5">Ranked channels</p>
+              <div className="mt-3 space-y-1">
+                {["Reddit", "LinkedIn", "X"].map((ch, i) => (
+                  <div key={ch} className="flex items-center gap-1.5">
+                    <div className="h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-[#ff6b4e]" style={{ width: `${80 - i * 18}%` }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm text-left">
+              <div className="w-9 h-9 rounded-xl bg-[#ff6b4e]/10 flex items-center justify-center mb-3">
+                <Sparkles className="w-4 h-4 text-[#ff6b4e]" />
+              </div>
+              <p className="text-2xl font-extrabold text-[#1a1a2e]">30+</p>
+              <p className="text-xs font-semibold text-gray-400 mt-0.5">Posts generated</p>
+              <div className="mt-3 space-y-1.5">
+                <div className="h-1.5 bg-gray-100 rounded-full w-full" />
+                <div className="h-1.5 bg-[#ff6b4e]/20 rounded-full w-3/4" />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm text-left">
+              <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center mb-3">
+                <Flame className="w-4 h-4 text-amber-500" />
+              </div>
+              <p className="text-2xl font-extrabold text-[#1a1a2e]">24</p>
+              <p className="text-xs font-semibold text-gray-400 mt-0.5">Warm leads</p>
+              <div className="mt-3">
+                <div className="h-2 rounded-full bg-amber-100 overflow-hidden">
+                  <div className="h-full w-[88%] rounded-full bg-gradient-to-r from-amber-400 to-[#ff6b4e]" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="mt-4 text-xs text-gray-400 font-medium text-center">Generated in under 5 minutes</p>
+        </div>
+
+        {/* ── DESKTOP mock browser window ── */}
+        <div className="mt-20 relative max-w-4xl mx-auto animate-scale-in opacity-0 hidden sm:block" style={{ animationDelay: "0.8s" }}>
 
           {/* Decorative floating sub-cards outside the main frame */}
           <div className="absolute -left-12 top-10 w-48 bg-white rounded-2xl shadow-xl shadow-black/5 p-4 border border-gray-100 animate-float hidden lg:block z-20" style={{ animationDelay: '1s' }}>
@@ -200,18 +258,17 @@ export function Hero() {
                 <div className="w-3 h-3 rounded-full bg-amber-400" />
                 <div className="w-3 h-3 rounded-full bg-emerald-400" />
               </div>
-              <div className="flex-1 ml-2 sm:ml-4 flex justify-center overflow-hidden">
-                <div className="max-w-[180px] sm:w-64 bg-white rounded-md px-2 sm:px-3 py-1.5 text-xs text-gray-400 font-semibold text-center border border-gray-100 shadow-sm flex items-center justify-center gap-1 sm:gap-2 overflow-hidden">
+              <div className="flex-1 ml-4 flex justify-center">
+                <div className="w-64 bg-white rounded-md px-3 py-1.5 text-xs text-gray-400 font-semibold text-center border border-gray-100 shadow-sm flex items-center justify-center gap-2">
                   <span className="shrink-0">🔒</span>
-                  <span className="truncate">app.getfarcast.com/playbook</span>
+                  <span>app.getfarcast.com/playbook</span>
                 </div>
               </div>
             </div>
 
             {/* Mock content */}
-            <div className="p-4 sm:p-8 bg-white">
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-                {/* Mock Card 1 */}
+            <div className="p-8 bg-white">
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-6">
                 <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center">
@@ -226,7 +283,6 @@ export function Hero() {
                   </div>
                 </div>
 
-                {/* Mock Card 2 */}
                 <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center">
@@ -239,17 +295,13 @@ export function Hero() {
                       <div key={ch} className="flex items-center gap-3">
                         <span className="text-[10px] font-bold text-gray-500 w-16">{ch}</span>
                         <div className="h-2 rounded-full flex-1 bg-gray-200 overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-purple-400 to-[#ff6b4e]"
-                            style={{ width: `${100 - i * 20}%` }}
-                          />
+                          <div className="h-full bg-gradient-to-r from-purple-400 to-[#ff6b4e]" style={{ width: `${100 - i * 20}%` }} />
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Mock Card 3 */}
                 <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-xl bg-[#ff6b4e]/10 flex items-center justify-center">
@@ -269,7 +321,6 @@ export function Hero() {
                   </div>
                 </div>
 
-                {/* Mock Card 4 */}
                 <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
@@ -278,12 +329,8 @@ export function Hero() {
                     <span className="text-sm font-bold text-[#1a1a2e]">Warm Leads</span>
                   </div>
                   <div className="space-y-2.5">
-                    {[
-                      { label: "Founder", width: "88%" },
-                      { label: "PM", width: "72%" },
-                      { label: "Marketer", width: "60%" },
-                    ].map((lead) => (
-                      <div key={lead.label} className="rounded-xl border border-gray-100 bg-white px-3 py-2 shadow-sm hover:-translate-y-0.5 transition-all duration-300">
+                    {[{ label: "Founder", width: "88%" }, { label: "PM", width: "72%" }, { label: "Marketer", width: "60%" }].map((lead) => (
+                      <div key={lead.label} className="rounded-xl border border-gray-100 bg-white px-3 py-2 shadow-sm">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-[10px] font-bold uppercase tracking-wide text-gray-500">{lead.label}</span>
                           <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600">
@@ -292,10 +339,7 @@ export function Hero() {
                           </span>
                         </div>
                         <div className="h-2 rounded-full bg-amber-100 overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-amber-400 to-[#ff6b4e] transition-all duration-700"
-                            style={{ width: lead.width }}
-                          />
+                          <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-[#ff6b4e]" style={{ width: lead.width }} />
                         </div>
                       </div>
                     ))}
@@ -305,7 +349,6 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Subtle Glow underneath the mock app */}
           <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-4/5 h-12 bg-black/10 blur-xl rounded-full z-0" />
         </div>
       </div>
