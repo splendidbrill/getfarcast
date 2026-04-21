@@ -8,10 +8,10 @@ import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
-    // Check if already logged in
+    const supabase = createClient();
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         router.push("/onboarding");
@@ -27,9 +27,10 @@ export default function LoginPage() {
     });
 
     return () => subscription.unsubscribe();
-  }, [router, supabase]);
+  }, [router]);
 
   const handleGoogleSignIn = async () => {
+    const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
