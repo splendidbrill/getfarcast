@@ -54,7 +54,7 @@ export function ChannelShowcase2() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="channels" className="relative py-28 sm:py-36 overflow-hidden bg-[#faf8f6]">
+    <section ref={sectionRef} id="channels" className="relative py-20 sm:py-36 overflow-hidden bg-[#faf8f6]">
       <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
       <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-orange-500/5 rounded-full blur-[100px] animate-float pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-56 h-56 bg-blue-500/5 rounded-full blur-[100px] animate-float-delayed pointer-events-none" />
@@ -92,7 +92,7 @@ export function ChannelShowcase2() {
                 </div>
               </div>
 
-              <div className="flex gap-3 mb-6">
+              <div className="flex gap-2 sm:gap-3 mb-6">
                 {[{ icon: Users, label: "Users", value: channel.stats.users }, { icon: TrendingUp, label: "Engagement", value: channel.stats.engagement }, { icon: Eye, label: "Cost", value: channel.stats.cost }].map((stat) => {
                   const StatIcon = stat.icon;
                   return (

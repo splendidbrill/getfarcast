@@ -32,6 +32,8 @@ export function HowItWorks2() {
       const track = trackRef.current;
       if (!section || !track) return;
 
+      if (window.innerWidth < 768) return;
+
       const totalScrollWidth = track.scrollWidth - section.offsetWidth;
 
       gsap.to(track, {
@@ -52,27 +54,27 @@ export function HowItWorks2() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="how-it-works" className="relative overflow-hidden bg-[#faf8f6]" style={{ height: "100vh" }}>
+    <section ref={sectionRef} id="how-it-works" className="relative overflow-hidden bg-[#faf8f6]" style={{ height: "100svh" }}>
       <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
       <div className="relative z-10 h-full flex flex-col">
-        <div ref={headingRef} className="pt-16 pb-8 px-6 md:px-16 text-center flex-shrink-0" style={{ opacity: 0 }}>
+        <div ref={headingRef} className="pt-14 pb-6 px-4 sm:px-6 md:px-16 text-center flex-shrink-0" style={{ opacity: 0 }}>
           <p className="text-sm font-bold text-emerald-500 uppercase tracking-widest mb-3">How It Works</p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1a1a2e] tracking-tight">
+          <h2 className="text-xl sm:text-3xl lg:text-5xl font-extrabold text-[#1a1a2e] tracking-tight leading-snug">
             From zero to growth playbook
             <span className="text-gray-400"> in under 5 minutes.</span>
           </h2>
-          <p className="mt-3 text-sm text-gray-400 font-medium">Scroll to explore each step →</p>
+          <p className="mt-2 text-xs sm:text-sm text-gray-400 font-medium">Scroll to explore each step →</p>
         </div>
 
-        <div className="flex-1 flex items-center overflow-hidden px-6 md:px-16">
-          <div ref={trackRef} className="flex gap-6 flex-nowrap" style={{ willChange: "transform" }}>
+        <div className="flex-1 flex items-center overflow-x-auto md:overflow-hidden px-4 sm:px-6 md:px-16 pb-6 md:pb-0">
+          <div ref={trackRef} className="flex gap-4 sm:gap-6 flex-nowrap" style={{ willChange: "transform" }}>
             {steps.map((step, i) => {
               const Icon = step.icon;
               return (
                 <div
                   key={step.number}
                   ref={(el) => { cardRefs.current[i] = el; }}
-                  className="flex-shrink-0 w-[80vw] sm:w-[420px] md:w-[460px] bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-500 group cursor-default"
+                  className="flex-shrink-0 w-[78vw] sm:w-[380px] md:w-[460px] bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-500 group cursor-default"
                 >
                   <div className="flex items-start justify-between mb-6">
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300`}>
@@ -95,7 +97,7 @@ export function HowItWorks2() {
             })}
 
             {/* End CTA card */}
-            <div className="flex-shrink-0 w-[80vw] sm:w-[320px] md:w-[360px] bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] rounded-3xl p-8 flex flex-col justify-between shadow-xl">
+            <div className="flex-shrink-0 w-[78vw] sm:w-[280px] md:w-[360px] bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-xl">
               <div>
                 <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mb-6">
                   <span className="text-2xl">🚀</span>

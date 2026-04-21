@@ -43,7 +43,7 @@ export function ProblemSection2() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="problem" className="relative py-28 sm:py-36 overflow-hidden bg-white">
+    <section ref={sectionRef} id="problem" className="relative py-20 sm:py-36 overflow-hidden bg-white">
       <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#ff6b4e]/5 rounded-full blur-[120px] animate-pulse-soft pointer-events-none" />
 
@@ -63,7 +63,7 @@ export function ProblemSection2() {
               <div
                 key={problem.title}
                 ref={(el) => { cardRefs.current[i] = el; }}
-                className="bg-white rounded-3xl p-8 cursor-default group hover:-translate-y-2 hover:shadow-xl hover:shadow-black/5 border border-gray-100 transition-all duration-500"
+                className="bg-white rounded-3xl p-6 sm:p-8 cursor-default group hover:-translate-y-2 hover:shadow-xl hover:shadow-black/5 border border-gray-100 transition-all duration-500"
                 style={{ opacity: 0 }}
               >
                 <div className="flex items-start gap-5">

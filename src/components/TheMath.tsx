@@ -65,13 +65,13 @@ export function TheMath() {
           </p>
         </div>
 
-        <div ref={tableRef} className="rounded-2xl border border-gray-200 overflow-hidden shadow-xl shadow-gray-100">
-          <table className="w-full text-sm">
+        <div ref={tableRef} className="rounded-2xl border border-gray-200 overflow-hidden shadow-xl shadow-gray-100 overflow-x-auto">
+          <table className="w-full text-xs sm:text-sm min-w-[480px]">
             <thead>
               <tr className="bg-[#1a1a2e] text-white">
-                <th className="text-left px-6 py-4 font-semibold">What you need</th>
-                <th className="text-center px-6 py-4 font-semibold">Without Farcast</th>
-                <th className="text-center px-6 py-4 font-semibold">With Farcast</th>
+                <th className="text-left px-4 sm:px-6 py-3 sm:py-4 font-semibold">What you need</th>
+                <th className="text-center px-3 sm:px-6 py-3 sm:py-4 font-semibold whitespace-nowrap">Without Farcast</th>
+                <th className="text-center px-3 sm:px-6 py-3 sm:py-4 font-semibold whitespace-nowrap">With Farcast</th>
               </tr>
             </thead>
             <tbody>
@@ -80,19 +80,19 @@ export function TheMath() {
                   key={i}
                   className={`border-t border-gray-100 ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
                 >
-                  <td className="px-6 py-4 font-medium text-[#1a1a2e]">{row.need}</td>
-                  <td className="px-6 py-4 text-center text-gray-500 font-medium">{row.without}</td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#ff6b4e]/10">
-                      <Check className="w-4 h-4 text-[#ff6b4e]" strokeWidth={2.5} />
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-[#1a1a2e]">{row.need}</td>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-center text-gray-500 font-medium whitespace-nowrap">{row.without}</td>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-center">
+                    <span className="inline-flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#ff6b4e]/10">
+                      <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ff6b4e]" strokeWidth={2.5} />
                     </span>
                   </td>
                 </tr>
               ))}
               <tr className="border-t-2 border-[#ff6b4e]/20 bg-[#ff6b4e]/5">
-                <td className="px-6 py-5 font-bold text-[#1a1a2e] text-base">Every month</td>
-                <td className="px-6 py-5 text-center font-bold text-gray-700 text-base line-through">$7,500+</td>
-                <td className="px-6 py-5 text-center font-bold text-[#ff6b4e] text-base">$15</td>
+                <td className="px-4 sm:px-6 py-4 sm:py-5 font-bold text-[#1a1a2e] text-sm sm:text-base">Every month</td>
+                <td className="px-3 sm:px-6 py-4 sm:py-5 text-center font-bold text-gray-700 text-sm sm:text-base line-through whitespace-nowrap">$7,500+</td>
+                <td className="px-3 sm:px-6 py-4 sm:py-5 text-center font-bold text-[#ff6b4e] text-sm sm:text-base">$15</td>
               </tr>
             </tbody>
           </table>

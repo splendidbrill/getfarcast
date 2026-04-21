@@ -48,7 +48,7 @@ export function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-20"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 sm:pt-24 pb-16 sm:pb-20"
     >
       {/* Subtle mathematical grid background */}
       <div
@@ -74,7 +74,7 @@ export function Hero() {
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-blue-500/5 blur-[80px] animate-float-delayed pointer-events-none" />
 
       {/* Content Container */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center">
 
         {/* Animated Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#ff6b4e]/20 shadow-sm mb-8 animate-fade-in-up opacity-0">
@@ -85,7 +85,7 @@ export function Hero() {
         </div>
 
         {/* Headline */}
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-6 animate-fade-in-up-delay-1 opacity-0 text-[#1a1a2e]">
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-6 animate-fade-in-up-delay-1 opacity-0 text-[#1a1a2e]">
           Building is easy.
           <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a]">
@@ -94,8 +94,8 @@ export function Hero() {
         </h1>
 
         {/* Subheadline */}
-        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-600 font-medium leading-relaxed mb-10 animate-fade-in-up-delay-2 opacity-0">
-          Describe your product. Farcast finds your ICP, maps where they live, builds your content engine, and starts sending you warm leads — automatically
+        <p className="px-28 md:px-0 max-w-2xl mx-auto text-base sm:text-xl text-gray-600 font-medium leading-relaxed mb-10 animate-fade-in-up-delay-2 opacity-0">
+          You can ship in a weekend. Getting users takes months - unless you have a system. Farcast agents build and run it for you end to end.
         </p>
 
         {/* CTAs */}
@@ -104,7 +104,7 @@ export function Hero() {
             <Link
               href="/dashboard"
               id="hero-cta-primary"
-              className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center gap-3 hover:-translate-y-1"
+              className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center justify-center gap-3 hover:-translate-y-1"
             >
               <Zap className="w-5 h-5 fill-white" />
               Start Your Free Trial
@@ -114,7 +114,7 @@ export function Hero() {
             <button
               id="hero-cta-primary"
               onClick={() => setIsSignInOpen(true)}
-              className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center gap-3 hover:-translate-y-1"
+              className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all duration-300 flex items-center justify-center gap-3 hover:-translate-y-1"
             >
               <Zap className="w-5 h-5 fill-white" />
               Start Your Free Trial
@@ -124,7 +124,7 @@ export function Hero() {
           <Link
             href="#how-it-works"
             id="hero-cta-secondary"
-            className="px-8 py-4 rounded-xl text-gray-600 font-bold text-lg border-2 border-gray-200 hover:border-[#1a1a2e] hover:text-[#1a1a2e] hover:bg-black/5 transition-all duration-200"
+            className="px-8 py-4 rounded-xl text-gray-600 font-bold text-lg border-2 border-gray-200 hover:border-[#1a1a2e] hover:text-[#1a1a2e] hover:bg-black/5 transition-all duration-200 text-center"
           >
             See How It Works
           </Link>
@@ -133,7 +133,7 @@ export function Hero() {
 
         {/* Social Proof - Logo Marquee */}
         <div
-          className="mt-14 w-full max-w-4xl mx-auto animate-fade-in-up-delay-3 opacity-0"
+          className="mt-10 sm:mt-14 w-full max-w-4xl mx-auto animate-fade-in-up-delay-3 opacity-0"
           style={{
             maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
             WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)"
@@ -162,7 +162,7 @@ export function Hero() {
         </div>
 
         {/* Floating Mock UI - Clean, White Gojiberry Style */}
-        <div className="mt-20 relative max-w-4xl mx-auto animate-scale-in opacity-0" style={{ animationDelay: "0.8s" }}>
+        <div className="mt-12 sm:mt-20 relative max-w-4xl mx-auto animate-scale-in opacity-0" style={{ animationDelay: "0.8s" }}>
 
           {/* Decorative floating sub-cards outside the main frame */}
           <div className="absolute -left-12 top-10 w-48 bg-white rounded-2xl shadow-xl shadow-black/5 p-4 border border-gray-100 animate-float hidden lg:block z-20" style={{ animationDelay: '1s' }}>
@@ -200,17 +200,17 @@ export function Hero() {
                 <div className="w-3 h-3 rounded-full bg-amber-400" />
                 <div className="w-3 h-3 rounded-full bg-emerald-400" />
               </div>
-              <div className="flex-1 ml-4 flex justify-center">
-                <div className="w-64 bg-white rounded-md px-3 py-1.5 text-xs text-gray-400 font-semibold text-center border border-gray-100 shadow-sm flex items-center justify-center gap-2">
-                  <span className="w-3 h-3 text-gray-300">🔒</span>
-                  app.getfarcast.com/playbook
+              <div className="flex-1 ml-2 sm:ml-4 flex justify-center overflow-hidden">
+                <div className="max-w-[180px] sm:w-64 bg-white rounded-md px-2 sm:px-3 py-1.5 text-xs text-gray-400 font-semibold text-center border border-gray-100 shadow-sm flex items-center justify-center gap-1 sm:gap-2 overflow-hidden">
+                  <span className="shrink-0">🔒</span>
+                  <span className="truncate">app.getfarcast.com/playbook</span>
                 </div>
               </div>
             </div>
 
             {/* Mock content */}
-            <div className="p-8 bg-white">
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="p-4 sm:p-8 bg-white">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
                 {/* Mock Card 1 */}
                 <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 hover:border-[#ff6b4e]/30 transition-colors">
                   <div className="flex items-center gap-3 mb-4">

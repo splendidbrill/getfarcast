@@ -112,7 +112,7 @@ export function Hero2() {
 
         {/* Subheadline */}
         <p ref={subRef} className="max-w-2xl mx-auto text-center text-lg sm:text-xl text-gray-600 font-medium leading-relaxed mt-10" style={{ opacity: 0 }}>
-          Describe your product. Farcast finds your ICP, maps where they live, builds your content engine, and starts sending you warm leads — automatically.
+          You can ship in a weekend. Getting users takes months - unless you have a system. Farcast agents build and run it for you end to end.
         </p>
 
         {/* CTAs */}

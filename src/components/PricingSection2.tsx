@@ -58,7 +58,7 @@ export function PricingSection2() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="pricing" className="relative py-28 sm:py-36 overflow-hidden bg-white">
+    <section ref={sectionRef} id="pricing" className="relative py-20 sm:py-36 overflow-hidden bg-white">
       <div className="absolute top-1/3 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-[150px] animate-float pointer-events-none" />
       <div className="absolute bottom-1/3 left-0 w-96 h-96 bg-blue-500/5 rounded-full blur-[150px] animate-float-delayed pointer-events-none" />
 
