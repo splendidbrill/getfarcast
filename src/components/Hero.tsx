@@ -163,7 +163,7 @@ export function Hero() {
 
         {/* ── MOBILE stats grid (phones only) ── */}
         <div className="mt-10 sm:hidden animate-scale-in opacity-0" style={{ animationDelay: "0.8s" }}>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="flex flex-col gap-3 max-w-[280px] mx-auto">
             <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm text-left">
               <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center mb-3">
                 <Target className="w-4 h-4 text-emerald-500" />
