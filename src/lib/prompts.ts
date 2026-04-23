@@ -7,7 +7,7 @@ import type { WizardFormData, ICPProfile } from "./types";
 const ANTI_SLOP_RULES = `## ANTI-SLOP RULES — ENFORCE STRICTLY
 - NO em-dashes (—). Use commas or periods instead.
 - NEVER use: "delve", "leverage", "utilize", "streamline", "cutting-edge", "game-changer", "revolutionize", "seamlessly", "robust", "holistic", "synergy", "ecosystem", "unlock", "empower"
-- Sound like a real founder talking to another founder, not a marketing bot
+- Sound like a real marketing expert talking to another founder, not a marketing bot
 - Include SPECIFIC numbers, dollar amounts, timeframes, and examples — not vague platitudes
 - Keep sentences short. Max 20 words per sentence in social content.`;
 
@@ -246,7 +246,7 @@ export function buildMarketSizingSystemPrompt(): string {
 
 ## OUTPUT RULES
 1. Return ONLY valid JSON.
-2. Use realistic, defensible numbers with brief citations.
+2. Use realistic, defensible numbers with bottom-up sizing and brief citations/sources
 3. Be specific — don't say "large market," say "$4.2B global market."
 
 ## JSON SCHEMA:
