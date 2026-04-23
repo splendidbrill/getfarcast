@@ -11,6 +11,7 @@ import { matchChannels } from "@/lib/channelMatcher";
 import { getChannelPlaybook } from "@/lib/knowledgeBase";
 import type { WizardFormData, ICPProfile, Playbook } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { parseJSON } from "@/lib/extractJSON";
 
 export const dynamic = "force-dynamic";
@@ -63,6 +64,24 @@ export async function POST(request: Request) {
     );
   }
 
+  // Resolve the user BEFORE opening the SSE stream. Once streaming starts,
+  // Supabase's cookie-based session refresh can't write Set-Cookie headers,
+  // so auth.getUser() inside the stream can silently return null on long runs.
+  const authClient = await createClient();
+  const { data: { user } } = await authClient.auth.getUser();
+
+  if (!user) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = user.id;
+
+  // Admin client bypasses cookie refresh entirely — safe to use inside the stream.
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
@@ -114,32 +133,28 @@ export async function POST(request: Request) {
         let feedbackContextStr = "";
 
         if (formData.previousPlaybookId) {
-          const supabase = await createClient();
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            const { data: pastData } = await supabase
-              .from("playbooks")
-              .select("data")
-              .eq("id", formData.previousPlaybookId)
-              .eq("user_id", user.id)
-              .single();
+          const { data: pastData } = await admin
+            .from("playbooks")
+            .select("data")
+            .eq("id", formData.previousPlaybookId)
+            .eq("user_id", userId)
+            .single();
 
-            if (pastData && pastData.data) {
-              const pbData = pastData.data.playbook || pastData.data;
-              const feedbackEntries: string[] = [];
-              pbData.channels?.forEach((ch: any) => {
-                ch.contentCalendar?.forEach((post: any) => {
-                  if (post.feedbackRating || post.feedbackComments) {
-                    feedbackEntries.push(
-                      `- Post Title: "${post.title}"\n  Rating given: ${post.feedbackRating || 'none'}\n  Comments from audience/user: "${post.feedbackComments || 'none'}"`
-                    );
-                  }
-                });
+          if (pastData && pastData.data) {
+            const pbData = pastData.data.playbook || pastData.data;
+            const feedbackEntries: string[] = [];
+            pbData.channels?.forEach((ch: any) => {
+              ch.contentCalendar?.forEach((post: any) => {
+                if (post.feedbackRating || post.feedbackComments) {
+                  feedbackEntries.push(
+                    `- Post Title: "${post.title}"\n  Rating given: ${post.feedbackRating || 'none'}\n  Comments from audience/user: "${post.feedbackComments || 'none'}"`
+                  );
+                }
               });
-              if (feedbackEntries.length > 0) {
-                feedbackContextStr = feedbackEntries.join("\n\n");
-                console.log("Injected Feedback Context!");
-              }
+            });
+            if (feedbackEntries.length > 0) {
+              feedbackContextStr = feedbackEntries.join("\n\n");
+              console.log("Injected Feedback Context!");
             }
           }
         }
@@ -224,23 +239,26 @@ export async function POST(request: Request) {
         };
 
         // ── Save to Supabase ──────────────────────────────────────────
+        // Use admin client with captured userId — avoids mid-stream cookie refresh.
         try {
-          const supabase = await createClient();
-          const { data: { user } } = await supabase.auth.getUser();
-
-          if (user) {
-            const { error: dbError } = await supabase.from("playbooks").insert({
-              id: playbook.id,
-              user_id: user.id,
-              product_name: playbook.productName,
-              data: { playbook, formData },
+          const { error: dbError } = await admin.from("playbooks").insert({
+            id: playbook.id,
+            user_id: userId,
+            product_name: playbook.productName,
+            data: { playbook, formData },
+          });
+          if (dbError) {
+            console.error("Supabase insert error:", dbError);
+            encodeEvent(controller, encoder, "warning", {
+              message: `Playbook generated but failed to save: ${dbError.message}`,
             });
-            if (dbError) {
-              console.error("Supabase insert error:", dbError);
-            }
           }
         } catch (dbErr) {
-          console.error("Failed to save playbook to DB:", dbErr);
+          const msg = dbErr instanceof Error ? dbErr.message : "Unknown DB error";
+          console.error("Failed to save playbook to DB:", msg);
+          encodeEvent(controller, encoder, "warning", {
+            message: `Playbook generated but failed to save: ${msg}`,
+          });
         }
 
         // Send the final playbook
