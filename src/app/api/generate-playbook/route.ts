@@ -227,7 +227,7 @@ export async function POST(request: Request) {
         });
 
         // ── Assemble final playbook ───────────────────────────────────
-        const id = crypto.randomUUID().slice(0, 8);
+        const id = crypto.randomUUID();
         const playbook: Playbook = {
           id,
           createdAt: new Date().toISOString(),

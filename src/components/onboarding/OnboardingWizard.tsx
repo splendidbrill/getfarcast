@@ -117,6 +117,8 @@ export function OnboardingWizard() {
             localStorage.setItem(`playbook_${playbook.id}`, JSON.stringify(stored));
             router.push(`/playbook/${playbook.id}`);
             return;
+          } else if (event.type === "warning") {
+            console.warn("[Playbook warning]", event.data.message);
           } else if (event.type === "error") {
             throw new Error(event.data.message);
           }
