@@ -8,6 +8,7 @@ import {
   Users,
   Share2,
   Download,
+  BookOpen,
   Zap,
   Sparkles,
   Target,
@@ -37,6 +38,7 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
   const [activeTab, setActiveTab] = useState<MainTab>("overview");
   const [contentEngineOpen, setContentEngineOpen] = useState(false);
   const [contentSubTab, setContentSubTab] = useState<ContentSubTab>("weekly-engine");
+  const [isExportingAll, setIsExportingAll] = useState(false);
 
   useEffect(() => {
     async function loadPlaybook() {
@@ -75,6 +77,27 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
     loadPlaybook();
   }, [playbookId, router]);
 
+  useEffect(() => {
+    if (!isExportingAll) return;
+
+    const handleAfterPrint = () => {
+      document.body.classList.remove("print-all-mode");
+      setIsExportingAll(false);
+    };
+    window.addEventListener("afterprint", handleAfterPrint);
+
+    const timer = window.setTimeout(() => {
+      document.body.classList.add("print-all-mode");
+      window.print();
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("afterprint", handleAfterPrint);
+      document.body.classList.remove("print-all-mode");
+    };
+  }, [isExportingAll]);
+
   if (!playbook) {
     return (
       <div className="min-h-screen bg-[#faf8f6] flex items-center justify-center">
@@ -99,7 +122,7 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
   const isContentEngineVisible = contentEngineOpen || activeTab === "posts";
 
   return (
-    <div className="min-h-screen bg-[#faf8f6] text-[#1a1a2e]">
+    <div className="min-h-screen bg-[#faf8f6] text-[#1a1a2e] print-normal-root">
       {/* Background grid */}
       <div
         className="fixed inset-0 opacity-40 pointer-events-none"
@@ -146,6 +169,14 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
             >
               <Download className="w-4 h-4" />
               Export PDF
+            </button>
+            <button
+              onClick={() => setIsExportingAll(true)}
+              disabled={isExportingAll}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff6b4e] text-white text-sm font-medium hover:bg-[#e85c3f] transition-colors shadow-sm disabled:opacity-70"
+            >
+              <BookOpen className="w-4 h-4" />
+              {isExportingAll ? "Preparing…" : "Export Playbook"}
             </button>
           </div>
         </div>
@@ -317,6 +348,31 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
           </div>
         </main>
       </div>
+
+      {isExportingAll && (
+        <div className="print-all-container" aria-hidden="true">
+          <div className="print-section">
+            <h1 className="print-section-title">{playbook.productName} — Executive Summary</h1>
+            <PlaybookOverview playbook={playbook} />
+          </div>
+          <div className="print-section print-page-break">
+            <h1 className="print-section-title">Audience Profiling</h1>
+            <PlaybookICP icp={playbook.icp} />
+          </div>
+          <div className="print-section print-page-break">
+            <h1 className="print-section-title">Distribution Channels</h1>
+            <PlaybookChannels playbookId={playbook.id} channels={playbook.channels} />
+          </div>
+          <div className="print-section print-page-break">
+            <h1 className="print-section-title">Weekly Content Engine</h1>
+            <WeeklyContentEngine playbook={playbook} />
+          </div>
+          <div className="print-section print-page-break">
+            <h1 className="print-section-title">Weekly Content Ideas</h1>
+            <WeeklyContentIdeas playbook={playbook} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
