@@ -123,6 +123,7 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
   const isContentEngineVisible = contentEngineOpen || activeTab === "posts";
 
   return (
+    <>
     <div className="min-h-screen bg-[#faf8f6] text-[#1a1a2e] print-normal-root">
       {/* Background grid */}
       <div
@@ -350,9 +351,10 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
         </main>
       </div>
 
-      {isExportingAll && (
-        <PlaybookPrintView playbook={playbook} />
-      )}
     </div>
+    {isExportingAll && (
+      <PlaybookPrintView playbook={playbook} />
+    )}
+    </>
   );
 }

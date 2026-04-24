@@ -89,7 +89,7 @@ export function buildChannelSystemPrompt(
   channelName: string,
   channelPlaybook: string
 ): string {
-  return `You are GetFarcast AI. You are writing the channel strategy AND 30-Day Content Calendar for "${channelName}" for an early-stage founder.
+  return `You are GetFarcast AI. You are writing the channel strategy  for "${channelName}" for an early-stage founder.
 
 ## CRITICAL: You have been given the EXACT expert playbook for ${channelName} below. You MUST apply these specific rules, timing data, format guidelines, and anti-patterns from this playbook when generating the strategy. Do NOT default to generic advice.
 
@@ -97,7 +97,7 @@ export function buildChannelSystemPrompt(
 ${channelPlaybook}
 
 ## YOUR TASK
-Using the expert playbook above AND the product/ICP information from the user, generate a complete ${channelName} channel strategy and a full 30-Day Content Calendar.
+Using the expert playbook above AND the product/ICP information from the user, generate a complete ${channelName} channel strategy .
 
 ${ANTI_SLOP_RULES}
 
@@ -169,8 +169,8 @@ Channel: ${channelName}
 Ranked #${channelRank} for this product
 Intensity: ${pushType === "hard" ? "HARD push — primary channel, invest heavily here" : "SOFT push — secondary channel, maintain presence"}
 
-${feedbackContext ? `## CRITICAL PERFORMANCE FEEDBACK FROM PREVIOUS 30 DAYS
-The user ran a 30-day playbook last month. Here is EXACTLY what performed well and what flopped. Adapt this month's content immediately based on this data:
+${feedbackContext ? `## CRITICAL PERFORMANCE FEEDBACK FROM PREVIOUS 1 day
+The user ran a 1-day playbook last day. Here is EXACTLY what performed well and what flopped. Adapt this month's content immediately based on this data:
 ${feedbackContext}
 ` : ''}
 Generate the complete ${channelName} strategy JSON now. Apply ALL rules from the expert playbook. Make the content templates READY TO POST TODAY.`;
