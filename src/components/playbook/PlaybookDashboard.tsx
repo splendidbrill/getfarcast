@@ -27,6 +27,7 @@ import { PlaybookChannels } from "./PlaybookChannels";
 import { WeeklyContentEngine } from "./WeeklyContentEngine";
 import { WeeklyContentIdeas } from "./WeeklyContentIdeas";
 import { DailyLogs } from "./DailyLogs";
+import { PlaybookPrintView } from "./PlaybookPrintView";
 import Link from "next/link";
 
 type MainTab = "overview" | "icp" | "channels" | "logs" | "posts" | "leads";
@@ -350,28 +351,7 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
       </div>
 
       {isExportingAll && (
-        <div className="print-all-container" aria-hidden="true">
-          <div className="print-section">
-            <h1 className="print-section-title">{playbook.productName} — Executive Summary</h1>
-            <PlaybookOverview playbook={playbook} />
-          </div>
-          <div className="print-section print-page-break">
-            <h1 className="print-section-title">Audience Profiling</h1>
-            <PlaybookICP icp={playbook.icp} />
-          </div>
-          <div className="print-section print-page-break">
-            <h1 className="print-section-title">Distribution Channels</h1>
-            <PlaybookChannels playbookId={playbook.id} channels={playbook.channels} />
-          </div>
-          <div className="print-section print-page-break">
-            <h1 className="print-section-title">Weekly Content Engine</h1>
-            <WeeklyContentEngine playbook={playbook} />
-          </div>
-          <div className="print-section print-page-break">
-            <h1 className="print-section-title">Weekly Content Ideas</h1>
-            <WeeklyContentIdeas playbook={playbook} />
-          </div>
-        </div>
+        <PlaybookPrintView playbook={playbook} />
       )}
     </div>
   );

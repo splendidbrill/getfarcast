@@ -363,40 +363,84 @@ html {
 }
 
 @media print {
+  /* Force print-friendly colors for background/border utilities */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
   body.print-all-mode .print-normal-root {
     display: none !important;
   }
+
   body.print-all-mode .print-all-container {
     position: static !important;
     left: auto !important;
-    width: auto !important;
+    width: 100% !important;
     height: auto !important;
     overflow: visible !important;
-    background: #ffffff;
-    color: #1a1a2e;
-    padding: 24px;
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+    padding: 0 !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+
+  /* Cover page */
+  body.print-all-mode .print-cover {
+    padding: 32px;
+    min-height: 30vh;
+  }
+
+  /* Regular sections */
   body.print-all-mode .print-section {
-    margin-bottom: 32px;
+    padding: 24px;
+    margin-bottom: 0;
   }
+
   body.print-all-mode .print-page-break {
     break-before: page;
     page-break-before: always;
+    padding-top: 24px;
   }
+
   body.print-all-mode .print-section-title {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #ff6b4e;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #ff6b4e;
+    letter-spacing: -0.01em;
   }
-  body.print-all-mode .print-section h2,
-  body.print-all-mode .print-section h3 {
+
+  /* Prevent orphaned headings */
+  body.print-all-mode h1,
+  body.print-all-mode h2,
+  body.print-all-mode h3,
+  body.print-all-mode h4 {
     break-after: avoid;
     page-break-after: avoid;
+  }
+
+  /* Keep content calendar post cards together where possible */
+  body.print-all-mode .print-section > div > div > div {
+    break-inside: avoid;
+  }
+
+  /* Hide interactive UI elements */
+  body.print-all-mode button,
+  body.print-all-mode [role="button"] {
+    display: none !important;
+  }
+
+  /* Ensure backgrounds render in print */
+  body.print-all-mode [class*="bg-"] {
+    print-color-adjust: exact;
   }
 }
 
 @page {
-  margin: 12mm;
+  margin: 12mm 14mm;
+  size: A4;
 }
