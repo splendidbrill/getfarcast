@@ -159,52 +159,68 @@ export async function POST(request: Request) {
           }
         }
 
-        // ── STEP 3: Channel Strategies (sequential, KB-injected) ──────
-        const channelStrategies = [];
+        // ── STEP 3: Channel Strategies (parallel, KB-injected) ───────
+        // Kick off all channel LLM calls simultaneously. With 10 channels
+        // this reduces wall-clock time from ~15 min (sequential) to ~1-2 min
+        // (bounded by the slowest single call).
+        encodeEvent(controller, encoder, "progress", {
+          step: 3,
+          total: 4,
+          label: `Writing strategies for all ${matchedChannels.length} channels (expert rules applied)...`,
+          status: "running",
+          substep: `0/${matchedChannels.length}`,
+        });
 
-        for (let i = 0; i < matchedChannels.length; i++) {
-          const ch = matchedChannels[i];
+        let completedCount = 0;
+
+        const channelStrategyPromises = matchedChannels.map(async (ch, i) => {
           const kb = await getChannelPlaybook(ch.name);
 
-          encodeEvent(controller, encoder, "progress", {
-            step: 3,
-            total: 4,
-            label: `Writing ${ch.name} strategy (expert rules applied)...`,
-            status: "running",
-            substep: `${i + 1}/${matchedChannels.length}`,
-          });
+          const systemPrompt = kb
+            ? buildChannelSystemPrompt(ch.name, kb)
+            : buildChannelSystemPrompt(
+                ch.name,
+                `No specific playbook available. Generate a comprehensive strategy based on your knowledge of ${ch.name} best practices for early-stage startups. Apply the general principles of value-first content, audience-specific tone, and anti-slop rules.`
+              );
 
-          let systemPrompt: string;
-          if (kb) {
-            systemPrompt = buildChannelSystemPrompt(ch.name, kb);
-          } else {
-            // Fallback if no KB file exists for this channel
-            systemPrompt = buildChannelSystemPrompt(
-              ch.name,
-              `No specific playbook available. Generate a comprehensive strategy based on your knowledge of ${ch.name} best practices for early-stage startups. Apply the general principles of value-first content, audience-specific tone, and anti-slop rules.`
-            );
-          }
-
-          const strategy = await callLLM(
+          const strategy = (await callLLM(
             systemPrompt,
             buildChannelUserPrompt(icp, formData, ch.name, i + 1, ch.pushType, feedbackContextStr)
-          ) as Record<string, unknown>;
+          )) as Record<string, unknown>;
 
-          channelStrategies.push({
-            ...strategy,
-            rank: i + 1,
-            fitScore: ch.score,
-            pushType: ch.pushType,
-          });
-
+          completedCount++;
           encodeEvent(controller, encoder, "progress", {
             step: 3,
             total: 4,
             label: `${ch.name} strategy ready`,
-            status: i + 1 === matchedChannels.length ? "done" : "partial",
-            substep: `${i + 1}/${matchedChannels.length}`,
+            status: completedCount === matchedChannels.length ? "done" : "partial",
+            substep: `${completedCount}/${matchedChannels.length}`,
           });
-        }
+
+          return {
+            ...strategy,
+            rank: i + 1,
+            fitScore: ch.score,
+            pushType: ch.pushType,
+          };
+        });
+
+        // Wait for all channels. Use allSettled so one failure doesn't abort everything.
+        const settled = await Promise.allSettled(channelStrategyPromises);
+        const channelStrategies = settled
+          .map((result, i) => {
+            if (result.status === "fulfilled") return result.value;
+            console.error(`Channel ${matchedChannels[i].name} strategy failed:`, result.reason);
+            // Return a minimal placeholder so the playbook still renders
+            return {
+              name: matchedChannels[i].name,
+              rank: i + 1,
+              fitScore: matchedChannels[i].score,
+              pushType: matchedChannels[i].pushType,
+              rationale: "Strategy generation failed for this channel.",
+              contentCalendar: [],
+            };
+          });
 
         // ── STEP 4: Market Sizing ────────────────────────────────────
         encodeEvent(controller, encoder, "progress", {
