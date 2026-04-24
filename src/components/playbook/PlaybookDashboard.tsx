@@ -28,6 +28,7 @@ import { WeeklyContentEngine } from "./WeeklyContentEngine";
 import { WeeklyContentIdeas } from "./WeeklyContentIdeas";
 import { DailyLogs } from "./DailyLogs";
 import { PlaybookPrintView } from "./PlaybookPrintView";
+import { WarmLeads } from "./WarmLeads";
 import Link from "next/link";
 
 type MainTab = "overview" | "icp" | "channels" | "logs" | "posts" | "leads";
@@ -331,21 +332,7 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
             )}
 
             {activeTab === "leads" && (
-              <div className="text-center py-20 px-6 space-y-6">
-                <div className="w-20 h-20 bg-[#ff6b4e]/5 rounded-3xl flex items-center justify-center mx-auto shadow-sm border border-[#ff6b4e]/10">
-                  <Target className="w-10 h-10 text-[#ff6b4e]" />
-                </div>
-                <div className="max-w-md mx-auto">
-                  <h3 className="text-2xl font-bold text-[#1a1a2e] mb-2">Your Daily Warm Lead List</h3>
-                  <p className="text-gray-500 font-medium leading-relaxed">
-                    Farcast tracks two signals — people actively expressing the problem your product solves across your channels, and your target customer who engaged with your content. Both land in your inbox every morning, ready to reach out.
-                  </p>
-                </div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-bold border border-blue-100">
-                  <Sparkles className="w-4 h-4" />
-                  Launching Soon with our Chrome Extension
-                </div>
-              </div>
+              <WarmLeads playbookId={playbook.id} />
             )}
           </div>
         </main>
