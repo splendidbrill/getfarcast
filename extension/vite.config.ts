@@ -36,12 +36,6 @@ function getEntryFileName(name: string) {
   switch (name) {
     case 'background/service-worker':
       return 'background/service-worker.js';
-    case 'content/twitter':
-      return 'content/twitter.js';
-    case 'content/reddit':
-      return 'content/reddit.js';
-    case 'content/linkedin':
-      return 'content/linkedin.js';
     default:
       return 'assets/[name].js';
   }
@@ -59,9 +53,6 @@ export default defineConfig({
       input: {
         'popup/index': path.resolve(srcDir, 'popup/index.html'),
         'background/service-worker': path.resolve(srcDir, 'background/service-worker.ts'),
-        'content/twitter': path.resolve(srcDir, 'content/twitter.ts'),
-        'content/reddit': path.resolve(srcDir, 'content/reddit.ts'),
-        'content/linkedin': path.resolve(srcDir, 'content/linkedin.ts')
       },
       output: {
         entryFileNames: (chunkInfo) => getEntryFileName(chunkInfo.name),

@@ -4,7 +4,7 @@ import {
     submitEngagerLeads,
     submitIntentLeads
 } from '../shared/api'
-import { DEFAULT_API_BASE_URL, STORAGE_KEYS } from '../shared/constants'
+import { DEFAULT_API_BASE_URL, REDDIT_SEARCH_THROTTLE_MS, STORAGE_KEYS } from '../shared/constants'
 import { isConfigStale } from '../shared/config'
 import {
     MessageType,
@@ -210,6 +210,38 @@ async function handleRuntimeMessage(message: RuntimeMessage) {
                 message.payload.leads.map((lead: { profile_url: string }) => lead.profile_url)
             )
             return { ok: true }
+        }
+
+        case MessageType.TRIGGER_REDDIT_SEARCH: {
+            const authToken = await getFromStorage<string>(STORAGE_KEYS.FARCAST_AUTH_TOKEN)
+            const apiBaseUrl =
+                (await getFromStorage<string>(STORAGE_KEYS.API_BASE_URL)) ?? DEFAULT_API_BASE_URL
+
+            if (!authToken) return { ok: false, error: 'Missing auth token' }
+
+            // Throttle: skip if searched recently
+            const lastSearchAt = await getFromStorage<number>(STORAGE_KEYS.LAST_REDDIT_SEARCH_AT)
+            if (lastSearchAt && Date.now() - lastSearchAt < REDDIT_SEARCH_THROTTLE_MS) {
+                return { ok: true, skipped: true }
+            }
+
+            await setInStorage({ [STORAGE_KEYS.LAST_REDDIT_SEARCH_AT]: Date.now() })
+
+            try {
+                const res = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/background/reddit-search`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                const result = await res.json()
+                console.info('[Farcast][Background] Reddit search done', result)
+                return { ok: true, ...result }
+            } catch (err) {
+                console.warn('[Farcast][Background] Reddit search failed', err)
+                return { ok: false, error: String(err) }
+            }
         }
 
         default:

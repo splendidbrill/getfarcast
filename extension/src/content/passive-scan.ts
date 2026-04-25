@@ -148,14 +148,28 @@ export function startPassiveScan(options: PassiveScanOptions) {
 
         try {
             const context = await getRuntimeContext()
-            if (!context) return
+            if (!context) {
+                console.warn(`[Farcast][${options.label}] No runtime config — extension may not be authenticated. Open the extension popup and click "Connect Account".`)
+                return
+            }
+
+            const playbookCount = context.config.activePlaybooks?.length ?? 0
+            const userId = context.config.farcastUserId
+            if (!userId) {
+                console.warn(`[Farcast][${options.label}] Config has no farcastUserId — try "Sync Now" in the extension popup.`)
+                return
+            }
+            if (playbookCount === 0) {
+                console.warn(`[Farcast][${options.label}] No active playbooks in config — create a playbook on the dashboard.`)
+                return
+            }
 
             await reportPageContext()
 
             const result = await options.scan(context)
+            const signalCount = result.intentSignals?.reduce((n, p) => n + (p.leads?.length ?? 0), 0) ?? 0
+            console.info(`[Farcast][${options.label}] Scan done (${reason}) — ${signalCount} intent signal(s) found across ${playbookCount} playbook(s)`)
             await submitIntentSignals(result.intentSignals)
-
-            console.info(`[Farcast][${options.label}] Scan done (${reason})`)
         } catch (error) {
             console.warn(`[Farcast][${options.label}] Scan failed`, error)
         } finally {

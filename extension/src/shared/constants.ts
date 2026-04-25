@@ -9,8 +9,12 @@ export const STORAGE_KEYS = {
     LAST_SYNC_AT: 'last_sync_at',
     CAPTURED_LEAD_IDS: 'captured_lead_ids',
     API_BASE_URL: 'api_base_url',
-    CACHED_EXTENSION_CONFIG: 'cached_extension_config'
+    CACHED_EXTENSION_CONFIG: 'cached_extension_config',
+    LAST_REDDIT_SEARCH_AT: 'last_reddit_search_at',
 } as const;
+
+// Throttle: only trigger Reddit background search once per 30 minutes
+export const REDDIT_SEARCH_THROTTLE_MS = 30 * 60 * 1000;
 
 export const API_ENDPOINTS = {
     CONFIG: '/api/extension/config',

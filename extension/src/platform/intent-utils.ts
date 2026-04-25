@@ -59,6 +59,8 @@ export function extractIntentPayloads(
 
     const candidates = collectCandidates(context, fallbacks)
 
+    console.debug(`[Farcast][${context.platform}] ${candidates.length} post container(s) found on page`)
+
     if (candidates.length === 0) {
         return []
     }
@@ -69,8 +71,11 @@ export function extractIntentPayloads(
         const keywords = uniqueStrings(playbook.intent_keywords.map((keyword) => keyword.trim()))
 
         if (keywords.length === 0) {
+            console.warn(`[Farcast] Playbook "${playbook.product_name}" has no intent keywords — leads won't be captured for it.`)
             return []
         }
+
+        console.debug(`[Farcast] Matching against ${keywords.length} keyword(s) for "${playbook.product_name}":`, keywords)
 
         const leadsByKey = new Map<string, LeadPayload>()
 
@@ -107,8 +112,11 @@ export function extractIntentPayloads(
         const leads = Array.from(leadsByKey.values())
 
         if (leads.length === 0) {
+            console.debug(`[Farcast] No keyword matches found for "${playbook.product_name}" on this page`)
             return []
         }
+
+        console.info(`[Farcast] ${leads.length} lead(s) matched for "${playbook.product_name}"`, leads.map(l => ({ keyword: l.matched_keyword, name: l.username_or_name })))
 
         return [
             {
