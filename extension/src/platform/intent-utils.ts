@@ -1,5 +1,5 @@
 import { createPreview, normalizeWhitespace } from '../lib/text'
-import { findIntentMatches } from '../shared/intent-matcher'
+import { findIntentMatches, isNegativeBio } from '../shared/intent-matcher'
 import type {
     IntentLeadsPayload,
     LeadPayload,
@@ -7,6 +7,23 @@ import type {
     PlatformSelectorConfig,
     ScanContext
 } from '../shared/types'
+
+function extractPageContext(platform: Platform, url: string): string | undefined {
+    try {
+        const parsed = new URL(url)
+        if (platform === 'reddit') {
+            const match = parsed.pathname.match(/^\/r\/([A-Za-z0-9_]+)/i)
+            return match ? `r/${match[1]}` : undefined
+        }
+        if (platform === 'twitter_x') {
+            const q = parsed.searchParams.get('q')
+            return q ? `search:${q.slice(0, 60)}` : undefined
+        }
+    } catch {
+        // ignore
+    }
+    return undefined
+}
 
 type SelectorGroupName = keyof PlatformSelectorConfig
 
@@ -27,6 +44,7 @@ type CandidateLead = {
     sourceUrl: string
     postedAt?: string
     matchedText: string
+    engagementWeight?: number
 }
 
 export function extractIntentPayloads(
@@ -45,6 +63,8 @@ export function extractIntentPayloads(
         return []
     }
 
+    const pageContext = extractPageContext(context.platform, context.url)
+
     return context.config.activePlaybooks.flatMap((playbook) => {
         const keywords = uniqueStrings(playbook.intent_keywords.map((keyword) => keyword.trim()))
 
@@ -55,6 +75,11 @@ export function extractIntentPayloads(
         const leadsByKey = new Map<string, LeadPayload>()
 
         for (const candidate of candidates) {
+            // Drop job seekers, students, agencies — non-buyer bios
+            if (candidate.bioOrHeadline && isNegativeBio(candidate.bioOrHeadline)) {
+                continue
+            }
+
             const matches = findIntentMatches(candidate.matchedText, keywords)
 
             for (const match of matches) {
@@ -65,7 +90,10 @@ export function extractIntentPayloads(
                     matched_text_preview: createPreview(candidate.matchedText, 280),
                     matched_keyword: match.keyword,
                     source_url: candidate.sourceUrl,
-                    posted_at: candidate.postedAt
+                    posted_at: candidate.postedAt,
+                    page_context: pageContext,
+                    intent_level: match.intent_level,
+                    engagement_weight: candidate.engagementWeight,
                 }
 
                 if (!isValidLead(lead)) {
@@ -87,7 +115,9 @@ export function extractIntentPayloads(
                 user_id: userId,
                 playbook_id: playbook.playbook_id,
                 platform: context.platform,
-                leads
+                icp_summary: playbook.icp_summary,
+                recommended_subreddits: playbook.recommended_subreddits,
+                leads,
             }
         ]
     })
@@ -176,13 +206,24 @@ function collectCandidates(context: ScanContext, fallbacks: IntentSelectorFallba
             profileUrl,
             sourceUrl,
             postedAt: readTimestamp(container, timestampSelectors) ?? undefined,
-            matchedText
+            matchedText,
+            engagementWeight: extractEngagementWeight(container),
         }
 
         candidatesByKey.set(makeCandidateKey(lead), lead)
     }
 
     return Array.from(candidatesByKey.values())
+}
+
+function extractEngagementWeight(container: Element): number {
+    const text = container instanceof HTMLElement ? container.innerText : (container.textContent ?? '')
+    const match = text.match(/(\d+)\s*(?:replies?|comments?|responses?)/i)
+    if (match) {
+        const count = parseInt(match[1], 10)
+        return isNaN(count) ? 0 : count
+    }
+    return 0
 }
 
 function collectContainers(selectors: string[]) {

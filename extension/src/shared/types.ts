@@ -57,6 +57,8 @@ export type LeadPayload = {
     matched_keyword?: string;
     source_url?: string;
     posted_at?: string;
+    page_context?: string;
+    intent_level?: 'high' | 'medium' | 'low';
 };
 
 export type EngagerLeadsPayload = {
@@ -71,6 +73,8 @@ export type IntentLeadsPayload = {
     user_id: string;
     playbook_id: string;
     platform: Platform;
+    icp_summary?: string;
+    recommended_subreddits?: string[];
     leads: LeadPayload[];
 };
 
@@ -84,6 +88,7 @@ export type PageContextPayload = {
 export type IntentMatch = {
     keyword: string;
     matchedText: string;
+    intent_level: 'high' | 'medium' | 'low';
 };
 
 export type ScanContext = {

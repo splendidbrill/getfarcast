@@ -1,14 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Trash2, ArrowRight, BookOpen, AlertCircle, Sparkles } from "lucide-react";
 import { deletePlaybook } from "./actions";
+
+type LeadCounts = { hot: number; warm: number; total: number };
+type LeadCountsMap = Record<string, LeadCounts>;
 
 export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks: any[]; onDelete: (id: string) => void; trialData?: any }) {
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [leadCounts, setLeadCounts] = useState<LeadCountsMap>({});
+
+  useEffect(() => {
+    fetch("/api/extension/intent-leads/counts")
+      .then((r) => r.json())
+      .then((json) => { if (json.counts) setLeadCounts(json.counts); })
+      .catch(() => {});
+  }, []);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -142,6 +153,7 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
             {playbooks.map((pb) => {
               const channelsData = pb.data?.playbook?.channels || pb.data?.channels || [];
               const topChannels = channelsData.slice(0, 2).map((c: any) => c.name).join(" + ") || "Multiple Channels";
+              const leads = leadCounts[pb.id];
               return (
                 <Link
                   key={pb.id}
@@ -166,7 +178,7 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
                       )}
                     </button>
                   </div>
-                  <div className="space-y-1 mb-6 flex-1">
+                  <div className="space-y-1 mb-4 flex-1">
                     <h3 className="text-xl font-bold text-[#1a1a2e] group-hover:text-[#ff6b4e] transition-colors line-clamp-1">
                       {pb.product_name}
                     </h3>
@@ -174,6 +186,28 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
                       {new Date(pb.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </p>
                   </div>
+
+                  {/* Lead count badges */}
+                  {leads && leads.total > 0 && (
+                    <div className="flex items-center gap-2 mb-4">
+                      {leads.hot > 0 && (
+                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 text-red-600 text-xs font-bold border border-red-100">
+                          🔥 {leads.hot} hot
+                        </span>
+                      )}
+                      {leads.warm > 0 && (
+                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-600 text-xs font-bold border border-amber-100">
+                          ⚡ {leads.warm} warm
+                        </span>
+                      )}
+                      {leads.hot === 0 && leads.warm === 0 && (
+                        <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold">
+                          {leads.total} leads
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   <div className="mb-6 p-4 bg-gray-50 rounded-2xl border border-gray-100 group-hover:border-[#ff6b4e]/10 group-hover:bg-[#ff6b4e]/5 transition-colors">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Top Channels</p>
                     <p className="text-sm font-semibold text-[#1a1a2e]">{topChannels}</p>

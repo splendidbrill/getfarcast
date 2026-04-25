@@ -43,6 +43,8 @@ type IntentLeadInput = {
   matched_keyword?: string;
   source_url?: string;
   posted_at?: string;
+  page_context?: string;
+  engagement_weight?: number;
 };
 
 export function getExtensionCorsHeaders() {
@@ -156,7 +158,199 @@ export function sanitizeIntentLead(input: IntentLeadInput) {
     matched_keyword: input.matched_keyword?.trim() ?? "",
     source_url: input.source_url?.trim() ?? "",
     posted_at: input.posted_at?.trim() || null,
+    page_context: input.page_context?.trim() || null,
+    engagement_weight:
+      typeof input.engagement_weight === "number" && input.engagement_weight > 0
+        ? Math.floor(input.engagement_weight)
+        : 0,
   };
+}
+
+const HIGH_INTENT_PATTERNS: RegExp[] = [
+  /\blooking for\b/i,
+  /\bany (?:good\s+)?(?:tool|software|app|platform|solution|recommendation)s?\b/i,
+  /\brecommend(?:ation)?s?\b/i,
+  /\bbest (?:tool|way|option|alternative|solution)\b/i,
+  /\balternative to\b/i,
+  /\breplace\b/i,
+  /\bswitch(?:ing)? (?:from|away)\b/i,
+  /\bwhat (?:do|should|would) (?:you|we|i) use\b/i,
+  /\bany suggestions?\b/i,
+  /\bhelp me find\b/i,
+  /\bis there (?:a|any)\b/i,
+  /\bdoes anyone (?:know|use|recommend)\b/i,
+];
+
+const MEDIUM_INTENT_PATTERNS: RegExp[] = [
+  /\bstruggl(?:e|ing|ed)\b/i,
+  /\bmanual(?:ly)?\b/i,
+  /\btoo (?:slow|expensive|hard|complex|complicated)\b/i,
+  /\btime[- ]consuming\b/i,
+  /\bfrustrat(?:e|ed|ing)\b/i,
+  /\bpainful\b/i,
+  /\bbroken\b/i,
+  /\bissue with\b/i,
+  /\bproblem with\b/i,
+  /\bcan'?t figure\b/i,
+  /\boverwhel(?:m|med|ming)\b/i,
+  /\bnightmare\b/i,
+  /\bwaste (?:of )?time\b/i,
+  /\btired of\b/i,
+  /\bsick of\b/i,
+];
+
+// Bio signals that indicate a non-buyer: job seekers, students, agencies selling services
+const NEGATIVE_BIO_PATTERNS: RegExp[] = [
+  /\b(?:hiring|we'?re hiring|now hiring|join our team)\b/i,
+  /\b(?:open to (?:work|opportunities)|seeking (?:new )?(?:role|position|opportunity)|job seeker)\b/i,
+  /\b(?:looking for (?:a )?(?:job|role|position|internship))\b/i,
+  /\b(?:cs|software|computer science|engineering)\s+student\b/i,
+  /\b(?:undergrad|undergraduate|grad student|phd(?:\s+student)?|msc student|masters student)\b/i,
+  /\b(?:learning to (?:code|program)|new to coding|just started coding|aspiring developer)\b/i,
+  /\b(?:i teach|online course|course creator|e-?learning|instructor|professor|lecturer)\b/i,
+  /\b(?:(?:digital )?marketing agency|growth agency|seo agency|we help (?:businesses|companies|startups|brands)|services agency)\b/i,
+  /\b(?:available for (?:hire|freelance)|freelance (?:available|services)|hire me)\b/i,
+];
+
+// Text signals that indicate the post is not from a real buyer
+const NEGATIVE_TEXT_PATTERNS: RegExp[] = [
+  /\b(?:we'?re hiring|looking to hire|job (?:opening|posting|opportunity)|apply now)\b/i,
+  /\b(?:our agency (?:can|will|offers|helps)|dm (?:us|me) for (?:our )?services)\b/i,
+];
+
+// Founder / operator patterns → highest ICP match
+const FOUNDER_PATTERNS: RegExp[] = [
+  /\b(?:founder|co-?founder|ceo|cto|coo|president|owner|solopreneur|solo ?founder|building)\b/i,
+];
+
+// Buyer-adjacent roles → good ICP match
+const BUYER_ROLE_PATTERNS: RegExp[] = [
+  /\b(?:marketer|marketing|growth hacker|demand gen|cmo|vp (?:of )?marketing|head of (?:growth|marketing))\b/i,
+  /\b(?:product manager|pm|head of product|vp (?:of )?product)\b/i,
+  /\b(?:developer|engineer|programmer|dev|software|backend|frontend|full.?stack)\b/i,
+  /\b(?:entrepreneur|startup|bootstrapped|early.?stage|indiehacker|indie hacker)\b/i,
+  /\b(?:operator|consultant|advisor|partner)\b/i,
+];
+
+export function isNegativeLead(
+  bioOrHeadline: string | null | undefined,
+  matchedText: string | null | undefined
+): boolean {
+  const bio = bioOrHeadline ?? "";
+  const text = matchedText ?? "";
+  if (bio && NEGATIVE_BIO_PATTERNS.some((p) => p.test(bio))) return true;
+  if (text && NEGATIVE_TEXT_PATTERNS.some((p) => p.test(text))) return true;
+  return false;
+}
+
+export function classifyIntentLevel(text: string): "high" | "medium" | "low" {
+  if (HIGH_INTENT_PATTERNS.some((p) => p.test(text))) return "high";
+  if (MEDIUM_INTENT_PATTERNS.some((p) => p.test(text))) return "medium";
+  return "low";
+}
+
+export function computeRecencyScore(postedAt: string | null | undefined): number {
+  if (!postedAt) return 0;
+  try {
+    const ageHours = (Date.now() - new Date(postedAt).getTime()) / 3_600_000;
+    if (isNaN(ageHours)) return 0;
+    if (ageHours <= 24) return 15;
+    if (ageHours <= 72) return 8;
+    if (ageHours <= 168) return 3;
+    return 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function computeContextScore(
+  platform: Platform,
+  pageContext: string | null | undefined,
+  recommendedSubreddits: string[]
+): number {
+  if (platform === "reddit" && pageContext?.startsWith("r/")) {
+    const subreddit = pageContext.toLowerCase();
+    const isRecommended = recommendedSubreddits.some(
+      (r) => r.toLowerCase() === subreddit || `r/${r.toLowerCase()}` === subreddit
+    );
+    return isRecommended ? 20 : 8;
+  }
+  return 5;
+}
+
+export function computeIcpBioScore(
+  bioOrHeadline: string | null | undefined,
+  icpSummary: string | null | undefined
+): number {
+  if (!bioOrHeadline) return 0;
+  const bio = bioOrHeadline.toLowerCase();
+
+  // Founders always score high — they're the primary buyer persona
+  if (FOUNDER_PATTERNS.some((p) => p.test(bio))) {
+    if (!icpSummary) return 12;
+    const bioWords = new Set(bio.split(/\W+/).filter((w) => w.length > 3));
+    const overlap = icpSummary
+      .toLowerCase()
+      .split(/\W+/)
+      .filter((w) => w.length > 3 && bioWords.has(w)).length;
+    return overlap >= 1 ? 15 : 12;
+  }
+
+  // Buyer-adjacent roles — score based on ICP keyword overlap
+  if (BUYER_ROLE_PATTERNS.some((p) => p.test(bio))) {
+    if (!icpSummary) return 8;
+    const bioWords = new Set(bio.split(/\W+/).filter((w) => w.length > 3));
+    const overlap = icpSummary
+      .toLowerCase()
+      .split(/\W+/)
+      .filter((w) => w.length > 3 && bioWords.has(w)).length;
+    return overlap >= 2 ? 15 : 8;
+  }
+
+  // Fallback: pure keyword overlap
+  if (!icpSummary) return 0;
+  const bioWords = new Set(bio.split(/\W+/).filter((w) => w.length > 3));
+  const overlap = icpSummary
+    .toLowerCase()
+    .split(/\W+/)
+    .filter((w) => w.length > 3 && bioWords.has(w)).length;
+  if (overlap >= 3) return 8;
+  if (overlap >= 1) return 4;
+  return 0;
+}
+
+// engagement_weight = reply/comment count detected in the DOM
+export function computeEngagementScore(engagementWeight: number | null | undefined): number {
+  if (!engagementWeight || engagementWeight <= 0) return 0;
+  if (engagementWeight >= 5) return 10;
+  if (engagementWeight >= 2) return 5;
+  return 2;
+}
+
+// +20 for leads where the same user/keyword has been seen before
+export function computeRepeatBoost(seenCount: number): number {
+  return seenCount > 1 ? 20 : 0;
+}
+
+export function computeLeadScore(params: {
+  intentLevel: "high" | "medium" | "low";
+  recencyScore: number;
+  contextScore: number;
+  icpBioScore: number;
+  engagementScore?: number;
+  repeatBoost?: number;
+}): number {
+  const intentScore =
+    params.intentLevel === "high" ? 50 : params.intentLevel === "medium" ? 25 : 5;
+  return Math.min(
+    100,
+    intentScore +
+      params.recencyScore +
+      params.contextScore +
+      params.icpBioScore +
+      (params.engagementScore ?? 0) +
+      (params.repeatBoost ?? 0)
+  );
 }
 
 function normalizeConnectedHandles(handles?: ConnectedHandles | null): ConnectedHandles {
