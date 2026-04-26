@@ -25,6 +25,10 @@ export default function App() {
     const [stats, setStats] = useState<PopupStats>(initialStats);
     const [syncing, setSyncing] = useState(false);
     const [statusMessage, setStatusMessage] = useState('Idle');
+    const [icpQuery, setIcpQuery] = useState('');
+    const [platform, setPlatform] = useState<'linkedin' | 'reddit'>('linkedin');
+    const [xraySearching, setXraySearching] = useState(false);
+    const [xrayStatus, setXrayStatus] = useState('');
 
     useEffect(() => {
         chrome.storage.local.get(
@@ -72,16 +76,40 @@ export default function App() {
                 type: MessageType.SYNC_NOW
             });
 
-            setStatusMessage(response.ok ? 'Sync completed' : 'Sync failed');
+            setStatusMessage(response?.ok ? 'Sync completed' : 'Sync failed');
 
-            if (response.lastSyncAt) {
-                setStats((current) => ({ ...current, lastSyncAt: response.lastSyncAt ?? null }));
+            if (response?.lastSyncAt) {
+                setStats((current) => ({ ...current, lastSyncAt: response?.lastSyncAt ?? null }));
             }
         } catch (error) {
             console.error('[Farcast][Popup] Sync failed', error);
             setStatusMessage('Sync failed');
         } finally {
             setSyncing(false);
+        }
+    };
+
+    const handleXraySearch = async () => {
+        if (!icpQuery) return;
+        setXraySearching(true);
+        setXrayStatus('Running X-Ray search...');
+        
+        try {
+            const response = await sendRuntimeMessage<{ ok: boolean; error?: string; leadsCount?: number }>({
+                type: MessageType.TRIGGER_XRAY_SEARCH,
+                payload: { icpQuery, platform }
+            });
+            
+            if (response?.ok) {
+                setXrayStatus(`Success! Found ${response.leadsCount ?? 0} leads.`);
+            } else {
+                setXrayStatus(`Search failed: ${response?.error || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('[Farcast][Popup] X-Ray search failed', error);
+            setXrayStatus('Search failed');
+        } finally {
+            setXraySearching(false);
         }
     };
 
@@ -96,6 +124,36 @@ export default function App() {
                     <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                         Passive mode
                     </div>
+                </div>
+
+                <div className="mb-4 rounded-2xl border border-gray-100 bg-gray-50 p-3">
+                    <h2 className="mb-2 text-sm font-bold text-farcast-ink">Google X-Ray Search</h2>
+                    <input
+                        type="text"
+                        placeholder="ICP Query (e.g. founder, marketer)"
+                        value={icpQuery}
+                        onChange={(e) => setIcpQuery(e.target.value)}
+                        className="mb-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-farcast-orange"
+                    />
+                    <div className="flex gap-2">
+                        <select
+                            value={platform}
+                            onChange={(e) => setPlatform(e.target.value as 'linkedin' | 'reddit')}
+                            className="flex-1 rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-farcast-orange"
+                        >
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="reddit">Reddit</option>
+                        </select>
+                        <button
+                            type="button"
+                            onClick={handleXraySearch}
+                            disabled={xraySearching || !icpQuery}
+                            className="rounded-xl bg-farcast-orange px-4 py-2 text-sm font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                            {xraySearching ? 'Searching...' : 'Search'}
+                        </button>
+                    </div>
+                    {xrayStatus && <p className="mt-2 text-xs font-medium text-gray-500">{xrayStatus}</p>}
                 </div>
 
                 <div className="space-y-3 text-sm">

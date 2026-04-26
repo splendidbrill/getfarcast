@@ -14,6 +14,7 @@ export const MessageType = {
     SUBMIT_ENGAGER_LEADS: 'SUBMIT_ENGAGER_LEADS',
     SUBMIT_INTENT_LEADS: 'SUBMIT_INTENT_LEADS',
     TRIGGER_REDDIT_SEARCH: 'TRIGGER_REDDIT_SEARCH',
+    TRIGGER_XRAY_SEARCH: 'TRIGGER_XRAY_SEARCH',
 } as const;
 
 export type RuntimeMessage =
@@ -24,7 +25,8 @@ export type RuntimeMessage =
     | { type: typeof MessageType.SUBMIT_CONTENT_PERFORMANCE; payload: ContentPerformancePayload }
     | { type: typeof MessageType.SUBMIT_ENGAGER_LEADS; payload: EngagerLeadsPayload }
     | { type: typeof MessageType.SUBMIT_INTENT_LEADS; payload: IntentLeadsPayload }
-    | { type: typeof MessageType.TRIGGER_REDDIT_SEARCH };
+    | { type: typeof MessageType.TRIGGER_REDDIT_SEARCH }
+    | { type: typeof MessageType.TRIGGER_XRAY_SEARCH; payload: { icpQuery: string; platform: 'linkedin' | 'reddit' } };
 
 export type SyncNowResponse = {
     ok: boolean;
@@ -32,6 +34,19 @@ export type SyncNowResponse = {
     reason?: string;
 };
 
-export function sendRuntimeMessage<TResponse>(message: RuntimeMessage): Promise<TResponse> {
-    return chrome.runtime.sendMessage(message) as Promise<TResponse>;
+export function sendRuntimeMessage<TResponse>(message: RuntimeMessage): Promise<TResponse | null> {
+    try {
+        return (chrome.runtime.sendMessage(message) as Promise<TResponse>).catch((err) => {
+            if (isContextInvalidated(err)) return null
+            return Promise.reject(err)
+        })
+    } catch (err) {
+        if (isContextInvalidated(err)) return Promise.resolve(null)
+        return Promise.reject(err)
+    }
+}
+
+function isContextInvalidated(err: unknown): boolean {
+    const msg = err instanceof Error ? err.message : String(err)
+    return msg.includes('Extension context invalidated') || msg.includes('context invalidated')
 }

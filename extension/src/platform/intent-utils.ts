@@ -59,7 +59,7 @@ export function extractIntentPayloads(
 
     const candidates = collectCandidates(context, fallbacks)
 
-    console.debug(`[Farcast][${context.platform}] ${candidates.length} post container(s) found on page`)
+    console.info(`[Farcast][${context.platform}] ${candidates.length} candidate(s) found on page`)
 
     if (candidates.length === 0) {
         return []
@@ -75,7 +75,7 @@ export function extractIntentPayloads(
             return []
         }
 
-        console.debug(`[Farcast] Matching against ${keywords.length} keyword(s) for "${playbook.product_name}":`, keywords)
+        console.info(`[Farcast] Matching ${keywords.length} keyword(s) for "${playbook.product_name}":`, keywords)
 
         const leadsByKey = new Map<string, LeadPayload>()
 
@@ -112,7 +112,7 @@ export function extractIntentPayloads(
         const leads = Array.from(leadsByKey.values())
 
         if (leads.length === 0) {
-            console.debug(`[Farcast] No keyword matches found for "${playbook.product_name}" on this page`)
+            console.info(`[Farcast] No keyword matches for "${playbook.product_name}" on this page`)
             return []
         }
 
@@ -182,7 +182,10 @@ function collectCandidates(context: ScanContext, fallbacks: IntentSelectorFallba
     )
 
     const containers = collectContainers(containerSelectors)
+    console.info(`[Farcast][${context.platform}] ${containers.length} container(s) matched selectors on page`)
+
     const candidatesByKey = new Map<string, CandidateLead>()
+    let droppedNoProfile = 0
 
     for (const container of containers) {
         const matchedText = readPrimaryText(container, textSelectors)
@@ -205,6 +208,7 @@ function collectCandidates(context: ScanContext, fallbacks: IntentSelectorFallba
             deriveNameFromUrl(sourceUrl)
 
         if (!profileUrl || !usernameOrName) {
+            droppedNoProfile++
             continue
         }
 
@@ -219,6 +223,10 @@ function collectCandidates(context: ScanContext, fallbacks: IntentSelectorFallba
         }
 
         candidatesByKey.set(makeCandidateKey(lead), lead)
+    }
+
+    if (droppedNoProfile > 0) {
+        console.info(`[Farcast][${context.platform}] ${droppedNoProfile} container(s) dropped — no author profile URL found (possible shadow DOM issue)`)
     }
 
     return Array.from(candidatesByKey.values())
@@ -334,7 +342,10 @@ function readTimestamp(root: ParentNode, selectors: string[]) {
         }
     }
 
-    const timeElement = root instanceof Element ? root.querySelector('time') : null
+    const timeElement = safeQueryAll(
+        root instanceof Element ? root : document,
+        'time'
+    )[0] ?? null
     const fallback =
         timeElement?.getAttribute('datetime') ??
         timeElement?.getAttribute('title') ??
@@ -345,7 +356,7 @@ function readTimestamp(root: ParentNode, selectors: string[]) {
 }
 
 function deriveSourceUrlFromContainer(container: Element, platform: Platform) {
-    const hrefs = Array.from(container.querySelectorAll('a[href]'))
+    const hrefs = safeQueryAll(container, 'a[href]')
         .map((element) => readElementHref(element))
         .filter((href): href is string => Boolean(href))
 
@@ -364,7 +375,7 @@ function deriveSourceUrlFromContainer(container: Element, platform: Platform) {
 }
 
 function deriveProfileUrl(container: Element, platform: Platform, sourceUrl: string) {
-    const hrefs = Array.from(container.querySelectorAll('a[href]'))
+    const hrefs = safeQueryAll(container, 'a[href]')
         .map((element) => readElementHref(element))
         .filter((href): href is string => Boolean(href))
 
@@ -456,12 +467,22 @@ function readText(element: Element) {
     )
 }
 
-function safeQueryAll(root: ParentNode, selector: string) {
+function safeQueryAll(root: ParentNode, selector: string): Element[] {
+    const results: Element[] = []
     try {
-        return Array.from(root.querySelectorAll(selector))
+        results.push(...Array.from(root.querySelectorAll(selector)))
     } catch {
-        return []
+        return results
     }
+    // Pierce one level of shadow DOM (e.g. Reddit's shreddit-post web components)
+    if (root instanceof Element && root.shadowRoot) {
+        try {
+            results.push(...Array.from(root.shadowRoot.querySelectorAll(selector)))
+        } catch {
+            // ignore
+        }
+    }
+    return results
 }
 
 function toAbsoluteUrl(href: string) {

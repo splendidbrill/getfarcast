@@ -24,6 +24,10 @@ async function authorizedFetch<T>(
         body: options.body ? JSON.stringify(options.body) : undefined
     });
 
+    if (response.status === 401) {
+        throw new Error('UNAUTHORIZED');
+    }
+
     if (!response.ok) {
         throw new Error(`Extension API request failed with status ${response.status}`);
     }

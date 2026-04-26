@@ -14,6 +14,7 @@ import {
 import {
     getFromStorage,
     mergeCapturedLeadIds,
+    removeFromStorage,
     setInStorage
 } from '../shared/storage'
 import { nowIso } from '../lib/time'
@@ -45,7 +46,19 @@ async function syncRemoteConfig(force = false) {
             return { ok: true, lastSyncAt: cachedConfig.syncedAt } as const
         }
 
-        const remoteConfig = await fetchExtensionConfig({ apiBaseUrl, authToken })
+        let remoteConfig
+        try {
+            remoteConfig = await fetchExtensionConfig({ apiBaseUrl, authToken })
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err)
+            if (msg === 'UNAUTHORIZED') {
+                // Token expired — clear it so the popup reverts to "Connect Account"
+                await removeFromStorage(STORAGE_KEYS.FARCAST_AUTH_TOKEN)
+                return { ok: false, reason: 'Token expired — reconnect via the extension popup' } as const
+            }
+            throw err
+        }
+
         const lastSyncAt = nowIso()
 
         await setInStorage({
@@ -240,6 +253,31 @@ async function handleRuntimeMessage(message: RuntimeMessage) {
                 return { ok: true, ...result }
             } catch (err) {
                 console.warn('[Farcast][Background] Reddit search failed', err)
+                return { ok: false, error: String(err) }
+            }
+        }
+
+        case MessageType.TRIGGER_XRAY_SEARCH: {
+            const authToken = await getFromStorage<string>(STORAGE_KEYS.FARCAST_AUTH_TOKEN)
+            const apiBaseUrl =
+                (await getFromStorage<string>(STORAGE_KEYS.API_BASE_URL)) ?? DEFAULT_API_BASE_URL
+
+            if (!authToken) return { ok: false, error: 'Missing auth token' }
+
+            try {
+                const res = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/background/xray-search`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(message.payload)
+                })
+                const result = await res.json()
+                console.info('[Farcast][Background] X-Ray search done', result)
+                return { ok: true, ...result }
+            } catch (err) {
+                console.warn('[Farcast][Background] X-Ray search failed', err)
                 return { ok: false, error: String(err) }
             }
         }
