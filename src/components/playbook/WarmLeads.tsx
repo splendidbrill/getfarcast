@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ExternalLink, RefreshCw, Layers, BookOpen } from "lucide-react";
+import { ExternalLink, RefreshCw, Layers, BookOpen, MessageSquare, X, Copy, Check } from "lucide-react";
 
 type Lead = {
     id: string;
@@ -62,12 +62,66 @@ function IntentBadge({ level }: { level: "high" | "medium" | "low" | null }) {
     return null;
 }
 
-export function WarmLeads({ playbookId }: { playbookId: string }) {
+export function WarmLeads({ 
+    playbookId,
+    productName,
+    productDescription
+}: { 
+    playbookId: string;
+    productName?: string;
+    productDescription?: string;
+}) {
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [intentFilter, setIntentFilter] = useState<IntentFilter>("all");
     const [showAllPlaybooks, setShowAllPlaybooks] = useState(false);
+
+    // DM Modal State
+    const [dmLead, setDmLead] = useState<Lead | null>(null);
+    const [isGeneratingDm, setIsGeneratingDm] = useState(false);
+    const [dmText, setDmText] = useState("");
+    const [copiedDm, setCopiedDm] = useState(false);
+
+    const handleGenerateDm = async (lead: Lead) => {
+        setDmLead(lead);
+        setIsGeneratingDm(true);
+        setDmText("");
+        setCopiedDm(false);
+
+        try {
+            const res = await fetch("/api/generate-dm", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    productName,
+                    productDescription,
+                    platform: lead.platform,
+                    username_or_name: lead.username_or_name,
+                    bio_or_headline: lead.bio_or_headline,
+                    matched_text_preview: lead.matched_text_preview,
+                    matched_keyword: lead.matched_keyword,
+                    page_context: lead.page_context,
+                }),
+            });
+            const json = await res.json();
+            if (res.ok && json.dm) {
+                setDmText(json.dm);
+            } else {
+                setDmText("Failed to generate DM. Please try again.");
+            }
+        } catch (err) {
+            setDmText("An error occurred while generating the DM.");
+        } finally {
+            setIsGeneratingDm(false);
+        }
+    };
+
+    const handleCopyDm = () => {
+        navigator.clipboard.writeText(dmText);
+        setCopiedDm(true);
+        setTimeout(() => setCopiedDm(false), 2000);
+    };
 
     const fetchLeads = async () => {
         setLoading(true);
@@ -304,9 +358,72 @@ export function WarmLeads({ playbookId }: { playbookId: string }) {
                                         Post <ExternalLink className="w-3 h-3" />
                                     </a>
                                 )}
+                                <button
+                                    onClick={() => handleGenerateDm(lead)}
+                                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-green-50 text-green-700 text-xs font-bold hover:bg-green-100 transition border border-green-200"
+                                >
+                                    DM <MessageSquare className="w-3 h-3" />
+                                </button>
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* DM Modal */}
+            {dmLead && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-3xl shadow-xl w-full max-w-lg overflow-hidden border border-gray-100">
+                        <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
+                            <h3 className="font-bold text-[#1a1a2e] flex items-center gap-2">
+                                <MessageSquare className="w-4 h-4 text-[#ff6b4e]" />
+                                Personalized DM for {dmLead.username_or_name}
+                            </h3>
+                            <button
+                                onClick={() => setDmLead(null)}
+                                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="p-5 space-y-4">
+                            <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                <strong>Context:</strong> {dmLead.matched_text_preview ? `"${dmLead.matched_text_preview}"` : "No specific post found."}
+                            </div>
+                            
+                            <div className="min-h-[120px] bg-white border border-gray-200 rounded-xl p-4 relative">
+                                {isGeneratingDm ? (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2 text-gray-400">
+                                        <div className="w-6 h-6 border-2 border-[#ff6b4e] border-t-transparent rounded-full animate-spin" />
+                                        <span className="text-sm font-medium animate-pulse">Drafting DM...</span>
+                                    </div>
+                                ) : (
+                                    <textarea
+                                        value={dmText}
+                                        onChange={(e) => setDmText(e.target.value)}
+                                        className="w-full h-full min-h-[100px] resize-none outline-none text-sm text-[#1a1a2e] placeholder-gray-400"
+                                        placeholder="Generated DM will appear here..."
+                                    />
+                                )}
+                            </div>
+                        </div>
+                        <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-2">
+                            <button
+                                onClick={() => setDmLead(null)}
+                                className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleCopyDm}
+                                disabled={isGeneratingDm || !dmText}
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1a1a2e] text-white text-sm font-semibold hover:bg-black transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {copiedDm ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                {copiedDm ? "Copied!" : "Copy DM"}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

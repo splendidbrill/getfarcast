@@ -34,6 +34,8 @@ import Link from "next/link";
 type MainTab = "overview" | "icp" | "channels" | "logs" | "posts" | "leads";
 type ContentSubTab = "weekly-engine" | "weekly-ideas" | "launch-posts";
 
+import { PlaybookDashboard } from "./PlaybookDashboard";
+
 export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
   const router = useRouter();
   const [playbook, setPlaybook] = useState<Playbook | null>(null);
@@ -332,7 +334,11 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
             )}
 
             {activeTab === "leads" && (
-              <WarmLeads playbookId={playbookId} />
+              <WarmLeads 
+                playbookId={playbookId} 
+                productName={playbook.productName} 
+                productDescription={playbook.summary} 
+              />
             )}
           </div>
         </main>
