@@ -41,7 +41,7 @@ export type RuntimeMessage =
     | { type: typeof MessageType.SUBMIT_ENGAGER_LEADS; payload: EngagerLeadsPayload }
     | { type: typeof MessageType.SUBMIT_INTENT_LEADS; payload: IntentLeadsPayload }
     | { type: typeof MessageType.TRIGGER_REDDIT_SEARCH }
-    | { type: typeof MessageType.TRIGGER_XRAY_SEARCH; payload: { icpQuery: string; platform: 'linkedin' | 'reddit' } }
+    | { type: typeof MessageType.TRIGGER_XRAY_SEARCH; payload: { icpQuery: string; platform: 'linkedin' | 'reddit'; playbookId?: string } }
     | { type: typeof MessageType.GENERATE_AI_REPLY; payload: GenerateAiReplyPayload };
 
 export type SyncNowResponse = {

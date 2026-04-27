@@ -83,6 +83,8 @@ export function WarmLeads({ playbookId }: { playbookId: string }) {
 
     useEffect(() => {
         void fetchLeads();
+        const interval = setInterval(() => { void fetchLeads(); }, 15_000);
+        return () => clearInterval(interval);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playbookId, showAllPlaybooks]);
 
