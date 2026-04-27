@@ -99,7 +99,7 @@ export async function POST(request: Request) {
         user_id: user.id,
         playbook_id: playbookId,
         platform,
-        fingerprint: lead.fingerprint,
+        lead_fingerprint: lead.fingerprint,
         intent_level: lead.intent_level,
         lead_score: lead.lead_score,
         username_or_name: lead.username_or_name,
@@ -109,31 +109,32 @@ export async function POST(request: Request) {
         source_url: lead.source_url,
       }));
 
-      const fingerprints = rows.map((r: any) => r.fingerprint);
+      const fingerprints = rows.map((r: any) => r.lead_fingerprint);
       const { data: existingLeads } = await admin
         .from("intent_leads")
-        .select("fingerprint,seen_count")
+        .select("lead_fingerprint,seen_count")
         .eq("user_id", user.id)
-        .in("fingerprint", fingerprints);
+        .in("lead_fingerprint", fingerprints);
 
       const existingMap = new Map<string, number>(
-        (existingLeads ?? []).map((e: any) => [e.fingerprint as string, (e.seen_count as number) ?? 1])
+        (existingLeads ?? []).map((e: any) => [e.lead_fingerprint as string, (e.seen_count as number) ?? 1])
       );
 
-      const newRows = rows.filter((r: any) => !existingMap.has(r.fingerprint));
-      const repeatRows = rows.filter((r: any) => existingMap.has(r.fingerprint));
+      const newRows = rows.filter((r: any) => !existingMap.has(r.lead_fingerprint));
+      const repeatRows = rows.filter((r: any) => existingMap.has(r.lead_fingerprint));
 
       if (newRows.length > 0) {
-        await admin.from("intent_leads").upsert(newRows, { onConflict: "user_id,fingerprint", ignoreDuplicates: true });
+        const { error: insertError } = await admin.from("intent_leads").upsert(newRows, { onConflict: "user_id,lead_fingerprint", ignoreDuplicates: true });
+        if (insertError) console.error("[xray-search] insert error", insertError);
       }
 
       for (const row of repeatRows) {
-        const prevCount = existingMap.get(row.fingerprint) ?? 1;
+        const prevCount = existingMap.get(row.lead_fingerprint) ?? 1;
         await admin
           .from("intent_leads")
           .update({ seen_count: prevCount + 1, is_repeated: true, lead_score: Math.min(100, row.lead_score + 20) })
           .eq("user_id", user.id)
-          .eq("fingerprint", row.fingerprint);
+          .eq("lead_fingerprint", row.lead_fingerprint);
       }
     }
 

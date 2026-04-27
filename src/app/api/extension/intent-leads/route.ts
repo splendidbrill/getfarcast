@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
                 user_id: user.id,
                 playbook_id: body.playbook_id,
                 platform,
-                fingerprint,
+                lead_fingerprint: fingerprint,
                 intent_level: intentLevel,
                 lead_score: leadScore,
                 ...sanitized,
@@ -128,25 +128,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Check which fingerprints already exist to apply repeat signal boost
-    const fingerprints = rows.map((r) => r.fingerprint);
+    const fingerprints = rows.map((r) => r.lead_fingerprint);
     const { data: existingLeads } = await admin
         .from("intent_leads")
-        .select("fingerprint,seen_count")
+        .select("lead_fingerprint,seen_count")
         .eq("user_id", user.id)
-        .in("fingerprint", fingerprints);
+        .in("lead_fingerprint", fingerprints);
 
     const existingMap = new Map<string, number>(
-        (existingLeads ?? []).map((e) => [e.fingerprint as string, (e.seen_count as number) ?? 1])
+        (existingLeads ?? []).map((e) => [e.lead_fingerprint as string, (e.seen_count as number) ?? 1])
     );
 
-    const newRows = rows.filter((r) => !existingMap.has(r.fingerprint));
-    const repeatRows = rows.filter((r) => existingMap.has(r.fingerprint));
+    const newRows = rows.filter((r) => !existingMap.has(r.lead_fingerprint));
+    const repeatRows = rows.filter((r) => existingMap.has(r.lead_fingerprint));
 
     // Insert genuinely new leads
     if (newRows.length > 0) {
         const { error: insertError } = await admin
             .from("intent_leads")
-            .upsert(newRows, { onConflict: "user_id,fingerprint", ignoreDuplicates: true });
+            .upsert(newRows, { onConflict: "user_id,lead_fingerprint", ignoreDuplicates: true });
 
         if (insertError) {
             console.error("[extension/intent-leads] insert error", insertError);
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
 
     // Update repeat leads: increment seen_count, apply +20 boost, flag as repeated
     for (const row of repeatRows) {
-        const prevCount = existingMap.get(row.fingerprint) ?? 1;
+        const prevCount = existingMap.get(row.lead_fingerprint) ?? 1;
         const newScore = Math.min(100, row.lead_score + 20);
         await admin
             .from("intent_leads")
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
                 lead_score: newScore,
             })
             .eq("user_id", user.id)
-            .eq("fingerprint", row.fingerprint);
+            .eq("lead_fingerprint", row.lead_fingerprint);
     }
 
     return NextResponse.json({ inserted: newRows.length, repeated: repeatRows.length }, { headers: cors });
@@ -188,11 +188,11 @@ export async function GET(request: NextRequest) {
     let query = supabase
         .from("intent_leads")
         .select(
-            "id,platform,username_or_name,bio_or_headline,profile_url,matched_text_preview,matched_keyword,source_url,captured_at,intent_level,lead_score,page_context,is_repeated,seen_count,engagement_weight"
+            "id,platform,username_or_name,bio_or_headline,profile_url,matched_text_preview,matched_keyword,source_url,created_at,intent_level,lead_score,page_context,is_repeated,seen_count,engagement_weight"
         )
         .eq("user_id", user.id)
         .order("lead_score", { ascending: false })
-        .order("captured_at", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(200);
 
     if (playbookId) {

@@ -12,7 +12,7 @@ type Lead = {
     matched_text_preview: string | null;
     matched_keyword: string | null;
     source_url: string | null;
-    captured_at: string;
+    created_at: string;
     intent_level: "high" | "medium" | "low" | null;
     lead_score: number | null;
     page_context: string | null;
@@ -264,7 +264,7 @@ export function WarmLeads({ playbookId }: { playbookId: string }) {
                                     )}
 
                                     <span className="text-xs text-gray-400">
-                                        {timeAgo(lead.captured_at)}
+                                        {timeAgo(lead.created_at)}
                                     </span>
                                 </div>
 
