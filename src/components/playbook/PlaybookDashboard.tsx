@@ -332,7 +332,7 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
             )}
 
             {activeTab === "leads" && (
-              <WarmLeads playbookId={playbook.id} />
+              <WarmLeads playbookId={playbookId} />
             )}
           </div>
         </main>
