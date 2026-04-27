@@ -15,7 +15,22 @@ export const MessageType = {
     SUBMIT_INTENT_LEADS: 'SUBMIT_INTENT_LEADS',
     TRIGGER_REDDIT_SEARCH: 'TRIGGER_REDDIT_SEARCH',
     TRIGGER_XRAY_SEARCH: 'TRIGGER_XRAY_SEARCH',
+    GENERATE_AI_REPLY: 'GENERATE_AI_REPLY',
 } as const;
+
+export type GenerateAiReplyPayload = {
+    platform: string;
+    postText: string;
+    authorName?: string;
+};
+
+export type GenerateAiReplyResponse = {
+    ok: true;
+    reply: string;
+} | {
+    ok: false;
+    error: string;
+};
 
 export type RuntimeMessage =
     | { type: typeof MessageType.PING }
@@ -26,7 +41,8 @@ export type RuntimeMessage =
     | { type: typeof MessageType.SUBMIT_ENGAGER_LEADS; payload: EngagerLeadsPayload }
     | { type: typeof MessageType.SUBMIT_INTENT_LEADS; payload: IntentLeadsPayload }
     | { type: typeof MessageType.TRIGGER_REDDIT_SEARCH }
-    | { type: typeof MessageType.TRIGGER_XRAY_SEARCH; payload: { icpQuery: string; platform: 'linkedin' | 'reddit' } };
+    | { type: typeof MessageType.TRIGGER_XRAY_SEARCH; payload: { icpQuery: string; platform: 'linkedin' | 'reddit' } }
+    | { type: typeof MessageType.GENERATE_AI_REPLY; payload: GenerateAiReplyPayload };
 
 export type SyncNowResponse = {
     ok: boolean;

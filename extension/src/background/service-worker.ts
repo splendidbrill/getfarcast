@@ -4,7 +4,7 @@ import {
     submitEngagerLeads,
     submitIntentLeads
 } from '../shared/api'
-import { DEFAULT_API_BASE_URL, REDDIT_SEARCH_THROTTLE_MS, STORAGE_KEYS } from '../shared/constants'
+import { API_ENDPOINTS, DEFAULT_API_BASE_URL, REDDIT_SEARCH_THROTTLE_MS, STORAGE_KEYS } from '../shared/constants'
 import { isConfigStale } from '../shared/config'
 import {
     MessageType,
@@ -223,6 +223,34 @@ async function handleRuntimeMessage(message: RuntimeMessage) {
                 message.payload.leads.map((lead: { profile_url: string }) => lead.profile_url)
             )
             return { ok: true }
+        }
+
+        case MessageType.GENERATE_AI_REPLY: {
+            const authToken = await getFromStorage<string>(STORAGE_KEYS.FARCAST_AUTH_TOKEN)
+            const apiBaseUrl =
+                (await getFromStorage<string>(STORAGE_KEYS.API_BASE_URL)) ?? DEFAULT_API_BASE_URL
+
+            if (!authToken) return { ok: false, error: 'Missing auth token' }
+
+            try {
+                const res = await fetch(`${apiBaseUrl.replace(/\/$/, '')}${API_ENDPOINTS.GENERATE_REPLY}`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(message.payload),
+                })
+
+                if (res.status === 401) return { ok: false, error: 'Unauthorized — reconnect your account' }
+                if (!res.ok) return { ok: false, error: `API error ${res.status}` }
+
+                const data = await res.json() as { reply?: string }
+                return { ok: true, reply: data.reply ?? '' }
+            } catch (err) {
+                console.warn('[Farcast][Background] generate-reply failed', err)
+                return { ok: false, error: String(err) }
+            }
         }
 
         case MessageType.TRIGGER_REDDIT_SEARCH: {
