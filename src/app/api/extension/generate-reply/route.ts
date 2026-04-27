@@ -1,29 +1,12 @@
-import OpenAI from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
 
 import {
     getAuthenticatedExtensionUser,
     getExtensionCorsHeaders,
 } from '@/lib/extension/server';
+import { getLLMClient, getModelId } from '@/lib/llm';
 
 export const dynamic = 'force-dynamic';
-
-// Azure AI Foundry exposes an OpenAI-compatible endpoint at {endpoint}/models.
-// Uses the same AZURE_API_KEY + AZURE_ENDPOINT already in .env.local.
-const GROK_MODEL = 'grok-4-1-fast-reasoning';
-
-function buildGrokClient(): OpenAI {
-    const base = (process.env.AZURE_ENDPOINT ?? '').replace(/\/+$/, '');
-    const baseURL = base.endsWith('/models') ? base : `${base}/models`;
-    return new OpenAI({
-        apiKey: process.env.AZURE_API_KEY ?? '',
-        baseURL,
-        defaultQuery: { 'api-version': '2024-05-01-preview' },
-        defaultHeaders: { 'api-key': process.env.AZURE_API_KEY ?? '' },
-    });
-}
-
-const grok = buildGrokClient();
 
 const cors = getExtensionCorsHeaders();
 
@@ -65,8 +48,8 @@ export async function POST(request: NextRequest) {
         : `Here is the post:\n\n${body.postText}`;
 
     try {
-        const completion = await grok.chat.completions.create({
-            model: GROK_MODEL,
+        const completion = await getLLMClient().chat.completions.create({
+            model: getModelId(),
             messages: [
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userPrompt },
