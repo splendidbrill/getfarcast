@@ -65,17 +65,29 @@ function IntentBadge({ level }: { level: "high" | "medium" | "low" | null }) {
 export function WarmLeads({ playbookId }: { playbookId: string }) {
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
+    const [fetchError, setFetchError] = useState<string | null>(null);
     const [intentFilter, setIntentFilter] = useState<IntentFilter>("all");
     const [showAllPlaybooks, setShowAllPlaybooks] = useState(false);
 
     const fetchLeads = async () => {
         setLoading(true);
+        setFetchError(null);
         try {
             const params = new URLSearchParams();
             if (!showAllPlaybooks) params.set("playbookId", playbookId);
             const res = await fetch(`/api/extension/intent-leads?${params}`);
             const json = await res.json();
-            setLeads(json.leads ?? []);
+            console.log("[WarmLeads] API response", { status: res.status, playbookId, showAllPlaybooks, json });
+            if (!res.ok) {
+                setFetchError(json.error ?? `Request failed (${res.status})`);
+                setLeads([]);
+            } else {
+                setLeads(json.leads ?? []);
+            }
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : "Network error";
+            setFetchError(msg);
+            setLeads([]);
         } finally {
             setLoading(false);
         }
@@ -83,8 +95,6 @@ export function WarmLeads({ playbookId }: { playbookId: string }) {
 
     useEffect(() => {
         void fetchLeads();
-        const interval = setInterval(() => { void fetchLeads(); }, 15_000);
-        return () => clearInterval(interval);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playbookId, showAllPlaybooks]);
 
@@ -184,7 +194,14 @@ export function WarmLeads({ playbookId }: { playbookId: string }) {
                 </div>
             )}
 
-            {!loading && filtered.length === 0 && (
+            {!loading && fetchError && (
+                <div className="text-center py-20 space-y-2">
+                    <p className="text-red-500 font-semibold text-sm">Failed to load leads</p>
+                    <p className="text-xs text-gray-400 font-mono">{fetchError}</p>
+                </div>
+            )}
+
+            {!loading && !fetchError && filtered.length === 0 && (
                 <div className="text-center py-20 space-y-3">
                     <p className="text-gray-400 font-medium">
                         {leads.length === 0
