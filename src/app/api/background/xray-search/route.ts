@@ -1,3 +1,4 @@
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import {
   getAuthenticatedExtensionUser,
@@ -12,14 +13,14 @@ import {
 
 export async function POST(request: Request) {
   try {
-    const { supabase, user, error } = await getAuthenticatedExtensionUser(request as any);
+    const { user, error } = await getAuthenticatedExtensionUser(request as any);
 
     if (error || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
-    const { icpQuery, platform } = body;
+    const { icpQuery, platform, playbookId } = body;
 
     if (!icpQuery || !platform) {
       return NextResponse.json({ error: "Missing icpQuery or platform" }, { status: 400 });
@@ -86,6 +87,55 @@ export async function POST(request: Request) {
         platform,
       };
     });
+
+    // Persist leads to the DB when a playbook is selected
+    if (playbookId && leads.length > 0) {
+      const admin = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+
+      const rows = leads.map((lead: any) => ({
+        user_id: user.id,
+        playbook_id: playbookId,
+        platform,
+        fingerprint: lead.fingerprint,
+        intent_level: lead.intent_level,
+        lead_score: lead.lead_score,
+        username_or_name: lead.username_or_name,
+        profile_url: lead.profile_url,
+        matched_text_preview: lead.matched_text_preview,
+        matched_keyword: lead.matched_keyword,
+        source_url: lead.source_url,
+      }));
+
+      const fingerprints = rows.map((r: any) => r.fingerprint);
+      const { data: existingLeads } = await admin
+        .from("intent_leads")
+        .select("fingerprint,seen_count")
+        .eq("user_id", user.id)
+        .in("fingerprint", fingerprints);
+
+      const existingMap = new Map<string, number>(
+        (existingLeads ?? []).map((e: any) => [e.fingerprint as string, (e.seen_count as number) ?? 1])
+      );
+
+      const newRows = rows.filter((r: any) => !existingMap.has(r.fingerprint));
+      const repeatRows = rows.filter((r: any) => existingMap.has(r.fingerprint));
+
+      if (newRows.length > 0) {
+        await admin.from("intent_leads").upsert(newRows, { onConflict: "user_id,fingerprint", ignoreDuplicates: true });
+      }
+
+      for (const row of repeatRows) {
+        const prevCount = existingMap.get(row.fingerprint) ?? 1;
+        await admin
+          .from("intent_leads")
+          .update({ seen_count: prevCount + 1, is_repeated: true, lead_score: Math.min(100, row.lead_score + 20) })
+          .eq("user_id", user.id)
+          .eq("fingerprint", row.fingerprint);
+      }
+    }
 
     return NextResponse.json({ leadsCount: leads.length, leads }, { status: 200 });
   } catch (err: any) {

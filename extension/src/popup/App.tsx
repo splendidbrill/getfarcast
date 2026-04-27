@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { DEFAULT_API_BASE_URL, STORAGE_KEYS } from '../shared/constants';
 import { MessageType, sendRuntimeMessage } from '../shared/messaging';
+import type { ActivePlaybook } from '../shared/types';
 
 type PopupStats = {
     connectedAs: string;
@@ -29,6 +30,8 @@ export default function App() {
     const [platform, setPlatform] = useState<'linkedin' | 'reddit'>('linkedin');
     const [xraySearching, setXraySearching] = useState(false);
     const [xrayStatus, setXrayStatus] = useState('');
+    const [activePlaybooks, setActivePlaybooks] = useState<ActivePlaybook[]>([]);
+    const [selectedPlaybookId, setSelectedPlaybookId] = useState<string>('');
 
     useEffect(() => {
         chrome.storage.local.get(
@@ -37,7 +40,8 @@ export default function App() {
                 STORAGE_KEYS.CAPTURED_LEAD_IDS,
                 STORAGE_KEYS.LAST_SYNC_AT,
                 STORAGE_KEYS.API_BASE_URL,
-                STORAGE_KEYS.FARCAST_AUTH_TOKEN
+                STORAGE_KEYS.FARCAST_AUTH_TOKEN,
+                STORAGE_KEYS.ACTIVE_PLAYBOOKS
             ],
             (result: Record<string, unknown>) => {
                 const handles = result[STORAGE_KEYS.CONNECTED_HANDLES] as
@@ -46,6 +50,7 @@ export default function App() {
 
                 const displayHandle = handles?.twitter ?? handles?.linkedin ?? handles?.reddit ?? 'Not connected';
                 const capturedLeadIds = (result[STORAGE_KEYS.CAPTURED_LEAD_IDS] as string[] | undefined) ?? [];
+                const playbooks = (result[STORAGE_KEYS.ACTIVE_PLAYBOOKS] as ActivePlaybook[] | undefined) ?? [];
 
                 setStats((current) => ({
                     ...current,
@@ -56,6 +61,11 @@ export default function App() {
                     lastSyncAt: (result[STORAGE_KEYS.LAST_SYNC_AT] as string | undefined) ?? null,
                     hasAuthToken: !!result[STORAGE_KEYS.FARCAST_AUTH_TOKEN]
                 }));
+
+                setActivePlaybooks(playbooks);
+                if (playbooks.length > 0) {
+                    setSelectedPlaybookId(playbooks[0].playbook_id);
+                }
             }
         );
     }, []);
@@ -97,7 +107,7 @@ export default function App() {
         try {
             const response = await sendRuntimeMessage<{ ok: boolean; error?: string; leadsCount?: number }>({
                 type: MessageType.TRIGGER_XRAY_SEARCH,
-                payload: { icpQuery, platform }
+                payload: { icpQuery, platform, playbookId: selectedPlaybookId || undefined }
             });
             
             if (response?.ok) {
@@ -135,6 +145,19 @@ export default function App() {
                         onChange={(e) => setIcpQuery(e.target.value)}
                         className="mb-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-farcast-orange"
                     />
+                    {activePlaybooks.length > 0 && (
+                        <select
+                            value={selectedPlaybookId}
+                            onChange={(e) => setSelectedPlaybookId(e.target.value)}
+                            className="mb-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-farcast-orange"
+                        >
+                            {activePlaybooks.map((pb) => (
+                                <option key={pb.playbook_id} value={pb.playbook_id}>
+                                    {pb.product_name}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                     <div className="flex gap-2">
                         <select
                             value={platform}
