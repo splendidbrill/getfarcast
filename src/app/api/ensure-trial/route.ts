@@ -54,6 +54,7 @@ export async function GET() {
     return NextResponse.json({
       subscription_status: current,
       trial_end_date: user.app_metadata?.trial_end_date ?? null,
+      subscription_end_date: user.app_metadata?.subscription_end_date ?? null,
     });
   }
 

@@ -33,6 +33,7 @@ export default function DashboardPage() {
 
       let status = user.app_metadata?.subscription_status;
       let trialEndDate = user.app_metadata?.trial_end_date;
+      let subscriptionEndDate = user.app_metadata?.subscription_end_date;
 
       // Stale token recovery: Auth callback might have just assigned a trial that isn't in our JWT yet
       if (!status || status === 'none') {
@@ -43,6 +44,7 @@ export default function DashboardPage() {
             const data = await res.json();
             status = data.subscription_status;
             trialEndDate = data.trial_end_date;
+            subscriptionEndDate = data.subscription_end_date;
             // Best effort token refresh so next clicks are fast
             supabase.auth.refreshSession();
           }
@@ -64,11 +66,10 @@ export default function DashboardPage() {
         }
       }
 
-      // For users without active subscription (on trial or canceled), let them into the dashboard
-      // They will see the appropriate banner
       setTrialData({
         status: status || 'on_trial',
-        trialEndDate
+        trialEndDate,
+        subscriptionEndDate,
       });
 
       const loadedPlaybooks: LocalPlaybook[] = [];

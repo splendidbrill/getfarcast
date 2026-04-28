@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Trash2, ArrowRight, BookOpen, AlertCircle, Sparkles } from "lucide-react";
+import { Trash2, ArrowRight, BookOpen, AlertCircle, Sparkles, CheckCircle2 } from "lucide-react";
 import { deletePlaybook } from "./actions";
 
 type LeadCounts = { hot: number; warm: number; total: number };
@@ -62,6 +62,10 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
   const daysRemaining = trialData?.trialEndDate
     ? Math.max(0, Math.ceil((new Date(trialData.trialEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
+
+  const premiumDaysRemaining = trialData?.subscriptionEndDate
+    ? Math.max(0, Math.ceil((new Date(trialData.subscriptionEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
+    : null;
 
   if (trialData?.status === 'canceled' || trialData?.status === 'expired') {
     return (
@@ -127,6 +131,27 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
                 Subscribe Now
               </Link>
             </div>
+          </div>
+        )}
+
+        {trialData?.status === 'active' && premiumDaysRemaining !== null && (
+          <div className="bg-green-50 border border-green-200 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-green-400/10 to-emerald-400/10 rounded-full blur-[80px] pointer-events-none" />
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-green-900 leading-tight">Premium Plan: {premiumDaysRemaining} Days Remaining</h3>
+                <p className="text-sm text-green-700 font-medium">Your subscription renews automatically.</p>
+              </div>
+            </div>
+            <Link
+              href="/api/portal"
+              className="px-5 py-2 text-sm font-bold text-green-700 border border-green-300 bg-white hover:bg-green-50 rounded-xl transition-colors relative z-10 text-center"
+            >
+              Manage Subscription
+            </Link>
           </div>
         )}
 

@@ -40,8 +40,13 @@ export async function POST(request: Request) {
 
   const { action, data } = event;
 
-  // Whop passes the user's email in the membership object
-  const email = (data?.email ?? data?.user_email ?? "") as string;
+  // Whop passes the user's email in the membership object (try multiple paths)
+  const email = (
+    data?.email ??
+    data?.user_email ??
+    (data?.user as Record<string, unknown>)?.email ??
+    ""
+  ) as string;
   const whopUserId = (data?.whop_user_id ?? data?.user_id ?? "") as string;
 
   if (!email && !whopUserId) {
@@ -69,9 +74,19 @@ export async function POST(request: Request) {
   }
 
   let newStatus: string | null = null;
+  let subscriptionEndDate: string | null = null;
 
   if (action === "membership.went_valid") {
     newStatus = "active";
+    // Use Whop's renewal_period_end if provided, otherwise default to 30 days
+    const renewalEnd = data?.renewal_period_end as number | undefined;
+    if (renewalEnd) {
+      subscriptionEndDate = new Date(renewalEnd * 1000).toISOString();
+    } else {
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 30);
+      subscriptionEndDate = endDate.toISOString();
+    }
   } else if (action === "membership.went_invalid") {
     newStatus = "canceled";
   }
@@ -82,6 +97,7 @@ export async function POST(request: Request) {
         ...supaUser.app_metadata,
         subscription_status: newStatus,
         whop_membership_id: data?.id ?? null,
+        ...(subscriptionEndDate !== null && { subscription_end_date: subscriptionEndDate }),
       },
     });
 
