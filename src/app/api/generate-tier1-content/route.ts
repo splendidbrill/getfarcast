@@ -1,7 +1,6 @@
 import { getLLMClient, getModelId } from "@/lib/llm";
-import { getTier1ChannelContext } from "@/lib/contentKnowledgeBase";
 import { parseJSON } from "@/lib/extractJSON";
-import { HUMAN_VOICE_RULES, scrubAITells } from "@/lib/humanVoice";
+import { scrubAITells } from "@/lib/humanVoice";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +10,44 @@ interface Tier1Request {
   productDescription: string;
   icpSummary: string;
 }
+
+// ── Platform helpers ─────────────────────────────────────────────────────────
+
+type Platform = "reddit" | "x" | "linkedin";
+
+function getPlatform(channelName: string): Platform {
+  const n = channelName.toLowerCase();
+  if (n.includes("reddit")) return "reddit";
+  if (n.includes("linkedin")) return "linkedin";
+  return "x";
+}
+
+const ANTI_AI_SLOP = `CRITICAL "ANTI-AI SLOP" RULES:
+1. NO transition words ("Moreover", "Furthermore", "Additionally", "Importantly").
+2. NO corporate jargon ("Delve", "Unpack", "Synergies", "Leverage", "Holistic", "Navigate").
+3. NO "therapist voice" ("powerful opportunity", "lean into").
+4. NO formatting crutches (no bold text, no bullet points, no colons).
+5. NO neat little bows ("Ultimately...", "At the end of the day...").
+6. NO excessive adverbs or fake pleasantries. No exclamation marks unless quoting someone.`;
+
+const PLATFORM_PLAYBOOKS: Record<Platform, string> = {
+  reddit: `REDDIT PLATFORM PLAYBOOK:
+- Tone: Conversational, honest, self-deprecating. First-person always.
+- Authenticity is everything. Reddit users will instantly detect and punish marketing language.
+- Data and specifics over vague claims.
+- NEVER promote the product directly in the post body. The post must be useful independently.`,
+  x: `X (TWITTER) PLATFORM PLAYBOOK:
+- Tone: Direct, opinionated, conversational. First-person always.
+- Format: Short sentences. Punchy. Data beats vague claims.
+- Vulnerability is a superpower. Humour works when authentic.
+- NO corporate speak ever. Avoid "inspirational" quotes without original thought.`,
+  linkedin: `LINKEDIN PLATFORM PLAYBOOK:
+- Tone: Professional but human. First-person. Honest about failures.
+- Format: Paragraphs are short (1-2 sentences) for readability.
+- Avoid corporate press release tone, jargon, and buzzwords.
+- Sounds like a smart colleague talking at a coffee meeting.
+- NO engagement bait (e.g., "Comment YES if you agree").`,
+};
 
 // ── Serper ──────────────────────────────────────────────────────────────────
 
@@ -48,128 +85,97 @@ async function fetchTrendingContext(
 
 interface BasePost { title?: string; content: string }
 
-function isReddit(channelName: string): boolean {
-  return channelName.toLowerCase().includes("reddit");
-}
-
 async function generateBasePosts(
   channelName: string,
   productName: string,
-  productDescription: string,
+  _productDescription: string,
   icpSummary: string,
-  channelKnowledge: string,
 ): Promise<{ gyaan: BasePost; story: BasePost }> {
   const client = getLLMClient();
   const model = getModelId();
-  const reddit = isReddit(channelName);
+  const platform = getPlatform(channelName);
+  const reddit = platform === "reddit";
 
-  const systemPrompt = `You are a founder writing your own social posts at night after a long day. You are writing for the founder as a marketing team. The posts must feel completely native to ${channelName} and unmistakably human.
+  const returnFormat = reddit
+    ? `Return valid JSON exactly matching this format: { "gyaan": { "title": "...", "body": "..." }, "story": { "title": "...", "body": "..." } }`
+    : `Return valid JSON exactly matching this format: { "gyaan": "...", "story": "..." }`;
 
-${HUMAN_VOICE_RULES}
+  const systemPrompt = `You are a day-zero startup founder writing your own organic social posts. You are writing for your peers, not a marketing team.
 
-DO NOT write cold outreach, cold DMs, sales pitches, or email outreach. This is organic social content only.
+${ANTI_AI_SLOP}
 
-${channelKnowledge ? `Platform playbook (tone, format, hooks, what to avoid):\n\n${channelKnowledge}` : `Write posts native to ${channelName}.`}
+${PLATFORM_PLAYBOOKS[platform]}
 
-Return valid JSON only, no markdown wrapper.`;
+${returnFormat}`;
 
-  const redditTitleRules = `
-REDDIT TITLE RULES (critical — Reddit posts live or die by the title):
-- Lowercase, conversational. No Title Case. No clickbait.
-- Must sound like a real Redditor posted it, not a marketer, goal is to sound authentic how real people talk with each other.
-- Include one specific detail or a sharp question. Not vague.
-- No emojis. No "Pro tip:" or "PSA:" openers. No brackets.
-- Under 100 characters is ideal.`;
+  let userPrompt: string;
 
-  const userPrompt = reddit
-    ? `Write 2 Reddit posts for ${channelName}.
-
+  if (platform === "reddit") {
+    userPrompt = `Task: Write 2 Reddit posts.
 Product: ${productName}
-What it does: ${productDescription}
-Target user: ${icpSummary}
+Target audience: ${icpSummary}
 
-${redditTitleRules}
+Post 1 "gyaan" — Insight:
+- Title: Lowercase, conversational, under 100 characters. No clickbait, include one specific detail.
+- Body: Start with a strong, non-obvious statement about a real problem founders face.
+- Include one concrete detail (a number, behavior, or real scenario).
+- Sound like a founder who has actually seen this happen.
+- End abruptly. Do not wrap it up nicely or summarize.
+- Keep it tight (2-4 lines max).
+- Do not mention the product.
 
-Post 1 "gyaan": Write a short, sharp, opinionated observation about a real problem founders face.
+Post 2 "story" — Founder Moment:
+- Title: Lowercase, conversational, hinting at the situation. No clickbait.
+- Body: Start in the middle of a thought, a call, or a realization.
+- Include at least one specific detail (time, place, person, or exact line said).
+- Make it feel like something you'd text a co-founder at midnight.
+- No storytelling arc. Just state what happened.
+- Avoid perfect grammar if needed to sound authentic.
+- No "lessons learned" or "what this taught me".
 
-Rules:
-- Start with a strong, non-obvious statement (not generic advice)
-- Include one concrete detail (number, behavior, or real scenario)
-- Sound like a founder who has actually seen this happen, not like a teacher explaining it
-- No buzzwords, no frameworks, no “lessons”
-- No conclusion, no summary, no moral
-- Do NOT try to sound complete — ending abruptly is better than wrapping it nicely
-- Avoid phrases like “the key is”, “this shows”, “what this means”, “in conclusion”
-- Keep it tight (2–4 lines max)
-
-Tone:
-- Slightly contrarian
-- Feels like a passing thought, not a post written for engagement
-- Should feel like something someone tweets without overthinking.
-
-Post 2 "story": Write a real-feeling, personal founder moment from this week.
-
-Rules:
-- Start in the middle of something (a call, message, moment, or thought)
-- Include at least one specific detail (time, place, person, or exact line said)
-- Make it feel like something you'd text a friend at midnight
-- No structure, no storytelling arc, no “setup → lesson → takeaway”
-- No inspirational tone
-- No summarizing what the story means
-- If product appears, it should be incidental (not the focus)
-- Keep it short (3–5 lines max)
-
-Human constraints:
-- Slightly messy is good
-- Incomplete thoughts are good
-- Avoid perfect grammar if needed
-- No “lessons learned”, no “what I realized”, no “this taught me”
-
-Return JSON exactly (do not output anything else):
-{ "gyaan": { "title": "...", "body": "..." }, "story": { "title": "...", "body": "..." } }`
-    : `Write 2 posts for ${channelName}.
-
+Return JSON only.`;
+  } else if (platform === "x") {
+    userPrompt = `Task: Write 2 X (Twitter) posts.
 Product: ${productName}
-What it does: ${productDescription}
-Target user: ${icpSummary}
+Target audience: ${icpSummary}
 
-Post 1 "gyaan": Write a short, sharp, opinionated observation about a real problem founders face.
+Post 1 "gyaan" — Insight:
+- Must be 1 to 2 lines maximum.
+- State a deadpan, entirely serious observation about building startups or distribution.
+- Focus on the unglamorous reality of the topic.
+- No generic advice. Say the thing every founder is privately thinking but nobody typed.
+- No formatting, no emojis, no hashtags.
 
-Rules:
-- Start with a strong, non-obvious statement (not generic advice)
-- Include one concrete detail (number, behavior, or real scenario)
-- Sound like a founder who has actually seen this happen, not like a teacher explaining it
-- No buzzwords, no frameworks, no “lessons”
-- No conclusion, no summary, no moral
-- Do NOT try to sound complete — ending abruptly is better than wrapping it nicely
-- Avoid phrases like “the key is”, “this shows”, “what this means”, “in conclusion”
-- Keep it tight (2–4 lines max)
+Post 2 "story" — Founder Moment:
+- Must be exactly 1 sentence.
+- Describe an absurd, frustrating, or funny moment of building a product.
+- Do not capitalize the first letter of the sentence. Keep it highly casual.
+- Do not mention the product name directly.
+- No emojis, no hashtags.
 
-Tone:
-- Slightly contrarian
-- Feels like a passing thought, not a post written for engagement
-- Should feel like something someone tweets without overthinking
+Return JSON only: { "gyaan": "...", "story": "..." }`;
+  } else {
+    userPrompt = `Task: Write 2 LinkedIn posts.
+Product: ${productName}
+Target audience: ${icpSummary}
 
-Post 2 "story": Write a real-feeling, personal founder moment from this week.
+Post 1 "gyaan" — Insight:
+- Start with a sharp observation about a real problem in the ${icpSummary} space.
+- Use normal, short paragraph spacing (1-2 sentences per paragraph). Do not use "broetry" (one sentence per line for 20 lines).
+- Provide a slightly contrarian take on how things are usually done vs. how they should be done.
+- No hashtags. No buzzwords. No frameworks.
+- Do not conclude with "Thoughts?" or "What do you think?". End the post abruptly with your final point.
 
-Rules:
-- Start in the middle of something (a call, message, moment, or thought)
-- Include at least one specific detail (time, place, person, or exact line said)
-- Make it feel like something you'd text a friend at midnight
-- No structure, no storytelling arc, no “setup → lesson → takeaway”
-- No inspirational tone
-- No summarizing what the story means
-- If product appears, it should be incidental (not the focus)
-- Keep it short (3–5 lines max)
+Post 2 "story" — Founder Moment:
+- Start with a specific action or conversation that happened recently.
+- Focus on the actual reality of building, not a glorified success story.
+- Do not use a marketing-style hook (e.g., "Here is how I achieved X").
+- Do not summarize what the story means at the end.
+- Do not tag anyone or use hashtags.
+- Keep it under 5 sentences.
 
-Human constraints:
-- Slightly messy is good
-- Incomplete thoughts are good
-- Avoid perfect grammar if needed
-- No “lessons learned”, no “what I realized”, no “this taught me”
-
-Return JSON exactly (do not output anything else):
-{ "gyaan": "...", "story": "..." }`;
+Return JSON only: { "gyaan": "...", "story": "..." }`;
+  }
 
   const completion = await client.chat.completions.create({
     model,
@@ -203,38 +209,72 @@ Return JSON exactly (do not output anything else):
 
 async function generateTrendingPost(
   channelName: string,
-  productName: string,
-  productDescription: string,
+  _productName: string,
+  _productDescription: string,
   icpSummary: string,
-  channelKnowledge: string,
   trendingContext: string,
 ): Promise<BasePost> {
   const client = getLLMClient();
   const model = getModelId();
-  const reddit = isReddit(channelName);
+  const platform = getPlatform(channelName);
+  const reddit = platform === "reddit";
 
-  const systemPrompt = `You are a founder writing one reply-style post on ${channelName} right after seeing a conversation that made you react. Specific, opinionated, slightly imperfect. Never mention AI. Never explain what you are doing.
+  const returnFormat = reddit
+    ? `Return valid JSON exactly matching this format: { "title": "...", "body": "..." }`
+    : `Return plain text only. No markdown, no quotes.`;
 
-${HUMAN_VOICE_RULES}
+  const systemPrompt = `You are a day-zero startup founder writing your own organic social posts. You are writing for your peers, not a marketing team.
 
-DO NOT write cold outreach, cold DMs, sales pitches, or email outreach. This is organic social content only.
+${ANTI_AI_SLOP}
 
-${channelKnowledge ? `Platform tone guide:\n\n${channelKnowledge}` : ""}
+${PLATFORM_PLAYBOOKS[platform]}
 
-${reddit
-  ? `Return valid JSON only: { "title": "lowercase conversational reddit title under 100 chars, no clickbait, one specific detail", "body": "the post itself" }`
-  : `Return plain text only. Just the post itself. No JSON, no labels, no quotes wrapping the output.`}`;
+${returnFormat}`;
 
-  const userPrompt = trendingContext
-    ? `You just saw this conversation happening:
+  const context = trendingContext || `a specific pain point in the ${icpSummary} space`;
 
-${trendingContext}
+  let userPrompt: string;
 
-Your product: ${productName}, ${productDescription}
-Your audience: ${icpSummary}
+  if (platform === "reddit") {
+    userPrompt = `Task: Write a Reddit post reacting to a recent trending topic or conversation.
+Trending Context: ${context}
+Target audience: ${icpSummary}
 
-Write one ${channelName} post reacting to it. Reference the actual topic. Do not pitch the product. Sound like someone who has lived this exact problem. Match ${channelName}'s native rhythm. End when you're done talking, not with a call to action.`
-    : `Write one ${channelName} post reacting to a specific pain point in the ${icpSummary} space. Make it feel like you just had a conversation about it and needed to vent. Product context: ${productName}, ${productDescription}. Do not pitch the product.`;
+Rules:
+- Title: Reference the trending topic in a casual, lowercase way.
+- Body: React directly to the topic. Take a stance.
+- Do not summarize the news. Assume the audience already knows about it.
+- Sound like someone who has lived this exact problem and needed to vent.
+- End when you're done talking. No call to action.
+
+Return JSON only.`;
+  } else if (platform === "x") {
+    userPrompt = `Task: Write a short X (Twitter) post reacting to a trend.
+Trending Context: ${context}
+Target audience: ${icpSummary}
+
+Rules:
+- Write it as if you are quote-tweeting the news.
+- Must be 1 to 2 lines maximum.
+- Provide a dry, sharp, or contrarian take on the news.
+- Do not explain what the news is. Just give your reaction to it.
+- No emojis, no hashtags.
+
+Return plain text only.`;
+  } else {
+    userPrompt = `Task: Write a LinkedIn post reacting to a trending topic.
+Trending Context: ${context}
+Target audience: ${icpSummary}
+
+Rules:
+- Start with a sharp observation directly related to the trending topic.
+- Use normal, short paragraph spacing (1-2 sentences per paragraph).
+- Take a contrarian or honest stance.
+- No hashtags. No buzzwords.
+- End abruptly with your final point. No call to action.
+
+Return plain text only.`;
+  }
 
   const completion = await client.chat.completions.create({
     model,
@@ -271,17 +311,14 @@ export async function POST(request: Request) {
   try {
     const results = await Promise.all(
       selectedChannels.map(async (channelName) => {
-        const channelKnowledge = getTier1ChannelContext(channelName);
-
-        // Fetch Serper and base posts in parallel
         const [basePosts, trendingContext] = await Promise.all([
-          generateBasePosts(channelName, productName, productDescription, icpSummary, channelKnowledge),
+          generateBasePosts(channelName, productName, productDescription, icpSummary),
           fetchTrendingContext(channelName, icpSummary),
         ]);
 
         const trendingPost = await generateTrendingPost(
           channelName, productName, productDescription, icpSummary,
-          channelKnowledge, trendingContext,
+          trendingContext,
         );
 
         return {
