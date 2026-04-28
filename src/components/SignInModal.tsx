@@ -51,7 +51,7 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
               </svg>
             </div>
             <h3 className="text-xl font-bold text-white mb-2">Start Your Free Trial</h3>
-            <p className="text-sm text-surface-200/50">Sign in to unlock your 14-day free trial. No credit card required.</p>
+            <p className="text-sm text-surface-200/50">Sign in to unlock your 7-day free trial. No credit card required.</p>
           </div>
 
           {/* Google Sign In Button */}
@@ -81,7 +81,7 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
               <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              <span>14 days free, no credit card</span>
+              <span>7 days free, no credit card</span>
             </div>
             <div className="flex items-center gap-3 text-sm text-surface-200/50">
               <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

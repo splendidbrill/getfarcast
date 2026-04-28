@@ -287,7 +287,7 @@ export function WeeklyContentEngine({ playbook }: Props) {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (user?.app_metadata?.subscription_status === "on_trial") {
-          setTrialDays(14);
+          setTrialDays(7);
         }
       } catch {}
     }

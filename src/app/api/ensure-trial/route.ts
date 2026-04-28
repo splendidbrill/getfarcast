@@ -4,7 +4,7 @@ import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
-const TRIAL_DAYS = 14;
+const TRIAL_DAYS = 7;
 
 // Called when the JWT is stale and we need to confirm/assign trial status.
 // Creates a trial for new users; returns current status for existing ones.
@@ -18,7 +18,38 @@ export async function GET() {
 
   const current = user.app_metadata?.subscription_status;
 
-  // Already has a status — return it
+  // Existing on_trial user — ensure they have at least 7 days remaining
+  if (current === "on_trial") {
+    const existingEnd = user.app_metadata?.trial_end_date
+      ? new Date(user.app_metadata.trial_end_date)
+      : null;
+    const minEnd = new Date();
+    minEnd.setDate(minEnd.getDate() + TRIAL_DAYS);
+
+    if (!existingEnd || existingEnd < minEnd) {
+      const admin = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      await admin.auth.admin.updateUserById(user.id, {
+        app_metadata: {
+          ...user.app_metadata,
+          trial_end_date: minEnd.toISOString(),
+        },
+      });
+      return NextResponse.json({
+        subscription_status: "on_trial",
+        trial_end_date: minEnd.toISOString(),
+      });
+    }
+
+    return NextResponse.json({
+      subscription_status: current,
+      trial_end_date: user.app_metadata?.trial_end_date ?? null,
+    });
+  }
+
+  // Already has a non-trial status — return it
   if (current && current !== "none") {
     return NextResponse.json({
       subscription_status: current,
@@ -26,7 +57,7 @@ export async function GET() {
     });
   }
 
-  // New user — assign a 14-day trial
+  // New user — assign a 7-day trial
   const trialEndDate = new Date();
   trialEndDate.setDate(trialEndDate.getDate() + TRIAL_DAYS);
 

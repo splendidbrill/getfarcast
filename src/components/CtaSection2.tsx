@@ -65,7 +65,7 @@ export function CtaSection2() {
             </Link>
           </div>
 
-          <p className="mt-6 text-sm font-semibold text-white/70">14-day free trial. No credit card required.</p>
+          <p className="mt-6 text-sm font-semibold text-white/70">7-day free trial. No credit card required.</p>
 
           <div ref={signalsRef} className="mt-12 flex flex-wrap items-center justify-center gap-8">
             {["AI-powered analysis", "Ready in minutes", "Human-sounding content", "Cancel anytime"].map((signal) => (

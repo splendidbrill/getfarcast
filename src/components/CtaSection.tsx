@@ -74,7 +74,7 @@ export function CtaSection() {
           </div>
 
           <p className="mt-6 text-sm font-semibold text-white/70">
-            14-day free trial. No credit card required.
+            7-day free trial. No credit card required.
           </p>
 
           {/* Trust signals */}
