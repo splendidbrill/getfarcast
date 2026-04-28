@@ -13,10 +13,13 @@ export async function GET() {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
     const { data, error } = await supabase
         .from("intent_leads")
         .select("playbook_id,intent_level")
         .eq("user_id", user.id)
+        .or(`posted_at.gte.${thirtyDaysAgo},and(posted_at.is.null,created_at.gte.${thirtyDaysAgo})`)
         .limit(2000);
 
     if (error) {

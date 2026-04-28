@@ -26,6 +26,10 @@ const SUBMIT_SELECTORS: Record<Platform, string[]> = {
     linkedin: [
         '[aria-label="Post comment"]',
         'button[aria-label*="comment" i][type="submit"]',
+        '.comments-comment-box__submit-button',
+        'button.comments-comment-texteditor__submitButton',
+        '[data-control-name="comment.post"]',
+        'button[class*="comments-comment"][class*="submit"]',
     ],
     reddit: [
         'button.button-primary[rpl]',  // new Reddit (shreddit) — rpl is Reddit's Lit element marker
@@ -115,7 +119,7 @@ const SHADOW_INPUT_HOSTS = [
 
 function findNearestInput(anchor: HTMLElement): HTMLElement | null {
     // 1. Light DOM — fast path for Twitter / LinkedIn
-    for (const ancestor of ancestors(anchor, 10)) {
+    for (const ancestor of ancestors(anchor, 20)) {
         const el = ancestor.querySelector<HTMLElement>(INPUT_SELECTOR);
         if (el && !el.contains(anchor)) return el;
     }
@@ -146,9 +150,31 @@ function injectText(el: HTMLElement, text: string) {
         el.dispatchEvent(new Event('input', { bubbles: true }));
         el.dispatchEvent(new Event('change', { bubbles: true }));
     } else {
-        // contenteditable — execCommand fires the input events React listens for.
-        document.execCommand('selectAll', false, undefined);
-        document.execCommand('insertText', false, text);
+        // Scope selection to this element only. document.execCommand('selectAll')
+        // can select across element boundaries and, combined with insertText, causes
+        // double-insertion in Lexical-based editors (X/Twitter) because the editor
+        // handles beforeinput itself AND the browser command also fires.
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+
+        // Prefer a synthetic paste event — Lexical/Quill handle it cleanly and call
+        // preventDefault(), preventing the execCommand fallback from also running.
+        const dt = new DataTransfer();
+        dt.setData('text/plain', text);
+        const pasteEvent = new ClipboardEvent('paste', {
+            bubbles: true,
+            cancelable: true,
+            clipboardData: dt,
+        });
+        el.dispatchEvent(pasteEvent);
+
+        // Fallback for plain contenteditables that don't intercept paste.
+        if (!pasteEvent.defaultPrevented) {
+            document.execCommand('insertText', false, text);
+        }
     }
 }
 

@@ -203,6 +203,9 @@ export async function GET(request: NextRequest) {
         query = query.eq("intent_level", intentLevel);
     }
 
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    query = query.or(`posted_at.gte.${thirtyDaysAgo},and(posted_at.is.null,created_at.gte.${thirtyDaysAgo})`);
+
     const { data, error } = await query;
 
     if (error) {

@@ -145,6 +145,8 @@ export async function POST(request: NextRequest) {
                 const pageContext = `r/${post.subreddit}`;
                 const postedAt = new Date(post.created_utc * 1000).toISOString();
 
+                if (Date.now() - post.created_utc * 1000 > 30 * 24 * 60 * 60 * 1000) continue;
+
                 const fingerprint = buildIntentLeadFingerprint({
                     platform: "reddit",
                     profileUrl,
