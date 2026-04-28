@@ -24,20 +24,32 @@ export default function DashboardPage() {
     async function loadPlaybooks() {
       const supabase = createClient();
 
-      // Gate: check subscription status first
-      let { data: { user } } = await supabase.auth.getUser();
+      // Gate: verify the user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         window.location.href = '/';
         return;
       }
 
-      let status = user.app_metadata?.subscription_status;
-      let trialEndDate = user.app_metadata?.trial_end_date;
-      let subscriptionEndDate = user.app_metadata?.subscription_end_date;
+      // Always read subscription status from the server (bypasses stale JWT app_metadata)
+      let status: string | null = null;
+      let trialEndDate: string | null = null;
+      let subscriptionEndDate: string | null = null;
 
-      // Stale token recovery: Auth callback might have just assigned a trial that isn't in our JWT yet
+      try {
+        const res = await fetch('/api/subscription-status');
+        if (res.ok) {
+          const data = await res.json();
+          status = data.subscription_status;
+          trialEndDate = data.trial_end_date;
+          subscriptionEndDate = data.subscription_end_date;
+        }
+      } catch (e) {
+        console.error('[dashboard] subscription-status fetch failed', e);
+      }
+
+      // New user with no status yet — assign a trial
       if (!status || status === 'none') {
-        console.log('[dashboard] Status missing, falling back to /api/ensure-trial for strict bypass...');
         try {
           const res = await fetch('/api/ensure-trial');
           if (res.ok) {
@@ -45,11 +57,9 @@ export default function DashboardPage() {
             status = data.subscription_status;
             trialEndDate = data.trial_end_date;
             subscriptionEndDate = data.subscription_end_date;
-            // Best effort token refresh so next clicks are fast
-            supabase.auth.refreshSession();
           }
         } catch (e) {
-          console.error('[dashboard] Fallback failed', e);
+          console.error('[dashboard] ensure-trial fallback failed', e);
         }
       }
 
