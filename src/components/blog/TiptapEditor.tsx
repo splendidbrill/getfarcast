@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, ReactNodeViewRenderer, NodeViewWrapper, type ReactNodeViewProps } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
@@ -10,8 +10,67 @@ import { useEffect, useCallback, useRef, useState } from "react";
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Heading1, Heading2, Heading3, List, ListOrdered,
-  Quote, Code, Minus, Link2, ImageIcon, Undo2, Redo2, Loader2,
+  Quote, Code, Minus, Link2, ImageIcon, Undo2, Redo2, Loader2, X,
 } from "lucide-react";
+
+function ImageNodeView({ node, deleteNode, selected }: ReactNodeViewProps) {
+  const [hovered, setHovered] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    const src: string = node.attrs.src;
+    if (src?.startsWith(process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN ?? "___")) {
+      try {
+        await fetch("/api/delete-image", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ src }),
+        });
+      } catch {
+        // still remove from editor even if S3 call fails
+      }
+    }
+    deleteNode();
+  };
+
+  return (
+    <NodeViewWrapper className="inline-block">
+      <div
+        className="relative inline-block"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        <img
+          src={node.attrs.src}
+          alt={node.attrs.alt ?? ""}
+          className={`rounded-xl max-w-full my-4 ${selected ? "ring-2 ring-[#ff6b4e]" : ""}`}
+        />
+        {(hovered || selected) && (
+          <button
+            type="button"
+            contentEditable={false}
+            onMouseDown={(e) => { e.preventDefault(); handleDelete(); }}
+            disabled={deleting}
+            className="absolute top-2 right-2 w-6 h-6 bg-black/50 hover:bg-red-500 rounded-full flex items-center justify-center text-white transition-colors disabled:opacity-50"
+            title="Delete image"
+          >
+            {deleting
+              ? <Loader2 className="w-3 h-3 animate-spin" />
+              : <X className="w-3 h-3" />
+            }
+          </button>
+        )}
+      </div>
+    </NodeViewWrapper>
+  );
+}
+
+const ImageWithDelete = Image.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(ImageNodeView);
+  },
+});
 
 interface Props {
   content: string;
@@ -64,7 +123,7 @@ export function TiptapEditor({ content, onChange }: Props) {
       StarterKit,
       Underline,
       Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-[#ff6b4e] underline" } }),
-      Image.configure({ HTMLAttributes: { class: "rounded-xl max-w-full my-4" } }),
+      ImageWithDelete,
       Placeholder.configure({ placeholder: "Start writing your post…" }),
     ],
     content,
