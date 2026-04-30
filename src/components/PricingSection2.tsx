@@ -73,11 +73,11 @@ export function PricingSection2() {
         <div ref={headingRef} className="text-center mb-16" style={{ opacity: 0 }}>
           <p className="text-sm font-bold text-blue-500 uppercase tracking-widest mb-3">Pricing</p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1a1a2e] tracking-tight mb-6">
-            Simple pricing for serious distribution.
+            Distribution on auto-pilot.
           </h2>
-          <p className="text-gray-500 font-medium text-lg leading-relaxed max-w-xl mx-auto mb-10">
+          {/* <p className="text-gray-500 font-medium text-lg leading-relaxed max-w-xl mx-auto mb-10">
             Choose Starter for self-serve growth, or talk to us for an enterprise setup.
-          </p>
+          </p> */}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12 items-stretch max-w-5xl mx-auto" style={{ perspective: "1200px" }}>
@@ -124,7 +124,7 @@ export function PricingSection2() {
                     className={`w-full py-4 rounded-xl font-bold text-sm transition-all duration-300 cursor-pointer text-center ${plan.highlighted ? "bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white shadow-lg shadow-[#ff6b4e]/20 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#ff6b4e]/30" : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"}`}
                     onClick={() => {
                       sendGAEvent("event", "buttonClicked", { value: `pricing_${plan.name.toLowerCase()}` });
-                      if (plan.name === "Starter") { isLoggedIn ? (window.location.href = "/dashboard") : setIsModalOpen(true); }
+                      if (plan.name === "Starter") { isLoggedIn ? (window.location.href = "/api/checkout/starter") : setIsModalOpen(true); }
                       else { window.location.href = "/contact"; }
                     }}
                   >
