@@ -49,19 +49,12 @@ export function PostForm({ initial }: { initial?: PostData }) {
     e.target.value = "";
     setCoverUploading(true);
     try {
-      const res = await fetch("/api/upload-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: file.name, contentType: file.type }),
-      });
-      if (!res.ok) throw new Error("Upload URL request failed");
-      const { uploadUrl, filename } = await res.json();
+      const formData = new FormData();
+      formData.append("file", file);
 
-      await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
+      const res = await fetch("/api/upload-image", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      const { filename } = await res.json();
 
       const baseName = filename.replace(/\.[^/.]+$/, "");
       set("cover_image", `${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/optimized/${baseName}.webp`);

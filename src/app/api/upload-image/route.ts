@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getSessionUser } from "@/lib/blogAuth";
 import { randomUUID } from "crypto";
 
@@ -16,31 +15,32 @@ const s3 = new S3Client({
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"];
 
+export const config = { api: { bodyParser: false } };
+
 export async function POST(request: Request) {
   const uid = await getSessionUser();
   if (!uid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await request.json();
-  const { filename, contentType } = body as { filename?: string; contentType?: string };
+  const formData = await request.formData();
+  const file = formData.get("file") as File | null;
 
-  if (!filename || !contentType) {
-    return NextResponse.json({ error: "filename and contentType are required" }, { status: 400 });
-  }
-  if (!ALLOWED_TYPES.includes(contentType)) {
+  if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
+  if (!ALLOWED_TYPES.includes(file.type)) {
     return NextResponse.json({ error: "Unsupported image type" }, { status: 400 });
   }
 
-  const ext = filename.split(".").pop()?.toLowerCase() ?? "jpg";
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
   const uniqueFilename = `${randomUUID()}.${ext}`;
   const key = `uploads/${uniqueFilename}`;
 
-  const command = new PutObjectCommand({
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  await s3.send(new PutObjectCommand({
     Bucket: process.env.S3_BUCKET_NAME!,
     Key: key,
-    ContentType: contentType,
-  });
+    Body: buffer,
+    ContentType: file.type,
+  }));
 
-  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
-
-  return NextResponse.json({ uploadUrl, filename: uniqueFilename });
+  return NextResponse.json({ filename: uniqueFilename });
 }
