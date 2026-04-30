@@ -7,11 +7,34 @@ import { TheMath } from "@/components/TheMath";
 import { ChannelShowcase2 } from "@/components/ChannelShowcase2";
 import { PricingSection2 } from "@/components/PricingSection2";
 import { CtaSection2 } from "@/components/CtaSection2";
+import { FAQSection } from "@/components/FAQSection";
 import { Footer2 } from "@/components/Footer2";
 
 export default function Home() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "GetFarcast",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "19.00",
+      "priceCurrency": "USD"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "124"
+    }
+  };
+
   return (
     <main className="bg-[#faf8f6] text-[#1a1a2e] min-h-screen font-sans selection:bg-[#ff6b4e]/20 selection:text-[#ff6b4e]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar2 />
       <Hero />
       <ProblemSection2 />
@@ -21,6 +44,7 @@ export default function Home() {
       <ChannelShowcase2 />
       <PricingSection2 />
       {/* <CtaSection2 /> */}
+      <FAQSection />
       <Footer2 />
     </main>
   );

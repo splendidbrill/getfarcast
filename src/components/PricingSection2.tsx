@@ -10,10 +10,17 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const plans = [
   {
-    name: "Starter", price: "$15", period: "/month",
-    description: "Everything Farcast does, up to 10 playbooks.",
+    name: "Starter", price: "$19", period: "/month",
+    description: "Everything Farcast does, with limits built for solo founders.",
     icon: Zap,
-    features: ["7-day free trial", "Full ICP profile for your product — demographics, psychographics, buying signals", "Ranked channel strategy across 27 platforms — where your buyers actually are", "Platform-native content across every recommended channel — ready to post", "Cold outreach sequences — email and DM templates for your specific ICP", "30-day action plan — what to do, where, and in what order", "Export as PDF"],
+    features: [
+      "10 Playbooks per month", 
+      "30 Content Days (150 regenerations) per month", 
+      "2,000 Post Replies per month", 
+      "2,000 DMs per month", 
+      "900 Warm Leads per month (30/day)",
+      "Export as PDF"
+    ],
     cta: "Get Starter", highlighted: true, iconColor: "text-[#ff6b4e]", bgIcon: "bg-[#ff6b4e]/10",
   },
   // {

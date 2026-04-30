@@ -12,10 +12,11 @@ const footerLinks = {
     { label: "Features", href: "#features" },
     { label: "Channels", href: "#channels" },
     { label: "Pricing", href: "#pricing" },
+    { label: "Login", href: "/login" },
   ],
   Company: [
     { label: "About", href: "#" },
-    { label: "Blog", href: "#" },
+    { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/contact" },
   ],
   Legal: [

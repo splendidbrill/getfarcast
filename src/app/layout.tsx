@@ -73,14 +73,21 @@ export const metadata: Metadata = {
     siteName: "GetFarcast",
     type: "website",
     url: "/",
-    // ❌ REMOVED: The manual 'images' array. Let Next.js handle this automatically!
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "GetFarcast homepage preview",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "GetFarcast — AI-Powered Growth Engine for Founders",
     description:
       "Your product is built. Now get users. GetFarcast generates a complete growth playbook tailored to your product and audience.",
-    // ❌ REMOVED: The manual 'images' array. 
+    images: ["/opengraph-image"],
   },
 };
 

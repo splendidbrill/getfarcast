@@ -1,6 +1,8 @@
 import { getLLMClient, getModelId } from "@/lib/llm";
 import { parseJSON } from "@/lib/extractJSON";
 import { scrubAITells } from "@/lib/humanVoice";
+import { createClient } from "@/lib/supabase/server";
+import { checkAndIncrementUsage } from "@/lib/usage";
 
 export const dynamic = "force-dynamic";
 
@@ -306,6 +308,18 @@ export async function POST(request: Request) {
 
   if (!selectedChannels?.length || !productName) {
     return Response.json({ error: "Missing required fields." }, { status: 400 });
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Count 1 generation cycle (even if multiple channels) as 1 usage
+  const usageCheck = await checkAndIncrementUsage(user.id, "content_generations", 1);
+  if (!usageCheck.allowed) {
+    return Response.json({ error: usageCheck.error }, { status: 403 });
   }
 
   try {

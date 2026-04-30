@@ -1,4 +1,6 @@
 import { getLLMClient, getModelId } from "@/lib/llm";
+import { createClient } from "@/lib/supabase/server";
+import { checkAndIncrementUsage } from "@/lib/usage";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +20,20 @@ export async function POST(request: Request) {
 
     if (!productName || !username_or_name) {
       return Response.json({ error: "Missing required fields." }, { status: 400 });
+    }
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    // If we don't have a user via cookies, we might be hitting this from the extension without the proper auth helper.
+    // For now, we'll return Unauthorized if not logged in.
+    if (!user) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const usageCheck = await checkAndIncrementUsage(user.id, "dms", 1);
+    if (!usageCheck.allowed) {
+      return Response.json({ error: usageCheck.error }, { status: 403 });
     }
 
     const client = getLLMClient();

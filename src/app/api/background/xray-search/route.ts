@@ -10,6 +10,7 @@ import {
   computeContextScore,
   buildIntentLeadFingerprint,
 } from "@/lib/extension/server";
+import { checkAndIncrementUsage } from "@/lib/usage";
 
 export async function POST(request: Request) {
   try {
@@ -33,6 +34,12 @@ export async function POST(request: Request) {
       query = `site:reddit.com "${icpQuery}" after:2024-01-01`;
     } else {
       return NextResponse.json({ error: "Invalid platform" }, { status: 400 });
+    }
+
+    // Attempt to increment leads usage by 20 (max expected results from Serper)
+    const usageCheck = await checkAndIncrementUsage(user.id, "leads", 20);
+    if (!usageCheck.allowed) {
+      return NextResponse.json({ error: usageCheck.error }, { status: 403 });
     }
 
     const serperRes = await fetch("https://google.serper.dev/search", {

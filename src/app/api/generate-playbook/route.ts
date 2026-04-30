@@ -13,6 +13,7 @@ import type { WizardFormData, ICPProfile, Playbook } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { parseJSON } from "@/lib/extractJSON";
+import { checkAndIncrementUsage } from "@/lib/usage";
 
 export const dynamic = "force-dynamic";
 
@@ -81,6 +82,11 @@ export async function POST(request: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
+
+  const usageCheck = await checkAndIncrementUsage(userId, "playbooks", 1);
+  if (!usageCheck.allowed) {
+    return Response.json({ error: usageCheck.error }, { status: 403 });
+  }
 
   const encoder = new TextEncoder();
 

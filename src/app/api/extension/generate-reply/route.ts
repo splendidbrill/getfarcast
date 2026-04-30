@@ -5,6 +5,7 @@ import {
     getExtensionCorsHeaders,
 } from '@/lib/extension/server';
 import { getLLMClient, getModelId } from '@/lib/llm';
+import { checkAndIncrementUsage } from '@/lib/usage';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +32,11 @@ export async function POST(request: NextRequest) {
 
     if (!body || !body.platform || !body.postText?.trim()) {
         return NextResponse.json({ error: 'Invalid payload' }, { status: 400, headers: cors });
+    }
+
+    const usageCheck = await checkAndIncrementUsage(user.id, "replies", 1);
+    if (!usageCheck.allowed) {
+        return NextResponse.json({ error: usageCheck.error }, { status: 403, headers: cors });
     }
 
     const platformLabel =
