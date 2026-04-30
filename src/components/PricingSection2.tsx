@@ -124,7 +124,7 @@ export function PricingSection2() {
                     className={`w-full py-4 rounded-xl font-bold text-sm transition-all duration-300 cursor-pointer text-center ${plan.highlighted ? "bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white shadow-lg shadow-[#ff6b4e]/20 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#ff6b4e]/30" : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"}`}
                     onClick={() => {
                       sendGAEvent("event", "buttonClicked", { value: `pricing_${plan.name.toLowerCase()}` });
-                      if (plan.name === "Starter") { isLoggedIn ? (window.location.href = "/api/checkout/starter") : setIsModalOpen(true); }
+                      if (plan.name === "Starter") { isLoggedIn ? (window.location.href = "/checkout") : setIsModalOpen(true); }
                       else { window.location.href = "/contact"; }
                     }}
                   >
