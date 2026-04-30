@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/dashboard", "/onboarding", "/playbook/"],
     },
-    sitemap: "https://getfarcast.com/sitemap.xml",
+    sitemap: "https://www.getfarcast.com/sitemap.xml",
   };
 }
