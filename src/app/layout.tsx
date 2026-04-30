@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import "@fontsource-variable/inter";
 import "./globals.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
 
 // export const metadata: Metadata = {
 //   metadataBase: new URL("https://www.getfarcast.com"),
@@ -99,7 +93,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} antialiased`}>
+    <html lang="en" className="antialiased">
       <body className="min-h-screen bg-background text-foreground font-sans">
         {children}
       </body>
