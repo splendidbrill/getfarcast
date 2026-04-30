@@ -6,11 +6,11 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Heading1, Heading2, Heading3, List, ListOrdered,
-  Quote, Code, Minus, Link2, ImageIcon, Undo2, Redo2,
+  Quote, Code, Minus, Link2, ImageIcon, Undo2, Redo2, Loader2,
 } from "lucide-react";
 
 interface Props {
@@ -18,21 +18,33 @@ interface Props {
   onChange: (html: string) => void;
 }
 
+type GroupBtn = {
+  icon: React.ReactNode;
+  title: string;
+  action: () => void;
+  active: boolean;
+  disabled?: boolean;
+};
+
 function ToolbarButton({
-  onClick, active, title, children,
+  onClick, active, title, children, disabled,
 }: {
   onClick: () => void;
   active?: boolean;
   title: string;
   children: React.ReactNode;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       onMouseDown={(e) => { e.preventDefault(); onClick(); }}
+      disabled={disabled}
       title={title}
       className={`p-1.5 rounded-lg transition-colors ${
-        active
+        disabled
+          ? "opacity-40 cursor-not-allowed"
+          : active
           ? "bg-[#ff6b4e] text-white"
           : "text-gray-600 hover:bg-gray-100 hover:text-[#1a1a2e]"
       }`}
@@ -43,6 +55,9 @@ function ToolbarButton({
 }
 
 export function TiptapEditor({ content, onChange }: Props) {
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -75,15 +90,43 @@ export function TiptapEditor({ content, onChange }: Props) {
   }, [editor]);
 
   const addImage = useCallback(() => {
-    if (!editor) return;
-    const url = window.prompt("Image URL");
-    if (!url) return;
-    editor.chain().focus().setImage({ src: url }).run();
+    if (uploading) return;
+    fileInputRef.current?.click();
+  }, [uploading]);
+
+  const handleImageFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editor) return;
+    e.target.value = "";
+    setUploading(true);
+    try {
+      const res = await fetch("/api/upload-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: file.name, contentType: file.type }),
+      });
+      if (!res.ok) throw new Error("Upload URL request failed");
+      const { uploadUrl, filename } = await res.json();
+
+      await fetch(uploadUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type },
+      });
+
+      const baseName = filename.replace(/\.[^/.]+$/, "");
+      const src = `${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/optimized/${baseName}.webp`;
+      editor.chain().focus().setImage({ src }).run();
+    } catch (err) {
+      console.error("Image upload failed:", err);
+    } finally {
+      setUploading(false);
+    }
   }, [editor]);
 
   if (!editor) return null;
 
-  const groups = [
+  const groups: GroupBtn[][] = [
     [
       { icon: <Undo2 className="w-4 h-4" />, title: "Undo", action: () => editor.chain().focus().undo().run(), active: false },
       { icon: <Redo2 className="w-4 h-4" />, title: "Redo", action: () => editor.chain().focus().redo().run(), active: false },
@@ -108,19 +151,20 @@ export function TiptapEditor({ content, onChange }: Props) {
     ],
     [
       { icon: <Link2 className="w-4 h-4" />, title: "Insert Link", action: addLink, active: editor.isActive("link") },
-      { icon: <ImageIcon className="w-4 h-4" />, title: "Insert Image", action: addImage, active: false },
+      { icon: uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />, title: "Insert Image", action: addImage, active: false, disabled: uploading },
     ],
   ];
 
   return (
     <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 px-4 py-3 border-b border-gray-100 bg-gray-50/60">
         {groups.map((group, gi) => (
           <div key={gi} className="flex items-center gap-0.5">
             {gi > 0 && <div className="w-px h-5 bg-gray-200 mx-1" />}
             {group.map((btn, bi) => (
-              <ToolbarButton key={bi} onClick={btn.action} active={btn.active} title={btn.title}>
+              <ToolbarButton key={bi} onClick={btn.action} active={btn.active} title={btn.title} disabled={btn.disabled}>
                 {btn.icon}
               </ToolbarButton>
             ))}

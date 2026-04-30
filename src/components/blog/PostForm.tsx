@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { TiptapEditor } from "./TiptapEditor";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Upload } from "lucide-react";
 import Link from "next/link";
 
 export interface PostData {
@@ -29,6 +29,38 @@ export function PostForm({ initial }: { initial?: PostData }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setCoverUploading(true);
+    try {
+      const res = await fetch("/api/upload-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: file.name, contentType: file.type }),
+      });
+      if (!res.ok) throw new Error("Upload URL request failed");
+      const { uploadUrl, filename } = await res.json();
+
+      await fetch(uploadUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type },
+      });
+
+      const baseName = filename.replace(/\.[^/.]+$/, "");
+      set("cover_image", `${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/optimized/${baseName}.webp`);
+    } catch (err) {
+      console.error("Cover upload failed:", err);
+      setError("Cover image upload failed. Please try again.");
+    } finally {
+      setCoverUploading(false);
+    }
+  };
 
   const set = (key: keyof PostData, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -126,14 +158,19 @@ export function PostForm({ initial }: { initial?: PostData }) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-600">Cover Image URL</label>
-              <input
-                type="url"
-                placeholder="https://…"
-                value={form.cover_image}
-                onChange={(e) => set("cover_image", e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ff6b4e]/30"
-              />
+              <label className="text-xs font-semibold text-gray-600">Cover Image</label>
+              <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} />
+              <button
+                type="button"
+                onClick={() => coverInputRef.current?.click()}
+                disabled={coverUploading}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-gray-300 text-sm text-gray-500 hover:border-[#ff6b4e] hover:text-[#ff6b4e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {coverUploading
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</>
+                  : <><Upload className="w-4 h-4" /> {form.cover_image ? "Replace image" : "Upload cover image"}</>
+                }
+              </button>
               {form.cover_image && (
                 <img src={form.cover_image} alt="Cover preview" className="w-full rounded-xl mt-2 object-cover aspect-video" />
               )}

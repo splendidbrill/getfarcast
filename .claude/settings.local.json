@@ -8,7 +8,8 @@
       "Bash(npm install *)",
       "Bash(npm run *)",
       "Bash(del *)",
-      "Bash(xargs wc *)"
+      "Bash(xargs wc *)",
+      "Bash(git *)"
     ]
   }
 }
