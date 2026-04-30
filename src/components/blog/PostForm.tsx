@@ -9,6 +9,7 @@ import Link from "next/link";
 export interface PostData {
   id?: string;
   title: string;
+  slug: string;
   content: string;
   excerpt: string;
   meta_title: string;
@@ -18,14 +19,24 @@ export interface PostData {
   published_at: string;
 }
 
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim();
+}
+
 const EMPTY: PostData = {
-  title: "", content: "", excerpt: "", meta_title: "",
+  title: "", slug: "", content: "", excerpt: "", meta_title: "",
   meta_description: "", cover_image: "", status: "draft", published_at: "",
 };
 
 export function PostForm({ initial }: { initial?: PostData }) {
   const router = useRouter();
   const [form, setForm] = useState<PostData>(initial ?? EMPTY);
+  const [slugEdited, setSlugEdited] = useState(!!initial?.slug);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
@@ -135,7 +146,10 @@ export function PostForm({ initial }: { initial?: PostData }) {
             type="text"
             placeholder="Post title…"
             value={form.title}
-            onChange={(e) => set("title", e.target.value)}
+            onChange={(e) => {
+              set("title", e.target.value);
+              if (!slugEdited) set("slug", slugify(e.target.value));
+            }}
             className="w-full text-3xl font-black text-[#1a1a2e] placeholder-gray-200 bg-transparent border-none outline-none"
           />
           <TiptapEditor content={form.content} onChange={(html) => set("content", html)} />
@@ -146,6 +160,20 @@ export function PostForm({ initial }: { initial?: PostData }) {
         <aside className="w-full lg:w-72 shrink-0 space-y-4">
           <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-5 space-y-4">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Publish Settings</h3>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-600">URL Slug</label>
+              <div className="flex items-center rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#ff6b4e]/30">
+                <span className="px-2 py-2.5 text-xs text-gray-400 bg-gray-50 border-r border-gray-200 shrink-0">/blog/</span>
+                <input
+                  type="text"
+                  value={form.slug}
+                  onChange={(e) => { setSlugEdited(true); set("slug", slugify(e.target.value)); }}
+                  placeholder="your-post-slug"
+                  className="flex-1 px-2 py-2.5 text-sm text-gray-700 bg-white focus:outline-none min-w-0"
+                />
+              </div>
+            </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-gray-600">Publish Date</label>
@@ -212,7 +240,7 @@ export function PostForm({ initial }: { initial?: PostData }) {
             <div className="rounded-xl border border-gray-100 p-3 bg-gray-50 space-y-0.5">
               <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider mb-1.5">Google Preview</p>
               <p className="text-sm font-medium text-blue-700 truncate">{form.meta_title || form.title || "Post Title"}</p>
-              <p className="text-[11px] text-green-700">getfarcast.com/blog/your-post-slug</p>
+              <p className="text-[11px] text-green-700">getfarcast.com/blog/{form.slug || "your-post-slug"}</p>
               <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">{form.excerpt || "Your post excerpt will appear here…"}</p>
             </div>
           </div>

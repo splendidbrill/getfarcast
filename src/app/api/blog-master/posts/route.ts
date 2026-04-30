@@ -38,14 +38,14 @@ export async function POST(request: Request) {
   if (!uid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const { title, content, excerpt, meta_title, meta_description, cover_image, status, published_at } = body;
+  const { title, slug: clientSlug, content, excerpt, meta_title, meta_description, cover_image, status, published_at } = body;
 
   if (!title) return NextResponse.json({ error: "Title is required" }, { status: 400 });
 
   const db = adminClient();
 
-  // Ensure unique slug
-  let slug = slugify(title);
+  // Use client-provided slug if present, otherwise derive from title
+  let slug = clientSlug ? slugify(clientSlug) : slugify(title);
   const { data: existing } = await db.from("blog_posts").select("id").eq("slug", slug);
   if (existing && existing.length > 0) slug = `${slug}-${Date.now()}`;
 

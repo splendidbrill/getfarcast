@@ -24,6 +24,7 @@ export default async function EditPost({ params }: { params: Promise<{ id: strin
       initial={{
         id: data.id,
         title: data.title ?? "",
+        slug: data.slug ?? "",
         content: data.content ?? "",
         excerpt: data.excerpt ?? "",
         meta_title: data.meta_title ?? "",
