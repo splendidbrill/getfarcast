@@ -27,6 +27,8 @@ export async function middleware(request: NextRequest) {
   if (hostname === 'getfarcast.com') {
     const newUrl = new URL(request.url)
     newUrl.hostname = 'www.getfarcast.com'
+    newUrl.port = ''
+    newUrl.protocol = 'https:'
     return NextResponse.redirect(newUrl, 301)
   }
 
