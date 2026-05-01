@@ -5,7 +5,7 @@ import { Zap } from "lucide-react";
 import Link from "next/link";
 
 export default function CheckoutPage() {
-  const planId = process.env.NEXT_PUBLIC_WHOP_PLAN_ID || "plan_cTXJUU2uv9dlZ";
+  const planId = process.env.NEXT_PUBLIC_WHOP_PLAN_ID!;
 
   return (
     <div className="min-h-screen bg-[#faf8f6] flex flex-col">

@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const checkoutUrl = process.env.WHOP_CHECKOUT_URL || "https://whop.com/checkout/plan_cTXJUU2uv9dlZ/";
+  const checkoutUrl = process.env.WHOP_CHECKOUT_URL;
   if (!checkoutUrl) {
     return NextResponse.json({ error: "Checkout not configured" }, { status: 500 });
   }
