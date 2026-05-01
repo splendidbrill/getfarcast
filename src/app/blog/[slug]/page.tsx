@@ -31,7 +31,7 @@ export async function generateMetadata(
 
   const title = post.meta_title || post.title;
   const description = post.meta_description || post.excerpt || "";
-  const url = `https://getfarcast.com/blog/${post.slug}`;
+  const url = `https://www.getfarcast.com/blog/${post.slug}`;
 
   return {
     title: `${title} — GetFarcast Blog`,
@@ -74,14 +74,14 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     description: post.meta_description || post.excerpt || "",
     datePublished: post.published_at ?? post.created_at,
     dateModified: post.updated_at ?? post.created_at,
-    author: { "@type": "Organization", name: "GetFarcast", url: "https://getfarcast.com" },
+    author: { "@type": "Organization", name: "GetFarcast", url: "https://www.getfarcast.com" },
     publisher: {
       "@type": "Organization",
       name: "GetFarcast",
-      url: "https://getfarcast.com",
-      logo: { "@type": "ImageObject", url: "https://getfarcast.com/favicon.ico" },
+      url: "https://www.getfarcast.com",
+      logo: { "@type": "ImageObject", url: "https://www.getfarcast.com/favicon.ico" },
     },
-    url: `https://getfarcast.com/blog/${post.slug}`,
+    url: `https://www.getfarcast.com/blog/${post.slug}`,
     ...(post.cover_image ? { image: post.cover_image } : {}),
   };
 

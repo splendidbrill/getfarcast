@@ -12,9 +12,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Blog — GetFarcast",
     description: "Founder growth tactics, distribution playbooks, and real stories from early-stage builders.",
-    url: "https://getfarcast.com/blog",
+    url: "https://www.getfarcast.com/blog",
   },
-  alternates: { canonical: "https://getfarcast.com/blog" },
+  alternates: { canonical: "https://www.getfarcast.com/blog" },
 };
 
 async function getPosts() {

@@ -22,6 +22,13 @@ async function isBlogAuthed(request: NextRequest): Promise<boolean> {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const hostname = request.headers.get('host')
+
+  if (hostname === 'getfarcast.com') {
+    const newUrl = new URL(request.url)
+    newUrl.hostname = 'www.getfarcast.com'
+    return NextResponse.redirect(newUrl, 301)
+  }
 
   if (BLOG_PROTECTED.some((p) => pathname.startsWith(p))) {
     if (!(await isBlogAuthed(request))) {

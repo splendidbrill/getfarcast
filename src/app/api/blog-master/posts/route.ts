@@ -66,5 +66,14 @@ export async function POST(request: Request) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (status === "published") {
+    try {
+      await fetch("https://www.google.com/ping?sitemap=https://www.getfarcast.com/sitemap.xml");
+    } catch (e) {
+      console.error("Failed to ping Google sitemap:", e);
+    }
+  }
+
   return NextResponse.json({ post: data }, { status: 201 });
 }
