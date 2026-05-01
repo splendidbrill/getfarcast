@@ -22,20 +22,31 @@ function ConnectExtensionContent() {
 
         const supabase = createClient();
 
+        console.log('[Farcast] Getting session...');
         supabase.auth.getSession().then(({ data: { session } }) => {
+            console.log('[Farcast] Session result:', session ? 'logged in' : 'no session');
             if (!session) {
                 setStatus("unauthenticated");
                 setMessage("You need to be logged in to connect the extension.");
                 return;
             }
 
-            // Send the access token to the extension
+            console.log('[Farcast] Sending message to extension:', extId);
+            const timeout = setTimeout(() => {
+                console.log('[Farcast] Timed out waiting for extension response');
+                setStatus("error");
+                setMessage("Connection timed out. Make sure the extension is installed and try again.");
+            }, 20_000);
+
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (chrome as any).runtime.sendMessage(
                 extId,
                 { type: "SET_AUTH_TOKEN", token: session.access_token },
                 (response: { ok: boolean } | undefined) => {
-                    if (chrome.runtime.lastError || !response?.ok) {
+                    clearTimeout(timeout);
+                    const lastError = chrome.runtime.lastError;
+                    console.log('[Farcast] Extension response:', response, 'lastError:', lastError);
+                    if (lastError || !response?.ok) {
                         setStatus("error");
                         setMessage("Could not reach the extension. Make sure it's installed and reload this page.");
                         return;

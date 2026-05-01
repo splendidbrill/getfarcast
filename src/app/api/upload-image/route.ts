@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSessionUser } from "@/lib/blogAuth";
 import { randomUUID } from "crypto";
+import sharp from "sharp";
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION!,
@@ -31,16 +32,28 @@ export async function POST(request: Request) {
 
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
   const uniqueFilename = `${randomUUID()}.${ext}`;
-  const key = `uploads/${uniqueFilename}`;
-
+  const baseName = uniqueFilename.replace(/\.[^/.]+$/, "");
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  await s3.send(new PutObjectCommand({
-    Bucket: process.env.S3_BUCKET_NAME!,
-    Key: key,
-    Body: buffer,
-    ContentType: file.type,
-  }));
+  const optimizedBuffer = await sharp(buffer)
+    .resize({ width: 1200, withoutEnlargement: true })
+    .webp({ quality: 80 })
+    .toBuffer();
+
+  await Promise.all([
+    s3.send(new PutObjectCommand({
+      Bucket: process.env.S3_BUCKET_NAME!,
+      Key: `uploads/${uniqueFilename}`,
+      Body: buffer,
+      ContentType: file.type,
+    })),
+    s3.send(new PutObjectCommand({
+      Bucket: process.env.S3_BUCKET_NAME!,
+      Key: `optimized/${baseName}.webp`,
+      Body: optimizedBuffer,
+      ContentType: "image/webp",
+    })),
+  ]);
 
   return NextResponse.json({ filename: uniqueFilename });
 }

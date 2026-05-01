@@ -137,12 +137,19 @@ chrome.runtime.onStartup.addListener(() => {
     void syncRemoteConfig(false)
 })
 
-chrome.runtime.onMessageExternal.addListener((message: { type: string; token?: string }, _sender: unknown, sendResponse: (response: unknown) => void) => {
+chrome.runtime.onMessageExternal.addListener((message: { type: string; token?: string }, sender: unknown, sendResponse: (response: unknown) => void) => {
+    console.log('[Farcast] onMessageExternal received', message.type, 'from', (sender as { url?: string })?.url)
     if (message.type === 'SET_AUTH_TOKEN' && message.token) {
         void setInStorage({ [STORAGE_KEYS.FARCAST_AUTH_TOKEN]: message.token })
-            .then(() => syncRemoteConfig(true))
-            .then((result) => sendResponse({ ok: result.ok }))
-            .catch(() => sendResponse({ ok: false }))
+            .then(() => {
+                console.log('[Farcast] Token stored, sending response')
+                sendResponse({ ok: true })
+                void syncRemoteConfig(true)
+            })
+            .catch((err) => {
+                console.error('[Farcast] Failed to store token', err)
+                sendResponse({ ok: false })
+            })
         return true
     }
     sendResponse({ ok: false, error: 'Unknown message type' })

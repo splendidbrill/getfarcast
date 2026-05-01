@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite build --watch",
-        "build": "vite build && node scripts/build-content.mjs",
+        "build": "vite build && node scripts/build-content.mjs && node scripts/generate-icons.mjs",
         "preview": "vite preview",
         "typecheck": "tsc --noEmit"
     },
