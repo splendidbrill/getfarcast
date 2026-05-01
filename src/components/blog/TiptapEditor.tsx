@@ -166,7 +166,7 @@ export function TiptapEditor({ content, onChange }: Props) {
       if (!res.ok) throw new Error("Upload failed");
       const { filename } = await res.json();
 
-      const baseName = filename.replace(/\\.[^/.]+$/, "");
+      const baseName = filename.replace(/\.[^/.]+$/, "");
       const src = `${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/optimized/${baseName}.webp`;
       editor.chain().focus().setImage({ src }).run();
     } catch (err) {
