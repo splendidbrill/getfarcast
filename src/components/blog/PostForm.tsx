@@ -56,7 +56,8 @@ export function PostForm({ initial }: { initial?: PostData }) {
       if (!res.ok) throw new Error("Upload failed");
       const { filename } = await res.json();
 
-      set("cover_image", `${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/uploads/${filename}`);
+      const baseName = filename.replace(/\\.[^/.]+$/, "");
+      set("cover_image", `${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/optimized/${baseName}.webp`);
     } catch (err) {
       console.error("Cover upload failed:", err);
       setError("Cover image upload failed. Please try again.");
