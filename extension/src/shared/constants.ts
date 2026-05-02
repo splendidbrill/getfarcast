@@ -1,4 +1,4 @@
-export const DEFAULT_API_BASE_URL = 'https://getfarcast.com';
+export const DEFAULT_API_BASE_URL = 'https://www.getfarcast.com';
 export const CONFIG_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
 
 export const STORAGE_KEYS = {

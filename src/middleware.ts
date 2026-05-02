@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
     newUrl.hostname = 'www.getfarcast.com'
     newUrl.port = ''
     newUrl.protocol = 'https:'
-    return NextResponse.redirect(newUrl, 301)
+    return NextResponse.redirect(newUrl, 308)
   }
 
   if (BLOG_PROTECTED.some((p) => pathname.startsWith(p))) {
