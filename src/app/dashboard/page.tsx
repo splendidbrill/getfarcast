@@ -65,12 +65,16 @@ export default function DashboardPage() {
 
       if (status === 'canceled') {
         setTrialData({ status: 'canceled', trialEndDate });
-        // User can still access dashboard during their trial period, just with canceled status
       } else if (status === 'trial_exhausted') {
         setTrialData({ status: 'expired' });
         return;
       } else if (status === 'on_trial' && trialEndDate) {
         if (new Date() > new Date(trialEndDate)) {
+          setTrialData({ status: 'expired' });
+          return;
+        }
+      } else if (status === 'active' && subscriptionEndDate) {
+        if (new Date() > new Date(subscriptionEndDate)) {
           setTrialData({ status: 'expired' });
           return;
         }

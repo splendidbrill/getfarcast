@@ -53,10 +53,12 @@ export async function POST(request: Request) {
 
   const { type, data } = event;
 
-  // Polar puts the customer email at data.user.email or data.customer.email
+  // Polar webhook payload varies by event type — cover all known paths
   const email = (
     (data?.user as Record<string, unknown>)?.email ??
     (data?.customer as Record<string, unknown>)?.email ??
+    (data?.billing_address as Record<string, unknown>)?.email ??
+    data?.user_email ??
     data?.email ??
     ""
   ) as string;
@@ -86,7 +88,11 @@ export async function POST(request: Request) {
   let newStatus: string | null = null;
   let subscriptionEndDate: string | null = null;
 
-  if (type === "subscription.active" || type === "order.created") {
+  if (
+    type === "subscription.active" ||
+    type === "subscription.created" ||
+    type === "order.created"
+  ) {
     newStatus = "active";
     const currentPeriodEnd = data?.current_period_end as string | undefined;
     if (currentPeriodEnd) {

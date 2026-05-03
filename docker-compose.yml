@@ -11,7 +11,7 @@ services:
         NEXT_PUBLIC_CLOUDFRONT_DOMAIN: ${NEXT_PUBLIC_CLOUDFRONT_DOMAIN}
         NEXT_PUBLIC_PAYMENT_PROVIDER: ${NEXT_PUBLIC_PAYMENT_PROVIDER}
     ports:
-      - "80:3000"
+      - "3000:3000"
     env_file:
       - .env.production
     restart: unless-stopped
