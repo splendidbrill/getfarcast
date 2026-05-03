@@ -1,10 +1,10 @@
+import { headers } from "next/headers";
 import { ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
 import WhopEmbed from "./WhopEmbed";
 
-export const dynamic = "force-dynamic";
-
-export default function CheckoutPage() {
+export default async function CheckoutPage() {
+  await headers(); // opts into dynamic rendering — env vars read at request time
   const provider = process.env.PAYMENT_PROVIDER ?? "whop";
   const planId = process.env.NEXT_PUBLIC_WHOP_PLAN_ID ?? "";
 
