@@ -2,6 +2,8 @@ import { ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
 import WhopEmbed from "./WhopEmbed";
 
+export const dynamic = "force-dynamic";
+
 export default function CheckoutPage() {
   const provider = process.env.PAYMENT_PROVIDER ?? "whop";
   const planId = process.env.NEXT_PUBLIC_WHOP_PLAN_ID ?? "";
