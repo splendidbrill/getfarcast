@@ -15,9 +15,13 @@ function verifySignature(rawBody: string, headers: Headers, secret: string): boo
     return false;
   }
 
+  console.log("[polar-webhook] id:", webhookId, "ts:", webhookTimestamp, "sig:", webhookSignature, "bodyLen:", rawBody.length);
+
   const signedContent = `${webhookId}.${webhookTimestamp}.${rawBody}`;
   const secretBytes = Buffer.from(secret.replace(/^(whsec_|polar_whs_)/, ""), "base64");
   const expectedBytes = crypto.createHmac("sha256", secretBytes).update(signedContent).digest();
+  const expectedB64 = expectedBytes.toString("base64");
+  console.log("[polar-webhook] expected:", expectedB64, "secretLen:", secretBytes.length);
 
   // Compare decoded bytes — handles any base64 encoding variations
   return webhookSignature.split(" ").some((sig) => {
