@@ -25,12 +25,14 @@ export async function POST(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
+  // Fetch fresh metadata so we don't lose existing fields when spreading
+  const { data: { user: freshUser } } = await admin.auth.admin.getUserById(user.id);
   const endDate = new Date();
   endDate.setDate(endDate.getDate() + 30);
 
   const { error } = await admin.auth.admin.updateUserById(user.id, {
     app_metadata: {
-      ...user.app_metadata,
+      ...freshUser?.app_metadata,
       subscription_status: "active",
       subscription_end_date: endDate.toISOString(),
     },
