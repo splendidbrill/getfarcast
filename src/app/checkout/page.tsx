@@ -1,10 +1,11 @@
 "use client";
 
 import { WhopCheckoutEmbed } from "@whop/checkout/react";
-import { Zap } from "lucide-react";
+import { Zap, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function CheckoutPage() {
+  const provider = process.env.NEXT_PUBLIC_PAYMENT_PROVIDER ?? "whop";
   const planId = process.env.NEXT_PUBLIC_WHOP_PLAN_ID!;
 
   return (
@@ -39,9 +40,22 @@ export default function CheckoutPage() {
           </p>
         </div>
 
-        <div className="w-full max-w-lg rounded-3xl overflow-hidden border border-black/5 shadow-lg bg-white">
-          <WhopCheckoutEmbed planId={planId} />
-        </div>
+        {provider === "whop" ? (
+          <div className="w-full max-w-lg rounded-3xl overflow-hidden border border-black/5 shadow-lg bg-white">
+            <WhopCheckoutEmbed planId={planId} />
+          </div>
+        ) : (
+          <div className="w-full max-w-lg flex flex-col items-center gap-4">
+            <a
+              href="/api/checkout/starter"
+              className="w-full flex items-center justify-center gap-2 bg-[#ff6b4e] hover:bg-[#e85a3d] text-white text-base font-bold py-4 px-8 rounded-2xl shadow-md transition-colors"
+            >
+              Continue to Checkout
+              <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
+            </a>
+            <p className="text-xs text-gray-400">You&apos;ll be redirected to our secure payment page.</p>
+          </div>
+        )}
       </div>
     </div>
   );

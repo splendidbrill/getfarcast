@@ -4,7 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const checkoutUrl = process.env.WHOP_CHECKOUT_URL;
+  const provider = process.env.PAYMENT_PROVIDER ?? "whop";
+
+  const checkoutUrl =
+    provider === "polar"
+      ? process.env.POLAR_CHECKOUT_URL
+      : process.env.WHOP_CHECKOUT_URL;
+
   if (!checkoutUrl) {
     return NextResponse.json({ error: "Checkout not configured" }, { status: 500 });
   }
@@ -12,10 +18,11 @@ export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Pass the user's email to Whop so it pre-fills checkout
   const url = new URL(checkoutUrl);
   if (user?.email) {
-    url.searchParams.set("email", user.email);
+    // Whop uses "email"; Polar uses "prefill_email"
+    const emailParam = provider === "polar" ? "prefill_email" : "email";
+    url.searchParams.set(emailParam, user.email);
   }
 
   return NextResponse.redirect(url.toString());

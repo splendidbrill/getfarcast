@@ -9,7 +9,7 @@ export async function extractTwitterIntentSignals(
         text: ['[data-testid="tweetText"]', 'div[lang]'],
         authorName: ['[data-testid="User-Name"] span', 'a[role="link"] span'],
         authorBio: ['[data-testid="UserDescription"]'],
-        authorLink: ['[data-testid="User-Name"] a[href^="/"]', 'a[href*="/status/"]'],
+        authorLink: ['[data-testid="User-Name"] a[href^="/"]'],
         sourceLink: ['a[href*="/status/"]'],
         timestamp: ['time']
     })
