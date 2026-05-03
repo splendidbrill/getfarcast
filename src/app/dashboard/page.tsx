@@ -31,6 +31,23 @@ export default function DashboardPage() {
         return;
       }
 
+      // If redirected from Polar checkout, activate the user immediately
+      const urlParams = new URLSearchParams(window.location.search);
+      const polarToken = urlParams.get('customer_session_token');
+      if (polarToken) {
+        try {
+          await fetch('/api/polar/activate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: polarToken }),
+          });
+        } catch (e) {
+          console.error('[dashboard] polar activate failed', e);
+        }
+        // Clean the token from the URL
+        window.history.replaceState({}, '', '/dashboard');
+      }
+
       // Always read subscription status from the server (bypasses stale JWT app_metadata)
       let status: string | null = null;
       let trialEndDate: string | null = null;
