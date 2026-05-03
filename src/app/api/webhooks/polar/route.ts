@@ -1,8 +1,31 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { Webhook } from "standardwebhooks";
+import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
+
+function verifySignature(rawBody: string, headers: Headers, secret: string): boolean {
+  const webhookId = headers.get("webhook-id");
+  const webhookTimestamp = headers.get("webhook-timestamp");
+  const webhookSignature = headers.get("webhook-signature");
+
+  if (!webhookId || !webhookTimestamp || !webhookSignature) return false;
+
+  const signedContent = `${webhookId}.${webhookTimestamp}.${rawBody}`;
+  const secretBytes = Buffer.from(secret.replace(/^(whsec_|polar_whs_)/, ""), "base64");
+  const expectedBytes = crypto.createHmac("sha256", secretBytes).update(signedContent).digest();
+
+  // Compare decoded bytes — handles any base64 encoding variations
+  return webhookSignature.split(" ").some((sig) => {
+    const parts = sig.split(",");
+    if (parts[0] !== "v1" || !parts[1]) return false;
+    try {
+      return crypto.timingSafeEqual(expectedBytes, Buffer.from(parts[1], "base64"));
+    } catch {
+      return false;
+    }
+  });
+}
 
 export async function POST(request: Request) {
   const secret = process.env.POLAR_WEBHOOK_SECRET;
@@ -12,20 +35,9 @@ export async function POST(request: Request) {
   }
 
   const rawBody = await request.text();
-  const webhookId = request.headers.get("webhook-id") ?? "";
-  const webhookTimestamp = request.headers.get("webhook-timestamp") ?? "";
-  const webhookSignature = request.headers.get("webhook-signature") ?? "";
 
-  try {
-    // standardwebhooks expects the secret WITHOUT the "polar_whs_" prefix, base64-encoded
-    const wh = new Webhook(secret.replace(/^polar_whs_/, ""));
-    wh.verify(rawBody, {
-      "webhook-id": webhookId,
-      "webhook-timestamp": webhookTimestamp,
-      "webhook-signature": webhookSignature,
-    });
-  } catch (err) {
-    console.warn("[polar-webhook] Invalid signature:", err);
+  if (!verifySignature(rawBody, request.headers, secret)) {
+    console.warn("[polar-webhook] Invalid signature");
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
