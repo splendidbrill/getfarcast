@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const hostname = request.headers.get('host')
 
-  if (hostname === 'getfarcast.com') {
+  if (hostname === 'getfarcast.com' && !pathname.startsWith('/api/')) {
     const newUrl = new URL(request.url)
     newUrl.hostname = 'www.getfarcast.com'
     newUrl.port = ''
