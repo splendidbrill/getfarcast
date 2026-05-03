@@ -5,11 +5,15 @@ import crypto from "crypto";
 export const dynamic = "force-dynamic";
 
 function verifySignature(rawBody: string, headers: Headers, secret: string): boolean {
-  const webhookId = headers.get("webhook-id");
-  const webhookTimestamp = headers.get("webhook-timestamp");
-  const webhookSignature = headers.get("webhook-signature");
+  // Polar/Svix sends either svix-* or webhook-* headers depending on configuration
+  const webhookId = headers.get("webhook-id") ?? headers.get("svix-id");
+  const webhookTimestamp = headers.get("webhook-timestamp") ?? headers.get("svix-timestamp");
+  const webhookSignature = headers.get("webhook-signature") ?? headers.get("svix-signature");
 
-  if (!webhookId || !webhookTimestamp || !webhookSignature) return false;
+  if (!webhookId || !webhookTimestamp || !webhookSignature) {
+    console.warn("[polar-webhook] Missing headers - id:", !!webhookId, "ts:", !!webhookTimestamp, "sig:", !!webhookSignature);
+    return false;
+  }
 
   const signedContent = `${webhookId}.${webhookTimestamp}.${rawBody}`;
   const secretBytes = Buffer.from(secret.replace(/^(whsec_|polar_whs_)/, ""), "base64");
