@@ -11,18 +11,12 @@ function verifySignature(rawBody: string, headers: Headers, secret: string): boo
   const webhookSignature = headers.get("webhook-signature") ?? headers.get("svix-signature");
 
   if (!webhookId || !webhookTimestamp || !webhookSignature) {
-    console.warn("[polar-webhook] Missing headers - id:", !!webhookId, "ts:", !!webhookTimestamp, "sig:", !!webhookSignature);
     return false;
   }
 
-  console.log("[polar-webhook] id:", webhookId, "ts:", webhookTimestamp, "sig:", webhookSignature, "bodyLen:", rawBody.length);
-  console.log("[polar-webhook] body:", rawBody);
-
   const signedContent = `${webhookId}.${webhookTimestamp}.${rawBody}`;
-  const secretBytes = Buffer.from(secret.replace(/^(whsec_|polar_whs_)/, ""), "base64");
+  const secretBytes = Buffer.from(secret, "utf8");
   const expectedBytes = crypto.createHmac("sha256", secretBytes).update(signedContent).digest();
-  const expectedB64 = expectedBytes.toString("base64");
-  console.log("[polar-webhook] expected:", expectedB64, "secretLen:", secretBytes.length);
 
   // Compare decoded bytes — handles any base64 encoding variations
   return webhookSignature.split(" ").some((sig) => {
