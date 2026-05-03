@@ -1,16 +1,13 @@
-"use client";
-
-import { WhopCheckoutEmbed } from "@whop/checkout/react";
-import { Zap, ArrowRight } from "lucide-react";
+import { ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
+import WhopEmbed from "./WhopEmbed";
 
 export default function CheckoutPage() {
-  const provider = process.env.NEXT_PUBLIC_PAYMENT_PROVIDER ?? "whop";
-  const planId = process.env.NEXT_PUBLIC_WHOP_PLAN_ID!;
+  const provider = process.env.PAYMENT_PROVIDER ?? "whop";
+  const planId = process.env.NEXT_PUBLIC_WHOP_PLAN_ID ?? "";
 
   return (
     <div className="min-h-screen bg-[#faf8f6] flex flex-col">
-      {/* Minimal header */}
       <header className="border-b border-black/5 bg-white/80 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
@@ -41,9 +38,7 @@ export default function CheckoutPage() {
         </div>
 
         {provider === "whop" ? (
-          <div className="w-full max-w-lg rounded-3xl overflow-hidden border border-black/5 shadow-lg bg-white">
-            <WhopCheckoutEmbed planId={planId} />
-          </div>
+          <WhopEmbed planId={planId} />
         ) : (
           <div className="w-full max-w-lg flex flex-col items-center gap-4">
             <a
