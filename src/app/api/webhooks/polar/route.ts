@@ -16,6 +16,7 @@ function verifySignature(rawBody: string, headers: Headers, secret: string): boo
   }
 
   console.log("[polar-webhook] id:", webhookId, "ts:", webhookTimestamp, "sig:", webhookSignature, "bodyLen:", rawBody.length);
+  console.log("[polar-webhook] body:", rawBody);
 
   const signedContent = `${webhookId}.${webhookTimestamp}.${rawBody}`;
   const secretBytes = Buffer.from(secret.replace(/^(whsec_|polar_whs_)/, ""), "base64");
