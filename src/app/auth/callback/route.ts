@@ -25,12 +25,14 @@ export async function GET(request: Request) {
     if (!error) {
       return NextResponse.redirect(`${baseUrl}${next}`)
     }
+    console.error('[auth/callback] exchangeCodeForSession error:', error.message)
   } else if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as never })
     if (!error) {
       return NextResponse.redirect(`${baseUrl}${next}`)
     }
+    console.error('[auth/callback] verifyOtp error:', error.message)
   }
 
-  return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`)
+  return NextResponse.redirect(`${baseUrl}/login`)
 }
