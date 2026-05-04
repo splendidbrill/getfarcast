@@ -162,10 +162,14 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            {/* <button className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5 transition-colors">
-              <Share className="w-4 h-4" />
-              Share
-            </button> */}
+            <a
+              href="https://chromewebstore.google.com/detail/farcast/ljapoonogaahmkkmgbhgielehljmjooa?utm_source=item-share-cb"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white text-sm font-medium shadow-sm hover:shadow-md hover:shadow-[#ff6b4e]/20 transition-all hover:-translate-y-0.5"
+            >
+              Download Chrome Extension
+            </a>
             <button
               onClick={() => window.print()}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a2e] text-white text-sm font-medium hover:bg-black transition-colors shadow-sm"
@@ -332,10 +336,10 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
             )}
 
             {activeTab === "leads" && (
-              <WarmLeads 
-                playbookId={playbookId} 
-                productName={playbook.productName} 
-                productDescription={playbook.summary} 
+              <WarmLeads
+                playbookId={playbookId}
+                productName={playbook.productName}
+                productDescription={playbook.summary}
               />
             )}
           </div>

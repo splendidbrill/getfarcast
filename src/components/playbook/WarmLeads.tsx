@@ -21,7 +21,7 @@ type Lead = {
     engagement_weight: number | null;
 };
 
-type IntentFilter = "all" | "high" | "medium";
+type PlatformFilter = "all" | "linkedin" | "twitter_x" | "reddit";
 
 const PLATFORM_LABEL: Record<string, string> = {
     twitter_x: "X",
@@ -74,7 +74,7 @@ export function WarmLeads({
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
     const [fetchError, setFetchError] = useState<string | null>(null);
-    const [intentFilter, setIntentFilter] = useState<IntentFilter>("all");
+    const [platformFilter, setPlatformFilter] = useState<PlatformFilter>("all");
     const [showAllPlaybooks, setShowAllPlaybooks] = useState(false);
 
     // DM Modal State
@@ -152,13 +152,13 @@ export function WarmLeads({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playbookId, showAllPlaybooks]);
 
-    const hotCount = leads.filter((l) => l.intent_level === "high").length;
-    const warmCount = leads.filter((l) => l.intent_level === "medium").length;
+    const linkedinCount = leads.filter((l) => l.platform === "linkedin").length;
+    const xCount = leads.filter((l) => l.platform === "twitter_x").length;
+    const redditCount = leads.filter((l) => l.platform === "reddit").length;
 
     const filtered = leads.filter((lead) => {
-        if (intentFilter === "high") return lead.intent_level === "high";
-        if (intentFilter === "medium") return lead.intent_level === "medium";
-        return true;
+        if (platformFilter === "all") return true;
+        return lead.platform === platformFilter;
     });
 
     return (
@@ -183,38 +183,26 @@ export function WarmLeads({
 
             {/* Controls */}
             <div className="flex items-center justify-between flex-wrap gap-3">
-                {/* Intent filter tabs */}
+                {/* Platform filter tabs */}
                 <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl">
-                    <button
-                        onClick={() => setIntentFilter("all")}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                            intentFilter === "all"
-                                ? "bg-white text-[#1a1a2e] shadow-sm"
-                                : "text-gray-500 hover:text-[#1a1a2e]"
-                        }`}
-                    >
-                        All{leads.length > 0 ? ` (${leads.length})` : ""}
-                    </button>
-                    <button
-                        onClick={() => setIntentFilter("high")}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                            intentFilter === "high"
-                                ? "bg-white text-[#1a1a2e] shadow-sm"
-                                : "text-gray-500 hover:text-[#1a1a2e]"
-                        }`}
-                    >
-                        🔥 Hot{hotCount > 0 ? ` (${hotCount})` : ""}
-                    </button>
-                    <button
-                        onClick={() => setIntentFilter("medium")}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                            intentFilter === "medium"
-                                ? "bg-white text-[#1a1a2e] shadow-sm"
-                                : "text-gray-500 hover:text-[#1a1a2e]"
-                        }`}
-                    >
-                        ⚡ Warm{warmCount > 0 ? ` (${warmCount})` : ""}
-                    </button>
+                    {([
+                        { id: "all", label: "All", count: leads.length },
+                        { id: "linkedin", label: "LinkedIn", count: linkedinCount },
+                        { id: "twitter_x", label: "X", count: xCount },
+                        { id: "reddit", label: "Reddit", count: redditCount },
+                    ] as { id: PlatformFilter; label: string; count: number }[]).map(({ id, label, count }) => (
+                        <button
+                            key={id}
+                            onClick={() => setPlatformFilter(id)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                platformFilter === id
+                                    ? "bg-white text-[#1a1a2e] shadow-sm"
+                                    : "text-gray-500 hover:text-[#1a1a2e]"
+                            }`}
+                        >
+                            {label}{count > 0 ? ` (${count})` : ""}
+                        </button>
+                    ))}
                 </div>
 
                 {/* Playbook scope toggle */}
@@ -260,11 +248,7 @@ export function WarmLeads({
                     <p className="text-gray-400 font-medium">
                         {leads.length === 0
                             ? "No leads captured yet."
-                            : intentFilter === "high"
-                            ? "No hot leads yet."
-                            : intentFilter === "medium"
-                            ? "No warm leads yet."
-                            : "No leads match this filter."}
+                            : `No ${platformFilter === "all" ? "" : PLATFORM_LABEL[platformFilter] + " "}leads match this filter.`}
                     </p>
                     {leads.length === 0 && (
                         <p className="text-sm text-gray-400">

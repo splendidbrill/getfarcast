@@ -68,7 +68,7 @@ export function ContactForm() {
             <div className="space-y-8">
                 <div>
                     <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-[#ff6b4e]">
-                        Contact
+                        Contact / Feedback
                     </p>
                     <h1 className="text-4xl font-extrabold tracking-tight text-[#1a1a2e] sm:text-5xl leading-tight">
                         Let&apos;s talk about your growth engine.
@@ -81,13 +81,13 @@ export function ContactForm() {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {[
                         {
-                            title: "Sales & enterprise",
-                            text: "Need team access, custom rollout, or a tailored plan? Reach out here and we’ll take it from there.",
+                            title: "Reach out to us",
+                            text: "If you have any questions, suggestions, or need help with our product, we’d love to hear from you.",
                             icon: Mail,
                         },
                         {
-                            title: "Inbox delivery",
-                            text: "Messages are sent through partner's email service.",
+                            title: "Provide any feedback",
+                            text: "We would love to hear your feedback and suggestions.",
                             icon: Send,
                         },
                     ].map((item) => {

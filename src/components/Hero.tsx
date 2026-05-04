@@ -95,7 +95,7 @@ export function Hero() {
 
         {/* Subheadline */}
         <p className="max-w-sm sm:max-w-2xl mx-auto text-base sm:text-xl text-gray-600 font-medium leading-relaxed mb-10 animate-fade-in-up-delay-2 opacity-0">
-          You can ship in a weekend. Getting users takes months — unless you have a system. Farcast agents build and run it for you end to end.
+          You can ship in a weekend. Getting users takes months - unless you have a system. Farcast agents build and run it for you end to end.
         </p>
 
         {/* CTAs */}

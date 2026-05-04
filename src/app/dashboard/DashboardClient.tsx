@@ -155,6 +155,21 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
           </div>
         )}
 
+        <div className="bg-[#fdf3f0] border border-[#f5c4b8] rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+          <p className="text-[#5a2d1e] font-medium text-sm sm:text-base">
+            Book a free 15-min strategy call. Most founders who do this see{" "}
+            <strong>5x faster progress</strong> in their first few weeks.
+          </p>
+          <a
+            href="https://scheduler.zoom.us/shobit-gupta/sync-call-with-the-founder"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold text-sm shadow-md hover:shadow-xl hover:shadow-[#ff6b4e]/20 transition-all hover:-translate-y-0.5 whitespace-nowrap"
+          >
+            Book your strategy session
+          </a>
+        </div>
+
         {playbooks.length === 0 ? (
           <div className="text-center py-24 bg-white rounded-3xl border border-black/5 shadow-sm relative overflow-hidden">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#ff6b4e]/5 rounded-full blur-[80px]" />

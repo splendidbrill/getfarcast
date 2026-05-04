@@ -169,6 +169,7 @@ export function Navbar2() {
     { label: "How It Works", href: "#how-it-works", section: "how-it-works" },
     { label: "Features", href: "#features", section: "features" },
     { label: "Pricing", href: "#pricing", section: "pricing" },
+    { label: "Contact", href: "/contact", section: "" },
   ];
 
   const isHomePage = pathname === "/";

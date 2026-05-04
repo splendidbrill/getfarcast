@@ -73,7 +73,7 @@ export function PricingSection2() {
         <div ref={headingRef} className="text-center mb-16" style={{ opacity: 0 }}>
           <p className="text-sm font-bold text-blue-500 uppercase tracking-widest mb-3">Pricing</p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1a1a2e] tracking-tight mb-6">
-            Distribution on auto-pilot.
+            Simple Distribution System.
           </h2>
           {/* <p className="text-gray-500 font-medium text-lg leading-relaxed max-w-xl mx-auto mb-10">
             Choose Starter for self-serve growth, or talk to us for an enterprise setup.

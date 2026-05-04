@@ -99,6 +99,7 @@ export function Navbar() {
     { label: "How It Works", href: "#how-it-works", section: "how-it-works" },
     { label: "Features", href: "#features", section: "features" },
     { label: "Pricing", href: "#pricing", section: "pricing" },
+    { label: "Contact", href: "/contact", section: "" },
   ];
 
   const isHomePage = pathname === "/";
@@ -250,6 +251,14 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+
+            <Link
+              href="/contact"
+              onClick={() => setMobileOpen(false)}
+              className="block text-base font-bold py-3 px-4 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-[#1a1a2e] transition-colors"
+            >
+              Contact
+            </Link>
 
             {isHomePage && <hr className="border-gray-100 my-4" />}
 
