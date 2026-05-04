@@ -23,6 +23,7 @@ export async function POST(request: Request) {
     });
 
     if (error) {
+        console.error("[contact] Resend error:", JSON.stringify(error));
         return NextResponse.json({ error: "Failed to send message. Please try again." }, { status: 500 });
     }
 
