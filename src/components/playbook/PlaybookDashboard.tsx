@@ -19,6 +19,7 @@ import {
   Lightbulb,
   Rocket,
   NotebookPen,
+  TrendingUp,
 } from "lucide-react";
 import type { Playbook } from "@/lib/types";
 import { PlaybookOverview } from "./PlaybookOverview";
@@ -29,9 +30,10 @@ import { WeeklyContentIdeas } from "./WeeklyContentIdeas";
 import { DailyLogs } from "./DailyLogs";
 import { PlaybookPrintView } from "./PlaybookPrintView";
 import { WarmLeads } from "./WarmLeads";
+import { GrowthHacks } from "./GrowthHacks";
 import Link from "next/link";
 
-type MainTab = "overview" | "icp" | "channels" | "logs" | "posts" | "leads";
+type MainTab = "overview" | "icp" | "channels" | "logs" | "posts" | "leads" | "growth-hacks";
 type ContentSubTab = "weekly-engine" | "weekly-ideas" | "launch-posts";
 
 export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
@@ -274,6 +276,19 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
             Warm Leads
           </button>
 
+          {/* Growth Hacks */}
+          <button
+            onClick={() => setActiveTab("growth-hacks")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
+              activeTab === "growth-hacks"
+                ? "bg-white text-[#ff6b4e] shadow-sm border border-black/5"
+                : "text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5"
+            }`}
+          >
+            <TrendingUp className={`w-4 h-4 ${activeTab === "growth-hacks" ? "text-[#ff6b4e]" : "text-gray-400"}`} />
+            Growth Hacks
+          </button>
+
           {/* Launch CTA */}
           <div className="mt-4 pt-4 border-t border-black/5">
             <Link
@@ -340,6 +355,15 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
                 playbookId={playbookId}
                 productName={playbook.productName}
                 productDescription={playbook.summary}
+              />
+            )}
+
+            {activeTab === "growth-hacks" && (
+              <GrowthHacks
+                playbookId={playbookId}
+                productName={playbook.productName}
+                productDescription={playbook.summary}
+                icp={playbook.icp}
               />
             )}
           </div>

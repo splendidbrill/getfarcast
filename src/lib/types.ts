@@ -133,6 +133,20 @@ export interface Playbook {
   outreach?: OutreachSequence;
 }
 
+// --- Growth Hacks ---
+
+export interface GrowthHack {
+  title: string;
+  type: "online" | "offline";
+  platform: string;
+  where: string;
+  description: string;
+  steps: string[];
+  effort: "low" | "medium" | "high";
+  timeToFirstUser: string;
+  expectedResult: string;
+}
+
 // --- Stored Playbook (localStorage) ---
 
 export interface StoredPlaybook {

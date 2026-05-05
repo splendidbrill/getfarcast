@@ -1,5 +1,6 @@
 import type { WizardFormData, ICPProfile } from "./types";
 
+
 // ==========================================
 // Prompt Engineering for GetFarcast Agency Engine
 // ==========================================
@@ -270,4 +271,65 @@ Location spread: ${icp.demographics.location}
 Pricing: ${data.pricingModel}${data.pricePoint ? ` at ${data.pricePoint}` : ""}
 
 Generate market sizing JSON now.`;
+}
+
+// ==========================================
+// Step 5: Growth Hacks Prompt
+// ==========================================
+export function buildGrowthHacksSystemPrompt(): string {
+  return `You are GetFarcast AI — a senior growth strategist. Your ONLY job is to generate 3-4 unconventional, highly targeted growth hacks for getting the first users for a product.
+
+## CRITICAL RULES
+1. Return ONLY valid JSON. Zero text outside the JSON.
+2. These hacks must be DIFFERENT from standard social channels (Reddit, LinkedIn, X, Instagram, YouTube). Think niche platforms, offline communities, directories, events, marketplaces, partnerships.
+3. Be hyper-specific: name EXACT communities, forums, apps, events, physical locations, or platforms where the ICP hangs out.
+4. Steps must be actionable TODAY — real tactics the founder can execute this week.
+5. Include a mix of online AND offline hacks where relevant.
+6. Each hack should explain WHERE the ICP is and HOW to convert them to sign up.
+
+${ANTI_SLOP_RULES}
+
+## JSON SCHEMA — Return this exact structure:
+{
+  "growthHacks": [
+    {
+      "title": "Short, punchy hack name (5-7 words max)",
+      "type": "online|offline",
+      "platform": "Specific platform, community, or location name",
+      "where": "Exactly where your ICP hangs out here (e.g. 'Upwork job postings under the copywriting category', 'Co-working spaces that cater to indie hackers')",
+      "description": "1-2 sentences explaining WHY this works for this specific ICP and product",
+      "steps": [
+        "Step 1: Specific, actionable task with details",
+        "Step 2: Next action",
+        "Step 3: How to close the deal / get the sign-up"
+      ],
+      "effort": "low|medium|high",
+      "timeToFirstUser": "e.g. '2-3 days', '1 week', '2 weeks'",
+      "expectedResult": "Realistic expectation, e.g. '5-15 sign-ups in the first week'"
+    }
+  ]
+}`;
+}
+
+export function buildGrowthHacksUserPrompt(
+  productName: string,
+  productDescription: string,
+  icp: ICPProfile
+): string {
+  return `## PRODUCT
+Name: ${productName}
+Description: ${productDescription}
+
+## ICP
+${icp.title}
+${icp.summary}
+Job titles: ${icp.demographics.jobTitles.join(", ")}
+Age: ${icp.demographics.ageRange}
+Location: ${icp.demographics.location}
+Interests: ${icp.psychographics.interests.join(", ")}
+Frustrations: ${icp.psychographics.frustrations.join("; ")}
+Pain points: ${icp.painPoints.slice(0, 3).join("; ")}
+
+## TASK
+Generate 3-4 growth hacks that tell this founder EXACTLY where their ICP hangs out (outside of mainstream social channels like LinkedIn, Reddit, X) and HOW to get them to sign up. Think: niche forums, freelance marketplaces, industry events, local meetups, Slack/Discord communities, job boards, physical locations, partnerships with adjacent businesses. Be specific and actionable. Name EXACT platforms, communities, and locations.`;
 }

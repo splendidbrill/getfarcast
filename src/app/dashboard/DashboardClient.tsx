@@ -196,7 +196,7 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
               const leads = leadCounts[pb.id];
               return (
                 <Link
-                  key={pb.id}
+                  key={pb.id ?? pb.created_at}
                   href={`/playbook/${pb.id}`}
                   className="group relative bg-white rounded-3xl p-6 border border-black/5 shadow-sm hover:shadow-xl hover:border-[#ff6b4e]/30 transition-all duration-300 flex flex-col h-full overflow-hidden"
                 >

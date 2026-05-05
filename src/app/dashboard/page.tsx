@@ -132,8 +132,8 @@ export default function DashboardPage() {
             const stored = JSON.parse(localStorage.getItem(key)!);
             const { playbook, formData } = stored;
 
-            // Avoid duplicates if already in cloud
-            if (!loadedPlaybooks.some(p => p.id === playbook.id)) {
+            // Avoid duplicates if already in cloud; skip entries with no id
+            if (playbook?.id && !loadedPlaybooks.some(p => p.id === playbook.id)) {
               loadedPlaybooks.push({
                 id: playbook.id,
                 product_name: playbook.productName,
