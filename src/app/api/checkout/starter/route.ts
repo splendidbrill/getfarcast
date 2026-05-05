@@ -25,5 +25,9 @@ export async function GET() {
     url.searchParams.set(emailParam, user.email);
   }
 
+  if (provider === "polar") {
+    url.searchParams.set("discount_code", "GETONEMONTH");
+  }
+
   return NextResponse.redirect(url.toString());
 }
