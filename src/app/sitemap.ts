@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
+import { FREE_TOOLS } from "@/lib/freeTools";
 
 export const revalidate = 3600; // revalidate every hour
 
@@ -37,6 +38,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.5,
     },
+    {
+      url: `${baseUrl}/free-tools`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    ...FREE_TOOLS.map((tool) => ({
+      url: `${baseUrl}/free-tools/${tool.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     {
       url: `${baseUrl}/privacy`,
       lastModified: new Date(),

@@ -12,6 +12,7 @@ const footerLinks = {
     { label: "Features", href: "#features" },
     { label: "Channels", href: "#channels" },
     { label: "Pricing", href: "#pricing" },
+    { label: "Free Tools", href: "/free-tools" },
     { label: "Login", href: "/login" },
   ],
   Company: [
