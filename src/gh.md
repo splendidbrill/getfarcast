@@ -1,3 +1,0 @@
-we should have on top growth hacks tab below Warm Leads in playbooks, which relates to ICP; we give 3-4 growth hacks which are unrelated to our channels; for eg. if i have built a SaaS for Freelancers, i go to upwork first and target people there in addition to doing Reddit, X etc. Or if i have an edtech app, i would go to a tuition center and talk to students
-
-Goal is for AI to tell where specifically your targeted niche ICP is hanging out and how to get them to sign up on the app. Growth hacks can be both online and offline; it's like a strategic growth hack that tells the most targeted way to get early users
