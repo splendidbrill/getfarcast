@@ -86,6 +86,8 @@ export const metadata: Metadata = {
 };
 
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Suspense } from "react";
+import YandexMetrica from "@/components/YandexMetrica";
 
 export default function RootLayout({
   children,
@@ -99,6 +101,11 @@ export default function RootLayout({
       </body>
       {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+      )}
+      {process.env.NEXT_PUBLIC_YANDEX_METRICA_ID && (
+        <Suspense fallback={null}>
+          <YandexMetrica yandexMetricaId={process.env.NEXT_PUBLIC_YANDEX_METRICA_ID} />
+        </Suspense>
       )}
     </html>
   );
