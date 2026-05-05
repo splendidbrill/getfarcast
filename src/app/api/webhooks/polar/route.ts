@@ -106,12 +106,15 @@ export async function POST(request: Request) {
     newStatus = "canceled";
   }
 
+  const polarCustomerId = (data?.customer_id ?? (data?.customer as Record<string, unknown>)?.id) as string | undefined;
+
   if (newStatus) {
     const { error: updateError } = await admin.auth.admin.updateUserById(supaUser.id, {
       app_metadata: {
         ...supaUser.app_metadata,
         subscription_status: newStatus,
         polar_subscription_id: data?.id ?? null,
+        ...(polarCustomerId && { polar_customer_id: polarCustomerId }),
         ...(subscriptionEndDate !== null && { subscription_end_date: subscriptionEndDate }),
       },
     });

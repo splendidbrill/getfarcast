@@ -1,12 +1,52 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
+const POLAR_FALLBACK = "https://polar.sh/farcast/portal";
+
 export async function GET() {
   const provider = process.env.PAYMENT_PROVIDER ?? "whop";
-  const portalUrl =
-    provider === "polar"
-      ? (process.env.POLAR_PORTAL_URL ?? "https://polar.sh/getfarcast")
-      : "https://whop.com/hub/";
-  return NextResponse.redirect(portalUrl);
+
+  if (provider !== "polar") {
+    return NextResponse.redirect("https://whop.com/hub/");
+  }
+
+  const accessToken = process.env.POLAR_ACCESS_TOKEN;
+  if (!accessToken) {
+    return NextResponse.redirect(process.env.POLAR_PORTAL_URL ?? POLAR_FALLBACK);
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.redirect("/");
+  }
+
+  const customerId = user.app_metadata?.polar_customer_id as string | undefined;
+  if (!customerId) {
+    return NextResponse.redirect(process.env.POLAR_PORTAL_URL ?? POLAR_FALLBACK);
+  }
+
+  try {
+    const res = await fetch("https://api.polar.sh/v1/customer-sessions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ customer_id: customerId }),
+    });
+
+    if (res.ok) {
+      const session = await res.json();
+      if (session.customer_portal_url) {
+        return NextResponse.redirect(session.customer_portal_url);
+      }
+    }
+  } catch {
+    // fall through to static URL
+  }
+
+  return NextResponse.redirect(process.env.POLAR_PORTAL_URL ?? POLAR_FALLBACK);
 }
