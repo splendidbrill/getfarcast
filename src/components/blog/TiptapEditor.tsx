@@ -168,7 +168,8 @@ export function TiptapEditor({ content, onChange }: Props) {
 
       const baseName = filename.replace(/\.[^/.]+$/, "");
       const src = `${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}/optimized/${baseName}.webp`;
-      editor.chain().focus().setImage({ src }).run();
+      const alt = window.prompt("Enter image alt text (describe the image for accessibility and SEO)") ?? "";
+      editor.chain().focus().setImage({ src, alt }).run();
     } catch (err) {
       console.error("Image upload failed:", err);
     } finally {
