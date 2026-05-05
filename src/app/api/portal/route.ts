@@ -23,7 +23,25 @@ export async function GET() {
     return NextResponse.redirect("/");
   }
 
-  const customerId = user.app_metadata?.polar_customer_id as string | undefined;
+  let customerId = user.app_metadata?.polar_customer_id as string | undefined;
+
+  if (!customerId) {
+    const subscriptionId = user.app_metadata?.polar_subscription_id as string | undefined;
+    if (subscriptionId) {
+      try {
+        const subRes = await fetch(`https://api.polar.sh/v1/subscriptions/${subscriptionId}`, {
+          headers: { "Authorization": `Bearer ${accessToken}` },
+        });
+        if (subRes.ok) {
+          const sub = await subRes.json();
+          customerId = sub.customer_id as string | undefined;
+        }
+      } catch {
+        // fall through
+      }
+    }
+  }
+
   if (!customerId) {
     return NextResponse.redirect(process.env.POLAR_PORTAL_URL ?? POLAR_FALLBACK);
   }
