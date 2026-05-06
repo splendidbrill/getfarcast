@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const srcDir = path.resolve(__dirname, '../src');
 const outDir = path.resolve(__dirname, '../dist');
 
-for (const name of ['twitter', 'reddit', 'linkedin']) {
+for (const name of ['twitter', 'reddit', 'linkedin', 'getfarcast']) {
     await build({
         entryPoints: [path.resolve(srcDir, `content/${name}.ts`)],
         bundle: true,

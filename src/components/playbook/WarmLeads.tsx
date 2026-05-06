@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ExternalLink, RefreshCw, Layers, BookOpen, MessageSquare, X, Copy, Check } from "lucide-react";
+import { ChromeExtensionModal } from "@/components/ChromeExtensionModal";
+import { useExtensionDetected, getExtModalDismissed, setExtModalDismissed } from "@/hooks/useExtensionDetected";
 
 type Lead = {
     id: string;
@@ -76,6 +78,24 @@ export function WarmLeads({
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [platformFilter, setPlatformFilter] = useState<PlatformFilter>("all");
     const [showAllPlaybooks, setShowAllPlaybooks] = useState(false);
+
+    const extensionInstalled = useExtensionDetected();
+    const [extModalDismissed, setExtModalDismissedState] = useState(false);
+
+    useEffect(() => {
+        setExtModalDismissedState(getExtModalDismissed());
+    }, []);
+
+    const handleExtModalClose = () => {
+        setExtModalDismissed();
+        setExtModalDismissedState(true);
+    };
+
+    const showExtModal =
+        extensionInstalled === false &&
+        !extModalDismissed &&
+        !loading &&
+        leads.length === 0;
 
     // DM Modal State
     const [dmLead, setDmLead] = useState<Lead | null>(null);
@@ -162,6 +182,8 @@ export function WarmLeads({
     });
 
     return (
+        <>
+        <ChromeExtensionModal isOpen={showExtModal} onClose={handleExtModalClose} />
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -411,5 +433,6 @@ export function WarmLeads({
                 </div>
             )}
         </div>
+        </>
     );
 }

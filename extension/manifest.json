@@ -50,6 +50,16 @@
                 "content/linkedin.js"
             ],
             "run_at": "document_idle"
+        },
+        {
+            "matches": [
+                "https://getfarcast.com/*",
+                "https://www.getfarcast.com/*"
+            ],
+            "js": [
+                "content/getfarcast.js"
+            ],
+            "run_at": "document_start"
         }
     ],
     "icons": {

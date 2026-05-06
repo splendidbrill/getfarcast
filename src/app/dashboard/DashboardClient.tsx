@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Trash2, ArrowRight, BookOpen, AlertCircle, Sparkles, CheckCircle2 } from "lucide-react";
 import { deletePlaybook } from "./actions";
+import { ChromeExtensionModal } from "@/components/ChromeExtensionModal";
+import { useExtensionDetected, getExtModalDismissed, setExtModalDismissed } from "@/hooks/useExtensionDetected";
 
 type LeadCounts = { hot: number; warm: number; total: number };
 type LeadCountsMap = Record<string, LeadCounts>;
@@ -13,6 +15,19 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const [leadCounts, setLeadCounts] = useState<LeadCountsMap>({});
+  const extensionInstalled = useExtensionDetected();
+  const [extModalDismissed, setExtModalDismissedState] = useState(false);
+
+  useEffect(() => {
+    setExtModalDismissedState(getExtModalDismissed());
+  }, []);
+
+  const handleExtModalClose = () => {
+    setExtModalDismissed();
+    setExtModalDismissedState(true);
+  };
+
+  const showExtModal = extensionInstalled === false && !extModalDismissed;
 
   useEffect(() => {
     fetch("/api/extension/intent-leads/counts")
@@ -262,6 +277,8 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
           </div>
         )}
       </div>
+
+      <ChromeExtensionModal isOpen={showExtModal} onClose={handleExtModalClose} />
 
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">

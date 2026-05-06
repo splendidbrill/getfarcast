@@ -16,7 +16,8 @@
       "Bash(Select-String -Pattern \"supabase\" -List)",
       "Bash(Select-Object -ExpandProperty Path)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\" -Force | Format-Table -Property Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}} -AutoSize)",
-      "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\src\\\\app\" -Force | Format-Table -Property Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}} -AutoSize)"
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\src\\\\app\" -Force | Format-Table -Property Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}} -AutoSize)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\extension\\\\src\" -Recurse -Exclude node_modules,dist | Where-Object { $_.Extension -in @\\('.tsx', '.jsx', '.html', '.css'\\) } | Select-Object -ExpandProperty FullName)"
     ]
   }
 }
