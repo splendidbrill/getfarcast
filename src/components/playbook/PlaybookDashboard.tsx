@@ -3,23 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
-  LayoutDashboard,
-  Users,
-  Share2,
-  Download,
-  BookOpen,
-  Zap,
-  Sparkles,
-  Target,
-  Plus,
-  ChevronRight,
-  ChevronDown,
-  CalendarDays,
-  Lightbulb,
-  Rocket,
-  NotebookPen,
-  TrendingUp,
+  LayoutDashboard, Users, Share2, Download, BookOpen, Zap, Sparkles,
+  Target, Plus, ChevronRight, ChevronDown, CalendarDays, Lightbulb,
+  Rocket, NotebookPen, TrendingUp, CheckSquare, ArrowLeft,
 } from "lucide-react";
 import type { Playbook } from "@/lib/types";
 import { PlaybookOverview } from "./PlaybookOverview";
@@ -31,354 +17,274 @@ import { DailyLogs } from "./DailyLogs";
 import { PlaybookPrintView } from "./PlaybookPrintView";
 import { WarmLeads } from "./WarmLeads";
 import { GrowthHacks } from "./GrowthHacks";
+import { DailyTodo } from "./DailyTodo";
 import Link from "next/link";
 
-type MainTab = "overview" | "icp" | "channels" | "logs" | "posts" | "leads" | "growth-hacks";
-type ContentSubTab = "weekly-engine" | "weekly-ideas" | "launch-posts";
+type MainTab = "todo" | "overview" | "icp" | "channels" | "logs" | "posts" | "leads" | "growth-hacks";
+type ContentSubTab = "weekly-engine" | "weekly-ideas";
+
+// ── Collapsible Sidebar ───────────────────────────────────────────────────────
+
+function Sidebar({
+  activeTab,
+  setActiveTab,
+  contentEngineOpen,
+  setContentEngineOpen,
+  contentSubTab,
+  setContentSubTab,
+  playbookId,
+  playbookName,
+}: {
+  activeTab: MainTab;
+  setActiveTab: (t: MainTab) => void;
+  contentEngineOpen: boolean;
+  setContentEngineOpen: (v: boolean) => void;
+  contentSubTab: ContentSubTab;
+  setContentSubTab: (t: ContentSubTab) => void;
+  playbookId: string;
+  playbookName: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const navItems = [
+    { id: "todo" as MainTab,         label: "Daily To-Do",            Icon: CheckSquare },
+    { id: "overview" as MainTab,     label: "Executive Summary",       Icon: LayoutDashboard },
+    { id: "icp" as MainTab,          label: "Audience Profiling",      Icon: Users },
+    { id: "channels" as MainTab,     label: "Distribution Channels",   Icon: Share2 },
+    { id: "leads" as MainTab,        label: "Warm Leads",              Icon: Target },
+    { id: "growth-hacks" as MainTab, label: "Growth Hacks",            Icon: TrendingUp },
+    { id: "logs" as MainTab,         label: "Daily Logs",              Icon: NotebookPen },
+  ];
+
+  const contentSubTabs = [
+    { id: "weekly-engine" as ContentSubTab, label: "Weekly Content Engine", Icon: CalendarDays },
+    { id: "weekly-ideas" as ContentSubTab,  label: "Weekly Content Ideas",  Icon: Lightbulb },
+  ];
+
+  const isContentActive = activeTab === "posts";
+
+  return (
+    <aside
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      className="fixed left-0 top-16 bottom-0 z-40 flex flex-col bg-white border-r border-[#E2E8F0] transition-[width] duration-200 ease-out overflow-hidden"
+      style={{ width: open ? 220 : 64 }}
+    >
+      {/* Product name strip */}
+      <div className="h-11 flex items-center px-4 border-b border-[#E2E8F0] shrink-0 gap-3">
+        <div className="w-5 h-5 rounded bg-[#FFF1EA] flex items-center justify-center shrink-0">
+          <Zap className="w-3 h-3 text-[#E55A24]" />
+        </div>
+        <span className={`text-[12px] font-semibold text-slate-700 whitespace-nowrap transition-opacity duration-150 ${open ? "opacity-100" : "opacity-0"}`}>
+          {playbookName}
+        </span>
+      </div>
+
+      {/* Nav items */}
+      <nav className="flex-1 p-2 flex flex-col gap-0.5 overflow-y-auto overflow-x-hidden">
+        {navItems.map(({ id, label, Icon }) => {
+          const isActive = activeTab === id;
+          return (
+            <button key={id} onClick={() => setActiveTab(id)}
+              className={`flex items-center gap-3 px-3 h-10 rounded-lg text-[13.5px] transition-colors w-full
+                ${isActive ? "bg-[#FFF1EA] text-[#E55A24]" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"}`}
+            >
+              <Icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-[#E55A24]" : "text-slate-400"}`} />
+              <span className={`whitespace-nowrap transition-opacity duration-150 ${open ? "opacity-100" : "opacity-0"}`}>{label}</span>
+              {isActive && open && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#F25C2C]" />}
+            </button>
+          );
+        })}
+
+        {/* Content Engine — expandable */}
+        <div>
+          <button
+            onClick={() => {
+              if (!isContentActive) { setActiveTab("posts"); setContentEngineOpen(true); }
+              else setContentEngineOpen(!contentEngineOpen);
+            }}
+            className={`flex items-center gap-3 px-3 h-10 rounded-lg text-[13.5px] transition-colors w-full
+              ${isContentActive ? "bg-[#FFF1EA] text-[#E55A24]" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"}`}
+          >
+            <Sparkles className={`w-[18px] h-[18px] shrink-0 ${isContentActive ? "text-[#E55A24]" : "text-slate-400"}`} />
+            <span className={`flex-1 text-left whitespace-nowrap transition-opacity duration-150 ${open ? "opacity-100" : "opacity-0"}`}>Content Engine</span>
+            {open && (contentEngineOpen && isContentActive
+              ? <ChevronDown className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+              : <ChevronRight className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+            )}
+          </button>
+
+          {open && (contentEngineOpen || isContentActive) && (
+            <div className="ml-4 mt-0.5 border-l border-[#E2E8F0] pl-3 space-y-0.5">
+              {contentSubTabs.map(({ id, label, Icon }) => {
+                const isActive = isContentActive && contentSubTab === id;
+                return (
+                  <button key={id} onClick={() => { setActiveTab("posts"); setContentSubTab(id); }}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12.5px] font-medium transition-all w-full
+                      ${isActive ? "bg-white text-[#E55A24] shadow-sm border border-black/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"}`}
+                  >
+                    <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-[#E55A24]" : "text-slate-400"}`} />
+                    <span className="whitespace-nowrap">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </nav>
+
+      {/* Bottom actions */}
+      <div className="p-2 border-t border-[#E2E8F0] space-y-0.5">
+        <Link href={`/playbook/${playbookId}/launch`}
+          className="flex items-center gap-3 px-3 h-10 rounded-lg text-[13.5px] text-white bg-gradient-to-r from-[#F25C2C] to-[#FF7A3D] hover:from-[#E0501F] hover:to-[#F26A24] transition-colors w-full">
+          <Rocket className="w-[18px] h-[18px] shrink-0" />
+          <span className={`whitespace-nowrap transition-opacity duration-150 ${open ? "opacity-100" : "opacity-0"}`}>Launch product</span>
+        </Link>
+        <Link href="/dashboard"
+          className="flex items-center gap-3 px-3 h-10 rounded-lg text-[13.5px] text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors w-full">
+          <ArrowLeft className="w-[18px] h-[18px] shrink-0 text-slate-400" />
+          <span className={`whitespace-nowrap transition-opacity duration-150 ${open ? "opacity-100" : "opacity-0"}`}>All Playbooks</span>
+        </Link>
+        <Link href="/onboarding"
+          className="flex items-center gap-3 px-3 h-10 rounded-lg text-[13.5px] text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors w-full">
+          <Plus className="w-[18px] h-[18px] shrink-0 text-slate-400" />
+          <span className={`whitespace-nowrap transition-opacity duration-150 ${open ? "opacity-100" : "opacity-0"}`}>New Playbook</span>
+        </Link>
+      </div>
+    </aside>
+  );
+}
+
+// ── Main Dashboard ────────────────────────────────────────────────────────────
 
 export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
   const router = useRouter();
   const [playbook, setPlaybook] = useState<Playbook | null>(null);
-  const [activeTab, setActiveTab] = useState<MainTab>("overview");
+  const [activeTab, setActiveTab] = useState<MainTab>("todo");
   const [contentEngineOpen, setContentEngineOpen] = useState(false);
   const [contentSubTab, setContentSubTab] = useState<ContentSubTab>("weekly-engine");
   const [isExportingAll, setIsExportingAll] = useState(false);
 
   useEffect(() => {
-    async function loadPlaybook() {
+    async function load() {
       const raw = localStorage.getItem(`playbook_${playbookId}`);
       if (raw) {
         try {
           const stored = JSON.parse(raw);
-          // Guard against double-nested blobs from a previous save bug
           const candidate = stored.playbook ?? stored;
-          const localPlaybook = candidate.playbook ?? candidate;
-          setPlaybook(localPlaybook);
+          setPlaybook(candidate.playbook ?? candidate);
           return;
-        } catch (e) {
-          console.error("Failed to parse local playbook", e);
-        }
+        } catch {}
       }
-
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from("playbooks")
-        .select("data")
-        .eq("id", playbookId)
-        .single();
-
-      if (data && data.data) {
-        // DB may store { playbook: {...}, formData: {} } or the playbook object directly
-        const raw = data.data as any;
-        const parsedPlaybook = raw.playbook ?? raw;
-        setPlaybook(parsedPlaybook as Playbook);
-        localStorage.setItem(
-          `playbook_${playbookId}`,
-          JSON.stringify({ playbook: parsedPlaybook, formData: {} })
-        );
+      const { data } = await supabase.from("playbooks").select("data").eq("id", playbookId).single();
+      if (data?.data) {
+        const raw2 = data.data as any;
+        const p = raw2.playbook ?? raw2;
+        setPlaybook(p as Playbook);
+        localStorage.setItem(`playbook_${playbookId}`, JSON.stringify({ playbook: p, formData: {} }));
       } else {
-        console.error("Playbook not found in DB either", error);
         router.push("/dashboard");
       }
     }
-
-    loadPlaybook();
+    load();
   }, [playbookId, router]);
 
   useEffect(() => {
     if (!isExportingAll) return;
-
-    const handleAfterPrint = () => {
-      document.body.classList.remove("print-all-mode");
-      setIsExportingAll(false);
-    };
+    const handleAfterPrint = () => { document.body.classList.remove("print-all-mode"); setIsExportingAll(false); };
     window.addEventListener("afterprint", handleAfterPrint);
-
-    const timer = window.setTimeout(() => {
-      document.body.classList.add("print-all-mode");
-      window.print();
-    }, 350);
-
-    return () => {
-      window.clearTimeout(timer);
-      window.removeEventListener("afterprint", handleAfterPrint);
-      document.body.classList.remove("print-all-mode");
-    };
+    const t = window.setTimeout(() => { document.body.classList.add("print-all-mode"); window.print(); }, 350);
+    return () => { window.clearTimeout(t); window.removeEventListener("afterprint", handleAfterPrint); document.body.classList.remove("print-all-mode"); };
   }, [isExportingAll]);
 
   if (!playbook) {
     return (
-      <div className="min-h-screen bg-[#faf8f6] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#ff6b4e] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAFAF7] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-[#F25C2C] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  const mainTabs = [
-    { id: "overview" as const, label: "Executive Summary", icon: LayoutDashboard },
-    { id: "icp" as const, label: "Audience Profiling", icon: Users },
-    { id: "channels" as const, label: "Distribution Channels", icon: Share2 },
-    { id: "logs" as const, label: "Daily Logs", icon: NotebookPen },
-  ];
-
-  const contentSubTabs = [
-    { id: "weekly-engine" as const, label: "Weekly Content Engine", icon: CalendarDays },
-    { id: "weekly-ideas" as const, label: "Weekly Content Ideas", icon: Lightbulb },
-    // 
-  ];
-
-  const isContentEngineVisible = contentEngineOpen || activeTab === "posts";
-
   return (
     <>
-    <div className="min-h-screen bg-[#faf8f6] text-[#1a1a2e] print-normal-root">
-      {/* Background grid */}
-      <div
-        className="fixed inset-0 opacity-40 pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255, 107, 78, 0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 107, 78, 0.06) 1px, transparent 1px)
-          `,
-          backgroundSize: "40px 40px",
-        }}
-      />
-      <div
-        className="fixed top-0 inset-x-0 h-96 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,200,170,0.3) 0%, transparent 70%)",
-        }}
-      />
-
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-black/5 bg-white/70 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b4e] to-[#ff8c5a] flex items-center justify-center shadow-md">
-                <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
-              </div>
-              <span className="text-lg font-bold tracking-tight text-[#1a1a2e] hidden sm:block">
-                Get<span className="text-[#ff6b4e]">Farcast</span>
-              </span>
-            </Link>
-            <div className="h-6 w-px bg-black/10 hidden sm:block" />
-            <h1 className="text-sm font-semibold text-[#1a1a2e]">
-              {playbook.productName} Playbook
-            </h1>
+      <div className="min-h-screen bg-[#FAFAF7] text-slate-900 print-normal-root">
+        {/* Header */}
+        <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-[#E2E8F0] bg-white flex items-center">
+          <div className="flex items-center h-full px-6 gap-4 border-r border-[#E2E8F0] w-16 shrink-0 justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FF7A3D] to-[#F25C2C] flex items-center justify-center shadow-sm">
+              <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <a
-              href="https://chromewebstore.google.com/detail/farcast/ljapoonogaahmkkmgbhgielehljmjooa?utm_source=item-share-cb"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white text-sm font-medium shadow-sm hover:shadow-md hover:shadow-[#ff6b4e]/20 transition-all hover:-translate-y-0.5"
-            >
-              Download Chrome Extension
-            </a>
-            <button
-              onClick={() => window.print()}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a2e] text-white text-sm font-medium hover:bg-black transition-colors shadow-sm"
-            >
-              <Download className="w-4 h-4" />
-              Export PDF
-            </button>
-            <button
-              onClick={() => setIsExportingAll(true)}
-              disabled={isExportingAll}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff6b4e] text-white text-sm font-medium hover:bg-[#e85c3f] transition-colors shadow-sm disabled:opacity-70"
-            >
-              <BookOpen className="w-4 h-4" />
-              {isExportingAll ? "Preparing…" : "Export Playbook"}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-6xl mx-auto px-6 py-8 relative z-10 flex flex-col md:flex-row gap-8">
-        {/* Sidebar Nav */}
-        <nav className="w-full md:w-64 shrink-0 space-y-1">
-          {/* Regular tabs */}
-          {mainTabs.map((t) => {
-            const Icon = t.icon;
-            const isActive = activeTab === t.id;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setActiveTab(t.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
-                  isActive
-                    ? "bg-white text-[#ff6b4e] shadow-sm border border-black/5"
-                    : "text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5"
-                }`}
+          <div className="flex items-center justify-between flex-1 px-6">
+            <div className="flex items-center gap-3">
+              <Link href="/" className="text-[15px] font-semibold tracking-tight text-slate-900 hidden sm:block">
+                Get<span className="text-[#F25C2C]">Farcast</span>
+              </Link>
+              <span className="text-slate-300 hidden sm:block">/</span>
+              <span className="text-[13px] text-slate-500">{playbook.productName} Playbook</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <a
+                href="https://chromewebstore.google.com/detail/farcast/ljapoonogaahmkkmgbhgielehljmjooa?utm_source=item-share-cb"
+                target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#F25C2C] to-[#FF7A3D] text-white text-[12.5px] font-medium shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
               >
-                <Icon className={`w-4 h-4 ${isActive ? "text-[#ff6b4e]" : "text-gray-400"}`} />
-                {t.label}
+                Download Extension
+              </a>
+              <button onClick={() => window.print()}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white text-[12.5px] font-medium hover:bg-slate-800 transition-colors">
+                <Download className="w-3.5 h-3.5" />Export PDF
               </button>
-            );
-          })}
+              <button onClick={() => setIsExportingAll(true)} disabled={isExportingAll}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#F25C2C] text-white text-[12.5px] font-medium hover:bg-[#E0501F] transition-colors disabled:opacity-70">
+                <BookOpen className="w-3.5 h-3.5" />{isExportingAll ? "Preparing…" : "Export Playbook"}
+              </button>
+            </div>
+          </div>
+        </header>
 
-          {/* Content Engine — expandable tree */}
-          <div>
-            <button
-              onClick={() => {
-                if (activeTab !== "posts") {
-                  setActiveTab("posts");
-                  setContentEngineOpen(true);
-                } else {
-                  setContentEngineOpen((o) => !o);
-                }
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
-                activeTab === "posts"
-                  ? "bg-white text-[#ff6b4e] shadow-sm border border-black/5"
-                  : "text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5"
-              }`}
-            >
-              <Sparkles className={`w-4 h-4 ${activeTab === "posts" ? "text-[#ff6b4e]" : "text-gray-400"}`} />
-              <span className="flex-1 text-left">Content Engine</span>
-              {isContentEngineVisible
-                ? <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-                : <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-              }
-            </button>
+        {/* Sidebar */}
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          contentEngineOpen={contentEngineOpen}
+          setContentEngineOpen={setContentEngineOpen}
+          contentSubTab={contentSubTab}
+          setContentSubTab={setContentSubTab}
+          playbookId={playbookId}
+          playbookName={playbook.productName}
+        />
 
-            {isContentEngineVisible && (
-              <div className="ml-4 mt-1 space-y-0.5 border-l border-black/5 pl-3">
-                {contentSubTabs.map((st) => {
-                  const SubIcon = st.icon;
-                  const isActive = activeTab === "posts" && contentSubTab === st.id;
-                  return (
-                    <button
-                      key={st.id}
-                      onClick={() => { setActiveTab("posts"); setContentSubTab(st.id); }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                        isActive
-                          ? "bg-white text-[#ff6b4e] shadow-sm border border-black/5"
-                          : "text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5"
-                      }`}
-                    >
-                      <SubIcon className={`w-4 h-4 shrink-0 ${isActive ? "text-[#ff6b4e]" : "text-gray-400"}`} />
-                      {st.label}
-                    </button>
-                  );
-                })}
+        {/* Main content — offset by header (pt-16) and collapsed sidebar (pl-16) */}
+        <main className="pt-16 pl-16">
+          <div className="max-w-[1480px] mx-auto px-8 py-8">
+            {activeTab === "todo" && <DailyTodo playbook={playbook} playbookId={playbookId} />}
+
+            {(activeTab !== "todo") && (
+              <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-[0_1px_2px_rgba(15,23,42,0.04)] p-6 sm:p-8">
+                {activeTab === "overview" && <PlaybookOverview playbook={playbook} />}
+                {activeTab === "icp" && <PlaybookICP icp={playbook.icp} />}
+                {activeTab === "channels" && <PlaybookChannels playbookId={playbook.id} channels={playbook.channels} />}
+                {activeTab === "logs" && <DailyLogs />}
+
+                {activeTab === "posts" && contentSubTab === "weekly-engine" && <WeeklyContentEngine playbook={playbook} />}
+                {activeTab === "posts" && contentSubTab === "weekly-ideas" && <WeeklyContentIdeas playbook={playbook} />}
+
+                {activeTab === "leads" && (
+                  <WarmLeads playbookId={playbookId} productName={playbook.productName} productDescription={playbook.summary} />
+                )}
+                {activeTab === "growth-hacks" && (
+                  <GrowthHacks playbookId={playbookId} productName={playbook.productName} productDescription={playbook.summary} icp={playbook.icp} />
+                )}
               </div>
-            )}
-          </div>
-
-          {/* Warm Leads */}
-          <button
-            onClick={() => setActiveTab("leads")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
-              activeTab === "leads"
-                ? "bg-white text-[#ff6b4e] shadow-sm border border-black/5"
-                : "text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5"
-            }`}
-          >
-            <Target className={`w-4 h-4 ${activeTab === "leads" ? "text-[#ff6b4e]" : "text-gray-400"}`} />
-            Warm Leads
-          </button>
-
-          {/* Growth Hacks */}
-          <button
-            onClick={() => setActiveTab("growth-hacks")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
-              activeTab === "growth-hacks"
-                ? "bg-white text-[#ff6b4e] shadow-sm border border-black/5"
-                : "text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5"
-            }`}
-          >
-            <TrendingUp className={`w-4 h-4 ${activeTab === "growth-hacks" ? "text-[#ff6b4e]" : "text-gray-400"}`} />
-            Growth Hacks
-          </button>
-
-          {/* Launch CTA */}
-          <div className="mt-4 pt-4 border-t border-black/5">
-            <Link
-              href={`/playbook/${playbookId}/launch`}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] hover:from-[#e85c3f] hover:to-[#f07a48] shadow-sm hover:shadow-md transition-all"
-            >
-              <Rocket className="w-4 h-4" />
-              Launch your product
-            </Link>
-          </div>
-
-          <div className="mt-4 pt-4 border-t border-black/5 space-y-1">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5 transition-all"
-            >
-              <ArrowLeft className="w-4 h-4 text-gray-400" />
-              All Playbooks
-            </Link>
-            <Link
-              href="/onboarding"
-              className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-gray-500 hover:text-[#1a1a2e] hover:bg-black/5 transition-all"
-            >
-              <Plus className="w-4 h-4 text-gray-400" />
-              New Playbook
-            </Link>
-          </div>
-        </nav>
-
-        {/* Content Area */}
-        <main className="flex-1 min-w-0">
-          <div className="bg-white rounded-3xl border border-black/5 shadow-sm p-6 sm:p-8">
-            {activeTab === "overview" && <PlaybookOverview playbook={playbook} />}
-            {activeTab === "icp" && <PlaybookICP icp={playbook.icp} />}
-            {activeTab === "channels" && <PlaybookChannels playbookId={playbook.id} channels={playbook.channels} />}
-            {activeTab === "logs" && <DailyLogs />}
-
-            {activeTab === "posts" && contentSubTab === "weekly-engine" && (
-              <WeeklyContentEngine playbook={playbook} />
-            )}
-            {activeTab === "posts" && contentSubTab === "weekly-ideas" && (
-              <WeeklyContentIdeas playbook={playbook} />
-            )}
-            {activeTab === "posts" && contentSubTab === "launch-posts" && (
-              <div className="text-center py-20 px-6 space-y-6">
-                <div className="w-20 h-20 bg-[#ff6b4e]/5 rounded-3xl flex items-center justify-center mx-auto shadow-sm border border-[#ff6b4e]/10">
-                  <Rocket className="w-10 h-10 text-[#ff6b4e]" />
-                </div>
-                <div className="max-w-md mx-auto">
-                  <h3 className="text-2xl font-bold text-[#1a1a2e] mb-2">Launch Posts</h3>
-                  <p className="text-gray-500 font-medium leading-relaxed">
-                    One-time platform-native posts for Product Hunt, Hacker News, Indie Hackers, Dev.to, and more — each written in that platform&apos;s exact native language.
-                  </p>
-                </div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#ff6b4e]/5 text-[#ff6b4e] rounded-full text-sm font-bold border border-[#ff6b4e]/20">
-                  <Sparkles className="w-4 h-4" />
-                  Coming Soon
-                </div>
-              </div>
-            )}
-
-            {activeTab === "leads" && (
-              <WarmLeads
-                playbookId={playbookId}
-                productName={playbook.productName}
-                productDescription={playbook.summary}
-              />
-            )}
-
-            {activeTab === "growth-hacks" && (
-              <GrowthHacks
-                playbookId={playbookId}
-                productName={playbook.productName}
-                productDescription={playbook.summary}
-                icp={playbook.icp}
-              />
             )}
           </div>
         </main>
       </div>
 
-    </div>
-    {isExportingAll && (
-      <PlaybookPrintView playbook={playbook} />
-    )}
+      {isExportingAll && <PlaybookPrintView playbook={playbook} />}
     </>
   );
 }

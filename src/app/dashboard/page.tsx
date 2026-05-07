@@ -188,7 +188,7 @@ export default function DashboardPage() {
               Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a]">Growth Engine</span>
             </h1>
             <p className="text-lg text-gray-500 font-medium max-w-2xl">
-              Every playbook can be a path to your first 1000 users.
+              Every playbook can be a path to your next 1000 users.
 Built for your product, your ICP, and the channels they actually live on. Start one or continue where you left off.
             </p>
           </div>

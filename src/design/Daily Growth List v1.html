@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Farcast — Daily Growth List</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;450;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; }
+  body { font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .font-mono, code, pre { font-family: 'Geist Mono', ui-monospace, monospace !important; }
+  textarea { font-family: inherit; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+  .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+</style>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Geist', 'ui-sans-serif', 'system-ui'],
+          mono: ['Geist Mono', 'ui-monospace', 'monospace'],
+        },
+      }
+    }
+  };
+</script>
+</head>
+<body class="bg-[#FAFAF7] text-slate-900">
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" data-presets="react">
+
+
+const { useState, useEffect, useRef } = React;
+
+// ───────────────────────────── DATA ─────────────────────────────
+const TODAY = new Date('2026-05-07T10:00:00');
+const dateStr = TODAY.toLocaleDateString('en-US', {
+  weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+});
+
+const X_POSTS = [
+  {
+    id: 'x1',
+    angle: 'Pain → Solution',
+    text: `spent 6 months as a solo founder doing GTM by hand.\n\ncold DMs. spreadsheet of leads. burnout by month 3.\n\nbuilt farcast so technical founders never have to context-switch out of building. it generates the assets — you ship them.`,
+    chars: 248,
+  },
+  {
+    id: 'x2',
+    angle: 'Counter-take',
+    text: `unpopular opinion: "growth hacking" died because every tool tried to automate the human part.\n\nautomation gets you banned. relationships get you customers.\n\nthe right move: AI does the research + drafting. you do the talking.`,
+    chars: 235,
+  },
+  {
+    id: 'x3',
+    angle: 'Build-in-public',
+    text: `farcast hit 47 paying technical founders this week 🟧\n\n→ 0 cold outreach from us\n→ avg user ships 5 posts/day\n→ 12 warm leads detected per founder daily\n\nthe loop works when you stop spamming and start showing up.`,
+    chars: 222,
+  },
+  {
+    id: 'x4',
+    angle: 'Tactical thread hook',
+    text: `everyone tells indie hackers to "do GTM."\n\nno one tells them what GTM actually is at 0 → 100 customers.\n\nhere's the unsexy version, broken into 5 weekly motions you can run from a single dashboard 🧵`,
+    chars: 198,
+  },
+  {
+    id: 'x5',
+    angle: 'Founder story',
+    text: `i'm a backend engineer. shipping a UI is fine. shipping a *narrative* is foreign.\n\nturns out the narrative is just: who hurts, why now, what changes after you use the thing.\n\nfarcast wrote that for me. i still post it myself.`,
+    chars: 225,
+  },
+];
+
+const LI_POSTS = [
+  {
+    id: 'li1',
+    angle: 'Long-form authority',
+    text: `Most "AI GTM" tools sell you on automation. The ones that work sell you on judgment.\n\nWhen we started building Farcast, we had a choice: auto-DM 1000 prospects per day, or surface 12 high-intent ones and hand the keyboard back to the founder.\n\nWe picked the second path because:\n\n→ Cold automation gets your domain blacklisted in ~14 days\n→ LinkedIn flags pattern-DMs in <72 hours\n→ Reddit shadowbans accounts that post >4x/week with links\n\nThe founders winning right now aren't sending more messages. They're sending fewer, better ones — to people who already raised their hand.\n\nThat's the loop we built. AI does the research. You do the relationship.`,
+    chars: 712,
+  },
+  {
+    id: 'li2',
+    angle: 'Story + lesson',
+    text: `Three months ago I almost shut down my SaaS.\n\nNot because the product didn't work. Because I couldn't talk about it.\n\nI'm an engineer. I can ship a feature in an afternoon. Writing one LinkedIn post took me three hours and felt fake every time.\n\nWhat changed: I stopped trying to "do marketing" and started treating distribution like a daily standup. Every morning, 30 minutes. Five posts. Twelve conversations. Save the wins, throw out the rest.\n\nIf you're a technical founder staring at a blank Twitter compose box, the fix isn't motivation. It's a queue.`,
+    chars: 588,
+  },
+];
+
+const REDDIT_POST = {
+  id: 'r1',
+  angle: 'r/SaaS — value-first',
+  text: `I built a tool that helps technical founders run GTM without burning out, and I'd love feedback from this community before I write a launch post.\n\nContext: I'm a solo backend engineer. Six months in I had a working product and zero customers because every "marketing" task felt like a context switch out of building.\n\nWhat I built (Farcast):\n→ Maps your ICP from your landing page\n→ Detects warm leads on Reddit/X/LinkedIn (people literally asking for what you sell)\n→ Drafts 5 posts/day in your voice — you copy-paste manually so nothing gets banned\n\nNot dropping a link here. Happy to DM the dashboard to anyone who wants to poke at it.\n\nWhat I'm actually asking: for those of you running GTM solo — what's the one task you wish you could delete from your week?`,
+  chars: 798,
+};
+
+const LEADS = {
+  reddit: [
+    { id: 'l1', user: 'Nice_Paramedic4055', sub: 'r/SaaS', karma: 90, repeat: 5, hot: true,
+      snippet: '"That strictly depends on a lot of things. But the first thing to do, and I always recommend, look at who you built the product for, are there people in your network that can be part of the alpha? Be honest with them..."',
+      time: '2h ago' },
+    { id: 'l2', user: 'Gullible-Angle4206', sub: 'r/Entrepreneur', karma: 90, repeat: 4, hot: true,
+      snippet: '"How do users get traffic through Reddit. Struggling SaaS founder here. How do users get traffic through Reddit. Everytime I open up my reddit feed, I see success stories of people..."',
+      time: '4h ago' },
+    { id: 'l3', user: 'jp_mmr10k', sub: 'r/buildinpublic', karma: 78, repeat: 6, hot: true,
+      snippet: '"So I am currently 2 weeks into building an AI college decision tool. I personally struggled with it myself, did research, and people had the same problem and there was not anything for it..."',
+      time: '5h ago' },
+    { id: 'l4', user: 'fawad_ali1', sub: 'r/youtube', karma: 78, repeat: 8, hot: true,
+      snippet: '"Anti-algorithm Youtube — No AI or algorithm recommendations, only community. As the title says, I have been working on BiteTube..."',
+      time: '7h ago' },
+    { id: 'l5', user: 'LeaderAtLeading', sub: 'r/SideProject', karma: 78, repeat: 2, hot: false,
+      snippet: '"This is exactly where Leadline fits for me. Reddit works best when you are not guessing where to post, but finding people already asking for the thing and joining those threads with something useful."',
+      time: '9h ago' },
+  ],
+  x: [
+    { id: 'x_l1', user: '@maya_builds', handle: 'Maya · indie SaaS', karma: 1240, repeat: 2, hot: true,
+      snippet: '"genuinely asking — how do you get your first 10 SaaS customers without cold DMs that feel scammy? I have a working product and zero clue where to show up."',
+      time: '1h ago' },
+    { id: 'x_l2', user: '@devjon42', handle: 'Jon · ex-Stripe eng', karma: 3100, repeat: 1, hot: true,
+      snippet: '"why is every GTM tool either an enterprise sales platform or a spam cannon. nothing for the solo technical founder who just needs a daily plan."',
+      time: '3h ago' },
+  ],
+  linkedin: [],
+};
+
+const HACK = {
+  title: 'Pitch in Indie Hackers \'WIP\' forum',
+  niche: 'Indie Hackers — Work in Progress',
+  effort: 'Low effort',
+  online: true,
+  blurb: `Solo SaaS founders actively share projects and struggles in the WIP thread daily. It's a low-noise, high-trust spot to position Farcast as the antidote to the GTM-as-spam status quo.`,
+  steps: [
+    'Open today\'s WIP thread before 10am EST — first 30 comments get the most eyeballs.',
+    'Post your one-line update + the specific problem Farcast solves for solo technical founders.',
+    'Reply to 3 other WIP posts with genuine, specific feedback. Do not link your product in those replies.',
+    'When someone asks what you\'re building, then drop the link. Always wait to be asked.',
+  ],
+  metrics: [
+    { label: 'Days to first user', value: '2–3' },
+    { label: 'Sign-ups in first week', value: '3–7' },
+  ],
+};
+
+// ──────────────────────── PRIMITIVES ────────────────────────
+const Icon = ({ d, size = 18, stroke = 1.6, fill = 'none', className = '' }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill={fill} stroke="currentColor"
+       strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={className}>
+    {d}
+  </svg>
+);
+
+const I = {
+  dash: <Icon d={<><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></>} />,
+  play: <Icon d={<><path d="M4 19V5l16 7-16 7z"/></>} />,
+  icp:  <Icon d={<><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></>} />,
+  vault:<Icon d={<><path d="M3 7l9-4 9 4v6c0 5-3.5 8.5-9 10-5.5-1.5-9-5-9-10V7z"/></>} />,
+  log:  <Icon d={<><path d="M4 4h12l4 4v12H4z"/><path d="M16 4v4h4"/><path d="M8 13h8M8 17h6"/></>} />,
+  copy: <Icon d={<><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></>} />,
+  ext:  <Icon d={<><path d="M14 4h6v6"/><path d="M10 14L20 4"/><path d="M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/></>} />,
+  bolt: <Icon d={<><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></>} fill="currentColor" stroke="none" />,
+  warn: <Icon d={<><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5"/><circle cx="12" cy="18" r=".8" fill="currentColor"/></>} />,
+  refresh:<Icon d={<><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></>} />,
+  flame:<Icon d={<><path d="M12 3s4 4 4 8a4 4 0 0 1-8 0c0-1 .5-2 1-2.5C9 10 8 12 8 14a4 4 0 0 0 8 0"/></>} fill="currentColor" stroke="none" />,
+  reddit:<Icon d={<><circle cx="12" cy="13" r="8"/><circle cx="9" cy="13" r="1.2" fill="currentColor"/><circle cx="15" cy="13" r="1.2" fill="currentColor"/><path d="M9 16.5c1 .8 4 .8 6 0"/><circle cx="18" cy="6" r="1.5"/><path d="M12 5l1.5-2 4 1"/></>} />,
+  x:    <Icon d={<><path d="M4 4l16 16M20 4L4 20"/></>} />,
+  linkedin:<Icon d={<><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.01M11 17v-4a2 2 0 0 1 4 0v4M11 13v4"/></>} fill="none" />,
+  globe:<Icon d={<><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></>} />,
+  arrow:<Icon d={<><path d="M5 12h14M13 5l7 7-7 7"/></>} />,
+  trend:<Icon d={<><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></>} />,
+  check:<Icon d={<><path d="M5 12l4 4 10-10"/></>} />,
+  send: <Icon d={<><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></>} />,
+  sparkle:<Icon d={<><path d="M12 3v6M12 15v6M3 12h6M15 12h6M5.6 5.6l4.2 4.2M14.2 14.2l4.2 4.2M5.6 18.4l4.2-4.2M14.2 9.8l4.2-4.2"/></>} />,
+};
+
+// ─────────────────────────── SIDEBAR ───────────────────────────
+function Sidebar() {
+  const [open, setOpen] = useState(false);
+  const [active] = useState('dash');
+  const items = [
+    { id: 'dash', label: 'Dashboard', icon: I.dash },
+    { id: 'play', label: 'Playbooks', icon: I.play },
+    { id: 'icp',  label: 'ICP Profiles', icon: I.icp },
+    { id: 'vault',label: 'Leads Vault', icon: I.vault },
+  ];
+  return (
+    <aside
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      className="fixed left-0 top-0 bottom-0 z-30 flex flex-col bg-white border-r border-[#E2E8F0] transition-[width] duration-200 ease-out"
+      style={{ width: open ? 220 : 64 }}
+    >
+      <div className="h-16 flex items-center px-4 border-b border-[#E2E8F0] gap-3 shrink-0">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FF7A3D] to-[#F25C2C] flex items-center justify-center text-white shrink-0">
+          <Icon d={<><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></>} fill="currentColor" stroke="none" size={16}/>
+        </div>
+        <div className={`overflow-hidden whitespace-nowrap transition-opacity ${open ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="text-[15px] font-semibold tracking-tight text-slate-900">Farcast</div>
+        </div>
+      </div>
+
+      <nav className="flex-1 p-2 flex flex-col gap-1">
+        {items.map(it => {
+          const isActive = it.id === active;
+          return (
+            <button key={it.id}
+              className={`flex items-center gap-3 px-3 h-10 rounded-lg text-[14px] transition-colors
+                ${isActive
+                  ? 'bg-[#FFF1EA] text-[#E55A24]'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
+            >
+              <span className="shrink-0">{it.icon}</span>
+              <span className={`whitespace-nowrap transition-opacity ${open ? 'opacity-100' : 'opacity-0'}`}>{it.label}</span>
+              {isActive && open && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#F25C2C]"/>}
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="p-2 border-t border-[#E2E8F0]">
+        <div className={`flex items-center gap-3 px-2 h-12 rounded-lg`}>
+          <div className="w-8 h-8 rounded-full bg-slate-200 shrink-0 flex items-center justify-center text-[12px] font-semibold text-slate-600">SK</div>
+          <div className={`overflow-hidden transition-opacity ${open ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="text-[13px] font-medium text-slate-900 leading-tight whitespace-nowrap">sam kowalski</div>
+            <div className="text-[11px] text-slate-500 leading-tight whitespace-nowrap">solo · day 47</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+// ──────────────── PLATFORM TAB (with active accent) ────────────────
+function PlatformTab({ active, onClick, icon, label, count, disclaim }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`group relative flex items-center gap-2 h-9 px-3.5 rounded-lg text-[13px] font-medium transition-all
+        ${active
+          ? 'bg-[#F25C2C] text-white shadow-[0_2px_6px_-1px_rgba(242,92,44,0.45)]'
+          : 'bg-white text-slate-600 hover:bg-slate-50 border border-[#E2E8F0]'}`}
+    >
+      <span className={active ? 'text-white' : 'text-slate-400'}>{icon}</span>
+      <span>{label}</span>
+      <span className={`text-[12px] tabular-nums ${active ? 'text-white/80' : 'text-slate-400'}`}>({count})</span>
+      {disclaim && (
+        <span className={`ml-1 text-[10px] uppercase tracking-wide font-semibold px-1.5 py-0.5 rounded
+          ${active ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-700'}`}>
+          rate-limited
+        </span>
+      )}
+    </button>
+  );
+}
+
+// ───────────────────────── POST CARD ─────────────────────────
+function PostCard({ post, platform, idx, total }) {
+  const [text, setText] = useState(post.text);
+  const [copied, setCopied] = useState(false);
+
+  const platformMeta = {
+    x:        { name: 'X',        url: 'https://x.com/compose/post', tone: '#0F172A' },
+    linkedin: { name: 'LinkedIn', url: 'https://www.linkedin.com/feed/?shareActive=true', tone: '#0A66C2' },
+    reddit:   { name: 'Reddit',   url: 'https://www.reddit.com/submit', tone: '#FF4500' },
+  }[platform];
+
+  const handleCopy = async () => {
+    try { await navigator.clipboard.writeText(text); } catch {}
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
+
+  const charLimit = platform === 'x' ? 280 : platform === 'linkedin' ? 3000 : 40000;
+  const chars = text.length;
+  const overLimit = chars > charLimit;
+
+  return (
+    <div className="rounded-xl border border-[#E2E8F0] bg-white">
+      {/* meta strip */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#E2E8F0]">
+        <div className="flex items-center gap-2.5">
+          <span className="text-[11px] font-mono text-slate-400">
+            {String(idx + 1).padStart(2, '0')}/{String(total).padStart(2, '0')}
+          </span>
+          <span className="w-px h-3.5 bg-[#E2E8F0]"/>
+          <span className="text-[12px] text-slate-500">angle:</span>
+          <span className="text-[12px] font-medium text-slate-800">{post.angle}</span>
+        </div>
+        <div className={`text-[11px] font-mono tabular-nums ${overLimit ? 'text-rose-500' : 'text-slate-400'}`}>
+          {chars}/{charLimit}
+        </div>
+      </div>
+
+      {/* textarea */}
+      <textarea
+        value={text}
+        onChange={e => setText(e.target.value)}
+        className="w-full px-4 py-3.5 text-[14px] leading-[1.55] text-slate-800 bg-transparent
+                   resize-none focus:outline-none placeholder-slate-400 font-[450]"
+        rows={Math.max(4, Math.min(14, text.split('\n').length + 1))}
+      />
+
+      {/* footer */}
+      <div className="flex items-center justify-between px-3 py-3 border-t border-[#E2E8F0] bg-[#FAFAF7]/60 rounded-b-xl">
+        <div className="flex items-center gap-1.5 text-[11.5px] text-slate-400">
+          <span className="px-2 py-1 rounded-md bg-white border border-[#E2E8F0] font-mono text-slate-500">⌘K</span>
+          <span>regenerate</span>
+          <span className="mx-1.5">·</span>
+          <span className="px-2 py-1 rounded-md bg-white border border-[#E2E8F0] font-mono text-slate-500">⌘E</span>
+          <span>edit voice</span>
+        </div>
+
+        <button
+          onClick={handleCopy}
+          className={`flex items-center gap-2 h-9 px-4 rounded-lg text-[13px] font-medium transition-all
+            ${copied
+              ? 'bg-emerald-500 text-white'
+              : 'bg-[#F25C2C] text-white hover:bg-[#E0501F] shadow-[0_2px_8px_-2px_rgba(242,92,44,0.6)]'}`}
+        >
+          {copied ? (
+            <>{I.check}<span>copied — opening {platformMeta.name}</span></>
+          ) : (
+            <>{I.copy}<span>copy & open {platformMeta.name}</span>{I.ext}</>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ───────────────────── CONTENT ASSET HUB ─────────────────────
+function OutboundEngine() {
+  const [tab, setTab] = useState('x');
+  const [postIdx, setPostIdx] = useState(0);
+
+  useEffect(() => { setPostIdx(0); }, [tab]);
+
+  const data = { x: X_POSTS, linkedin: LI_POSTS, reddit: [REDDIT_POST] };
+  const posts = data[tab];
+  const post = posts[postIdx];
+
+  return (
+    <section className="rounded-2xl bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(15,23,42,0.04)] overflow-hidden">
+      {/* HEADER */}
+      <div className="px-6 pt-5 pb-4 border-b border-[#E2E8F0]">
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] uppercase tracking-[0.12em] font-mono text-slate-400"></span>
+              <span className="w-1 h-1 rounded-full bg-slate-300"/>
+              <span className="text-[11px] uppercase tracking-[0.12em] font-mono text-[#E55A24]"></span>
+            </div>
+            <h2 className="text-[22px] font-semibold tracking-tight text-slate-900 lowercase">today's growth engine</h2>
+            <p className="text-[13px] text-slate-500 mt-0.5"></p>
+          </div>
+          <div className="hidden md:flex items-center gap-2 text-[12px] text-slate-500">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>
+            
+
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <PlatformTab active={tab==='x'}        onClick={() => setTab('x')}        icon={I.x}        label="X"        count={5}/>
+          <PlatformTab active={tab==='linkedin'} onClick={() => setTab('linkedin')} icon={I.linkedin} label="LinkedIn" count={2}/>
+          <PlatformTab active={tab==='reddit'}   onClick={() => setTab('reddit')}   icon={I.reddit}   label="Reddit"   count={1} disclaim/>
+        </div>
+      </div>
+
+      {/* BODY */}
+      <div className="p-6 space-y-4 bg-[#FBFAF7]">
+        {tab === 'reddit' && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 flex gap-3">
+            <div className="text-amber-600 mt-0.5">{I.warn}</div>
+            <div>
+              <div className="text-[13.5px] font-semibold text-amber-900">Max 3–4 Reddit posts per WEEK to avoid bans.</div>
+              <div className="text-[12.5px] text-amber-800/90 mt-0.5">
+                You've posted <span className="font-mono font-semibold">2/4</span> this week. Reddit's spam filter weights account age, karma velocity, and link-to-content ratio. Lead with value, drop the link only if asked.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* post pager */}
+        {posts.length > 1 && (
+          <div className="flex items-center gap-1.5 -mb-1">
+            {posts.map((p, i) => (
+              <button key={p.id}
+                onClick={() => setPostIdx(i)}
+                className={`h-7 px-3 rounded-md text-[12px] font-mono tabular-nums transition-colors
+                  ${i === postIdx
+                    ? 'bg-slate-900 text-white'
+                    : 'bg-white border border-[#E2E8F0] text-slate-500 hover:text-slate-900'}`}
+              >
+                draft {String(i+1).padStart(2,'0')}
+              </button>
+            ))}
+            <span className="ml-2 text-[12px] text-slate-400">← cycle drafts</span>
+          </div>
+        )}
+
+        <PostCard post={post} platform={tab} idx={postIdx} total={posts.length}/>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────── LEAD RADAR ───────────────────────
+function LeadRow({ lead, platform }) {
+  const [dmSent, setDmSent] = useState(false);
+  const platformIcon = { reddit: I.reddit, x: I.x, linkedin: I.linkedin }[platform];
+  const platformColor = { reddit: 'text-[#FF4500]', x: 'text-slate-900', linkedin: 'text-[#0A66C2]' }[platform];
+
+  return (
+    <div className="rounded-lg border border-[#E2E8F0] bg-white p-3 hover:border-slate-300 transition-colors">
+      <div className="flex items-start justify-between gap-2 mb-1.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className={`shrink-0 ${platformColor}`}>{platformIcon}</span>
+          <span className="text-[13px] font-semibold text-slate-900 truncate">{lead.user}</span>
+          {lead.hot && (
+            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-orange-50 text-orange-600 text-[10px] font-semibold uppercase tracking-wide shrink-0">
+              <span className="w-3 h-3">{I.flame}</span>hot
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5 text-[11px] text-slate-400 shrink-0">
+          <span className="font-mono tabular-nums">{lead.karma}</span>
+          <span>·</span>
+          <span>{lead.time}</span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+        {lead.sub && <span className="text-[11px] font-mono text-slate-500">{lead.sub}</span>}
+        {lead.handle && <span className="text-[11px] text-slate-500">{lead.handle}</span>}
+        {lead.repeat > 1 && (
+          <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-mono">
+            ×{lead.repeat} mentions
+          </span>
+        )}
+      </div>
+
+      <p className="text-[12.5px] leading-[1.5] text-slate-600 italic mb-3 line-clamp-3">{lead.snippet}</p>
+
+      <div className="flex items-center gap-1.5">
+        <button className="flex-1 h-8 rounded-md border border-[#E2E8F0] bg-white text-slate-700 text-[12px] font-medium hover:bg-slate-50 transition-colors flex items-center justify-center gap-1">
+          profile<span className="text-slate-400">{I.ext}</span>
+        </button>
+        <button className="flex-1 h-8 rounded-md border border-[#E2E8F0] bg-white text-slate-700 text-[12px] font-medium hover:bg-slate-50 transition-colors flex items-center justify-center gap-1">
+          post<span className="text-slate-400">{I.ext}</span>
+        </button>
+        <button
+          onClick={() => setDmSent(true)}
+          className={`flex-1 h-8 rounded-md text-[12px] font-medium transition-all flex items-center justify-center gap-1
+            ${dmSent
+              ? 'bg-emerald-500 text-white'
+              : 'bg-slate-900 text-white hover:bg-slate-800'}`}
+        >
+          {dmSent ? <>{I.check}sent</> : 'dm'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function LeadRadar() {
+  const [tab, setTab] = useState('reddit');
+  const counts = { x: LEADS.x.length, reddit: LEADS.reddit.length, linkedin: LEADS.linkedin.length };
+  const list = LEADS[tab];
+
+  return (
+    <section className="rounded-2xl bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(15,23,42,0.04)] overflow-hidden flex flex-col">
+      <div className="px-5 pt-5 pb-3 border-b border-[#E2E8F0]">
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] uppercase tracking-[0.12em] font-mono text-slate-400"></span>
+              <span className="w-1 h-1 rounded-full bg-slate-300"/>
+              <span className="flex items-center gap-1 text-[11px] uppercase tracking-[0.12em] font-mono text-emerald-600">
+                <span className="relative flex h-1.5 w-1.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"/><span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"/></span>
+                
+              </span>
+            </div>
+            <h2 className="text-[18px] font-semibold tracking-tight text-slate-900 lowercase">new leads found today</h2>
+          </div>
+          <button className="text-slate-400 hover:text-slate-700 transition-colors p-1.5">
+            {I.refresh}
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          {[
+            { id: 'x', icon: I.x, label: 'X' },
+            { id: 'reddit', icon: I.reddit, label: 'Reddit' },
+            { id: 'linkedin', icon: I.linkedin, label: 'LinkedIn' },
+          ].map(p => {
+            const active = tab === p.id;
+            const count = counts[p.id];
+            const empty = count === 0;
+            return (
+              <button key={p.id}
+                onClick={() => !empty && setTab(p.id)}
+                disabled={empty}
+                className={`flex items-center gap-1.5 h-8 px-2.5 rounded-md text-[12px] font-medium transition-colors
+                  ${active
+                    ? 'bg-[#F25C2C] text-white'
+                    : empty
+                      ? 'text-slate-300 cursor-not-allowed'
+                      : 'text-slate-600 hover:bg-slate-50 border border-[#E2E8F0]'}`}
+              >
+                <span className={active ? 'text-white' : empty ? 'text-slate-300' : 'text-slate-500'}>{p.icon}</span>
+                <span>{p.label}</span>
+                <span className={`tabular-nums ${active ? 'text-white/80' : 'text-slate-400'}`}>({count})</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="p-3 space-y-2 overflow-y-auto" style={{ maxHeight: 720 }}>
+        {list.length === 0 ? (
+          <div className="py-12 text-center">
+            <div className="text-[13px] text-slate-400 mb-1">no leads yet today.</div>
+            <div className="text-[11.5px] text-slate-400">scanner runs every 30 min.</div>
+          </div>
+        ) : list.map(lead => <LeadRow key={lead.id} lead={lead} platform={tab}/>)}
+      </div>
+
+      <div className="px-4 py-2.5 border-t border-[#E2E8F0] bg-[#FBFAF7] flex items-center justify-between text-[11.5px]">
+        <span className="text-slate-500">scanner: 22 / 50 daily quota</span>
+        <a className="text-[#E55A24] hover:underline font-medium cursor-pointer flex items-center gap-1">
+          view leads vault {I.arrow}
+        </a>
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────── HACK CARD ─────────────────────────
+function HackCard() {
+  return (
+    <section className="rounded-2xl bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(15,23,42,0.04)] overflow-hidden">
+      <div className="px-5 pt-5 pb-3 bg-gradient-to-br from-[#FFF6EE] via-[#FFFBF7] to-white border-b border-[#E2E8F0]">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-[11px] uppercase tracking-[0.12em] font-mono text-slate-400">card 03</span>
+          <span className="w-1 h-1 rounded-full bg-slate-300"/>
+          <span className="text-[11px] uppercase tracking-[0.12em] font-mono text-[#E55A24]">randomized daily</span>
+        </div>
+        <h2 className="text-[18px] font-semibold tracking-tight text-slate-900 lowercase mb-3">growth hack of the day</h2>
+
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-lg bg-white border border-[#E2E8F0] flex items-center justify-center text-[#F25C2C] shrink-0 shadow-sm">
+            {I.trend}
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-[15.5px] font-semibold text-slate-900 leading-snug">{HACK.title}</h3>
+            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10.5px] font-medium border border-emerald-100">{HACK.effort}</span>
+              <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10.5px] font-medium border border-blue-100 flex items-center gap-1">
+                <span className="w-3 h-3">{I.globe}</span>online
+              </span>
+              <span className="text-[11px] text-slate-500 font-mono">{HACK.niche}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-5 py-4">
+        <p className="text-[13px] leading-[1.55] text-slate-600 mb-4">{HACK.blurb}</p>
+
+        <ol className="space-y-2 mb-4">
+          {HACK.steps.map((step, i) => (
+            <li key={i} className="flex gap-2.5">
+              <span className="shrink-0 w-5 h-5 rounded-md bg-slate-900 text-white text-[10.5px] font-mono flex items-center justify-center mt-0.5">{i+1}</span>
+              <span className="text-[12.5px] leading-[1.55] text-slate-700">{step}</span>
+            </li>
+          ))}
+        </ol>
+
+        <div className="grid grid-cols-2 gap-2 mb-4 p-3 rounded-lg bg-[#FBFAF7] border border-[#E2E8F0]">
+          {HACK.metrics.map(m => (
+            <div key={m.label}>
+              <div className="text-[10px] uppercase tracking-wide text-slate-400 font-mono mb-0.5">{m.label}</div>
+              <div className="text-[15px] font-semibold text-slate-900 tabular-nums">{m.value}</div>
+            </div>
+          ))}
+        </div>
+
+        <button className="w-full h-10 rounded-lg bg-slate-900 text-white text-[13px] font-medium hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+          learn how to execute {I.arrow}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────── DAILY LOG ───────────────────────
+function DailyLog() {
+  const [text, setText] = useState('');
+  const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [aiReply, setAiReply] = useState(null);
+
+  const prompts = [
+    'shipped onboarding redesign',
+    'lost a deal — they wanted seats pricing',
+    'no replies on LinkedIn today',
+    'first paying user from r/SaaS',
+  ];
+
+  const handleSave = async () => {
+    if (!text.trim()) return;
+    setLoading(true);
+    try {
+      const reply = await window.claude.complete(
+        `You are an indie hacker GTM coach for Farcast. The founder just logged: "${text}". In 1-2 short sentences (lowercase, terse, no fluff, no hype words), tell them what specifically you'll do differently in tomorrow's content drafts. Mention one concrete adjustment.`
+      );
+      setAiReply(reply);
+    } catch {
+      setAiReply("logged. tomorrow's drafts will lean into this thread.");
+    }
+    setLoading(false);
+    setSaved(true);
+  };
+
+  return (
+    <section className="rounded-2xl bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(15,23,42,0.04)] overflow-hidden">
+      <div className="px-6 pt-5 pb-4 border-b border-[#E2E8F0] flex items-end justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[11px] uppercase tracking-[0.12em] font-mono text-slate-400">card 04</span>
+            <span className="w-1 h-1 rounded-full bg-slate-300"/>
+            <span className="text-[11px] uppercase tracking-[0.12em] font-mono text-[#E55A24]">personalization loop</span>
+          </div>
+          <h2 className="text-[22px] font-semibold tracking-tight text-slate-900 lowercase">the daily log</h2>
+          <p className="text-[13px] text-slate-500 mt-0.5 max-w-xl">
+            wins, losses, key learnings — anything from today. our AI uses this to personalize tomorrow's content to your unique founder story.
+          </p>
+        </div>
+        <div className="hidden md:flex items-center gap-1.5 text-[11px] font-mono text-slate-400">
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-300"/>
+          47-day streak
+        </div>
+      </div>
+
+      <div className="p-6">
+        <div className="grid md:grid-cols-[1fr_280px] gap-5">
+          {/* editor */}
+          <div>
+            <div className="rounded-xl border border-[#E2E8F0] bg-[#FBFAF7] focus-within:border-slate-300 focus-within:bg-white transition-colors">
+              <textarea
+                value={text}
+                onChange={e => { setText(e.target.value); setSaved(false); setAiReply(null); }}
+                placeholder="today i…"
+                rows={6}
+                className="w-full px-5 py-4 bg-transparent resize-none focus:outline-none text-[14.5px] leading-[1.6] text-slate-800 placeholder-slate-400"
+              />
+              <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#E2E8F0]">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {prompts.map(p => (
+                    <button key={p}
+                      onClick={() => { setText(p); setSaved(false); setAiReply(null); }}
+                      className="text-[11.5px] px-2 py-1 rounded-md border border-[#E2E8F0] bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300 transition-colors"
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+                <div className="text-[11px] font-mono text-slate-400 tabular-nums shrink-0 ml-2">{text.length} chars</div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between mt-3">
+              <div className="text-[11.5px] text-slate-400">private. used only for your model.</div>
+              <button
+                onClick={handleSave}
+                disabled={!text.trim() || loading}
+                className={`flex items-center gap-2 h-10 px-5 rounded-lg text-[13px] font-medium transition-all
+                  ${!text.trim()
+                    ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                    : saved
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-[#F25C2C] text-white hover:bg-[#E0501F] shadow-[0_2px_8px_-2px_rgba(242,92,44,0.6)]'}`}
+              >
+                {loading ? (
+                  <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin"/>thinking…</>
+                ) : saved ? (
+                  <>{I.check}reflection saved</>
+                ) : (
+                  <>{I.send}save reflection</>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* AI feedback panel */}
+          <div className="rounded-xl bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white p-5 flex flex-col">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[#FFB088]">{I.sparkle}</span>
+              <span className="text-[11px] uppercase tracking-[0.12em] font-mono text-white/60">tomorrow's adjustment</span>
+            </div>
+            {aiReply ? (
+              <p className="text-[13px] leading-[1.6] text-white/90">{aiReply}</p>
+            ) : (
+              <>
+                <p className="text-[13px] leading-[1.6] text-white/60 mb-auto">
+                  log a reflection and i'll adjust tomorrow's drafts — angle, tone, which platforms to lean into.
+                </p>
+                <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-2">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wide font-mono text-white/40 mb-0.5">last log</div>
+                    <div className="text-[12px] text-white/80">yesterday, 9:48pm</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wide font-mono text-white/40 mb-0.5">model fit</div>
+                    <div className="text-[12px] text-white/80 tabular-nums">87% · v3</div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────── HEADER ─────────────────────────
+function TopBanner() {
+  return (
+    <div className="mb-6 flex items-end justify-between flex-wrap gap-4">
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[11px] uppercase tracking-[0.14em] font-mono text-[#E55A24]">daily growth plan</span>
+          <span className="w-1 h-1 rounded-full bg-slate-300"/>
+          <span className="text-[11px] uppercase tracking-[0.14em] font-mono text-slate-400">{dateStr}</span>
+        </div>
+        <h1 className="text-[34px] font-semibold tracking-tight text-slate-900 leading-tight">
+          good morning.
+          <span className="text-slate-400">  here's today's growth plan.</span>
+        </h1>
+      </div>
+      <div className="flex items-center gap-4 px-5 py-3 rounded-xl bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+        <Stat label="posts drafted" value="8" accent/>
+        <span className="w-px h-9 bg-[#E2E8F0]"/>
+        <Stat label="warm leads" value="12"/>
+        <span className="w-px h-9 bg-[#E2E8F0]"/>
+        <Stat label="streak" value="47"/>
+        <span className="w-px h-9 bg-[#E2E8F0]"/>
+        <Stat label="model fit" value="87%"/>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, accent }) {
+  return (
+    <div className="text-center min-w-[64px]">
+      <div className={`text-[20px] font-semibold tabular-nums leading-none ${accent ? 'text-[#F25C2C]' : 'text-slate-900'}`}>{value}</div>
+      <div className="text-[10.5px] uppercase tracking-wide text-slate-400 mt-1.5 font-mono">{label}</div>
+    </div>
+  );
+}
+
+// ───────────────────────── APP ─────────────────────────
+function App() {
+  return (
+    <div className="min-h-screen bg-[#F8FAFC]" style={{ backgroundColor: '#FAFAF7' }}>
+      <Sidebar/>
+      <main className="pl-16">
+        <div className="max-w-[1480px] mx-auto px-8 py-8">
+          <TopBanner/>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* Left main 2/3 */}
+            <div className="lg:col-span-2 space-y-5">
+              <OutboundEngine/>
+            </div>
+            {/* Right sidebar 1/3 */}
+            <div className="space-y-5">
+              <LeadRadar/>
+              <HackCard/>
+            </div>
+
+            {/* Full-width bottom */}
+            <div className="lg:col-span-3">
+              <DailyLog/>
+            </div>
+          </div>
+
+          <footer className="mt-10 pb-4 flex items-center justify-between text-[11.5px] text-slate-400 font-mono">
+            <span>farcast · daily growth list · v0.4.7</span>
+            <span>next refresh: tomorrow 06:00 local</span>
+          </footer>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+
+
+</script>
+</body>
+</html>
