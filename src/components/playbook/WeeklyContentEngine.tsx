@@ -8,9 +8,14 @@ import {
 import type { Playbook } from "@/lib/types";
 
 interface Post {
-  type: "gyaan" | "story" | "trending";
+  type: "gyaan" | "story" | "trending" | "reddit_subreddit";
   title?: string;
   content: string;
+  // Reddit subreddit-specific fields
+  subreddit?: string;
+  flair?: string;
+  instructions?: string;
+  strategy?: "pure_value" | "seeded";
 }
 
 interface ChannelContent {
@@ -26,7 +31,9 @@ const TIER_1_CHANNELS = ["Reddit", "LinkedIn", "X (Twitter)"];
 
 function buildIcpSummary(playbook: Playbook) {
   const icp = playbook.icp;
-  return `${icp.title}. ${icp.summary} Pain points: ${icp.painPoints.slice(0, 3).join(", ")}.`;
+  if (!icp?.title) return `Product: ${playbook.productName}. ${(playbook as any).productDescription ?? playbook.summary ?? ""}`;
+  const painPoints = (icp.painPoints ?? []).slice(0, 3).join(", ");
+  return `${icp.title}. ${icp.summary ?? ""} Pain points: ${painPoints}.`;
 }
 
 function todayStr() {
@@ -53,7 +60,7 @@ const POST_TYPE_META = {
 
 function PostCard({ post }: { post: Post }) {
   const [copied, setCopied] = useState(false);
-  const meta = POST_TYPE_META[post.type];
+  const meta = POST_TYPE_META[post.type as keyof typeof POST_TYPE_META] ?? POST_TYPE_META.gyaan;
   const Icon = meta.icon;
 
   const copyPayload = post.title ? `${post.title}\n\n${post.content}` : post.content;
@@ -87,6 +94,68 @@ function PostCard({ post }: { post: Post }) {
   );
 }
 
+function RedditPostCard({ post }: { post: Post }) {
+  const [copied, setCopied] = useState(false);
+  const copyPayload = `${post.title ?? ""}\n\n${post.content}`.trim();
+  const isSeeded = post.strategy === "seeded";
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(copyPayload);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className={`rounded-2xl border p-4 space-y-3 ${isSeeded ? "border-amber-100 bg-amber-50" : "border-emerald-100 bg-emerald-50"}`}>
+      {/* Strategy + subreddit row */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          {isSeeded ? (
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-200 text-amber-800">
+              Value + Seeded (1/week)
+            </span>
+          ) : (
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-200 text-emerald-800">
+              Pure Value (Karma Builder)
+            </span>
+          )}
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-orange-100 text-orange-700">
+            r/{post.subreddit}
+          </span>
+          {post.flair && (
+            <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white border border-orange-200 text-orange-600">
+              [{post.flair}]
+            </span>
+          )}
+        </div>
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors px-2 py-1 rounded-lg hover:bg-white"
+        >
+          {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? "Copied" : "Copy"}
+        </button>
+      </div>
+
+      {post.title && (
+        <p className="text-sm font-bold text-[#1a1a2e] leading-snug">{post.title}</p>
+      )}
+      <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+
+      <div className={`pt-2 border-t space-y-1 ${isSeeded ? "border-amber-100" : "border-emerald-100"}`}>
+        {post.instructions && (
+          <p className={`text-xs font-medium ${isSeeded ? "text-amber-700" : "text-emerald-700"}`}>
+            Action Item: {post.instructions}
+          </p>
+        )}
+        {isSeeded && (
+          <p className="text-xs text-gray-400 font-medium">Never include your URL in the post body — comments only.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ChannelSection({
   content, onRegenerate, regenerating, readOnly,
 }: {
@@ -111,9 +180,11 @@ function ChannelSection({
         )}
       </div>
       <div className="space-y-3">
-        {content.posts.map((post) => (
-          <PostCard key={post.type} post={post} />
-        ))}
+        {content.posts.map((post, idx) =>
+          post.type === "reddit_subreddit"
+            ? <RedditPostCard key={idx} post={post} />
+            : <PostCard key={post.type} post={post} />
+        )}
       </div>
     </div>
   );
@@ -334,9 +405,10 @@ export function WeeklyContentEngine({ playbook }: Props) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         selectedChannels: channels,
-        productName: playbook.productName,
-        productDescription: (playbook as any).productDescription || playbook.summary,
+        productName: playbook.productName || (playbook as any).name || "My Product",
+        productDescription: (playbook as any).productDescription || playbook.summary || "",
         icpSummary: buildIcpSummary(playbook),
+        playbookId: playbook.id,
       }),
     });
     if (!res.ok) {

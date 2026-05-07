@@ -50,7 +50,10 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
       if (raw) {
         try {
           const stored = JSON.parse(raw);
-          setPlaybook(stored.playbook);
+          // Guard against double-nested blobs from a previous save bug
+          const candidate = stored.playbook ?? stored;
+          const localPlaybook = candidate.playbook ?? candidate;
+          setPlaybook(localPlaybook);
           return;
         } catch (e) {
           console.error("Failed to parse local playbook", e);
@@ -66,11 +69,13 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
         .single();
 
       if (data && data.data) {
-        const parsedPlaybook = data.data.playbook ? data.data.playbook : data.data;
+        // DB may store { playbook: {...}, formData: {} } or the playbook object directly
+        const raw = data.data as any;
+        const parsedPlaybook = raw.playbook ?? raw;
         setPlaybook(parsedPlaybook as Playbook);
         localStorage.setItem(
           `playbook_${playbookId}`,
-          JSON.stringify({ playbook: data.data as Playbook, formData: {} })
+          JSON.stringify({ playbook: parsedPlaybook, formData: {} })
         );
       } else {
         console.error("Playbook not found in DB either", error);

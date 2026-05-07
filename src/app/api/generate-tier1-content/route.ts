@@ -3,6 +3,7 @@ import { parseJSON } from "@/lib/extractJSON";
 import { scrubAITells } from "@/lib/humanVoice";
 import { createClient } from "@/lib/supabase/server";
 import { checkAndIncrementUsage } from "@/lib/usage";
+import { fetchSubredditContext, validateSubreddit, type SubredditContext } from "@/lib/reddit/subreddits";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ interface Tier1Request {
   productName: string;
   productDescription: string;
   icpSummary: string;
+  playbookId: string;
 }
 
 // ── Platform helpers ─────────────────────────────────────────────────────────
@@ -83,7 +85,7 @@ async function fetchTrendingContext(
   }
 }
 
-// ── LLM calls ───────────────────────────────────────────────────────────────
+// ── LLM calls (X & LinkedIn) ─────────────────────────────────────────────────
 
 interface BasePost { title?: string; content: string }
 
@@ -96,47 +98,16 @@ async function generateBasePosts(
   const client = getLLMClient();
   const model = getModelId();
   const platform = getPlatform(channelName);
-  const reddit = platform === "reddit";
-
-  const returnFormat = reddit
-    ? `Return valid JSON exactly matching this format: { "gyaan": { "title": "...", "body": "..." }, "story": { "title": "...", "body": "..." } }`
-    : `Return valid JSON exactly matching this format: { "gyaan": "...", "story": "..." }`;
 
   const systemPrompt = `You are a day-zero startup founder writing your own organic social posts. You are writing for your peers, not a marketing team.
 
 ${ANTI_AI_SLOP}
 
-${PLATFORM_PLAYBOOKS[platform]}
-
-${returnFormat}`;
+${PLATFORM_PLAYBOOKS[platform]}`;
 
   let userPrompt: string;
 
-  if (platform === "reddit") {
-    userPrompt = `Task: Write 2 Reddit posts.
-Product: ${productName}
-Target audience: ${icpSummary}
-
-Post 1 "gyaan" — Insight:
-- Title: Lowercase, conversational, under 100 characters. No clickbait, include one specific detail.
-- Body: Start with a strong, non-obvious statement about a real problem founders face.
-- Include one concrete detail (a number, behavior, or real scenario).
-- Sound like a founder who has actually seen this happen.
-- End abruptly. Do not wrap it up nicely or summarize.
-- Keep it tight (2-4 lines max).
-- Do not mention the product.
-
-Post 2 "story" — Founder Moment:
-- Title: Lowercase, conversational, hinting at the situation. No clickbait.
-- Body: Start in the middle of a thought, a call, or a realization.
-- Include at least one specific detail (time, place, person, or exact line said).
-- Make it feel like something you'd text a co-founder at midnight.
-- No storytelling arc. Just state what happened.
-- Avoid perfect grammar if needed to sound authentic.
-- No "lessons learned" or "what this taught me".
-
-Return JSON only.`;
-  } else if (platform === "x") {
+  if (platform === "x") {
     userPrompt = `Task: Write 2 X (Twitter) posts.
 Product: ${productName}
 Target audience: ${icpSummary}
@@ -190,18 +161,6 @@ Return JSON only: { "gyaan": "...", "story": "..." }`;
   });
 
   const raw = completion.choices[0]?.message?.content || "";
-
-  if (reddit) {
-    const parsed = parseJSON<{
-      gyaan: { title: string; body: string };
-      story: { title: string; body: string };
-    }>(raw);
-    return {
-      gyaan: { title: scrubAITells(parsed.gyaan?.title ?? ""), content: scrubAITells(parsed.gyaan?.body ?? "") },
-      story: { title: scrubAITells(parsed.story?.title ?? ""), content: scrubAITells(parsed.story?.body ?? "") },
-    };
-  }
-
   const parsed = parseJSON<{ gyaan: string; story: string }>(raw);
   return {
     gyaan: { content: scrubAITells(parsed.gyaan ?? "") },
@@ -219,11 +178,6 @@ async function generateTrendingPost(
   const client = getLLMClient();
   const model = getModelId();
   const platform = getPlatform(channelName);
-  const reddit = platform === "reddit";
-
-  const returnFormat = reddit
-    ? `Return valid JSON exactly matching this format: { "title": "...", "body": "..." }`
-    : `Return plain text only. No markdown, no quotes.`;
 
   const systemPrompt = `You are a day-zero startup founder writing your own organic social posts. You are writing for your peers, not a marketing team.
 
@@ -231,26 +185,13 @@ ${ANTI_AI_SLOP}
 
 ${PLATFORM_PLAYBOOKS[platform]}
 
-${returnFormat}`;
+Return plain text only. No markdown, no quotes.`;
 
   const context = trendingContext || `a specific pain point in the ${icpSummary} space`;
 
   let userPrompt: string;
 
-  if (platform === "reddit") {
-    userPrompt = `Task: Write a Reddit post reacting to a recent trending topic or conversation.
-Trending Context: ${context}
-Target audience: ${icpSummary}
-
-Rules:
-- Title: Reference the trending topic in a casual, lowercase way.
-- Body: React directly to the topic. Take a stance.
-- Do not summarize the news. Assume the audience already knows about it.
-- Sound like someone who has lived this exact problem and needed to vent.
-- End when you're done talking. No call to action.
-
-Return JSON only.`;
-  } else if (platform === "x") {
+  if (platform === "x") {
     userPrompt = `Task: Write a short X (Twitter) post reacting to a trend.
 Trending Context: ${context}
 Target audience: ${icpSummary}
@@ -289,22 +230,253 @@ Return plain text only.`;
   });
 
   const raw = completion.choices[0]?.message?.content?.trim() || "";
-
-  if (reddit) {
-    const parsed = parseJSON<{ title: string; body: string }>(raw);
-    return {
-      title: scrubAITells(parsed?.title ?? ""),
-      content: scrubAITells(parsed?.body ?? ""),
-    };
-  }
   return { content: scrubAITells(raw) };
+}
+
+// ── Reddit subreddit generation ──────────────────────────────────────────────
+
+async function getOrCreateUserSubreddits(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  playbookId: string,
+  productName: string,
+  productDescription: string,
+  icpSummary: string,
+): Promise<string[]> {
+  const { data } = await supabase
+    .from("user_subreddits")
+    .select("subreddits")
+    .eq("user_id", userId)
+    .eq("playbook_id", playbookId)
+    .single();
+
+  if (data?.subreddits && data.subreddits.length >= 5) return data.subreddits as string[];
+
+  // Generate candidates via LLM
+  const client = getLLMClient();
+  const model = getModelId();
+  const completion = await client.chat.completions.create({
+    model,
+    messages: [{
+      role: "user",
+      content: `You are helping a founder find the best subreddits to post in.
+
+Product: ${productName}
+Product Description: ${productDescription}
+Target Audience: ${icpSummary}
+
+List 12 real, active subreddits where the BUYERS of this specific product hang out.
+Think about what communities these people already participate in — industry forums, job-specific subs, tool-specific subs, pain-point subs.
+Do NOT list generic subreddits (no r/AskReddit, r/funny, etc).
+Do NOT list student or teenager subreddits unless the product is explicitly for students.
+All subreddits must have >10,000 members and be publicly accessible.
+
+Return JSON only: { "subreddits": ["SaaS", "Entrepreneur", "startups"] }
+Do NOT include the r/ prefix. Subreddit names only.`,
+    }],
+    temperature: 0.3,
+    max_tokens: 300,
+  });
+
+  const raw = completion.choices[0]?.message?.content || "";
+  const parsed = parseJSON<{ subreddits: string[] }>(raw);
+  const candidates: string[] = parsed?.subreddits ?? [];
+
+  // Validate up to 12 candidates, keep first 10 that pass
+  const valid: string[] = [];
+  for (const sub of candidates.slice(0, 12)) {
+    if (valid.length >= 10) break;
+    const ok = await validateSubreddit(sub);
+    if (ok) valid.push(sub);
+  }
+
+  // Fall back to raw candidates if validation yields too few
+  const final = valid.length >= 5 ? valid : candidates.slice(0, 10);
+
+  await supabase.from("user_subreddits").upsert(
+    { user_id: userId, playbook_id: playbookId, subreddits: final, updated_at: new Date().toISOString() },
+    { onConflict: "user_id,playbook_id" },
+  );
+
+  return final;
+}
+
+async function getOrCacheSubredditContext(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  subreddit: string,
+): Promise<SubredditContext> {
+  const { data: cached } = await supabase
+    .from("subreddit_cache")
+    .select("rules, top_posts, fetched_at")
+    .eq("subreddit", subreddit)
+    .single();
+
+  if (cached) {
+    const ageMs = Date.now() - new Date(cached.fetched_at as string).getTime();
+    if (ageMs < 24 * 60 * 60 * 1000) {
+      return { subreddit, rules: cached.rules as string, topPosts: cached.top_posts as SubredditContext["topPosts"] };
+    }
+  }
+
+  const context = await fetchSubredditContext(subreddit);
+
+  await supabase.from("subreddit_cache").upsert({
+    subreddit,
+    rules: context.rules,
+    top_posts: context.topPosts,
+    fetched_at: new Date().toISOString(),
+  });
+
+  return context;
+}
+
+async function generateSingleRedditPost(
+  ctx: SubredditContext,
+  productName: string,
+  productDescription: string,
+  icpSummary: string,
+  isSeeded: boolean,
+) {
+  const client = getLLMClient();
+  const model = getModelId();
+
+  const topPostsText = ctx.topPosts.length > 0
+    ? ctx.topPosts.map((p, i) => `${i + 1}. "${p.title}"${p.selftext ? `\n   "${p.selftext}"` : ""}`).join("\n")
+    : "No top posts available — use general Reddit conventions.";
+
+  const rulesText = ctx.rules || "No specific rules found. Follow general Reddit etiquette.";
+
+  const systemPrompt = `You are a startup founder writing a genuine Reddit post. You are not a marketer.
+
+${ANTI_AI_SLOP}
+
+REDDIT-SPECIFIC RULES:
+- Mirror the EXACT formatting, length, and tone of the top posts provided.
+- Proper sentence capitalization always — sentences start with a capital letter.
+- No direct product URL in the post body — ever.
+- No emojis. Raw, slightly cynical, conversational tone.
+- End abruptly. No call to action.
+
+Return valid JSON only.`;
+
+  const sharedContext = `Subreddit: r/${ctx.subreddit}
+
+Subreddit Rules:
+${rulesText}
+
+Top 5 Posts This Week (mirror their format and tone exactly):
+${topPostsText}
+
+Target Audience: ${icpSummary}`;
+
+  const userContent = isSeeded
+    ? `${sharedContext}
+
+Product Name: ${productName}
+What It Does: ${productDescription}
+
+Strategy: VALUE + SEEDED — The Trojan Horse
+- The post must be 90% raw value: a real insight, story, or data point your audience cares about.
+- Casually insert the product as CONTEXT, not as a pitch. The mention should feel incidental, like you're explaining your situation.
+  GOOD: "I was digging through the user data for ${productName} last week and noticed..."
+  GOOD: "I built ${productName} because I was dealing with exactly this, and what I learned was..."
+  BAD: "If you have this problem, check out ${productName}!"
+- Do NOT include any URL or link in the body. Ever.
+- The product mention should feel like a detail in a story, not the point of the post.
+- Instructions: tell the user how to drop their link ONLY after engagement (e.g., wait for a reply, then comment the link).
+
+Return JSON:
+{
+  "flair": "Discussion",
+  "title": "...",
+  "body": "...",
+  "instructions": "..."
+}`
+    : `${sharedContext}
+
+Strategy: PURE VALUE — Karma Builder
+- ZERO product mentions. Do not name any app, tool, or brand you built.
+- 100% raw story, insight, or data that stands completely on its own.
+- The reader should get real value with no idea you have a product.
+- Mirror the exact format and tone of the top posts above.
+- Instructions: one short culture tip specific to this subreddit.
+
+Return JSON:
+{
+  "flair": "Discussion",
+  "title": "...",
+  "body": "...",
+  "instructions": "..."
+}`;
+
+  const completion = await client.chat.completions.create({
+    model,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userContent },
+    ],
+    temperature: 0.9,
+    max_tokens: 800,
+  });
+
+  const raw = completion.choices[0]?.message?.content || "";
+  const parsed = parseJSON<{ flair: string; title: string; body: string; instructions: string }>(raw);
+
+  return {
+    type: "reddit_subreddit" as const,
+    strategy: (isSeeded ? "seeded" : "pure_value") as "seeded" | "pure_value",
+    subreddit: ctx.subreddit,
+    flair: scrubAITells(parsed?.flair ?? ""),
+    title: scrubAITells(parsed?.title ?? ""),
+    content: scrubAITells(parsed?.body ?? ""),
+    instructions: parsed?.instructions || (isSeeded
+      ? "Wait for someone to reply, then drop your link in the comments — not before."
+      : "Engage with replies first. Never post a link unprompted."),
+  };
+}
+
+async function generateRedditChannelContent(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  playbookId: string,
+  productName: string,
+  productDescription: string,
+  icpSummary: string,
+) {
+  const allSubreddits = await getOrCreateUserSubreddits(
+    supabase, userId, playbookId, productName, productDescription, icpSummary,
+  );
+
+  // Pick 3 random subreddits
+  const shuffled = [...allSubreddits].sort(() => Math.random() - 0.5);
+  const chosen = shuffled.slice(0, 3);
+
+  // Fetch context for each (cached)
+  const contexts = await Promise.all(
+    chosen.map((sub) =>
+      getOrCacheSubredditContext(supabase, sub).catch(() => ({
+        subreddit: sub,
+        rules: "",
+        topPosts: [],
+      }))
+    ),
+  );
+
+  // 2 pure value + 1 seeded — pick seeded index randomly
+  const seededIndex = Math.floor(Math.random() * Math.min(contexts.length, 3));
+
+  const posts = await Promise.all(
+    contexts.map((ctx, i) => generateSingleRedditPost(ctx, productName, productDescription, icpSummary, i === seededIndex)),
+  );
+
+  return { channelName: "Reddit", posts };
 }
 
 // ── Route ────────────────────────────────────────────────────────────────────
 
 export async function POST(request: Request) {
   const body: Tier1Request = await request.json();
-  const { selectedChannels, productName, productDescription, icpSummary } = body;
+  const { selectedChannels, productName, productDescription, icpSummary, playbookId } = body;
 
   if (!selectedChannels?.length || !productName) {
     return Response.json({ error: "Missing required fields." }, { status: 400 });
@@ -316,7 +488,6 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Count 1 generation cycle (even if multiple channels) as 1 usage
   const usageCheck = await checkAndIncrementUsage(user.id, "content_generations", 1);
   if (!usageCheck.allowed) {
     return Response.json({ error: usageCheck.error }, { status: 403 });
@@ -325,22 +496,29 @@ export async function POST(request: Request) {
   try {
     const results = await Promise.all(
       selectedChannels.map(async (channelName) => {
+        const platform = getPlatform(channelName);
+
+        if (platform === "reddit") {
+          return generateRedditChannelContent(
+            supabase, user.id, playbookId ?? "", productName, productDescription, icpSummary,
+          );
+        }
+
         const [basePosts, trendingContext] = await Promise.all([
           generateBasePosts(channelName, productName, productDescription, icpSummary),
           fetchTrendingContext(channelName, icpSummary),
         ]);
 
         const trendingPost = await generateTrendingPost(
-          channelName, productName, productDescription, icpSummary,
-          trendingContext,
+          channelName, productName, productDescription, icpSummary, trendingContext,
         );
 
         return {
           channelName,
           posts: [
-            { type: "gyaan" as const, title: basePosts.gyaan.title, content: basePosts.gyaan.content },
-            { type: "story" as const, title: basePosts.story.title, content: basePosts.story.content },
-            { type: "trending" as const, title: trendingPost.title, content: trendingPost.content },
+            { type: "gyaan" as const, content: basePosts.gyaan.content },
+            { type: "story" as const, content: basePosts.story.content },
+            { type: "trending" as const, content: trendingPost.content },
           ],
         };
       })

@@ -20,8 +20,14 @@ const DISC_COLORS: Record<string, { bg: string; border: string, text: string; la
 };
 
 export function PlaybookICP({ icp }: { icp: ICPProfile }) {
-  const primary = DISC_COLORS[icp.discProfile.primaryType] || DISC_COLORS.D;
-  const secondary = DISC_COLORS[icp.discProfile.secondaryType] || DISC_COLORS.I;
+  const discProfile = icp?.discProfile ?? { primaryType: "D", secondaryType: "I", description: "", communicationStyle: "", motivators: [], stressors: [] };
+  const demographics = icp?.demographics ?? { ageRange: "", gender: "", location: "", incomeRange: "", education: "", jobTitles: [] };
+  const psychographics = icp?.psychographics ?? { values: [], personalityTraits: [], frustrations: [], spendingHabits: [], interests: [], stressors: [] };
+  const buyingTriggers = icp?.buyingTriggers ?? [];
+  const currentAlternatives = icp?.currentAlternatives ?? [];
+
+  const primary = DISC_COLORS[discProfile.primaryType] || DISC_COLORS.D;
+  const secondary = DISC_COLORS[discProfile.secondaryType] || DISC_COLORS.I;
 
   return (
     <div className="space-y-8">
@@ -32,9 +38,9 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
             <Users className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-[#1a1a2e]">{icp.title}</h2>
+            <h2 className="text-xl font-bold text-[#1a1a2e]">{icp?.title}</h2>
             <p className="text-sm text-gray-600 mt-1.5 leading-relaxed font-medium">
-              {icp.summary}
+              {icp?.summary}
             </p>
           </div>
         </div>
@@ -52,11 +58,11 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
           </div>
           <div className="space-y-4">
             {[
-              { label: "Age Range", value: icp.demographics.ageRange },
-              { label: "Gender", value: icp.demographics.gender },
-              { label: "Location", value: icp.demographics.location },
-              { label: "Income", value: icp.demographics.incomeRange },
-              { label: "Education", value: icp.demographics.education },
+              { label: "Age Range", value: demographics.ageRange },
+              { label: "Gender", value: demographics.gender },
+              { label: "Location", value: demographics.location },
+              { label: "Income", value: demographics.incomeRange },
+              { label: "Education", value: demographics.education },
             ].map((row) => (
               <div
                 key={row.label}
@@ -71,7 +77,7 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
             <div className="pt-2">
               <p className="text-xs font-medium text-gray-500 mb-2">Likely Job Titles</p>
               <div className="flex flex-wrap gap-2">
-                {icp.demographics.jobTitles.map((jt) => (
+                {(demographics.jobTitles ?? []).map((jt) => (
                   <span
                     key={jt}
                     className="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-100 text-blue-700 text-xs font-medium"
@@ -96,7 +102,7 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
             <div>
               <p className="text-xs font-medium text-gray-500 mb-2">Core Values & Traits</p>
               <div className="flex flex-wrap gap-2">
-                {icp.psychographics.values.concat(icp.psychographics.personalityTraits).map((t) => (
+                {(psychographics.values ?? []).concat(psychographics.personalityTraits ?? []).map((t) => (
                   <span
                     key={t}
                     className="px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium"
@@ -107,13 +113,13 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
               </div>
             </div>
             
-            {icp.psychographics.spendingHabits && (
+            {psychographics.spendingHabits?.length > 0 && (
               <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
                 <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2 flex items-center gap-1">
                   <span className="text-emerald-500">$</span> Spending Habits
                 </p>
                 <ul className="space-y-1.5">
-                  {icp.psychographics.spendingHabits.map((sh, i) => (
+                  {psychographics.spendingHabits.map((sh, i) => (
                     <li key={i} className="text-xs font-medium text-emerald-800 flex items-start gap-2">
                       <span className="text-emerald-400 mt-0.5">•</span> {sh}
                     </li>
@@ -125,7 +131,7 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
             <div>
               <p className="text-xs font-medium text-gray-500 mb-2">Key Frustrations</p>
               <ul className="space-y-2">
-                {icp.psychographics.frustrations.map((f, i) => (
+                {(psychographics.frustrations ?? []).map((f, i) => (
                   <li
                     key={i}
                     className="text-xs font-medium text-gray-700 flex items-start gap-2 bg-red-50/50 p-2 rounded-lg border border-red-100/50"
@@ -152,13 +158,13 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
           <div className={`${primary.bg} ${primary.border} border rounded-2xl p-5`}>
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Primary Motivation</p>
             <p className={`text-2xl font-extrabold ${primary.text}`}>
-              {icp.discProfile.primaryType} — {primary.label}
+              {discProfile.primaryType} — {primary.label}
             </p>
           </div>
           <div className={`${secondary.bg} ${secondary.border} border rounded-2xl p-5`}>
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Secondary Motivation</p>
             <p className={`text-2xl font-extrabold ${secondary.text}`}>
-              {icp.discProfile.secondaryType} — {secondary.label}
+              {discProfile.secondaryType} — {secondary.label}
             </p>
           </div>
         </div>
@@ -166,7 +172,7 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
           <div>
             <p className="text-xs font-bold text-gray-900 mb-1">How they think</p>
             <p className="text-sm text-gray-600 leading-relaxed font-medium">
-              {icp.discProfile.description}
+              {discProfile.description}
             </p>
           </div>
           <div>
@@ -174,7 +180,7 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
               How to communicate with them
             </p>
             <p className="text-sm text-gray-600 leading-relaxed font-medium">
-              {icp.discProfile.communicationStyle}
+              {discProfile.communicationStyle}
             </p>
           </div>
         </div>
@@ -190,7 +196,7 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
             </h3>
           </div>
           <ul className="space-y-3">
-            {icp.buyingTriggers.map((t, i) => (
+            {buyingTriggers.map((t, i) => (
               <li
                 key={i}
                 className="text-sm font-medium text-amber-800 flex items-start gap-2 bg-white rounded-xl p-3 border border-amber-100 shadow-sm"
@@ -210,7 +216,7 @@ export function PlaybookICP({ icp }: { icp: ICPProfile }) {
             </h3>
           </div>
           <div className="space-y-3">
-            {icp.currentAlternatives.map((alt, i) => (
+            {currentAlternatives.map((alt, i) => (
               <div
                 key={i}
                 className="bg-gray-50 rounded-xl p-4 border border-gray-100"

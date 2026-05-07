@@ -162,7 +162,7 @@ export function PlaybookChannels({
 }) {
   return (
     <div className="space-y-6">
-      {channels
+      {(channels ?? [])
         .sort((a, b) => a.rank - b.rank)
         .map((ch) => (
           <ChannelCard key={ch.name} channel={ch} />

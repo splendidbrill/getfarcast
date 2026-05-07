@@ -12,19 +12,22 @@ import {
 import type { Playbook } from "@/lib/types";
 
 export function PlaybookOverview({ playbook }: { playbook: Playbook }) {
+  const marketSizing = playbook.marketSizing ?? {};
+  const icp = playbook.icp ?? {};
+  const channels = playbook.channels ?? [];
   const trendIcon =
-    playbook.marketSizing.trendDirection === "growing" ? (
+    marketSizing.trendDirection === "growing" ? (
       <TrendingUp className="w-4 h-4 text-emerald-500" />
-    ) : playbook.marketSizing.trendDirection === "declining" ? (
+    ) : marketSizing.trendDirection === "declining" ? (
       <TrendingDown className="w-4 h-4 text-red-500" />
     ) : (
       <Minus className="w-4 h-4 text-amber-500" />
     );
 
   const trendColor =
-    playbook.marketSizing.trendDirection === "growing"
+    marketSizing.trendDirection === "growing"
       ? "text-emerald-600"
-      : playbook.marketSizing.trendDirection === "declining"
+      : marketSizing.trendDirection === "declining"
         ? "text-red-600"
         : "text-amber-600";
 
@@ -44,7 +47,7 @@ export function PlaybookOverview({ playbook }: { playbook: Playbook }) {
           </div>
         </div>
         <p className="text-sm text-gray-600 leading-relaxed font-medium">
-          {playbook.summary}
+          {playbook.summary || (playbook as any).description || "No summary available — try regenerating this playbook."}
         </p>
       </div>
 
@@ -53,25 +56,25 @@ export function PlaybookOverview({ playbook }: { playbook: Playbook }) {
         {[
           {
             icon: <Users className="w-5 h-5 text-blue-500 mx-auto mb-2" />,
-            val: playbook.icp.title.split(",")[0],
+            val: icp.title?.split(",")[0] ?? "—",
             label: "Primary ICP",
             bg: "bg-blue-50",
           },
           {
             icon: <Target className="w-5 h-5 text-[#ff6b4e] mx-auto mb-2" />,
-            val: playbook.channels.length,
+            val: channels.length,
             label: "Channels Mapped",
             bg: "bg-[#ff6b4e]/10",
           },
           {
             icon: <BarChart3 className="w-5 h-5 text-emerald-500 mx-auto mb-2" />,
-            val: playbook.channels.reduce((sum, c) => sum + (c.contentCalendar?.length ?? 0), 0),
+            val: channels.reduce((sum, c) => sum + (c.contentCalendar?.length ?? 0), 0),
             label: "Content Templates",
             bg: "bg-emerald-50",
           },
           {
             icon: trendIcon,
-            val: playbook.marketSizing.trendDirection,
+            val: marketSizing.trendDirection,
             label: "Market Trend",
             bg: "bg-gray-50",
             valClass: `capitalize ${trendColor}`,
@@ -92,9 +95,9 @@ export function PlaybookOverview({ playbook }: { playbook: Playbook }) {
         <h3 className="text-sm font-bold text-[#1a1a2e] mb-4">Market Sizing Estimation</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           {[
-            { label: "TAM (Total)", value: playbook.marketSizing.tam, color: "blue" },
-            { label: "SAM (Serviceable)", value: playbook.marketSizing.sam, color: "purple" },
-            { label: "SOM (Obtainable)", value: playbook.marketSizing.som, color: "emerald" },
+            { label: "TAM (Total)", value: marketSizing.tam, color: "blue" },
+            { label: "SAM (Serviceable)", value: marketSizing.sam, color: "purple" },
+            { label: "SOM (Obtainable)", value: marketSizing.som, color: "emerald" },
           ].map((m) => (
             <div
               key={m.label}
@@ -111,9 +114,9 @@ export function PlaybookOverview({ playbook }: { playbook: Playbook }) {
           <div className="mt-0.5">{trendIcon}</div>
           <p className="text-xs text-gray-600 leading-relaxed">
             <span className={`font-bold ${trendColor} capitalize`}>
-              {playbook.marketSizing.trendDirection}
+              {marketSizing.trendDirection}
             </span>{" "}
-            — {playbook.marketSizing.trendRationale}
+            — {marketSizing.trendRationale}
           </p>
         </div>
       </div>
