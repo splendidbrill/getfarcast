@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, Share2, Download, BookOpen, Zap, Sparkles,
   Target, Plus, ChevronRight, ChevronDown, CalendarDays, Lightbulb,
-  Rocket, NotebookPen, TrendingUp, CheckSquare, ArrowLeft,
+  Rocket, NotebookPen, TrendingUp, CheckSquare, ArrowLeft, Link2, Check,
 } from "lucide-react";
 import type { Playbook } from "@/lib/types";
 import { PlaybookOverview } from "./PlaybookOverview";
@@ -135,11 +135,11 @@ function Sidebar({
 
       {/* Bottom actions */}
       <div className="p-2 border-t border-[#E2E8F0] space-y-0.5">
-        <Link href={`/playbook/${playbookId}/launch`}
+        {/* <Link href={`/playbook/${playbookId}/launch`}
           className="flex items-center gap-3 px-3 h-10 rounded-lg text-[13.5px] text-white bg-gradient-to-r from-[#F25C2C] to-[#FF7A3D] hover:from-[#E0501F] hover:to-[#F26A24] transition-colors w-full">
           <Rocket className="w-[18px] h-[18px] shrink-0" />
           <span className={`whitespace-nowrap transition-opacity duration-150 ${open ? "opacity-100" : "opacity-0"}`}>Launch product</span>
-        </Link>
+        </Link> */}
         <Link href="/dashboard"
           className="flex items-center gap-3 px-3 h-10 rounded-lg text-[13.5px] text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors w-full">
           <ArrowLeft className="w-[18px] h-[18px] shrink-0 text-slate-400" />
@@ -164,6 +164,24 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
   const [contentEngineOpen, setContentEngineOpen] = useState(false);
   const [contentSubTab, setContentSubTab] = useState<ContentSubTab>("weekly-engine");
   const [isExportingAll, setIsExportingAll] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareLinkCopied, setShareLinkCopied] = useState(false);
+
+  const handleShare = async () => {
+    if (isSharing) return;
+    setIsSharing(true);
+    try {
+      const res = await fetch(`/api/playbooks/${playbookId}/share`, { method: "POST" });
+      const json = await res.json();
+      if (json.shareUrl) {
+        await navigator.clipboard.writeText(json.shareUrl);
+        setShareLinkCopied(true);
+        setTimeout(() => setShareLinkCopied(false), 3000);
+      }
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   useEffect(() => {
     async function load() {
@@ -226,6 +244,17 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
               <span className="text-[13px] text-slate-500">{playbook.productName} Playbook</span>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                onClick={handleShare}
+                disabled={isSharing}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 text-slate-700 text-[12.5px] font-medium hover:bg-slate-50 transition-colors disabled:opacity-50"
+              >
+                {shareLinkCopied ? (
+                  <><Check className="w-3.5 h-3.5 text-green-500" /><span className="text-green-600">Link copied!</span></>
+                ) : (
+                  <><Link2 className="w-3.5 h-3.5" />Share</>
+                )}
+              </button>
               <a
                 href="https://chromewebstore.google.com/detail/farcast/ljapoonogaahmkkmgbhgielehljmjooa?utm_source=item-share-cb"
                 target="_blank" rel="noopener noreferrer"

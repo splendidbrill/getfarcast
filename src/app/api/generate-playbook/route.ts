@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const usageCheck = await checkAndIncrementUsage(userId, "playbooks", 1);
+  const usageCheck = await checkAndIncrementUsage(userId, "playbooks", 1, user.email ?? undefined);
   if (!usageCheck.allowed) {
     return Response.json({ error: usageCheck.error }, { status: 403 });
   }

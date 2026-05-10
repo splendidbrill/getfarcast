@@ -10,10 +10,18 @@ export const USAGE_LIMITS: Record<UsageType, number> = {
   leads: 900 // 30 per day
 };
 
+function getLimit(type: UsageType, userEmail?: string): number {
+  if (type === "playbooks" && userEmail && userEmail === process.env.SHOBIT) {
+    return 1000;
+  }
+  return USAGE_LIMITS[type];
+}
+
 export async function checkAndIncrementUsage(
-  userId: string, 
-  type: UsageType, 
-  amount: number = 1
+  userId: string,
+  type: UsageType,
+  amount: number = 1,
+  userEmail?: string
 ): Promise<{ allowed: boolean, error?: string }> {
   // Use admin client to bypass RLS for usage tracking
   const admin = createAdminClient(
@@ -46,10 +54,11 @@ export async function checkAndIncrementUsage(
     }
     
     // 2. Check limits
-    if (currentCount + amount > USAGE_LIMITS[type]) {
-      return { 
-        allowed: false, 
-        error: `You have reached your monthly limit for ${type} (${USAGE_LIMITS[type]}). Please upgrade your plan or wait until next month.` 
+    const limit = getLimit(type, userEmail);
+    if (currentCount + amount > limit) {
+      return {
+        allowed: false,
+        error: `You have reached your monthly limit for ${type} (${limit}). Please upgrade your plan or wait until next month.`
       };
     }
     

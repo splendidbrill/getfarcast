@@ -20,7 +20,9 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\extension\\\\src\" -Recurse -Exclude node_modules,dist | Where-Object { $_.Extension -in @\\('.tsx', '.jsx', '.html', '.css'\\) } | Select-Object -ExpandProperty FullName)",
       "Bash(npx next *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/contact)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/blog)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/blog)",
+      "Bash(ls -la src/)",
+      "Bash(ls -la app/)"
     ]
   }
 }
