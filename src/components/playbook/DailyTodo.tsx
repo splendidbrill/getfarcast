@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import type { Playbook, GrowthHack } from "@/lib/types";
+import { SchedulePost } from "@/components/SchedulePost";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -81,12 +82,6 @@ const CHAR_LIMIT: Record<string, number> = {
   Reddit: 40000,
 };
 
-const PLATFORM_URL: Record<string, string> = {
-  "X (Twitter)": "https://x.com/compose/post",
-  LinkedIn: "https://www.linkedin.com/feed/?shareActive=true",
-  Reddit: "https://www.reddit.com/submit",
-};
-
 // ── SVG Icons (matching design file) ─────────────────────────────────────────
 
 function Ico({ d, size = 16, sw = 1.6, fill = "none", cls = "" }: {
@@ -156,12 +151,10 @@ function PostCard({ post, platform, idx, total }: { post: Post; platform: string
   const limit = CHAR_LIMIT[platform] ?? 3000;
   const over = text.length > limit;
   const short = platform === "X (Twitter)" ? "X" : platform;
-  const url = PLATFORM_URL[platform] ?? "#";
-
   const handleCopy = async () => {
     try { await navigator.clipboard.writeText(text); } catch {}
     setCopied(true);
-    setTimeout(() => { setCopied(false); window.open(url, "_blank"); }, 1200);
+    setTimeout(() => setCopied(false), 1200);
   };
 
   return (
@@ -199,7 +192,7 @@ function PostCard({ post, platform, idx, total }: { post: Post; platform: string
               ? "bg-emerald-500 text-white"
               : "bg-[#F25C2C] text-white hover:bg-[#E0501F] shadow-[0_2px_8px_-2px_rgba(242,92,44,0.6)]"}`}
         >
-          {copied ? <>{IC.check}<span>copied — opening {short}</span></> : <>{IC.copy}<span>copy & open {short}</span>{IC.ext}</>}
+          {copied ? <>{IC.check}<span>copied!</span></> : <>{IC.copy}<span>copy {short}</span></>}
         </button>
       </div>
     </div>
@@ -344,16 +337,34 @@ function OutboundEngine({ playbook, playbookId }: { playbook: Playbook; playbook
           </div>
         ) : (
           <>
-            {posts.length > 1 && (
-              <div className="flex items-center gap-1.5">
-                {posts.map((_, i) => (
-                  <button key={i} onClick={() => setDraftIdx(i)}
-                    className={`h-7 px-3 rounded-md text-[12px] font-mono tabular-nums transition-colors
-                      ${i === draftIdx ? "bg-slate-900 text-white" : "bg-white border border-[#E2E8F0] text-slate-500 hover:text-slate-900"}`}>
-                    draft {String(i + 1).padStart(2, "0")}
-                  </button>
-                ))}
-                <span className="ml-2 text-[12px] text-slate-400">← cycle drafts</span>
+            {(posts.length > 1 || tab !== "Reddit") && posts.length > 0 && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {posts.length > 1 && (
+                  <>
+                    {posts.map((_, i) => (
+                      <button key={i} onClick={() => setDraftIdx(i)}
+                        className={`h-7 px-3 rounded-md text-[12px] font-mono tabular-nums transition-colors
+                          ${i === draftIdx ? "bg-slate-900 text-white" : "bg-white border border-[#E2E8F0] text-slate-500 hover:text-slate-900"}`}>
+                        draft {String(i + 1).padStart(2, "0")}
+                      </button>
+                    ))}
+                    <span className="ml-2 text-[12px] text-slate-400">← cycle drafts</span>
+                  </>
+                )}
+                {tab !== "Reddit" && (
+                  <>
+                    {posts.length > 1 && <span className="w-px h-4 bg-[#E2E8F0] mx-1" />}
+                    <SchedulePost
+                      content={posts[draftIdx]
+                        ? (posts[draftIdx].title
+                            ? `${posts[draftIdx].title}\n\n${posts[draftIdx].content}`
+                            : posts[draftIdx].content)
+                        : ""}
+                      platform={tab === "X (Twitter)" ? "twitter" : "linkedin"}
+                      playbookId={playbookId}
+                    />
+                  </>
+                )}
               </div>
             )}
             {posts[draftIdx] && <PostCard post={posts[draftIdx]} platform={tab} idx={draftIdx} total={posts.length} />}

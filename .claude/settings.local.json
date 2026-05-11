@@ -22,7 +22,11 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/contact)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/blog)",
       "Bash(ls -la src/)",
-      "Bash(ls -la app/)"
+      "Bash(ls -la app/)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\src\\\\components\" -Recurse -Force 2>$null | Select-Object FullName | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\\", \"\"\\) })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\src\\\\app\\\\api\" -Recurse -Force 2>$null | Select-Object FullName | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\\", \"\"\\) })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\" -Depth 1 | Where-Object { $_.PSIsContainer } | Select-Object Name)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\src\\\\lib\" -Recurse | Select-Object FullName | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\\", \"\"\\) })"
     ]
   }
 }

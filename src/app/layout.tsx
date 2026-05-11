@@ -46,7 +46,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.getfarcast.com"),
-  title: "GetFarcast — AI-Powered Growth Engine for Founders",
+  title: "Farcast - AI Growth Co-Founder for micro SaaS teams",
   description:
     "Tell us what you built. Get a complete distribution playbook — ICP profiling, channel strategy, ready-to-post content, and cold outreach sequences. Built for founders who ship fast but need users.",
   keywords: [
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "GetFarcast — AI-Powered Growth Engine for Founders",
+    title: "Farcast - AI Growth Co-Founder for micro SaaS teams",
     description:
       "Your product is built. Now get users. GetFarcast generates a complete growth playbook tailored to your product and audience.",
     siteName: "GetFarcast",
@@ -69,19 +69,19 @@ export const metadata: Metadata = {
     url: "/",
     images: [
       {
-        url: "/opengraph-image",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "GetFarcast homepage preview",
+        alt: "Farcast - AI Growth Co-Founder for micro SaaS teams",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "GetFarcast — AI-Powered Growth Engine for Founders",
+    title: "Farcast - AI Growth Co-Founder for micro SaaS teams",
     description:
       "Your product is built. Now get users. GetFarcast generates a complete growth playbook tailored to your product and audience.",
-    images: ["/opengraph-image"],
+    images: ["/og-image.png"],
   },
 };
 
