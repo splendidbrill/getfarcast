@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     url: "/",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image-v2.png",
         width: 1200,
         height: 630,
         alt: "Farcast - AI Growth Co-Founder for micro SaaS teams",
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
     title: "Farcast - AI Growth Co-Founder for micro SaaS teams",
     description:
       "Your product is built. Now get users. Farcast generates a complete growth playbook tailored to your product and audience.",
-    images: ["/og-image.png"],
+    images: ["/og-image-v2.png"],
   },
 };
 
