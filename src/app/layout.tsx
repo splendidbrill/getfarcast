@@ -63,8 +63,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Farcast - AI Growth Co-Founder for micro SaaS teams",
     description:
-      "Your product is built. Now get users. GetFarcast generates a complete growth playbook tailored to your product and audience.",
-    siteName: "GetFarcast",
+      "Your product is built. Now get users. Farcast generates a complete growth playbook tailored to your product and audience.",
+    siteName: "Farcast",
     type: "website",
     url: "/",
     images: [
@@ -80,7 +80,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Farcast - AI Growth Co-Founder for micro SaaS teams",
     description:
-      "Your product is built. Now get users. GetFarcast generates a complete growth playbook tailored to your product and audience.",
+      "Your product is built. Now get users. Farcast generates a complete growth playbook tailored to your product and audience.",
     images: ["/og-image.png"],
   },
 };
