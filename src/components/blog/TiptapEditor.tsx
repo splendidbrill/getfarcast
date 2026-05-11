@@ -6,11 +6,13 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
+import { TableKit } from "@tiptap/extension-table";
 import { useEffect, useCallback, useRef, useState } from "react";
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Heading1, Heading2, Heading3, List, ListOrdered,
   Quote, Code, Minus, Link2, ImageIcon, Undo2, Redo2, Loader2, X,
+  Table2, BetweenVerticalStart, BetweenVerticalEnd, BetweenHorizontalStart, BetweenHorizontalEnd, Trash2,
 } from "lucide-react";
 
 function ImageNodeView({ node, deleteNode, selected }: ReactNodeViewProps) {
@@ -124,6 +126,7 @@ export function TiptapEditor({ content, onChange }: Props) {
       Underline,
       Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-[#ff6b4e] underline" } }),
       ImageWithDelete,
+      TableKit,
       Placeholder.configure({ placeholder: "Start writing your post…" }),
     ],
     content,
@@ -206,7 +209,12 @@ export function TiptapEditor({ content, onChange }: Props) {
       { icon: <Link2 className="w-4 h-4" />, title: "Insert Link", action: addLink, active: editor.isActive("link") },
       { icon: uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />, title: "Insert Image", action: addImage, active: false, disabled: uploading },
     ],
+    [
+      { icon: <Table2 className="w-4 h-4" />, title: "Insert Table", action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(), active: editor.isActive("table") },
+    ],
   ];
+
+  const inTable = editor.isActive("table");
 
   return (
     <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm">
@@ -224,6 +232,37 @@ export function TiptapEditor({ content, onChange }: Props) {
           </div>
         ))}
       </div>
+
+      {/* Table context toolbar */}
+      {inTable && (
+        <div className="flex flex-wrap items-center gap-1 px-4 py-2 border-b border-orange-100 bg-orange-50/40">
+          <span className="text-[10px] font-semibold text-orange-400 uppercase tracking-wider mr-1">Table</span>
+          <div className="w-px h-4 bg-gray-200 mx-1" />
+          <ToolbarButton onClick={() => editor.chain().focus().addColumnBefore().run()} active={false} title="Add column before">
+            <BetweenVerticalStart className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => editor.chain().focus().addColumnAfter().run()} active={false} title="Add column after">
+            <BetweenVerticalEnd className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => editor.chain().focus().deleteColumn().run()} active={false} title="Delete column">
+            <Trash2 className="w-3.5 h-3.5" />
+          </ToolbarButton>
+          <div className="w-px h-4 bg-gray-200 mx-1" />
+          <ToolbarButton onClick={() => editor.chain().focus().addRowBefore().run()} active={false} title="Add row above">
+            <BetweenHorizontalStart className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => editor.chain().focus().addRowAfter().run()} active={false} title="Add row below">
+            <BetweenHorizontalEnd className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => editor.chain().focus().deleteRow().run()} active={false} title="Delete row">
+            <Trash2 className="w-3.5 h-3.5" />
+          </ToolbarButton>
+          <div className="w-px h-4 bg-gray-200 mx-1" />
+          <ToolbarButton onClick={() => editor.chain().focus().deleteTable().run()} active={false} title="Delete table">
+            <span className="text-xs font-medium text-red-500">Del table</span>
+          </ToolbarButton>
+        </div>
+      )}
 
       {/* Editor area */}
       <EditorContent editor={editor} />

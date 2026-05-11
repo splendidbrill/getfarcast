@@ -340,6 +340,36 @@ body {
   animation-play-state: paused;
 }
 
+/* Tiptap table styles (editor view) */
+.tiptap table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.5rem 0;
+  table-layout: fixed;
+}
+.tiptap table td,
+.tiptap table th {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  min-width: 80px;
+  position: relative;
+}
+.tiptap table th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+.tiptap table .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 107, 78, 0.08);
+  pointer-events: none;
+}
+.tiptap .tableWrapper {
+  overflow-x: auto;
+}
+
 /* Smooth scroll behavior */
 html {
   scroll-behavior: smooth;
