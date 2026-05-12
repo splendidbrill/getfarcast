@@ -12,6 +12,8 @@ import {
     getAuthenticatedExtensionUser,
     getExtensionCorsHeaders,
     isNegativeLead,
+    isSellerLead,
+    matchesIcpRoles,
     sanitizeIntentLead,
 } from "@/lib/extension/server";
 import { createClient } from "@/lib/supabase/server";
@@ -38,6 +40,7 @@ type RequestBody = {
     platform: string;
     playbook_id: string;
     icp_summary?: string;
+    icp_job_titles?: string[];
     recommended_subreddits?: string[];
 };
 
@@ -60,6 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     const recommendedSubreddits = body.recommended_subreddits ?? [];
+    const icpJobTitles = body.icp_job_titles ?? [];
     const platform = body.platform as "twitter_x" | "reddit" | "linkedin";
 
     const admin = createAdminClient(
@@ -71,6 +75,10 @@ export async function POST(request: NextRequest) {
         .filter((l) => l.username_or_name && l.profile_url)
         // Drop job seekers, students, agency service-sellers, and hiring posts
         .filter((l) => !isNegativeLead(l.bio_or_headline, l.matched_text_preview))
+        // Drop competitor sellers promoting their own products
+        .filter((l) => !isSellerLead(l.matched_text_preview))
+        // Keep only leads whose bio matches the ICP job titles (when titles are configured)
+        .filter((l) => matchesIcpRoles(l.bio_or_headline, icpJobTitles))
         .map((lead) => {
             const sanitized = sanitizeIntentLead(lead);
             const fingerprint = buildIntentLeadFingerprint({
@@ -204,7 +212,7 @@ export async function GET(request: NextRequest) {
     }
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    query = query.or(`posted_at.gte.${thirtyDaysAgo},and(posted_at.is.null,created_at.gte.${thirtyDaysAgo})`);
+    query = query.gte("created_at", thirtyDaysAgo);
 
     const { data, error } = await query;
 

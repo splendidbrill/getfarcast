@@ -9,6 +9,7 @@ import {
   computeRecencyScore,
   computeContextScore,
   buildIntentLeadFingerprint,
+  isSellerLead,
 } from "@/lib/extension/server";
 import { checkAndIncrementUsage } from "@/lib/usage";
 
@@ -21,7 +22,8 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { icpQuery, platform, playbookId } = body;
+    const { icpQuery, platform, playbookId, jobTitles } = body;
+    const icpJobTitles: string[] = Array.isArray(jobTitles) ? jobTitles.filter((t: unknown) => typeof t === "string" && t.trim()) : [];
 
     if (!icpQuery || !platform) {
       return NextResponse.json({ error: "Missing icpQuery or platform" }, { status: 400 });
@@ -29,7 +31,12 @@ export async function POST(request: Request) {
 
     let query = "";
     if (platform === "linkedin") {
-      query = `site:linkedin.com/posts/ "${icpQuery}"`;
+      if (icpJobTitles.length > 0) {
+        const titleFilter = icpJobTitles.slice(0, 3).map((t: string) => `"${t}"`).join(" OR ");
+        query = `site:linkedin.com/posts/ (${titleFilter}) "${icpQuery}"`;
+      } else {
+        query = `site:linkedin.com/posts/ "${icpQuery}"`;
+      }
     } else if (platform === "reddit") {
       query = `site:reddit.com "${icpQuery}"`;
     } else {
@@ -58,7 +65,9 @@ export async function POST(request: Request) {
     const serperData = await serperRes.json();
     const organicResults = serperData.organic || [];
 
-    const leads = organicResults.map((result: any) => {
+    const filteredResults = organicResults.filter((result: any) => !isSellerLead(result.snippet));
+
+    const leads = filteredResults.map((result: any) => {
       const link: string = result.link || "";
 
       // For LinkedIn posts, derive the profile URL from the post URL.

@@ -20,6 +20,7 @@ type ActivePlaybook = {
   recommended_subreddits: string[];
   intent_keywords: string[];
   icp_summary: string;
+  icp_job_titles: string[];
 };
 
 type ExtensionConfigRecord = {
@@ -218,6 +219,17 @@ const NEGATIVE_TEXT_PATTERNS: RegExp[] = [
   /\b(?:our agency (?:can|will|offers|helps)|dm (?:us|me) for (?:our )?services)\b/i,
 ];
 
+// Post text signals that indicate the author is actively selling/promoting their own product
+const SELLER_POST_PATTERNS: RegExp[] = [
+  /\blink in (?:my |the )?bio\b/i,
+  /\b(?:try|sign up|join|get started|get access)(?:\s+\w+){0,3}\s+for free\b/i,
+  /\bdm (?:me|us) (?:for|to get|to try|for access|if you)\b/i,
+  /\bcheck (?:out|it out|this out)\s+(?:my|our)\b/i,
+  /\b(?:use|enter) (?:promo |discount |coupon )?code\b/i,
+  /\bproduct hunt\b/i,
+  /#launc(?:h|hed|hing)\b/i,
+];
+
 // Founder / operator patterns → highest ICP match
 const FOUNDER_PATTERNS: RegExp[] = [
   /\b(?:founder|co-?founder|ceo|cto|coo|president|owner|solopreneur|solo ?founder|building)\b/i,
@@ -241,6 +253,22 @@ export function isNegativeLead(
   if (bio && NEGATIVE_BIO_PATTERNS.some((p) => p.test(bio))) return true;
   if (text && NEGATIVE_TEXT_PATTERNS.some((p) => p.test(text))) return true;
   return false;
+}
+
+export function isSellerLead(matchedText: string | null | undefined): boolean {
+  const text = matchedText ?? "";
+  if (!text) return false;
+  return SELLER_POST_PATTERNS.some((p) => p.test(text));
+}
+
+export function matchesIcpRoles(
+  bioOrHeadline: string | null | undefined,
+  jobTitles: string[]
+): boolean {
+  if (!jobTitles.length) return true;
+  const bio = (bioOrHeadline ?? "").toLowerCase().trim();
+  if (!bio) return true; // no bio available — give benefit of the doubt
+  return jobTitles.some((title) => bio.includes(title.toLowerCase()));
 }
 
 export function classifyIntentLevel(text: string): "high" | "medium" | "low" {
@@ -378,6 +406,7 @@ function toActivePlaybook(record: PlaybookRecord): ActivePlaybook {
   const playbook = asObject(data.playbook);
   const formData = asObject(data.formData);
   const icp = asObject(playbook.icp);
+  const demographics = asObject(icp.demographics);
 
   return {
     playbook_id: record.id,
@@ -393,6 +422,7 @@ function toActivePlaybook(record: PlaybookRecord): ActivePlaybook {
       readString(playbook.summary) ||
       readString(formData.targetAudience) ||
       "",
+    icp_job_titles: toStringArray(demographics.jobTitles),
   };
 }
 

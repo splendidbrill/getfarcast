@@ -189,7 +189,12 @@ export function WarmLeads({
                 const res = await fetch("/api/background/xray-search", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ icpQuery, platform: searchPlatform, playbookId }),
+                    body: JSON.stringify({
+                        icpQuery,
+                        platform: searchPlatform,
+                        playbookId,
+                        jobTitles: icp?.demographics?.jobTitles ?? [],
+                    }),
                 });
                 const data = await res.json();
                 if (res.ok) totalLeads += data.leadsCount ?? 0;
