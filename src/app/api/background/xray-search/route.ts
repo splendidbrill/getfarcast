@@ -29,9 +29,9 @@ export async function POST(request: Request) {
 
     let query = "";
     if (platform === "linkedin") {
-      query = `site:linkedin.com/in/ "${icpQuery}"`;
+      query = `site:linkedin.com/posts/ "${icpQuery}"`;
     } else if (platform === "reddit") {
-      query = `site:reddit.com "${icpQuery}" after:2024-01-01`;
+      query = `site:reddit.com "${icpQuery}"`;
     } else {
       return NextResponse.json({ error: "Invalid platform" }, { status: 400 });
     }
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
         "X-API-KEY": process.env.SERPER_API_KEY || "",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ q: query, num: 20 }),
+      body: JSON.stringify({ q: query, num: 20, tbs: "qdr:m" }),
     });
 
     if (!serperRes.ok) {
@@ -59,11 +59,28 @@ export async function POST(request: Request) {
     const organicResults = serperData.organic || [];
 
     const leads = organicResults.map((result: any) => {
+      const link: string = result.link || "";
+
+      // For LinkedIn posts, derive the profile URL from the post URL.
+      // Post URL format: linkedin.com/posts/{username}_{description}-activity-{id}
+      let profileUrl = link;
+      let sourceUrl = link;
+      if (platform === "linkedin" && link.includes("linkedin.com/posts/")) {
+        sourceUrl = link;
+        try {
+          const postPath = new URL(link).pathname;
+          const match = postPath.match(/^\/posts\/([^_]+)/);
+          if (match?.[1]) profileUrl = `https://www.linkedin.com/in/${match[1]}`;
+        } catch {
+          profileUrl = link;
+        }
+      }
+
       const intentLevel = classifyIntentLevel(result.snippet || "");
-      const recencyScore = computeRecencyScore(null); 
+      const recencyScore = computeRecencyScore(null);
       const contextScore = computeContextScore(platform, null, []);
       const icpBioScore = computeIcpBioScore(result.snippet, icpQuery);
-      
+
       const leadScore = computeLeadScore({
         intentLevel,
         recencyScore,
@@ -75,7 +92,7 @@ export async function POST(request: Request) {
 
       const fingerprint = buildIntentLeadFingerprint({
         platform,
-        profileUrl: result.link,
+        profileUrl,
         usernameOrName: result.title || "",
         matchedKeyword: icpQuery,
       });
@@ -83,10 +100,10 @@ export async function POST(request: Request) {
       return {
         ...sanitizeIntentLead({
           username_or_name: result.title || "",
-          profile_url: result.link,
+          profile_url: profileUrl,
           matched_text_preview: result.snippet,
           matched_keyword: icpQuery,
-          source_url: result.link,
+          source_url: sourceUrl,
         }),
         intent_level: intentLevel,
         lead_score: leadScore,

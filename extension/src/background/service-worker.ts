@@ -137,7 +137,7 @@ chrome.runtime.onStartup.addListener(() => {
     void syncRemoteConfig(false)
 })
 
-chrome.runtime.onMessageExternal.addListener((message: { type: string; token?: string }, sender: unknown, sendResponse: (response: unknown) => void) => {
+chrome.runtime.onMessageExternal.addListener((message: { type: string; token?: string; payload?: unknown }, sender: unknown, sendResponse: (response: unknown) => void) => {
     console.log('[Farcast] onMessageExternal received', message.type, 'from', (sender as { url?: string })?.url)
     if (message.type === 'SET_AUTH_TOKEN' && message.token) {
         void setInStorage({ [STORAGE_KEYS.FARCAST_AUTH_TOKEN]: message.token })
@@ -150,6 +150,15 @@ chrome.runtime.onMessageExternal.addListener((message: { type: string; token?: s
                 console.error('[Farcast] Failed to store token', err)
                 sendResponse({ ok: false })
             })
+        return true
+    }
+    if (message.type === 'TRIGGER_XRAY_SEARCH' && message.payload) {
+        void handleRuntimeMessage({
+            type: MessageType.TRIGGER_XRAY_SEARCH,
+            payload: message.payload as { icpQuery: string; platform: 'linkedin' | 'reddit'; playbookId?: string }
+        })
+            .then(sendResponse)
+            .catch(() => sendResponse({ ok: false, error: 'Search failed' }))
         return true
     }
     sendResponse({ ok: false, error: 'Unknown message type' })

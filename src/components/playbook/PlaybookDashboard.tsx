@@ -302,7 +302,7 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
                 {activeTab === "posts" && contentSubTab === "weekly-ideas" && <WeeklyContentIdeas playbook={playbook} />}
 
                 {activeTab === "leads" && (
-                  <WarmLeads playbookId={playbookId} productName={playbook.productName} productDescription={playbook.summary} />
+                  <WarmLeads playbookId={playbookId} productName={playbook.productName} productDescription={playbook.summary} icp={playbook.icp} />
                 )}
                 {activeTab === "growth-hacks" && (
                   <GrowthHacks playbookId={playbookId} productName={playbook.productName} productDescription={playbook.summary} icp={playbook.icp} />

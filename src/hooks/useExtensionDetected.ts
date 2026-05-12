@@ -18,6 +18,13 @@ export function useExtensionDetected(): boolean | null {
   const [detected, setDetected] = useState<boolean | null>(null);
 
   useEffect(() => {
+    // If the content script already stamped the DOM (handles components that
+    // mount after page load, e.g. tabs), resolve immediately without waiting.
+    if (document.documentElement.getAttribute('data-farcast-installed') === '1') {
+      setDetected(true);
+      return;
+    }
+
     const handler = () => setDetected(true);
     window.addEventListener(EVENT_NAME, handler);
 

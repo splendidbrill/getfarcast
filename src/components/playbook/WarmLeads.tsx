@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ExternalLink, RefreshCw, Layers, BookOpen, MessageSquare, X, Copy, Check } from "lucide-react";
+import { ExternalLink, RefreshCw, Layers, BookOpen, MessageSquare, X, Copy, Check, Search, Loader2 } from "lucide-react";
 import { ChromeExtensionModal } from "@/components/ChromeExtensionModal";
 import { useExtensionDetected, getExtModalDismissed, setExtModalDismissed } from "@/hooks/useExtensionDetected";
+import type { ICPProfile } from "@/lib/types";
 
 type Lead = {
     id: string;
@@ -64,20 +65,39 @@ function IntentBadge({ level }: { level: "high" | "medium" | "low" | null }) {
     return null;
 }
 
-export function WarmLeads({ 
+function deriveKeywordSuggestions(icp?: ICPProfile): string[] {
+    if (!icp) return [];
+    const candidates = [
+        ...(icp.painPoints ?? []).slice(0, 3),
+        ...(icp.buyingTriggers ?? []).slice(0, 2),
+    ];
+    return [...new Set(candidates.filter(Boolean))].slice(0, 5);
+}
+
+export function WarmLeads({
     playbookId,
     productName,
-    productDescription
-}: { 
+    productDescription,
+    icp,
+}: {
     playbookId: string;
     productName?: string;
     productDescription?: string;
+    icp?: ICPProfile;
 }) {
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [platformFilter, setPlatformFilter] = useState<PlatformFilter>("all");
     const [showAllPlaybooks, setShowAllPlaybooks] = useState(false);
+
+    // Search panel state
+    const suggestedKeywords = deriveKeywordSuggestions(icp);
+    const [selectedKeywords, setSelectedKeywords] = useState<Set<number>>(new Set());
+    const [customQuery, setCustomQuery] = useState("");
+    const [searchPlatform, setSearchPlatform] = useState<"reddit" | "linkedin">("reddit");
+    const [isSearching, setIsSearching] = useState(false);
+    const [searchStatus, setSearchStatus] = useState<string | null>(null);
 
     const extensionInstalled = useExtensionDetected();
     const [extModalDismissed, setExtModalDismissedState] = useState(false);
@@ -143,6 +163,49 @@ export function WarmLeads({
         setTimeout(() => setCopiedDm(false), 2000);
     };
 
+    const toggleKeyword = (index: number) => {
+        setSelectedKeywords((prev) => {
+            const next = new Set(prev);
+            next.has(index) ? next.delete(index) : next.add(index);
+            return next;
+        });
+    };
+
+    const handleFindLeads = async () => {
+        const queries: string[] = [
+            ...Array.from(selectedKeywords).map((i) => suggestedKeywords[i]).filter((q): q is string => Boolean(q)),
+            ...(customQuery.trim() ? [customQuery.trim()] : []),
+        ];
+
+        if (queries.length === 0) return;
+
+        setIsSearching(true);
+        setSearchStatus("Searching… this may take a few seconds");
+
+        let totalLeads = 0;
+
+        for (const icpQuery of queries) {
+            try {
+                const res = await fetch("/api/background/xray-search", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ icpQuery, platform: searchPlatform, playbookId }),
+                });
+                const data = await res.json();
+                if (res.ok) totalLeads += data.leadsCount ?? 0;
+            } catch (err) {
+                console.warn("[WarmLeads] search failed for:", icpQuery, err);
+            }
+        }
+
+        setIsSearching(false);
+        setSearchStatus(`Done! Found ${totalLeads} lead${totalLeads !== 1 ? "s" : ""}. Refreshing…`);
+        setTimeout(() => {
+            void fetchLeads();
+            setSearchStatus(null);
+        }, 1200);
+    };
+
     const fetchLeads = async () => {
         setLoading(true);
         setFetchError(null);
@@ -202,6 +265,79 @@ export function WarmLeads({
                     Refresh
                 </button>
             </div>
+
+            {/* Search panel */}
+            {suggestedKeywords.length > 0 && (
+                <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-3">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Find new leads</p>
+                    <p className="text-xs text-gray-400">Select signals from your ICP or enter your own, then hit search.</p>
+
+                    {/* Keyword chips */}
+                    <div className="flex flex-wrap gap-2">
+                        {suggestedKeywords.map((kw, i) => {
+                            const active = selectedKeywords.has(i);
+                            return (
+                                <button
+                                    key={i}
+                                    onClick={() => toggleKeyword(i)}
+                                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                                        active
+                                            ? "bg-[#1a1a2e] text-white border-[#1a1a2e]"
+                                            : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                                    }`}
+                                >
+                                    {kw.length > 55 ? kw.slice(0, 52) + "…" : kw}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Custom input */}
+                    <input
+                        type="text"
+                        value={customQuery}
+                        onChange={(e) => setCustomQuery(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && !isSearching && handleFindLeads()}
+                        placeholder="or enter a custom keyword…"
+                        className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-gray-400 transition"
+                    />
+
+                    {/* Platform + button row */}
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex gap-1 p-0.5 bg-gray-100 rounded-lg">
+                            {(["reddit", "linkedin"] as const).map((p) => (
+                                <button
+                                    key={p}
+                                    onClick={() => setSearchPlatform(p)}
+                                    className={`px-3 py-1 rounded-md text-xs font-semibold transition-all capitalize ${
+                                        searchPlatform === p
+                                            ? "bg-white text-[#1a1a2e] shadow-sm"
+                                            : "text-gray-500 hover:text-[#1a1a2e]"
+                                    }`}
+                                >
+                                    {p === "reddit" ? "Reddit" : "LinkedIn"}
+                                </button>
+                            ))}
+                        </div>
+
+                        <button
+                            onClick={handleFindLeads}
+                            disabled={isSearching || (selectedKeywords.size === 0 && !customQuery.trim())}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#ff6b4e] text-white text-xs font-bold hover:bg-[#e85a3e] transition disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
+                        >
+                            {isSearching ? (
+                                <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Searching…</>
+                            ) : (
+                                <><Search className="w-3.5 h-3.5" /> Find leads</>
+                            )}
+                        </button>
+                    </div>
+
+                    {searchStatus && (
+                        <p className="text-xs text-gray-500 animate-pulse">{searchStatus}</p>
+                    )}
+                </div>
+            )}
 
             {/* Controls */}
             <div className="flex items-center justify-between flex-wrap gap-3">
