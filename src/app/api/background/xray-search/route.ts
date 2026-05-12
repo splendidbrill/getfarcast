@@ -38,7 +38,7 @@ export async function POST(request: Request) {
         query = `site:linkedin.com/posts/ "${icpQuery}"`;
       }
     } else if (platform === "reddit") {
-      query = `site:reddit.com "${icpQuery}"`;
+      query = `site:reddit.com ${icpQuery}`;
     } else {
       return NextResponse.json({ error: "Invalid platform" }, { status: 400 });
     }

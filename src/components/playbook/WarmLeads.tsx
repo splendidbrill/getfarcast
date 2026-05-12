@@ -91,13 +91,17 @@ export function WarmLeads({
     const [platformFilter, setPlatformFilter] = useState<PlatformFilter>("all");
     const [showAllPlaybooks, setShowAllPlaybooks] = useState(false);
 
-    // Search panel state
+    // Search panel state (Reddit only)
     const suggestedKeywords = deriveKeywordSuggestions(icp);
     const [selectedKeywords, setSelectedKeywords] = useState<Set<number>>(new Set());
     const [customQuery, setCustomQuery] = useState("");
-    const [searchPlatform, setSearchPlatform] = useState<"reddit" | "linkedin">("reddit");
     const [isSearching, setIsSearching] = useState(false);
     const [searchStatus, setSearchStatus] = useState<string | null>(null);
+
+    // Auto-fetch profile leads for X/LinkedIn
+    type ProfileFetchState = "idle" | "fetching" | "done";
+    const [profileFetch, setProfileFetch] = useState<Record<"linkedin" | "twitter_x", ProfileFetchState>>({ linkedin: "idle", twitter_x: "idle" });
+    const [profileCounts, setProfileCounts] = useState<Record<"linkedin" | "twitter_x", number>>({ linkedin: 0, twitter_x: 0 });
 
     const extensionInstalled = useExtensionDetected();
     const [extModalDismissed, setExtModalDismissedState] = useState(false);
@@ -171,6 +175,21 @@ export function WarmLeads({
         });
     };
 
+    const PROFILE_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+    const shouldRefreshProfiles = (p: "linkedin" | "twitter_x") => {
+        try {
+            const key = `farcast_profile_${p}_${playbookId}`;
+            const last = localStorage.getItem(key);
+            if (!last) return true;
+            return Date.now() - parseInt(last) > PROFILE_INTERVAL_MS;
+        } catch { return true; }
+    };
+
+    const markProfilesRefreshed = (p: "linkedin" | "twitter_x") => {
+        try { localStorage.setItem(`farcast_profile_${p}_${playbookId}`, Date.now().toString()); } catch {}
+    };
+
     const handleFindLeads = async () => {
         const queries: string[] = [
             ...Array.from(selectedKeywords).map((i) => suggestedKeywords[i]).filter((q): q is string => Boolean(q)),
@@ -180,7 +199,7 @@ export function WarmLeads({
         if (queries.length === 0) return;
 
         setIsSearching(true);
-        setSearchStatus("Searching… this may take a few seconds");
+        setSearchStatus("Searching Reddit… this may take a few seconds");
 
         let totalLeads = 0;
 
@@ -191,24 +210,40 @@ export function WarmLeads({
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         icpQuery,
-                        platform: searchPlatform,
+                        platform: "reddit",
                         playbookId,
-                        jobTitles: icp?.demographics?.jobTitles ?? [],
                     }),
                 });
                 const data = await res.json();
                 if (res.ok) totalLeads += data.leadsCount ?? 0;
             } catch (err) {
-                console.warn("[WarmLeads] search failed for:", icpQuery, err);
+                console.warn("[WarmLeads] reddit search failed for:", icpQuery, err);
             }
         }
 
         setIsSearching(false);
-        setSearchStatus(`Done! Found ${totalLeads} lead${totalLeads !== 1 ? "s" : ""}. Refreshing…`);
+        setSearchStatus(`Done! Found ${totalLeads} Reddit lead${totalLeads !== 1 ? "s" : ""}. Refreshing…`);
         setTimeout(() => {
             void fetchLeads();
             setSearchStatus(null);
         }, 1200);
+    };
+
+    const triggerProfileSearch = async (p: "linkedin" | "twitter_x") => {
+        setProfileFetch((prev) => ({ ...prev, [p]: "fetching" }));
+        try {
+            const res = await fetch("/api/background/profile-leads", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ platform: p, playbookId }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setProfileCounts((prev) => ({ ...prev, [p]: data.leadsCount ?? 0 }));
+                markProfilesRefreshed(p);
+            }
+        } catch { /* silent */ }
+        setProfileFetch((prev) => ({ ...prev, [p]: "done" }));
     };
 
     const fetchLeads = async () => {
@@ -239,6 +274,18 @@ export function WarmLeads({
         void fetchLeads();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playbookId, showAllPlaybooks]);
+
+    useEffect(() => {
+        const platforms: Array<"linkedin" | "twitter_x"> = ["linkedin", "twitter_x"];
+        const stale = platforms.filter(shouldRefreshProfiles);
+        if (stale.length === 0) return;
+
+        (async () => {
+            for (const p of stale) await triggerProfileSearch(p);
+            void fetchLeads();
+        })();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [playbookId]);
 
     const linkedinCount = leads.filter((l) => l.platform === "linkedin").length;
     const xCount = leads.filter((l) => l.platform === "twitter_x").length;
@@ -271,11 +318,37 @@ export function WarmLeads({
                 </button>
             </div>
 
-            {/* Search panel */}
+            {/* Auto-discovery status (X + LinkedIn) */}
+            {(profileFetch.linkedin !== "idle" || profileFetch.twitter_x !== "idle") && (
+                <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 flex items-center gap-3 flex-wrap text-xs text-gray-500">
+                    {(["linkedin", "twitter_x"] as const).map((p) => {
+                        const label = p === "linkedin" ? "LinkedIn" : "X";
+                        const state = profileFetch[p];
+                        const count = profileCounts[p];
+                        if (state === "idle") return null;
+                        return (
+                            <span key={p} className="flex items-center gap-1.5">
+                                {state === "fetching" ? (
+                                    <><Loader2 className="w-3 h-3 animate-spin text-[#ff6b4e]" /> Discovering {label} profiles…</>
+                                ) : (
+                                    <span className={count > 0 ? "text-green-600 font-semibold" : "text-gray-400"}>
+                                        {label}: {count > 0 ? `+${count} new profiles` : "no new profiles"}
+                                    </span>
+                                )}
+                            </span>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Reddit keyword search panel */}
             {suggestedKeywords.length > 0 && (
                 <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-3">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Find new leads</p>
-                    <p className="text-xs text-gray-400">Select signals from your ICP or enter your own, then hit search.</p>
+                    <div className="flex items-center gap-2">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Search Reddit conversations</p>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 font-semibold border border-orange-100">Reddit</span>
+                    </div>
+                    <p className="text-xs text-gray-400">Pick signals from your ICP or type your own — we'll find Reddit posts where people are expressing these problems.</p>
 
                     {/* Keyword chips */}
                     <div className="flex flex-wrap gap-2">
@@ -302,45 +375,27 @@ export function WarmLeads({
                         type="text"
                         value={customQuery}
                         onChange={(e) => setCustomQuery(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && !isSearching && handleFindLeads()}
-                        placeholder="or enter a custom keyword…"
+                        onKeyDown={(e) => e.key === "Enter" && !isSearching && void handleFindLeads()}
+                        placeholder="or describe a problem your ICP talks about…"
                         className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-gray-400 transition"
                     />
 
-                    {/* Platform + button row */}
-                    <div className="flex items-center gap-3 flex-wrap">
-                        <div className="flex gap-1 p-0.5 bg-gray-100 rounded-lg">
-                            {(["reddit", "linkedin"] as const).map((p) => (
-                                <button
-                                    key={p}
-                                    onClick={() => setSearchPlatform(p)}
-                                    className={`px-3 py-1 rounded-md text-xs font-semibold transition-all capitalize ${
-                                        searchPlatform === p
-                                            ? "bg-white text-[#1a1a2e] shadow-sm"
-                                            : "text-gray-500 hover:text-[#1a1a2e]"
-                                    }`}
-                                >
-                                    {p === "reddit" ? "Reddit" : "LinkedIn"}
-                                </button>
-                            ))}
-                        </div>
-
+                    <div className="flex items-center justify-between">
                         <button
                             onClick={handleFindLeads}
                             disabled={isSearching || (selectedKeywords.size === 0 && !customQuery.trim())}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#ff6b4e] text-white text-xs font-bold hover:bg-[#e85a3e] transition disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#ff6b4e] text-white text-xs font-bold hover:bg-[#e85a3e] transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isSearching ? (
                                 <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Searching…</>
                             ) : (
-                                <><Search className="w-3.5 h-3.5" /> Find leads</>
+                                <><Search className="w-3.5 h-3.5" /> Find Reddit conversations</>
                             )}
                         </button>
+                        {searchStatus && (
+                            <p className="text-xs text-gray-500 animate-pulse">{searchStatus}</p>
+                        )}
                     </div>
-
-                    {searchStatus && (
-                        <p className="text-xs text-gray-500 animate-pulse">{searchStatus}</p>
-                    )}
                 </div>
             )}
 
