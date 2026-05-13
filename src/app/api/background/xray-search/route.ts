@@ -39,6 +39,8 @@ export async function POST(request: Request) {
       }
     } else if (platform === "reddit") {
       query = `site:reddit.com ${icpQuery}`;
+    } else if (platform === "twitter_x") {
+      query = `(site:twitter.com OR site:x.com) ${icpQuery} -inurl:hashtag`;
     } else {
       return NextResponse.json({ error: "Invalid platform" }, { status: 400 });
     }
@@ -80,6 +82,18 @@ export async function POST(request: Request) {
           const postPath = new URL(link).pathname;
           const match = postPath.match(/^\/posts\/([^_]+)/);
           if (match?.[1]) profileUrl = `https://www.linkedin.com/in/${match[1]}`;
+        } catch {
+          profileUrl = link;
+        }
+      } else if (platform === "twitter_x") {
+        sourceUrl = link;
+        try {
+          const tweetUrl = new URL(link);
+          const parts = tweetUrl.pathname.split("/").filter(Boolean);
+          // Both tweet URLs (username/status/id) and profile URLs (username) — extract the username
+          if (parts.length >= 1 && !["i", "hashtag", "search"].includes(parts[0])) {
+            profileUrl = `https://twitter.com/${parts[0]}`;
+          }
         } catch {
           profileUrl = link;
         }

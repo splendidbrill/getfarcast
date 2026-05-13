@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ExternalLink, RefreshCw, Layers, BookOpen, MessageSquare, X, Copy, Check, Search, Loader2 } from "lucide-react";
 import { ChromeExtensionModal } from "@/components/ChromeExtensionModal";
 import { useExtensionDetected, getExtModalDismissed, setExtModalDismissed } from "@/hooks/useExtensionDetected";
@@ -229,20 +229,32 @@ export function WarmLeads({
         }, 1200);
     };
 
-    const triggerProfileSearch = async (p: "linkedin" | "twitter_x") => {
+    const triggerAutoDiscover = async (p: "linkedin" | "twitter_x") => {
+        const keywords = suggestedKeywords.slice(0, 3);
+        if (keywords.length === 0) return;
+
         setProfileFetch((prev) => ({ ...prev, [p]: "fetching" }));
-        try {
-            const res = await fetch("/api/background/profile-leads", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ platform: p, playbookId }),
-            });
-            const data = await res.json();
-            if (res.ok) {
-                setProfileCounts((prev) => ({ ...prev, [p]: data.leadsCount ?? 0 }));
-                markProfilesRefreshed(p);
-            }
-        } catch { /* silent */ }
+        let totalLeads = 0;
+
+        for (const icpQuery of keywords) {
+            try {
+                const res = await fetch("/api/background/xray-search", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        icpQuery,
+                        platform: p,
+                        playbookId,
+                        ...(p === "linkedin" ? { jobTitles: icp?.demographics?.jobTitles ?? [] } : {}),
+                    }),
+                });
+                const data = await res.json();
+                if (res.ok) totalLeads += data.leadsCount ?? 0;
+            } catch { /* silent */ }
+        }
+
+        setProfileCounts((prev) => ({ ...prev, [p]: totalLeads }));
+        markProfilesRefreshed(p);
         setProfileFetch((prev) => ({ ...prev, [p]: "done" }));
     };
 
@@ -275,17 +287,24 @@ export function WarmLeads({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [playbookId, showAllPlaybooks]);
 
+    const autoDiscoveredRef = useRef("");
+
     useEffect(() => {
+        if (suggestedKeywords.length === 0) return;
+        const key = `${playbookId}:${suggestedKeywords.length}`;
+        if (autoDiscoveredRef.current === key) return;
+
         const platforms: Array<"linkedin" | "twitter_x"> = ["linkedin", "twitter_x"];
         const stale = platforms.filter(shouldRefreshProfiles);
+        autoDiscoveredRef.current = key;
         if (stale.length === 0) return;
 
         (async () => {
-            for (const p of stale) await triggerProfileSearch(p);
+            for (const p of stale) await triggerAutoDiscover(p);
             void fetchLeads();
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [playbookId]);
+    }, [playbookId, suggestedKeywords.length]);
 
     const linkedinCount = leads.filter((l) => l.platform === "linkedin").length;
     const xCount = leads.filter((l) => l.platform === "twitter_x").length;
@@ -329,10 +348,10 @@ export function WarmLeads({
                         return (
                             <span key={p} className="flex items-center gap-1.5">
                                 {state === "fetching" ? (
-                                    <><Loader2 className="w-3 h-3 animate-spin text-[#ff6b4e]" /> Discovering {label} profiles…</>
+                                    <><Loader2 className="w-3 h-3 animate-spin text-[#ff6b4e]" /> Discovering {label} leads…</>
                                 ) : (
                                     <span className={count > 0 ? "text-green-600 font-semibold" : "text-gray-400"}>
-                                        {label}: {count > 0 ? `+${count} new profiles` : "no new profiles"}
+                                        {label}: {count > 0 ? `+${count} new leads` : "no new leads"}
                                     </span>
                                 )}
                             </span>
