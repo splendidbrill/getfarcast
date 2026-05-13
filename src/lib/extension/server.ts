@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
@@ -47,6 +48,46 @@ type IntentLeadInput = {
   page_context?: string;
   engagement_weight?: number;
 };
+
+export async function checkSubscriptionActive(userId: string): Promise<{ allowed: boolean; reason?: string }> {
+  try {
+    const admin = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const { data: { user }, error } = await admin.auth.admin.getUserById(userId);
+    if (error || !user) return { allowed: false, reason: "User not found" };
+
+    const meta = user.app_metadata ?? {};
+    const status: string = meta.subscription_status ?? "none";
+    const trialEnd: string | null = meta.trial_end_date ?? null;
+    const subEnd: string | null = meta.subscription_end_date ?? null;
+    const now = Date.now();
+
+    if (status === "active") {
+      if (subEnd && new Date(subEnd).getTime() < now) {
+        return { allowed: false, reason: "Subscription expired — please renew to continue finding leads." };
+      }
+      return { allowed: true };
+    }
+
+    if (status === "on_trial") {
+      if (trialEnd && new Date(trialEnd).getTime() < now) {
+        return { allowed: false, reason: "Free trial expired — upgrade to keep finding leads." };
+      }
+      return { allowed: true };
+    }
+
+    if (status === "trial_exhausted" || status === "canceled") {
+      return { allowed: false, reason: "Your plan is inactive — upgrade to keep finding leads." };
+    }
+
+    // "none" or unknown — treat as expired (should have been given a trial on sign-up)
+    return { allowed: false, reason: "No active plan — upgrade to find leads." };
+  } catch {
+    return { allowed: true }; // fail open on unexpected errors to avoid blocking legitimate users
+  }
+}
 
 export function getExtensionCorsHeaders() {
   return {

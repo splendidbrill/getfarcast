@@ -2,6 +2,7 @@ import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import {
   getAuthenticatedExtensionUser,
+  checkSubscriptionActive,
   sanitizeIntentLead,
   classifyIntentLevel,
   computeIcpBioScore,
@@ -19,6 +20,11 @@ export async function POST(request: Request) {
 
     if (error || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const subCheck = await checkSubscriptionActive(user.id);
+    if (!subCheck.allowed) {
+      return NextResponse.json({ error: subCheck.reason }, { status: 403 });
     }
 
     const body = await request.json();

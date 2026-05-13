@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import {
     buildIntentLeadFingerprint,
+    checkSubscriptionActive,
     classifyIntentLevel,
     computeContextScore,
     computeEngagementScore,
@@ -72,6 +73,11 @@ export async function POST(request: NextRequest) {
     const { user, error } = await getAuthenticatedExtensionUser(request);
     if (error || !user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: cors });
+    }
+
+    const subCheck = await checkSubscriptionActive(user.id);
+    if (!subCheck.allowed) {
+        return NextResponse.json({ error: subCheck.reason }, { status: 403, headers: cors });
     }
 
     const admin = createAdminClient(
