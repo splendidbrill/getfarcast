@@ -14,6 +14,29 @@ import {
 } from "@/lib/extension/server";
 import { checkAndIncrementUsage } from "@/lib/usage";
 
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+// Serper returns date as "Dec 15, 2024", "2 days ago", "3 hours ago", etc.
+function parseSerperDate(dateStr: string | undefined): string | null {
+  if (!dateStr) return null;
+  const s = dateStr.trim().toLowerCase();
+
+  const relative = s.match(/^(\d+)\s+(hour|day|week|month)s?\s+ago$/);
+  if (relative) {
+    const amount = parseInt(relative[1]);
+    const unit = relative[2];
+    const ms =
+      unit === "hour" ? amount * 3_600_000
+      : unit === "day" ? amount * 86_400_000
+      : unit === "week" ? amount * 7 * 86_400_000
+      : amount * 30 * 86_400_000; // month
+    return new Date(Date.now() - ms).toISOString();
+  }
+
+  const parsed = new Date(dateStr);
+  return isNaN(parsed.getTime()) ? null : parsed.toISOString();
+}
+
 export async function POST(request: Request) {
   try {
     const { user, error } = await getAuthenticatedExtensionUser(request as any);
@@ -35,43 +58,62 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing icpQuery or platform" }, { status: 400 });
     }
 
+    // Strip characters Serper rejects: newlines, tabs, quotes, parens, brackets
+    const cleanQuery = icpQuery
+      .replace(/[\r\n\t]+/g, " ")
+      .replace(/['"()\[\]{}]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 120);
+
+    if (!cleanQuery) {
+      return NextResponse.json({ error: "icpQuery is empty after sanitization" }, { status: 400 });
+    }
+
     let query = "";
     if (platform === "linkedin") {
-      if (icpJobTitles.length > 0) {
-        const titleFilter = icpJobTitles.slice(0, 3).map((t: string) => `"${t}"`).join(" OR ");
-        query = `site:linkedin.com/posts/ (${titleFilter}) "${icpQuery}"`;
-      } else {
-        query = `site:linkedin.com/posts/ "${icpQuery}"`;
-      }
+      const primaryTitle = icpJobTitles[0];
+      query = primaryTitle
+        ? `site:linkedin.com/posts/ "${primaryTitle}" ${cleanQuery}`
+        : `site:linkedin.com/posts/ ${cleanQuery}`;
     } else if (platform === "reddit") {
-      query = `site:reddit.com ${icpQuery}`;
+      query = `site:reddit.com ${cleanQuery}`;
     } else if (platform === "twitter_x") {
-      query = `(site:twitter.com OR site:x.com) ${icpQuery} -inurl:hashtag`;
+      query = `site:twitter.com ${cleanQuery}`;
     } else {
       return NextResponse.json({ error: "Invalid platform" }, { status: 400 });
     }
 
     // Attempt to increment leads usage by 20 (max expected results from Serper)
-    const usageCheck = await checkAndIncrementUsage(user.id, "leads", 20);
+    const usageCheck = await checkAndIncrementUsage(user.id, "leads", 20, user.email ?? undefined);
     if (!usageCheck.allowed) {
       return NextResponse.json({ error: usageCheck.error }, { status: 403 });
     }
 
+    console.log("[xray-search] query:", JSON.stringify(query));
     const serperRes = await fetch("https://google.serper.dev/search", {
       method: "POST",
       headers: {
         "X-API-KEY": process.env.SERPER_API_KEY || "",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ q: query, num: 20, tbs: "qdr:m" }),
+      body: JSON.stringify({ q: query, num: 20 }),
     });
 
     if (!serperRes.ok) {
-      throw new Error(`Serper API error: ${serperRes.statusText}`);
+      const errBody = await serperRes.text().catch(() => "");
+      console.error("[xray-search] Serper rejected query:", JSON.stringify(query), "status:", serperRes.status, "body:", errBody);
+      throw new Error(`Serper API error: ${serperRes.status} — ${errBody || serperRes.statusText}`);
     }
 
     const serperData = await serperRes.json();
-    const organicResults = serperData.organic || [];
+
+    // Keep only results from the last 30 days; results with no date pass through
+    const organicResults = (serperData.organic || []).filter((result: any) => {
+      const date = parseSerperDate(result.date);
+      if (!date) return true;
+      return Date.now() - new Date(date).getTime() <= THIRTY_DAYS_MS;
+    });
 
     const filteredResults = organicResults.filter((result: any) => !isSellerLead(result.snippet));
 
@@ -106,9 +148,10 @@ export async function POST(request: Request) {
       }
 
       const intentLevel = classifyIntentLevel(result.snippet || "");
-      const recencyScore = computeRecencyScore(null);
+      const postedAt = parseSerperDate(result.date);
+      const recencyScore = computeRecencyScore(postedAt);
       const contextScore = computeContextScore(platform, null, []);
-      const icpBioScore = computeIcpBioScore(result.snippet, icpQuery);
+      const icpBioScore = computeIcpBioScore(result.snippet, cleanQuery);
 
       const leadScore = computeLeadScore({
         intentLevel,
@@ -123,7 +166,7 @@ export async function POST(request: Request) {
         platform,
         profileUrl,
         usernameOrName: result.title || "",
-        matchedKeyword: icpQuery,
+        matchedKeyword: cleanQuery,
       });
 
       return {
@@ -131,7 +174,7 @@ export async function POST(request: Request) {
           username_or_name: result.title || "",
           profile_url: profileUrl,
           matched_text_preview: result.snippet,
-          matched_keyword: icpQuery,
+          matched_keyword: cleanQuery,
           source_url: sourceUrl,
         }),
         intent_level: intentLevel,

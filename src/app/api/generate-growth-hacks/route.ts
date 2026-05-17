@@ -2,6 +2,7 @@ import { getLLMClient, getModelId } from "@/lib/llm";
 import { createClient } from "@/lib/supabase/server";
 import { buildGrowthHacksSystemPrompt, buildGrowthHacksUserPrompt } from "@/lib/prompts";
 import { parseJSON } from "@/lib/extractJSON";
+import { checkAndIncrementUsage } from "@/lib/usage";
 import type { ICPProfile, GrowthHack } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,11 @@ export async function POST(request: Request) {
 
     if (!user) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const usageCheck = await checkAndIncrementUsage(user.id, "growth_hacks", 1, user.email ?? undefined);
+    if (!usageCheck.allowed) {
+      return Response.json({ error: usageCheck.error }, { status: 403 });
     }
 
     const client = getLLMClient();

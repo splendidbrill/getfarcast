@@ -35,7 +35,7 @@ export default async function CheckoutPage() {
             Subscribe to GetFarcast
           </h1>
           <p className="text-gray-500 font-medium leading-relaxed">
-            $19/month. Cancel anytime. Full access to your playbooks, content engine, and launch tools.
+            $39/month. Cancel anytime. Full access to your playbooks, content engine, and launch tools.
           </p>
         </div>
 

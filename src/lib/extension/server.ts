@@ -64,26 +64,24 @@ export async function checkSubscriptionActive(userId: string): Promise<{ allowed
     const subEnd: string | null = meta.subscription_end_date ?? null;
     const now = Date.now();
 
-    if (status === "active") {
-      if (subEnd && new Date(subEnd).getTime() < now) {
-        return { allowed: false, reason: "Subscription expired — please renew to continue finding leads." };
-      }
-      return { allowed: true };
+    // Only block known-bad states — allow anything unrecognized through
+    if (status === "trial_exhausted") {
+      return { allowed: false, reason: "Free trial exhausted — upgrade to keep finding leads." };
     }
 
-    if (status === "on_trial") {
-      if (trialEnd && new Date(trialEnd).getTime() < now) {
-        return { allowed: false, reason: "Free trial expired — upgrade to keep finding leads." };
-      }
-      return { allowed: true };
-    }
-
-    if (status === "trial_exhausted" || status === "canceled") {
+    if (status === "canceled") {
       return { allowed: false, reason: "Your plan is inactive — upgrade to keep finding leads." };
     }
 
-    // "none" or unknown — treat as expired (should have been given a trial on sign-up)
-    return { allowed: false, reason: "No active plan — upgrade to find leads." };
+    if (status === "on_trial" && trialEnd && new Date(trialEnd).getTime() < now) {
+      return { allowed: false, reason: "Free trial expired — upgrade to keep finding leads." };
+    }
+
+    if (status === "active" && subEnd && new Date(subEnd).getTime() < now) {
+      return { allowed: false, reason: "Subscription expired — please renew to continue finding leads." };
+    }
+
+    return { allowed: true };
   } catch {
     return { allowed: true }; // fail open on unexpected errors to avoid blocking legitimate users
   }

@@ -103,7 +103,7 @@ export function DashboardClient({ playbooks, onDelete, trialData }: { playbooks:
           className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl bg-gradient-to-r from-[#ff6b4e] to-[#ff8c5a] text-white font-bold shadow-[0_8px_30px_rgb(255,107,78,0.3)] hover:shadow-[0_8px_40px_rgb(255,107,78,0.5)] transition-all hover:-translate-y-1 relative z-10 text-lg"
         >
           <Sparkles className="w-6 h-6" />
-          Subscribe Now — $19/month
+          Subscribe Now — $39/month
         </Link>
       </div>
     );

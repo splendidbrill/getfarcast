@@ -1,20 +1,35 @@
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 
-export type UsageType = "playbooks" | "content_generations" | "replies" | "dms" | "leads";
+export type UsageType = "playbooks" | "content_generations" | "replies" | "dms" | "leads" | "growth_hacks";
 
+// Paid plan limits ($39/month)
 export const USAGE_LIMITS: Record<UsageType, number> = {
   playbooks: 10,
   content_generations: 150, // 30 days * 5 regenerations
   replies: 2000,
   dms: 2000,
-  leads: 900 // 30 per day
+  leads: 900, // 30 per day
+  growth_hacks: 999_999,
 };
 
-function getLimit(type: UsageType, userEmail?: string): number {
-  if (type === "playbooks" && userEmail && userEmail === process.env.SHOBIT) {
-    return 1000;
+// Free plan limits
+export const FREE_PLAN_LIMITS: Record<UsageType, number> = {
+  playbooks: 1,
+  content_generations: 50, // 10 days * 5 regenerations
+  replies: 50,
+  dms: 50,
+  leads: 30,
+  growth_hacks: 3,
+};
+
+function getLimit(type: UsageType, userEmail?: string, subscriptionStatus?: string | null): number {
+  if (userEmail && userEmail === process.env.SHOBIT) {
+    return 999_999;
   }
-  return USAGE_LIMITS[type];
+  if (subscriptionStatus === "active" || subscriptionStatus === "on_trial") {
+    return USAGE_LIMITS[type];
+  }
+  return FREE_PLAN_LIMITS[type];
 }
 
 export async function checkAndIncrementUsage(
@@ -31,7 +46,16 @@ export async function checkAndIncrementUsage(
   
   const now = new Date();
   const monthYear = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  
+
+  // Fetch subscription status to determine which limits apply
+  let subscriptionStatus: string | null = null;
+  try {
+    const { data: { user: authUser } } = await admin.auth.admin.getUserById(userId);
+    subscriptionStatus = authUser?.app_metadata?.subscription_status ?? null;
+  } catch {
+    // If we can't fetch, default to free plan limits (fail closed)
+  }
+
   try {
     // 1. Fetch current usage
     const { data, error } = await admin
@@ -54,7 +78,7 @@ export async function checkAndIncrementUsage(
     }
     
     // 2. Check limits
-    const limit = getLimit(type, userEmail);
+    const limit = getLimit(type, userEmail, subscriptionStatus);
     if (currentCount + amount > limit) {
       return {
         allowed: false,

@@ -1,0 +1,128 @@
+import { load } from "cheerio";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
+import { getLLMClient, getModelId } from "@/lib/llm";
+import { parseJSON } from "@/lib/extractJSON";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+interface RedditPost {
+  title: string;
+  score: number;
+  comments: number;
+}
+
+interface RedditBrief {
+  trends: string[];
+  complaints: string[];
+  memes: string[];
+  nativeVocabulary: string[];
+  contentAngles: string[];
+}
+
+export async function POST(request: Request) {
+  try {
+    const { subreddit, playbookId } = (await request.json()) as {
+      subreddit: string;
+      playbookId?: string;
+    };
+
+    if (!subreddit?.trim()) {
+      return Response.json({ error: "subreddit is required" }, { status: 400 });
+    }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+    const cleanSub = subreddit.replace(/^r\//, "").trim();
+    const url = `https://old.reddit.com/r/${cleanSub}/top/?sort=top&t=day`;
+
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; Farcast/1.0 research tool)",
+        Accept: "text/html,application/xhtml+xml",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (!res.ok) {
+      return Response.json(
+        { error: `Reddit fetch failed: ${res.status}` },
+        { status: 502 }
+      );
+    }
+
+    const html = await res.text();
+    const $ = load(html);
+
+    const posts: RedditPost[] = [];
+    $("div.thing").slice(0, 20).each((_, el) => {
+      const $el = $(el);
+      const title = $el.find("a.title").first().text().trim();
+      const score = parseInt($el.attr("data-score") ?? "0", 10);
+      const commentsRaw = $el.find("a.bylink.comments").first().text().trim();
+      const comments = parseInt(commentsRaw.replace(/\D/g, ""), 10) || 0;
+      if (title) posts.push({ title, score, comments });
+    });
+
+    if (posts.length === 0) {
+      return Response.json(
+        { error: "No posts found — subreddit may not exist or be private" },
+        { status: 404 }
+      );
+    }
+
+    const postsText = posts
+      .map(
+        (p, i) =>
+          `${i + 1}. [${p.score} upvotes | ${p.comments} comments] "${p.title}"`
+      )
+      .join("\n");
+
+    const client = getLLMClient();
+    const model = getModelId();
+
+    const completion = await client.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a community intelligence analyst. Extract actionable content intelligence from subreddit data. Respond with valid JSON only — no prose outside the JSON object.",
+        },
+        {
+          role: "user",
+          content: `Analyze these top posts from r/${cleanSub} today:\n\n${postsText}\n\nReturn this exact JSON shape:\n{\n  "trends": ["<3-5 trending topics>"],\n  "complaints": ["<3-5 pain points being vented>"],\n  "memes": ["<2-3 recurring jokes or inside references>"],\n  "nativeVocabulary": ["<5-8 words/phrases this community uses that outsiders don't>"],\n  "contentAngles": ["<3-5 specific post ideas a founder could write to sound native here>"]\n}`,
+        },
+      ],
+      temperature: 0.4,
+      max_tokens: 900,
+    });
+
+    const raw = completion.choices[0]?.message?.content ?? "{}";
+    const brief = parseJSON<RedditBrief>(raw);
+
+    const admin = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    await admin.from("reddit_intel").insert({
+      user_id: user.id,
+      playbook_id: playbookId ?? null,
+      subreddit: cleanSub,
+      posts_scraped: posts.length,
+      brief,
+    });
+
+    return Response.json({ subreddit: cleanSub, posts_scraped: posts.length, brief });
+  } catch (err) {
+    console.error("[reddit-recon]", err);
+    return Response.json({ error: "Failed to run Reddit recon" }, { status: 500 });
+  }
+}

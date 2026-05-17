@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, Share2, Download, BookOpen, Zap, Sparkles,
   Target, Plus, ChevronRight, ChevronDown, CalendarDays, Lightbulb,
-  Rocket, NotebookPen, TrendingUp, CheckSquare, ArrowLeft, Link2, Check,
+  TrendingUp, CheckSquare, ArrowLeft, Link2, Check, Eye,
 } from "lucide-react";
 import type { Playbook } from "@/lib/types";
 import { PlaybookOverview } from "./PlaybookOverview";
@@ -13,14 +13,14 @@ import { PlaybookICP } from "./PlaybookICP";
 import { PlaybookChannels } from "./PlaybookChannels";
 import { WeeklyContentEngine } from "./WeeklyContentEngine";
 import { WeeklyContentIdeas } from "./WeeklyContentIdeas";
-import { DailyLogs } from "./DailyLogs";
+import { RivalSpying } from "./RivalSpying";
 import { PlaybookPrintView } from "./PlaybookPrintView";
 import { WarmLeads } from "./WarmLeads";
 import { GrowthHacks } from "./GrowthHacks";
 import { DailyTodo } from "./DailyTodo";
 import Link from "next/link";
 
-type MainTab = "todo" | "overview" | "icp" | "channels" | "logs" | "posts" | "leads" | "growth-hacks";
+type MainTab = "todo" | "overview" | "icp" | "channels" | "rivals" | "posts" | "leads" | "growth-hacks";
 type ContentSubTab = "weekly-engine" | "weekly-ideas";
 
 // ── Collapsible Sidebar ───────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ function Sidebar({
     { id: "channels" as MainTab,     label: "Distribution Channels",   Icon: Share2 },
     { id: "leads" as MainTab,        label: "Warm Leads",              Icon: Target },
     { id: "growth-hacks" as MainTab, label: "Growth Hacks",            Icon: TrendingUp },
-    { id: "logs" as MainTab,         label: "Daily Logs",              Icon: NotebookPen },
+    { id: "rivals" as MainTab,       label: "Rival Spying",            Icon: Eye },
   ];
 
   const contentSubTabs = [
@@ -296,7 +296,9 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
                 {activeTab === "overview" && <PlaybookOverview playbook={playbook} />}
                 {activeTab === "icp" && <PlaybookICP icp={playbook.icp} />}
                 {activeTab === "channels" && <PlaybookChannels playbookId={playbook.id} channels={playbook.channels} />}
-                {activeTab === "logs" && <DailyLogs />}
+                {activeTab === "rivals" && (
+                  <RivalSpying playbookId={playbookId} productName={playbook.productName} productDescription={playbook.summary} />
+                )}
 
                 {activeTab === "posts" && contentSubTab === "weekly-engine" && <WeeklyContentEngine playbook={playbook} />}
                 {activeTab === "posts" && contentSubTab === "weekly-ideas" && <WeeklyContentIdeas playbook={playbook} />}

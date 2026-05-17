@@ -202,6 +202,7 @@ export function WarmLeads({
         setSearchStatus("Searching Reddit… this may take a few seconds");
 
         let totalLeads = 0;
+        let lastError: string | null = null;
 
         for (const icpQuery of queries) {
             try {
@@ -215,18 +216,26 @@ export function WarmLeads({
                     }),
                 });
                 const data = await res.json();
-                if (res.ok) totalLeads += data.leadsCount ?? 0;
+                if (res.ok) {
+                    totalLeads += data.leadsCount ?? 0;
+                } else {
+                    lastError = data.error ?? `Error ${res.status}`;
+                }
             } catch (err) {
-                console.warn("[WarmLeads] reddit search failed for:", icpQuery, err);
+                lastError = err instanceof Error ? err.message : "Network error";
             }
         }
 
         setIsSearching(false);
-        setSearchStatus(`Done! Found ${totalLeads} Reddit lead${totalLeads !== 1 ? "s" : ""}. Refreshing…`);
-        setTimeout(() => {
-            void fetchLeads();
-            setSearchStatus(null);
-        }, 1200);
+        if (lastError && totalLeads === 0) {
+            setSearchStatus(`Search failed: ${lastError}`);
+        } else {
+            setSearchStatus(`Done! Found ${totalLeads} Reddit lead${totalLeads !== 1 ? "s" : ""}. Refreshing…`);
+            setTimeout(() => {
+                void fetchLeads();
+                setSearchStatus(null);
+            }, 1200);
+        }
     };
 
     const triggerAutoDiscover = async (p: "linkedin" | "twitter_x") => {
@@ -235,6 +244,8 @@ export function WarmLeads({
 
         setProfileFetch((prev) => ({ ...prev, [p]: "fetching" }));
         let totalLeads = 0;
+
+        let discoverError: string | null = null;
 
         for (const icpQuery of keywords) {
             try {
@@ -249,13 +260,20 @@ export function WarmLeads({
                     }),
                 });
                 const data = await res.json();
-                if (res.ok) totalLeads += data.leadsCount ?? 0;
-            } catch { /* silent */ }
+                if (res.ok) {
+                    totalLeads += data.leadsCount ?? 0;
+                } else {
+                    discoverError = data.error ?? `Error ${res.status}`;
+                    console.warn(`[WarmLeads] auto-discover ${p} failed:`, data.error);
+                }
+            } catch (err) {
+                discoverError = err instanceof Error ? err.message : "Network error";
+            }
         }
 
-        setProfileCounts((prev) => ({ ...prev, [p]: totalLeads }));
+        setProfileCounts((prev) => ({ ...prev, [p]: discoverError && totalLeads === 0 ? -1 : totalLeads }));
         markProfilesRefreshed(p);
-        setProfileFetch((prev) => ({ ...prev, [p]: "done" }));
+        setProfileFetch((prev) => ({ ...prev, [p]: discoverError && totalLeads === 0 ? "error" as any : "done" }));
     };
 
     const fetchLeads = async () => {
@@ -349,6 +367,8 @@ export function WarmLeads({
                             <span key={p} className="flex items-center gap-1.5">
                                 {state === "fetching" ? (
                                     <><Loader2 className="w-3 h-3 animate-spin text-[#ff6b4e]" /> Discovering {label} leads…</>
+                                ) : (state as string) === "error" ? (
+                                    <span className="text-red-500 font-semibold">{label}: search failed — check console</span>
                                 ) : (
                                     <span className={count > 0 ? "text-green-600 font-semibold" : "text-gray-400"}>
                                         {label}: {count > 0 ? `+${count} new leads` : "no new leads"}
