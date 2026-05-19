@@ -73,9 +73,11 @@ export async function POST(request: Request) {
     let query = "";
     if (platform === "linkedin") {
       const primaryTitle = icpJobTitles[0];
+      // Keep LinkedIn query short — Google handles exact phrases better than long free-text
+      const shortQuery = cleanQuery.split(/\s+/).slice(0, 5).join(' ');
       query = primaryTitle
-        ? `site:linkedin.com/posts/ "${primaryTitle}" ${cleanQuery}`
-        : `site:linkedin.com/posts/ ${cleanQuery}`;
+        ? `site:linkedin.com/posts/ "${primaryTitle}" ${shortQuery}`
+        : `site:linkedin.com/posts/ ${shortQuery}`;
     } else if (platform === "reddit") {
       query = `site:reddit.com ${cleanQuery}`;
     } else if (platform === "twitter_x") {
@@ -84,8 +86,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid platform" }, { status: 400 });
     }
 
-    // Attempt to increment leads usage by 20 (max expected results from Serper)
-    const usageCheck = await checkAndIncrementUsage(user.id, "leads", 20, user.email ?? undefined);
+    // Check usage limit without pre-consuming — we'll count actual leads found below
+    const usageCheck = await checkAndIncrementUsage(user.id, "leads", 1, user.email ?? undefined);
     if (!usageCheck.allowed) {
       return NextResponse.json({ error: usageCheck.error }, { status: 403 });
     }

@@ -91,12 +91,13 @@ export function WarmLeads({
     const [platformFilter, setPlatformFilter] = useState<PlatformFilter>("all");
     const [showAllPlaybooks, setShowAllPlaybooks] = useState(false);
 
-    // Search panel state (Reddit only)
+    // Search panel state
     const suggestedKeywords = deriveKeywordSuggestions(icp);
     const [selectedKeywords, setSelectedKeywords] = useState<Set<number>>(new Set());
     const [customQuery, setCustomQuery] = useState("");
     const [isSearching, setIsSearching] = useState(false);
     const [searchStatus, setSearchStatus] = useState<string | null>(null);
+    const [searchPlatform, setSearchPlatform] = useState<"reddit" | "linkedin" | "twitter_x">("reddit");
 
     // Auto-fetch profile leads for X/LinkedIn
     type ProfileFetchState = "idle" | "fetching" | "done";
@@ -226,8 +227,9 @@ export function WarmLeads({
 
         if (queries.length === 0) return;
 
+        const platformLabel = searchPlatform === "reddit" ? "Reddit" : searchPlatform === "linkedin" ? "LinkedIn" : "X";
         setIsSearching(true);
-        setSearchStatus("Searching Reddit… this may take a few seconds");
+        setSearchStatus(`Searching ${platformLabel}… this may take a few seconds`);
 
         let totalLeads = 0;
         let lastError: string | null = null;
@@ -239,8 +241,9 @@ export function WarmLeads({
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         icpQuery,
-                        platform: "reddit",
+                        platform: searchPlatform,
                         playbookId,
+                        ...(searchPlatform !== "reddit" ? { jobTitles: icp?.demographics?.jobTitles ?? [] } : {}),
                     }),
                 });
                 const data = await res.json();
@@ -258,7 +261,7 @@ export function WarmLeads({
         if (lastError && totalLeads === 0) {
             setSearchStatus(`Search failed: ${lastError}`);
         } else {
-            setSearchStatus(`Done! Found ${totalLeads} Reddit lead${totalLeads !== 1 ? "s" : ""}. Refreshing…`);
+            setSearchStatus(`Done! Found ${totalLeads} ${platformLabel} lead${totalLeads !== 1 ? "s" : ""}. Refreshing…`);
             setTimeout(() => {
                 void fetchLeads();
                 setSearchStatus(null);
@@ -408,16 +411,41 @@ export function WarmLeads({
                 </div>
             )}
 
-            {/* Reddit keyword search panel */}
-            {suggestedKeywords.length > 0 && (
-                <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-3">
-                    <div className="flex items-center gap-2">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Search Reddit conversations</p>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 font-semibold border border-orange-100">Reddit</span>
+            {/* Keyword search panel */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Find Leads</p>
+                    {/* Platform selector */}
+                    <div className="flex gap-1 p-0.5 bg-gray-100 rounded-lg">
+                        {([
+                            { id: "reddit", label: "Reddit" },
+                            { id: "linkedin", label: "LinkedIn" },
+                            { id: "twitter_x", label: "X" },
+                        ] as { id: "reddit" | "linkedin" | "twitter_x"; label: string }[]).map(({ id, label }) => (
+                            <button
+                                key={id}
+                                onClick={() => setSearchPlatform(id)}
+                                className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                                    searchPlatform === id
+                                        ? "bg-white text-[#1a1a2e] shadow-sm"
+                                        : "text-gray-500 hover:text-[#1a1a2e]"
+                                }`}
+                            >
+                                {label}
+                            </button>
+                        ))}
                     </div>
-                    <p className="text-xs text-gray-400">Pick signals from your ICP or type your own — we'll find Reddit posts where people are expressing these problems.</p>
+                </div>
+                <p className="text-xs text-gray-400">
+                    {searchPlatform === "reddit"
+                        ? "Find Reddit posts where people are expressing problems your product solves."
+                        : searchPlatform === "linkedin"
+                        ? "Find LinkedIn posts from professionals matching your ICP."
+                        : "Find X (Twitter) posts from people expressing buying intent."}
+                </p>
 
-                    {/* Keyword chips */}
+                {/* Keyword chips — shown only when ICP suggestions exist */}
+                {suggestedKeywords.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                         {suggestedKeywords.map((kw, i) => {
                             const active = selectedKeywords.has(i);
@@ -436,35 +464,41 @@ export function WarmLeads({
                             );
                         })}
                     </div>
+                )}
 
-                    {/* Custom input */}
-                    <input
-                        type="text"
-                        value={customQuery}
-                        onChange={(e) => setCustomQuery(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && !isSearching && void handleFindLeads()}
-                        placeholder="or describe a problem your ICP talks about…"
-                        className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-gray-400 transition"
-                    />
+                {/* Custom input */}
+                <input
+                    type="text"
+                    value={customQuery}
+                    onChange={(e) => setCustomQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && !isSearching && void handleFindLeads()}
+                    placeholder={
+                        searchPlatform === "reddit"
+                            ? "describe a problem your ICP talks about…"
+                            : searchPlatform === "linkedin"
+                            ? "e.g. struggling with customer retention…"
+                            : "describe intent your ICP expresses on X…"
+                    }
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-gray-400 transition"
+                />
 
-                    <div className="flex items-center justify-between">
-                        <button
-                            onClick={handleFindLeads}
-                            disabled={isSearching || (selectedKeywords.size === 0 && !customQuery.trim())}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#ff6b4e] text-white text-xs font-bold hover:bg-[#e85a3e] transition disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isSearching ? (
-                                <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Searching…</>
-                            ) : (
-                                <><Search className="w-3.5 h-3.5" /> Find Reddit conversations</>
-                            )}
-                        </button>
-                        {searchStatus && (
-                            <p className="text-xs text-gray-500 animate-pulse">{searchStatus}</p>
+                <div className="flex items-center justify-between">
+                    <button
+                        onClick={handleFindLeads}
+                        disabled={isSearching || (selectedKeywords.size === 0 && !customQuery.trim())}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#ff6b4e] text-white text-xs font-bold hover:bg-[#e85a3e] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isSearching ? (
+                            <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Searching…</>
+                        ) : (
+                            <><Search className="w-3.5 h-3.5" /> Find {searchPlatform === "reddit" ? "Reddit" : searchPlatform === "linkedin" ? "LinkedIn" : "X"} leads</>
                         )}
-                    </div>
+                    </button>
+                    {searchStatus && (
+                        <p className="text-xs text-gray-500 animate-pulse">{searchStatus}</p>
+                    )}
                 </div>
-            )}
+            </div>
 
             {/* Lead Enrichment */}
             <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-3">

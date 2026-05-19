@@ -14,7 +14,6 @@ import {
     getExtensionCorsHeaders,
     isNegativeLead,
     isSellerLead,
-    matchesIcpRoles,
     sanitizeIntentLead,
 } from "@/lib/extension/server";
 import { createClient } from "@/lib/supabase/server";
@@ -83,8 +82,7 @@ export async function POST(request: NextRequest) {
         .filter((l) => !isNegativeLead(l.bio_or_headline, l.matched_text_preview))
         // Drop competitor sellers promoting their own products
         .filter((l) => !isSellerLead(l.matched_text_preview))
-        // Keep only leads whose bio matches the ICP job titles (when titles are configured)
-        .filter((l) => matchesIcpRoles(l.bio_or_headline, icpJobTitles))
+        // ICP role match is factored into lead_score (icpBioScore) — not a hard gate
         .map((lead) => {
             const sanitized = sanitizeIntentLead(lead);
             const fingerprint = buildIntentLeadFingerprint({

@@ -470,6 +470,52 @@ function extractRecommendedSubreddits(value: unknown) {
   return uniqueStrings(matches.map((item) => item.trim()));
 }
 
+// Words too generic to be meaningful as standalone keywords
+const KEYWORD_STOPWORDS = new Set([
+  'the','a','an','and','or','but','is','are','was','were','be','been',
+  'being','have','has','had','do','does','did','will','would','could',
+  'should','may','might','must','can','to','of','in','for','on','with',
+  'at','by','from','as','into','this','that','these','those','am',
+  'my','your','our','their','its','we','they','i','you','he','she','it',
+  'who','which','not','no','so','if','too','just','when','how','what',
+  'why','more','also','very','much','many','some','any','all','each',
+  'own','than','then','over','under','again','once','get','got',
+  'need','want','like','use','used','using','about','make','made',
+])
+
+// Break a long pain-point sentence into short matchable phrases (≤4 words).
+// Exact substring matching in the extension requires short keywords.
+function shortPhrasesFromText(text: string): string[] {
+  const phrases: string[] = []
+  const segments = text
+    .split(/[.!?;:\n]|\b(?:and|or|but|so|yet|nor)\b/gi)
+    .map(s => s.trim().toLowerCase().replace(/[^a-z\s'-]/g, ''))
+    .filter(s => s.length >= 4)
+
+  for (const seg of segments) {
+    const words = seg.split(/\s+/).filter(w => /[a-z]{2,}/.test(w))
+    if (words.length === 0) continue
+
+    if (words.length <= 4) {
+      // Short segment: keep as-is (good keyword already)
+      phrases.push(seg.replace(/\s+/g, ' ').trim())
+      continue
+    }
+
+    // Long segment: extract 2-word bigrams from non-stopword words
+    const sig = words.filter(w => !KEYWORD_STOPWORDS.has(w) && /[a-z]{4,}/.test(w))
+    for (let i = 0; i < sig.length - 1; i++) {
+      phrases.push(`${sig[i]} ${sig[i + 1]}`)
+    }
+    // Also keep long individual words (≥8 chars) as fallback single-word keywords
+    for (const w of sig) {
+      if (w.length >= 8) phrases.push(w)
+    }
+  }
+
+  return phrases.filter(p => p.length >= 4 && p.length <= 45)
+}
+
 function extractIntentKeywords(value: unknown) {
   const root = asObject(value);
   const nestedData = asObject(root.data);
@@ -489,22 +535,18 @@ function extractIntentKeywords(value: unknown) {
     return uniqueStrings(explicit);
   }
 
-  const candidates = [
+  const rawTexts = [
     readString(formData.problemItSolves),
     readString(formData.productDescription),
     readString(formData.targetAudience),
     readString(icp.summary),
     ...toStringArray(icp.painPoints),
-  ]
-    .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
-    .flatMap((item) =>
-      item
-        .split(/[\n,.;]|\b(?:and|or)\b/gi)
-        .map((part) => part.trim().toLowerCase())
-        .filter((part) => part.length >= 4)
-    );
+    ...toStringArray(icp.buyingTriggers),
+  ].filter((item): item is string => typeof item === "string" && item.trim().length > 0);
 
-  return uniqueStrings(candidates).slice(0, 25);
+  const candidates = rawTexts.flatMap(shortPhrasesFromText);
+
+  return uniqueStrings(candidates).slice(0, 30);
 }
 
 function uniqueStrings(values: string[]) {
