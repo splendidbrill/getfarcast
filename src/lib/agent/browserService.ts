@@ -1,4 +1,8 @@
-import { chromium, type Browser, type Page, type BrowserContext } from "playwright";
+import type { Browser, BrowserContext, Page } from "playwright";
+import { chromium } from "playwright-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+
+chromium.use(StealthPlugin());
 
 const EC2_ARGS = [
   "--no-sandbox",
@@ -13,47 +17,75 @@ const EC2_ARGS = [
 const DEFAULT_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
-export async function withBrowser<T>(fn: (browser: Browser) => Promise<T>): Promise<T> {
-  let browser: Browser | null = null;
+function buildProxyConfig() {
+  const raw = process.env.PROXY_URL;
+  if (!raw) return undefined;
   try {
-    browser = await chromium.launch({ args: EC2_ARGS, headless: true });
-    return await fn(browser);
-  } finally {
-    await browser?.close().catch(() => {});
+    const url = new URL(raw);
+    return {
+      server: `${url.protocol}//${url.hostname}:${url.port}`,
+      username: url.username || undefined,
+      password: url.password || undefined,
+    };
+  } catch {
+    return undefined;
   }
 }
 
-export async function withPage<T>(fn: (page: Page) => Promise<T>): Promise<T> {
+export async function withBrowser<T>(
+  fn: (browser: Browser) => Promise<T>,
+  useProxy = false
+): Promise<T> {
+  let browser: Browser | null = null;
+  try {
+    const proxy = useProxy ? buildProxyConfig() : undefined;
+    browser = (await chromium.launch({
+      args: EC2_ARGS,
+      headless: true,
+      ...(proxy ? { proxy } : {}),
+    })) as unknown as Browser;
+    return await fn(browser);
+  } finally {
+    await (browser as Browser | null)?.close().catch(() => {});
+  }
+}
+
+export async function withPage<T>(
+  fn: (page: Page) => Promise<T>,
+  useProxy = false
+): Promise<T> {
   return withBrowser(async (browser) => {
-    let context: BrowserContext | null = null;
+    let ctx: BrowserContext | null = null;
     try {
-      context = await browser.newContext({
+      ctx = await browser.newContext({
         userAgent: DEFAULT_UA,
         locale: "en-US",
         viewport: { width: 1280, height: 800 },
       });
-      const page = await context.newPage();
+      const page = await ctx.newPage();
       return await fn(page);
     } finally {
-      await context?.close().catch(() => {});
+      await ctx?.close().catch(() => {});
     }
-  });
+  }, useProxy);
 }
 
 export async function withIsolatedPage<T>(
   browser: Browser,
-  fn: (page: Page) => Promise<T>
+  fn: (page: Page) => Promise<T>,
+  cookies?: Array<{ name: string; value: string; domain: string; path: string }>
 ): Promise<T> {
-  let context: BrowserContext | null = null;
+  let ctx: BrowserContext | null = null;
   try {
-    context = await browser.newContext({
+    ctx = await browser.newContext({
       userAgent: DEFAULT_UA,
       locale: "en-US",
       viewport: { width: 1280, height: 800 },
     });
-    const page = await context.newPage();
+    if (cookies?.length) await ctx.addCookies(cookies);
+    const page = await ctx.newPage();
     return await fn(page);
   } finally {
-    await context?.close().catch(() => {});
+    await ctx?.close().catch(() => {});
   }
 }

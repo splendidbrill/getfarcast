@@ -4,7 +4,7 @@ import {
     submitEngagerLeads,
     submitIntentLeads
 } from '../shared/api'
-import { API_ENDPOINTS, DEFAULT_API_BASE_URL, REDDIT_SEARCH_THROTTLE_MS, STORAGE_KEYS } from '../shared/constants'
+import { API_ENDPOINTS, DEFAULT_API_BASE_URL, REDDIT_SEARCH_THROTTLE_MS, STORAGE_KEYS, STORAGE_KEYS_EXTRA } from '../shared/constants'
 import { isConfigStale } from '../shared/config'
 import {
     MessageType,
@@ -111,14 +111,39 @@ async function getRuntimeConfig() {
     } as const
 }
 
+async function checkPostQueue() {
+    const authToken = await getFromStorage<string>(STORAGE_KEYS.FARCAST_AUTH_TOKEN)
+    const apiBaseUrl = (await getFromStorage<string>(STORAGE_KEYS.API_BASE_URL)) ?? DEFAULT_API_BASE_URL
+    if (!authToken) return
+
+    try {
+        const res = await fetch(`${apiBaseUrl}${API_ENDPOINTS.QUEUE}?status=ready`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+        })
+        if (!res.ok) return
+        const { posts } = await res.json() as { posts: unknown[] }
+        const count = posts?.length ?? 0
+
+        await setInStorage({ [STORAGE_KEYS_EXTRA.PENDING_POSTS]: posts })
+
+        if (count > 0) {
+            chrome.action.setBadgeText({ text: String(count) })
+            chrome.action.setBadgeBackgroundColor({ color: '#F25C2C' })
+        } else {
+            chrome.action.setBadgeText({ text: '' })
+        }
+    } catch {
+        // network error — silently skip
+    }
+}
+
 chrome.runtime.onInstalled.addListener(() => {
     void setInStorage({
         [STORAGE_KEYS.API_BASE_URL]: DEFAULT_API_BASE_URL
     })
 
-    chrome.alarms.create('weekly-config-sync', {
-        periodInMinutes: 60 * 24 * 7
-    })
+    chrome.alarms.create('weekly-config-sync', { periodInMinutes: 60 * 24 * 7 })
+    chrome.alarms.create('queue-check', { periodInMinutes: 1 })
 
     void syncRemoteConfig(true)
 })
@@ -126,6 +151,9 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.alarms.onAlarm.addListener((alarm: { name?: string }) => {
     if (alarm.name === 'weekly-config-sync') {
         void syncRemoteConfig(true)
+    }
+    if (alarm.name === 'queue-check') {
+        void checkPostQueue()
     }
 })
 

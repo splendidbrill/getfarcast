@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, Share2, Download, BookOpen, Zap, Sparkles,
   Target, Plus, ChevronRight, ChevronDown, CalendarDays, Lightbulb,
-  TrendingUp, CheckSquare, ArrowLeft, Link2, Check, Eye,
+  TrendingUp, CheckSquare, ArrowLeft, Link2, Check, Eye, Clock,
 } from "lucide-react";
 import type { Playbook } from "@/lib/types";
 import { PlaybookOverview } from "./PlaybookOverview";
@@ -18,9 +18,10 @@ import { PlaybookPrintView } from "./PlaybookPrintView";
 import { WarmLeads } from "./WarmLeads";
 import { GrowthHacks } from "./GrowthHacks";
 import { DailyTodo } from "./DailyTodo";
+import { QueueManager } from "./QueueManager";
 import Link from "next/link";
 
-type MainTab = "todo" | "overview" | "icp" | "channels" | "rivals" | "posts" | "leads" | "growth-hacks";
+type MainTab = "todo" | "overview" | "icp" | "channels" | "rivals" | "posts" | "leads" | "growth-hacks" | "queue";
 type ContentSubTab = "weekly-engine" | "weekly-ideas";
 
 // ── Collapsible Sidebar ───────────────────────────────────────────────────────
@@ -54,6 +55,7 @@ function Sidebar({
     { id: "leads" as MainTab,        label: "Warm Leads",              Icon: Target },
     { id: "growth-hacks" as MainTab, label: "Growth Hacks",            Icon: TrendingUp },
     { id: "rivals" as MainTab,       label: "Rival Spying",            Icon: Eye },
+    { id: "queue" as MainTab,        label: "Post Queue",               Icon: Clock },
   ];
 
   const contentSubTabs = [
@@ -299,6 +301,7 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
                 {activeTab === "rivals" && (
                   <RivalSpying playbookId={playbookId} productName={playbook.productName} productDescription={playbook.summary} />
                 )}
+                {activeTab === "queue" && <QueueManager playbookId={playbookId} />}
 
                 {activeTab === "posts" && contentSubTab === "weekly-engine" && <WeeklyContentEngine playbook={playbook} />}
                 {activeTab === "posts" && contentSubTab === "weekly-ideas" && <WeeklyContentIdeas playbook={playbook} />}

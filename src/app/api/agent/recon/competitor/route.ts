@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getLLMClient, getModelId } from "@/lib/llm";
 import { parseJSON } from "@/lib/extractJSON";
 import { withBrowser, withIsolatedPage } from "@/lib/agent/browserService";
+import { getBurnerSession, isPaidUser } from "@/lib/agent/burnerSession";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -167,7 +168,8 @@ async function scrapeTwitterViaFetch(handle: string): Promise<TwitterData | unde
 
 async function scrapeLinkedIn(
   linkedinUrl: string,
-  browser: Parameters<Parameters<typeof withBrowser>[0]>[0]
+  browser: Parameters<Parameters<typeof withBrowser>[0]>[0],
+  cookies?: Array<{ name: string; value: string; domain: string; path: string }>
 ): Promise<LinkedInData | undefined> {
   const data: LinkedInData = { tagline: "", about: "", followers: "" };
   let gotSomething = false;
@@ -175,7 +177,6 @@ async function scrapeLinkedIn(
   await withIsolatedPage(browser, async (page) => {
     try {
       await page.goto(linkedinUrl, { waitUntil: "domcontentloaded", timeout: 20000 });
-
       // LinkedIn shows partial public data before the login wall
       data.tagline = await page
         .$eval(".org-top-card-summary__tagline, .top-card-layout__headline, h2", (el) =>
@@ -356,15 +357,25 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
+    // Tier check — paid users get proxy + burner sessions
+    const { data: authData } = await supabase.auth.getUser();
+    const subStatus = authData?.user?.app_metadata?.subscription_status ?? null;
+    const paid = isPaidUser(subStatus);
+
     // ── Scrape all platforms with one browser instance ──────────────────────
+    // Paid users get proxy routing; free users scrape public pages only
+    const linkedinSession = paid && linkedinUrl
+      ? await getBurnerSession("linkedin")
+      : null;
+
     const scrapedData = await withBrowser(async (browser) => {
       const [website, linkedin, instagram] = await Promise.all([
         scrapeWebsite(competitorUrl, browser),
-        linkedinUrl ? scrapeLinkedIn(linkedinUrl, browser) : Promise.resolve(undefined),
+        linkedinUrl ? scrapeLinkedIn(linkedinUrl, browser, linkedinSession?.cookies) : Promise.resolve(undefined),
         instagramHandle ? scrapeInstagram(instagramHandle, browser) : Promise.resolve(undefined),
       ]);
       return { website, linkedin, instagram } as ScrapedData;
-    });
+    }, paid);
 
     // Twitter fetch doesn't need a browser
     if (twitterHandle) {

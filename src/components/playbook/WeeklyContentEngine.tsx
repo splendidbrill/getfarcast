@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   Sparkles, Copy, Check, RefreshCw, Loader2, MessageSquare,
   BookOpen, TrendingUp, ChevronLeft, ChevronRight, ArrowLeft, Lock,
+  Calendar as CalendarIcon, X,
 } from "lucide-react";
 import type { Playbook } from "@/lib/types";
 
@@ -50,6 +51,87 @@ function storageKey(playbookId: string, date: string) {
   return `tier1_content_${playbookId}_${date}`;
 }
 
+function channelToQueuePlatform(channelName: string): "twitter" | "linkedin" | null {
+  if (channelName === "LinkedIn") return "linkedin";
+  if (channelName === "X (Twitter)") return "twitter";
+  return null; // Reddit — not queueable
+}
+
+function ScheduleButton({ content, platform, playbookId }: {
+  content: string;
+  platform: "twitter" | "linkedin";
+  playbookId: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [scheduledFor, setScheduledFor] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+
+  const minDatetime = new Date(Date.now() + 60000).toISOString().slice(0, 16);
+
+  const handleAdd = async () => {
+    if (!scheduledFor) return;
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/agent/queue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content,
+          platform,
+          scheduledFor: new Date(scheduledFor).toISOString(),
+          playbookId,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setStatus("done");
+      setTimeout(() => { setOpen(false); setStatus("idle"); setScheduledFor(""); }, 2000);
+    } catch {
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 2000);
+    }
+  };
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-[#ff6b4e] transition-colors px-2 py-1 rounded-lg hover:bg-white"
+      >
+        <CalendarIcon className="w-3.5 h-3.5" />
+        Schedule
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      <input
+        type="datetime-local"
+        value={scheduledFor}
+        onChange={(e) => setScheduledFor(e.target.value)}
+        min={minDatetime}
+        className="px-2 py-1 rounded-lg border border-gray-200 text-xs outline-none focus:border-[#ff6b4e] transition"
+      />
+      <button
+        onClick={handleAdd}
+        disabled={!scheduledFor || status === "loading"}
+        className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+          status === "done"
+            ? "bg-emerald-500 text-white"
+            : status === "error"
+            ? "bg-red-500 text-white"
+            : "bg-[#ff6b4e] text-white hover:opacity-90 disabled:opacity-50"
+        }`}
+      >
+        {status === "loading" ? "Adding…" : status === "done" ? "✓ Added!" : status === "error" ? "Failed" : "Add"}
+      </button>
+      <button onClick={() => { setOpen(false); setStatus("idle"); }} className="p-1 text-gray-400 hover:text-gray-600">
+        <X className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
+
 // ── Post type config ────────────────────────────────────────────────────────
 
 const POST_TYPE_META = {
@@ -58,12 +140,17 @@ const POST_TYPE_META = {
   trending: { label: "Trending Hook", icon: TrendingUp, border: "border-amber-100", bg: "bg-amber-50", badge: "bg-amber-100 text-amber-700" },
 };
 
-function PostCard({ post }: { post: Post }) {
+function PostCard({ post, playbookId, channelName }: {
+  post: Post;
+  playbookId?: string;
+  channelName?: string;
+}) {
   const [copied, setCopied] = useState(false);
   const meta = POST_TYPE_META[post.type as keyof typeof POST_TYPE_META] ?? POST_TYPE_META.gyaan;
   const Icon = meta.icon;
 
   const copyPayload = post.title ? `${post.title}\n\n${post.content}` : post.content;
+  const queuePlatform = channelName ? channelToQueuePlatform(channelName) : null;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(copyPayload);
@@ -73,18 +160,23 @@ function PostCard({ post }: { post: Post }) {
 
   return (
     <div className={`rounded-2xl border ${meta.border} ${meta.bg} p-4 space-y-3`}>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${meta.badge}`}>
           <Icon className="w-3 h-3" />
           {meta.label}
         </span>
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors px-2 py-1 rounded-lg hover:bg-white"
-        >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? "Copied" : "Copy"}
-        </button>
+        <div className="flex items-center gap-1 flex-wrap">
+          {queuePlatform && playbookId && (
+            <ScheduleButton content={copyPayload} platform={queuePlatform} playbookId={playbookId} />
+          )}
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors px-2 py-1 rounded-lg hover:bg-white"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? "Copied" : "Copy"}
+          </button>
+        </div>
       </div>
       {post.title && (
         <p className="text-sm font-bold text-[#1a1a2e] leading-snug">{post.title}</p>
@@ -157,12 +249,13 @@ function RedditPostCard({ post }: { post: Post }) {
 }
 
 function ChannelSection({
-  content, onRegenerate, regenerating, readOnly,
+  content, onRegenerate, regenerating, readOnly, playbookId,
 }: {
   content: ChannelContent;
   onRegenerate: (channelName: string) => void;
   regenerating: boolean;
   readOnly: boolean;
+  playbookId?: string;
 }) {
   return (
     <div className="space-y-3">
@@ -183,7 +276,7 @@ function ChannelSection({
         {content.posts.map((post, idx) =>
           post.type === "reddit_subreddit"
             ? <RedditPostCard key={idx} post={post} />
-            : <PostCard key={post.type} post={post} />
+            : <PostCard key={post.type} post={post} playbookId={playbookId} channelName={content.channelName} />
         )}
       </div>
     </div>
@@ -590,6 +683,7 @@ export function WeeklyContentEngine({ playbook }: Props) {
               onRegenerate={handleRegenerate}
               regenerating={regeneratingChannel === content.channelName}
               readOnly={readOnly}
+              playbookId={playbook.id}
             />
           ))}
         </div>

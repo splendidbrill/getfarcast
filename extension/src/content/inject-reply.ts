@@ -117,7 +117,7 @@ const SHADOW_INPUT_HOSTS = [
     'comment-composer-host',
 ];
 
-function findNearestInput(anchor: HTMLElement): HTMLElement | null {
+export function findNearestInput(anchor: HTMLElement): HTMLElement | null {
     // 1. Light DOM — fast path for Twitter / LinkedIn
     for (const ancestor of ancestors(anchor, 20)) {
         const el = ancestor.querySelector<HTMLElement>(INPUT_SELECTOR);
@@ -141,7 +141,7 @@ function findNearestInput(anchor: HTMLElement): HTMLElement | null {
 
 // For React-controlled inputs we must go through execCommand so the framework
 // sees the mutation as a user-initiated input event.
-function injectText(el: HTMLElement, text: string) {
+export function injectText(el: HTMLElement, text: string) {
     el.focus();
     if (el instanceof HTMLTextAreaElement) {
         // React overrides the value setter, so restore the native one first.

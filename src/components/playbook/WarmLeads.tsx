@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ExternalLink, RefreshCw, Layers, BookOpen, MessageSquare, X, Copy, Check, Search, Loader2 } from "lucide-react";
+import { ExternalLink, RefreshCw, Layers, BookOpen, MessageSquare, X, Copy, Check, Search, Loader2, Globe } from "lucide-react";
 import { ChromeExtensionModal } from "@/components/ChromeExtensionModal";
 import { useExtensionDetected, getExtModalDismissed, setExtModalDismissed } from "@/hooks/useExtensionDetected";
 import type { ICPProfile } from "@/lib/types";
@@ -121,11 +121,39 @@ export function WarmLeads({
         !loading &&
         leads.length === 0;
 
+    // Lead Enrichment state
+    const [enrichUrl, setEnrichUrl] = useState("");
+    const [enriching, setEnriching] = useState(false);
+    const [enrichDm, setEnrichDm] = useState<string | null>(null);
+    const [enrichCopied, setEnrichCopied] = useState(false);
+    const [enrichError, setEnrichError] = useState<string | null>(null);
+
     // DM Modal State
     const [dmLead, setDmLead] = useState<Lead | null>(null);
     const [isGeneratingDm, setIsGeneratingDm] = useState(false);
     const [dmText, setDmText] = useState("");
     const [copiedDm, setCopiedDm] = useState(false);
+
+    const handleEnrich = async () => {
+        if (!enrichUrl.trim()) return;
+        setEnriching(true);
+        setEnrichDm(null);
+        setEnrichError(null);
+        try {
+            const res = await fetch("/api/agent/recon/lead", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ companyUrl: enrichUrl.trim() }),
+            });
+            const json = await res.json();
+            if (!res.ok) throw new Error(json.error ?? "Enrichment failed");
+            setEnrichDm(json.dm ?? "No DM generated");
+        } catch (err) {
+            setEnrichError(err instanceof Error ? err.message : "Enrichment failed");
+        } finally {
+            setEnriching(false);
+        }
+    };
 
     const handleGenerateDm = async (lead: Lead) => {
         setDmLead(lead);
@@ -437,6 +465,59 @@ export function WarmLeads({
                     </div>
                 </div>
             )}
+
+            {/* Lead Enrichment */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-[#ff6b4e]" />
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Lead Enrichment</p>
+                </div>
+                <p className="text-xs text-gray-400">
+                    Paste a company URL and Hermes will visit the site and draft a personalised cold DM for you.
+                </p>
+                <div className="flex gap-2">
+                    <input
+                        type="url"
+                        value={enrichUrl}
+                        onChange={(e) => setEnrichUrl(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && !enriching && void handleEnrich()}
+                        placeholder="https://prospect-company.com"
+                        className="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-[#ff6b4e] transition"
+                    />
+                    <button
+                        onClick={handleEnrich}
+                        disabled={enriching || !enrichUrl.trim()}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#ff6b4e] text-white text-xs font-bold hover:bg-[#e85a3e] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {enriching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Globe className="w-3.5 h-3.5" />}
+                        {enriching ? "Enriching…" : "Enrich"}
+                    </button>
+                </div>
+                {enrichError && (
+                    <p className="text-xs text-red-500 font-medium">{enrichError}</p>
+                )}
+                {enrichDm && (
+                    <div className="space-y-2">
+                        <textarea
+                            value={enrichDm}
+                            onChange={(e) => setEnrichDm(e.target.value)}
+                            rows={4}
+                            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm text-[#1a1a2e] leading-relaxed outline-none focus:border-[#ff6b4e] resize-none transition"
+                        />
+                        <button
+                            onClick={() => {
+                                navigator.clipboard.writeText(enrichDm);
+                                setEnrichCopied(true);
+                                setTimeout(() => setEnrichCopied(false), 2000);
+                            }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition"
+                        >
+                            {enrichCopied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+                            {enrichCopied ? "Copied!" : "Copy DM"}
+                        </button>
+                    </div>
+                )}
+            </div>
 
             {/* Controls */}
             <div className="flex items-center justify-between flex-wrap gap-3">
