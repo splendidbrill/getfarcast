@@ -1,4 +1,3 @@
-import { load } from "cheerio";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getLLMClient, getModelId } from "@/lib/llm";
@@ -39,13 +38,14 @@ export async function POST(request: Request) {
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
     const cleanSub = subreddit.replace(/^r\//, "").trim();
-    const url = `https://old.reddit.com/r/${cleanSub}/top/?sort=top&t=day`;
+
+    // Use Reddit's JSON API — works from server/cloud IPs unlike old.reddit.com HTML
+    const url = `https://www.reddit.com/r/${cleanSub}/top.json?t=day&limit=25`;
 
     const res = await fetch(url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; Farcast/1.0 research tool)",
-        Accept: "text/html,application/xhtml+xml",
-        "Accept-Language": "en-US,en;q=0.9",
+        "User-Agent": "farcast-recon/1.0 (content intelligence tool)",
+        Accept: "application/json",
       },
       signal: AbortSignal.timeout(15000),
     });
@@ -57,18 +57,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const html = await res.text();
-    const $ = load(html);
+    const data = await res.json() as {
+      data: { children: Array<{ data: { title: string; score: number; num_comments: number } }> };
+    };
 
-    const posts: RedditPost[] = [];
-    $("div.thing").slice(0, 20).each((_, el) => {
-      const $el = $(el);
-      const title = $el.find("a.title").first().text().trim();
-      const score = parseInt($el.attr("data-score") ?? "0", 10);
-      const commentsRaw = $el.find("a.bylink.comments").first().text().trim();
-      const comments = parseInt(commentsRaw.replace(/\D/g, ""), 10) || 0;
-      if (title) posts.push({ title, score, comments });
-    });
+    const posts: RedditPost[] = (data.data?.children ?? [])
+      .map((child) => ({
+        title: child.data.title,
+        score: child.data.score,
+        comments: child.data.num_comments,
+      }))
+      .filter((p) => p.title);
 
     if (posts.length === 0) {
       return Response.json(
