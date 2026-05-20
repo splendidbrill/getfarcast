@@ -20,6 +20,26 @@ interface RedditBrief {
   contentAngles: string[];
 }
 
+async function fetchTopPosts(subreddit: string): Promise<RedditPost[]> {
+  const after = Math.floor(Date.now() / 1000) - 86400; // last 24 hours
+  const url = `https://api.pullpush.io/reddit/search/submission/?subreddit=${encodeURIComponent(subreddit)}&sort=score&size=25&after=${after}`;
+
+  const res = await fetch(url, {
+    headers: { "User-Agent": "farcast-recon/1.0" },
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!res.ok) throw new Error(`Reddit fetch failed: ${res.status}`);
+
+  const data = await res.json() as {
+    data: Array<{ title: string; score: number; num_comments: number }>;
+  };
+
+  return (data.data ?? [])
+    .map((p) => ({ title: p.title, score: p.score, comments: p.num_comments }))
+    .filter((p) => p.title);
+}
+
 export async function POST(request: Request) {
   try {
     const { subreddit, playbookId } = (await request.json()) as {
@@ -32,42 +52,11 @@ export async function POST(request: Request) {
     }
 
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
     const cleanSub = subreddit.replace(/^r\//, "").trim();
-
-    // Use Reddit's JSON API — works from server/cloud IPs unlike old.reddit.com HTML
-    const url = `https://www.reddit.com/r/${cleanSub}/top.json?t=day&limit=25`;
-
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "farcast-recon/1.0 (content intelligence tool)",
-        Accept: "application/json",
-      },
-      signal: AbortSignal.timeout(15000),
-    });
-
-    if (!res.ok) {
-      return Response.json(
-        { error: `Reddit fetch failed: ${res.status}` },
-        { status: 502 }
-      );
-    }
-
-    const data = await res.json() as {
-      data: { children: Array<{ data: { title: string; score: number; num_comments: number } }> };
-    };
-
-    const posts: RedditPost[] = (data.data?.children ?? [])
-      .map((child) => ({
-        title: child.data.title,
-        score: child.data.score,
-        comments: child.data.num_comments,
-      }))
-      .filter((p) => p.title);
+    const posts = await fetchTopPosts(cleanSub);
 
     if (posts.length === 0) {
       return Response.json(
@@ -77,10 +66,7 @@ export async function POST(request: Request) {
     }
 
     const postsText = posts
-      .map(
-        (p, i) =>
-          `${i + 1}. [${p.score} upvotes | ${p.comments} comments] "${p.title}"`
-      )
+      .map((p, i) => `${i + 1}. [${p.score} upvotes | ${p.comments} comments] "${p.title}"`)
       .join("\n");
 
     const client = getLLMClient();
