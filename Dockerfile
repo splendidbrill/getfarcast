@@ -5,9 +5,6 @@ WORKDIR /app
 # Install build dependencies required for native modules
 RUN apt-get update && apt-get install -y python3 build-essential && rm -rf /var/lib/apt/lists/*
 
-# Store Playwright browsers inside /app so we can COPY them to the runner
-ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
-
 COPY package.json ./
 RUN npm install --include=optional
 
@@ -34,6 +31,7 @@ RUN npm run build
 FROM node:20 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
 
 # Install Chromium system dependencies
 RUN apt-get update && apt-get install -y \
@@ -43,25 +41,21 @@ RUN apt-get update && apt-get install -y \
     libgbm1 libpango-1.0-0 libcairo2 libasound2 \
     && rm -rf /var/lib/apt/lists/*
 
-ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
-
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.playwright /app/.playwright
 
-# Playwright and stealth plugin are in serverExternalPackages so Next.js standalone
-# does not bundle them — copy the packages explicitly so they can be required at runtime
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/playwright ./node_modules/playwright
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/playwright-core ./node_modules/playwright-core
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/playwright-extra ./node_modules/playwright-extra
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/puppeteer-extra-plugin-stealth ./node_modules/puppeteer-extra-plugin-stealth
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/puppeteer-extra-plugin ./node_modules/puppeteer-extra-plugin
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/merge-deep ./node_modules/merge-deep
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/clone-deep ./node_modules/clone-deep
+# Install playwright + plugins fresh so npm resolves the full dependency tree correctly.
+# Copying individual packages from the builder leaves transitive deps missing.
+RUN npm install --no-save --no-audit --no-fund \
+      playwright playwright-extra \
+      puppeteer-extra-plugin-stealth puppeteer-extra-plugin \
+      merge-deep clone-deep \
+    && npx playwright install chromium \
+    && chown -R nextjs:nodejs /app/node_modules /app/.playwright
 
 USER nextjs
 EXPOSE 3000
