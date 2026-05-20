@@ -53,6 +53,16 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.playwright /app/.playwright
 
+# Playwright and stealth plugin are in serverExternalPackages so Next.js standalone
+# does not bundle them — copy the packages explicitly so they can be required at runtime
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/playwright ./node_modules/playwright
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/playwright-core ./node_modules/playwright-core
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/playwright-extra ./node_modules/playwright-extra
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/puppeteer-extra-plugin-stealth ./node_modules/puppeteer-extra-plugin-stealth
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/puppeteer-extra-plugin ./node_modules/puppeteer-extra-plugin
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/merge-deep ./node_modules/merge-deep
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/clone-deep ./node_modules/clone-deep
+
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
