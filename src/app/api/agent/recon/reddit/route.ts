@@ -21,23 +21,32 @@ interface RedditBrief {
 }
 
 async function fetchTopPosts(subreddit: string): Promise<RedditPost[]> {
-  const after = Math.floor(Date.now() / 1000) - 86400; // last 24 hours
-  const url = `https://api.pullpush.io/reddit/search/submission/?subreddit=${encodeURIComponent(subreddit)}&sort=score&size=25&after=${after}`;
+  const sub = encodeURIComponent(subreddit);
+  const base = `https://api.pullpush.io/reddit/search/submission/?subreddit=${sub}&sort=score&size=25`;
 
-  const res = await fetch(url, {
-    headers: { "User-Agent": "farcast-recon/1.0" },
-    signal: AbortSignal.timeout(15000),
-  });
+  // Try last 7 days first; fall back to no time filter if empty (indexing delays)
+  const after7d = Math.floor(Date.now() / 1000) - 7 * 86400;
+  const urls = [`${base}&after=${after7d}`, base];
 
-  if (!res.ok) throw new Error(`Reddit fetch failed: ${res.status}`);
+  for (const url of urls) {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "farcast-recon/1.0" },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) throw new Error(`Reddit fetch failed: ${res.status}`);
 
-  const data = await res.json() as {
-    data: Array<{ title: string; score: number; num_comments: number }>;
-  };
+    const data = await res.json() as {
+      data: Array<{ title: string; score: number; num_comments: number }>;
+    };
 
-  return (data.data ?? [])
-    .map((p) => ({ title: p.title, score: p.score, comments: p.num_comments }))
-    .filter((p) => p.title);
+    const posts = (data.data ?? [])
+      .map((p) => ({ title: p.title, score: p.score, comments: p.num_comments }))
+      .filter((p) => p.title);
+
+    if (posts.length > 0) return posts;
+  }
+
+  return [];
 }
 
 export async function POST(request: Request) {
