@@ -31,8 +31,8 @@ ENV NEXT_PUBLIC_PAYMENT_PROVIDER=$NEXT_PUBLIC_PAYMENT_PROVIDER
 
 RUN npm run build
 
-# Stage 2: Production runner — use slim to save ~800MB vs node:20
-FROM node:20-slim AS runner
+# Stage 2: Production runner
+FROM node:20 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
