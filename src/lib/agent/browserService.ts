@@ -40,6 +40,7 @@ export async function withBrowser<T>(
   try {
     const proxy = useProxy ? buildProxyConfig() : undefined;
     browser = (await chromium.launch({
+      executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || undefined,
       args: EC2_ARGS,
       headless: true,
       ...(proxy ? { proxy } : {}),
