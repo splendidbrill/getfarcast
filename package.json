@@ -7,7 +7,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "playwright install --with-deps chromium"
+    "postinstall": "node -e \"if(!process.env.DOCKER_BUILD) require('child_process').execSync('playwright install --with-deps chromium', {stdio:'inherit'});\""
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1039.0",

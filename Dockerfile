@@ -2,6 +2,10 @@
 FROM node:20 AS builder
 WORKDIR /app
 
+# Skip Playwright browser download in builder — only needed in the runner
+ENV DOCKER_BUILD=1
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
 # Install build dependencies required for native modules
 RUN apt-get update && apt-get install -y python3 build-essential && rm -rf /var/lib/apt/lists/*
 
@@ -27,8 +31,8 @@ ENV NEXT_PUBLIC_PAYMENT_PROVIDER=$NEXT_PUBLIC_PAYMENT_PROVIDER
 
 RUN npm run build
 
-# Stage 2: Production runner
-FROM node:20 AS runner
+# Stage 2: Production runner — use slim to save ~800MB vs node:20
+FROM node:20-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
@@ -48,13 +52,13 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Install playwright + plugins fresh so npm resolves the full dependency tree correctly.
-# Copying individual packages from the builder leaves transitive deps missing.
+# Install playwright + stealth fresh and clean cache to keep image small
 RUN npm install --no-save --no-audit --no-fund \
       playwright playwright-extra \
       puppeteer-extra-plugin-stealth puppeteer-extra-plugin \
       merge-deep clone-deep \
     && npx playwright install chromium \
+    && npm cache clean --force \
     && chown -R nextjs:nodejs /app/node_modules /app/.playwright
 
 USER nextjs
