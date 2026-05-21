@@ -1,0 +1,1914 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Farcast — Dashboard</title>
+<meta name="viewport" content="width=1440" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        },
+        colors: {
+          ink:    '#171717',
+          ink2:   '#3F3F3F',
+          mute:   '#737373',
+          mute2:  '#A3A3A3',
+          line:   '#E7E5E0',
+          line2:  '#EFEDE7',
+          paper:  '#FAFAF7',
+          card:   '#FFFFFF',
+          tint:   '#F6F4EF',
+          coral:  '#F04E23',
+          coral2: '#D84111',
+          coraltint: '#FFF1EC',
+          ok:     '#15803D',
+          oktint: '#ECFDF3',
+          warn:   '#B45309',
+          warntint:'#FEF7E6',
+        },
+        boxShadow: { none: 'none' },
+      },
+    },
+  };
+</script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  html, body { background:#FAFAF7; }
+  body { font-family:'Inter', system-ui, sans-serif; color:#171717; -webkit-font-smoothing:antialiased; }
+  .mono { font-family:'JetBrains Mono', ui-monospace, monospace; font-feature-settings:'ss01','ss02','cv11'; }
+  .hairline { box-shadow: inset 0 0 0 1px #E7E5E0; }
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(0,0,0,0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0,0,0,0.025) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  /* tiny pulsing dot */
+  @keyframes livepulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.55; transform:scale(.85); } }
+  .live-dot { animation: livepulse 1.6s ease-in-out infinite; }
+  /* scrollbar tame */
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb { background:#E7E5E0; border-radius:8px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  /* focus rings */
+  button:focus-visible, [role="tab"]:focus-visible { outline: 2px solid #F04E23; outline-offset: 2px; border-radius:6px; }
+  /* shimmer for voice score bar */
+  @keyframes shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
+  .shimmer { background:linear-gradient(90deg, #F04E23 0%, #F89478 50%, #F04E23 100%); background-size:400px 100%; animation: shimmer 3.5s linear infinite; }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+
+
+const { useState, useEffect, useMemo, useRef } = React;
+
+/* ---------- tiny icon helper using lucide-react via lucide umd ---------- */
+const Icon = ({ name, size = 16, stroke = 1.75, className = '' }) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!ref.current || !window.lucide) return;
+    ref.current.innerHTML = '';
+    const node = window.lucide.createElement(window.lucide.icons[name] || window.lucide.icons['Square']);
+    node.setAttribute('width', size);
+    node.setAttribute('height', size);
+    node.setAttribute('stroke-width', stroke);
+    node.classList.add(...className.split(' ').filter(Boolean));
+    ref.current.appendChild(node);
+  }, [name, size, stroke, className]);
+  return <span ref={ref} className="inline-flex shrink-0 items-center justify-center" />;
+};
+
+/* ---------- data ---------- */
+const DRAFTS = {
+  x: [
+  {
+    angle: 'Insight / Quote',
+    length: 187,
+    max: 280,
+    text: `if you're replying to strangers on reddit for hours, you're just a free intern for your future competitor.\n\nautomate the part that scales (distribution). keep the part that doesn't (your taste).`,
+    voice: 94,
+    rationale: `Extracted "Before/After" framework from competitor @notion's viral post (3.2x engagement vs baseline). Adapted to your ICP (B2B indie founders).\nMatched cadence: short → long → punchline. Pulled "free intern" idiom from your 04-21 daily log.`,
+    tags: ['hook: contrarian', 'pattern: before/after', 'cta: implicit']
+  },
+  {
+    angle: 'Build-in-public',
+    length: 224,
+    max: 280,
+    text: `shipped the lead-scoring v2 last night.\n\nold: keyword match → 41% precision.\nnew: ICP embeddings + intent stack → 87%.\n\nthe difference between an inbox and a goldmine is one good filter.`,
+    voice: 91,
+    rationale: `Pulled metrics directly from your 05-18 commit ("scoring v2 deploy"). Used your house format (old/new compare → maxim) seen in 6 of your last 10 top posts.`,
+    tags: ['hook: receipt', 'pattern: compare', 'cta: implicit']
+  },
+  {
+    angle: 'Pain reframe',
+    length: 196,
+    max: 280,
+    text: `"i'll do marketing once the product is ready."\n\nthe product is never ready. distribution is the product.\n\nstart shipping signal the day you start shipping code — they compound on the same curve.`,
+    voice: 88,
+    rationale: `Counter-narrative to a saved bookmark in your library ("marketing later"). Inverted the premise (Hermes pattern #14) to stake a contrarian position your audience over-indexes on.`,
+    tags: ['hook: reframe', 'pattern: inversion', 'cta: implicit']
+  }],
+
+  linkedin: [
+  {
+    angle: 'Founder Story',
+    length: 612,
+    max: 3000,
+    text: `Three weeks ago we almost shut Farcast down.\n\nThe MVP worked but every demo ended the same way — "looks cool, but I don't have time to babysit another tool."\n\nSo we stopped building features. We turned the product into an operator.\n\nIt now writes, scores leads, and queues replies while you sleep. The only thing left for you to do is press send.\n\nGrowth went 4.1x in 14 days. Sometimes the unlock is subtraction.`,
+    voice: 89,
+    rationale: `Long-form story arc (setback → insight → result). Modeled on the top-3 LinkedIn shapes for B2B SaaS founders (avg 2.8x reach vs status updates). Numbers pulled from your live metrics.`,
+    tags: ['hook: confession', 'pattern: arc', 'cta: implicit']
+  },
+  {
+    angle: 'Lesson learned',
+    length: 488,
+    max: 3000,
+    text: `Cold outbound on LinkedIn isn't dead. Generic cold outbound is.\n\nWe tested 412 DMs across two cohorts:\n\n→ Templated: 1.8% reply rate\n→ Context-aware (referenced their last 3 posts): 22.6%\n\nThe lesson: attention is rented from people who feel seen. Pay rent.`,
+    voice: 86,
+    rationale: `Data-led format — your audience over-indexes on numeric posts (avg 1.9x dwell time). Numbers approximated from this week's outbound logs; verify before publishing.`,
+    tags: ['hook: claim', 'pattern: receipt', 'cta: maxim']
+  },
+  {
+    angle: 'Hot take',
+    length: 392,
+    max: 3000,
+    text: `Most "growth hacks" are just unpaid labor with extra steps.\n\nIf the playbook requires you to reply to 200 strangers a day, that's not growth — that's a part-time job you forgot to quote yourself for.\n\nThe real unlock is replacing the human hours, not romanticizing them.`,
+    voice: 84,
+    rationale: `Contrarian opener tuned to your existing thread on hustle culture (top performer, 05-02). Slightly spicier than your baseline — flagged for review.`,
+    tags: ['hook: contrarian', 'pattern: reframe', 'cta: implicit']
+  }],
+
+  reddit: [
+  {
+    angle: 'r/SaaS — value comment',
+    length: 412,
+    max: 10000,
+    text: `Re: "How are you handling distribution without a marketing hire?"\n\nThree things that moved the needle for us at <100 MRR:\n\n1) Pick ONE channel for 30 days. We picked Reddit.\n2) Read 10 threads a day before posting any. Pattern-match what gets upvoted in your sub.\n3) Comment > Post for the first 2 weeks. Karma + context.\n\nHappy to share our spreadsheet if useful.`,
+    voice: 92,
+    rationale: `Value-first reply matched to a high-signal thread (87 comments, OP active). Subreddit rules checked — promotional content disallowed in top-level posts, allowed in helpful comments with disclosure.`,
+    tags: ['hook: numbered', 'pattern: receipt', 'cta: offer']
+  },
+  {
+    angle: 'r/Entrepreneur — story',
+    length: 528,
+    max: 10000,
+    text: `Spent 6 months building. 0 users.\nSpent 2 weeks distributing. 340 users.\n\nThe ratio was the lesson. Code is cheap. Attention is expensive.`,
+    voice: 87,
+    rationale: `Short-form story — fits subreddit's preference for digestible founder anecdotes. Avoids "buy my thing" language flagged by mods last week.`,
+    tags: ['hook: contrast', 'pattern: arc', 'cta: implicit']
+  }]
+
+};
+
+const LEADS = {
+  x: [
+  {
+    handle: '@maya.builds', name: 'Maya Chen', avatar: 'MC',
+    heat: 'hot', score: 92, when: '12m', ctx: 'replied to @swyx',
+    post: `honest q — is there anyone shipping a real "growth operator" yet or is it all just GPT-wrapped scheduling tools? i have founder-led growth fatigue and i can't keep doing this manually.`,
+    reply: `oof i feel this — i spent most of feb being the "growth operator" for our own thing.\n\nthe shape we ended up building was: it watches your channels, drafts in your voice, queues the replies, and you press send. the bottleneck moved from doing it to approving it, which is roughly a 10x trade.\n\nhappy to send you the loom if useful — no pitch, just the workflow.`,
+    reason: 'Pain match: 0.93 · Voice fit: 91 · No prior contact'
+  },
+  {
+    handle: '@danielops', name: 'Daniel Park', avatar: 'DP',
+    heat: 'warm', score: 78, when: '46m', ctx: 'quoting @rauchg',
+    post: `the thing nobody tells indie founders: distribution is a full-time job that pays $0/hr until month 9.`,
+    reply: `the bill comes due either way — you pay it in hours now or in opportunity cost later.\n\nthe trick we found: separate "deciding what to say" (you) from "actually saying it 40x/day" (automated). doesn't remove the work, but it puts your hours in the right column.`,
+    reason: 'Pain match: 0.81 · Voice fit: 88 · 2 mutuals'
+  },
+  {
+    handle: '@indie_priya', name: 'Priya N.', avatar: 'PN',
+    heat: 'warm', score: 71, when: '1h 02m', ctx: 'replied to @levelsio',
+    post: `looking for a tool that doesn't try to write for me but helps me find the right threads to be in. anyone?`,
+    reply: `we built one of these (and i'll admit, we do also draft — but it's optional). the "find the right thread" part runs on ICP embeddings + intent signals, not just keywords.\n\nwant me to point it at your account and DM you the top 10 threads from this week? takes about 4 min.`,
+    reason: 'Explicit ask · Voice fit: 84 · Tier-1 ICP'
+  }],
+
+  linkedin: [
+  {
+    handle: 'sarah-okafor', name: 'Sarah Okafor', avatar: 'SO',
+    heat: 'hot', score: 89, when: '23m', ctx: 'Head of Growth, Acme',
+    post: `Spent the morning trying to find a tool that drafts LinkedIn posts in my actual voice — every demo sounded like ChatGPT in a blazer. Is this just an unsolved problem?`,
+    reply: `Not unsolved — but most tools learn from your last 5 posts, which is far too small a sample to capture voice.\n\nThe approach that worked for us: train on your full archive + your "anti-examples" (posts you'd never write). The negative space is where voice actually lives.\n\nHappy to send a sample drafted from your last 90 days if useful — takes ~10 minutes to set up.`,
+    reason: 'Pain match: 0.96 · Voice fit: 87 · Decision maker'
+  },
+  {
+    handle: 'tomasz-w', name: 'Tomasz W.', avatar: 'TW',
+    heat: 'warm', score: 74, when: '58m', ctx: 'Founder, Stagehand',
+    post: `Spending 3 hours a day on LinkedIn engagement. There has to be a better way to identify which posts are worth my reply.`,
+    reply: `Three hours is the tax — and it gets worse as your network grows.\n\nWe scope the reply candidates by (a) author tier, (b) early-momentum signal in first 30 min, (c) topical match to your last quarter. Cuts the daily pool from ~300 to ~12.\n\nWant the filter logic? Happy to share the doc.`,
+    reason: 'Pain match: 0.82 · Voice fit: 80 · 1st-degree'
+  }],
+
+  reddit: [
+  {
+    handle: 'u/ship_or_die', name: 'ship_or_die', avatar: 'SD',
+    sub: 'r/SaaS', heat: 'hot', score: 84, when: '34m',
+    post: `i'm a solo founder with $0 marketing budget and i keep getting told "just do content." cool. who's doing the content? me, at 11pm, badly, after shipping all day. is there literally any tool that makes this not awful?`,
+    reply: `Solo founder here too — went through exactly this last year.\n\nThe thing that broke the loop for me wasn't a "content tool" — it was separating two jobs:\n\n1) Deciding what to say (still you, takes 10 min/day reading the log)\n2) Drafting + queuing it (offloaded — anything that captures your voice works)\n\nIf you want, DM me and I'll share the daily 10-min ritual we run. No paid tools required to start.`,
+    reason: 'Pain match: 0.91 · Voice fit: 89 · Subreddit-safe'
+  },
+  {
+    handle: 'u/cold_brew_dev', name: 'cold_brew_dev', avatar: 'CB',
+    sub: 'r/Entrepreneur', heat: 'warm', score: 69, when: '1h 41m',
+    post: `is anyone actually getting customers from reddit or is it all just karma farming with extra steps`,
+    reply: `Got our first 60 paying customers from r/SaaS and r/Entrepreneur — but not from posting. From answering questions in comments for 6 weeks before ever linking out.\n\nThe heuristic: if your comment would be valuable even with the link removed, it's safe to post. If it isn't, mods will (correctly) eat you.`,
+    reason: 'Pain match: 0.74 · Voice fit: 85 · Karma OK'
+  }]
+
+};
+
+/* ---------- atoms ---------- */
+const Tag = ({ children, tone = 'mute', className = '' }) => {
+  const tones = {
+    mute: 'bg-tint text-ink2 ring-line',
+    coral: 'bg-coraltint text-coral2 ring-coral/30',
+    ok: 'bg-oktint text-ok ring-ok/20',
+    warn: 'bg-warntint text-warn ring-warn/20',
+    ink: 'bg-ink text-white ring-ink'
+  };
+  return (
+    <span className={`mono inline-flex items-center gap-1 rounded-[5px] px-1.5 py-[2px] text-[10.5px] uppercase tracking-[0.08em] ring-1 ring-inset ${tones[tone]} ${className}`}>
+      {children}
+    </span>);
+
+};
+
+const Kbd = ({ children }) =>
+<kbd className="mono inline-flex h-5 min-w-[20px] items-center justify-center rounded-[4px] bg-white px-1 text-[10.5px] text-mute ring-1 ring-inset ring-line">{children}</kbd>;
+
+
+const Divider = ({ className = '' }) => <div className={`h-px w-full bg-line ${className}`} />;
+
+/* ---------- sidebar ---------- */
+const NAV = [
+{ id: 'dashboard', icon: 'LayoutDashboard', label: 'Dashboard' },
+{ id: 'playbook', icon: 'BookOpen', label: 'Growth Playbook' },
+{ id: 'leads', icon: 'Flame', label: 'Warm Leads' },
+{ id: 'hacks', icon: 'Sparkle', label: 'Growth Hacks' },
+{ id: 'channels', icon: 'Network', label: 'Distribution Channels' },
+{ id: 'settings', icon: 'Settings', label: 'Settings' }];
+
+
+const Sidebar = ({ active, onChange }) =>
+<aside className="sticky top-0 flex h-screen w-[60px] shrink-0 flex-col items-center border-r border-line bg-paper">
+    <div className="flex h-14 w-full items-center justify-center border-b border-line">
+      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-ink text-white">
+        <Icon name="Zap" size={16} stroke={2} />
+      </div>
+    </div>
+    <nav className="flex flex-1 flex-col items-center gap-1 py-4">
+      {NAV.map((n) => {
+      const isActive = active === n.id;
+      return (
+        <button key={n.id} title={n.label} onClick={() => onChange(n.id)}
+        className={`group relative flex h-9 w-9 items-center justify-center rounded-md transition
+              ${isActive ? 'bg-ink text-white' : 'text-mute hover:bg-tint hover:text-ink'}`}>
+            <Icon name={n.icon} size={16} stroke={1.75} />
+            {isActive && <span className="absolute -left-[1px] top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-r-full bg-coral" />}
+            <span className="pointer-events-none absolute left-[52px] z-50 hidden whitespace-nowrap rounded-md bg-ink px-2 py-1 mono text-[10.5px] text-white group-hover:block">{n.label.toLowerCase()}</span>
+          </button>);
+
+    })}
+    </nav>
+    <div className="flex flex-col items-center gap-2 pb-4">
+      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ink mono text-[11px] font-medium text-white">AK</div>
+    </div>
+  </aside>;
+
+
+/* ---------- top bar ---------- */
+const TopBar = ({ section }) =>
+<header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-paper/90 px-8 backdrop-blur">
+    <div className="flex items-center gap-6">
+      <div className="flex items-baseline gap-2">
+        <span className="text-[15px] font-semibold tracking-tight">farcast</span>
+        <span className="mono text-[11px] text-mute2">/</span>
+        <span className="text-[13px] text-mute lowercase">{section}</span>
+      </div>
+      <div className="hidden items-center gap-2 md:flex">
+        <Tag tone="ok"><span className="live-dot h-1.5 w-1.5 rounded-full bg-ok" /> autopilot · on</Tag>
+        <Tag tone="mute">v 2.4.0</Tag>
+      </div>
+    </div>
+    <div className="flex items-center gap-2">
+      <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-2.5 text-[12px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+        <Icon name="Search" size={14} /> jump to <Kbd>⌘</Kbd><Kbd>K</Kbd>
+      </button>
+      <button className="flex h-8 w-8 items-center justify-center rounded-md bg-white text-ink2 ring-1 ring-inset ring-line hover:bg-tint"><Icon name="Bell" size={14} /></button>
+      <button className="flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[12.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+        <Icon name="Share2" size={14} /> share
+      </button>
+      <button className="flex h-8 items-center gap-1.5 rounded-md bg-coral px-3 text-[12.5px] font-medium text-white ring-1 ring-inset ring-coral2 hover:bg-coral2">
+        <Icon name="Download" size={14} /> download extension
+      </button>
+    </div>
+  </header>;
+
+
+/* ---------- greeting + stats ---------- */
+const STATS = [
+{ k: 'posts drafted', v: 8, delta: '+3 vs avg', tone: 'ok', icon: 'PenLine' },
+{ k: 'warm leads', v: 7, delta: '2 hot', tone: 'coral', icon: 'Flame' },
+{ k: 'replies queued', v: 12, delta: 'rate-safe', tone: 'ok', icon: 'Send' },
+{ k: 'streak · days', v: 11, delta: 'personal best', tone: 'mute', icon: 'Flame' }];
+
+
+const StatChip = ({ k, v, delta, tone, icon }) =>
+<div className="flex min-w-[150px] flex-1 items-center gap-3 border-l border-line pl-4 first:border-0 first:pl-0">
+    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-tint text-ink2">
+      <Icon name={icon} size={15} stroke={1.6} />
+    </div>
+    <div className="flex flex-col leading-tight">
+      <div className="flex items-baseline gap-2">
+        <span className="text-[22px] font-semibold tabular-nums tracking-tight">{v}</span>
+        <span className={`mono text-[10.5px] ${tone === 'coral' ? 'text-coral2' : tone === 'ok' ? 'text-ok' : 'text-mute'}`}>{delta}</span>
+      </div>
+      <span className="mono text-[10.5px] uppercase tracking-[0.1em] text-mute">{k}</span>
+    </div>
+  </div>;
+
+
+const Greeting = () => {
+  const today = new Date();
+  const fmt = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  return (
+    <section className="flex flex-col gap-6 px-8 pb-8 pt-8 lg:flex-row lg:items-end lg:justify-between">
+      <div className="max-w-[820px]">
+        <div className="mono mb-3 flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-mute">
+          <span className="h-1.5 w-1.5 rounded-full bg-coral live-dot" />
+          daily growth plan
+          <span className="text-mute2">·</span>
+          <span className="text-mute2">{fmt.toLowerCase()}</span>
+        </div>
+        <h1 className="text-[34px] font-semibold leading-[1.1] tracking-[-0.02em] sm:text-[40px]">
+          good morning,{' '}
+          <span className="text-mute">here's today's growth plan.</span>
+        </h1>
+        <p className="mono mt-3 max-w-[640px] text-[12px] leading-relaxed text-mute">
+          Farcast ran 6h 14m overnight · scanned 14,208 posts · scored 412 leads · drafted 8 posts.  <span className="text-ink2"></span>
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center gap-0 rounded-md border border-line bg-card px-5 py-4">
+        {STATS.map((s) => <StatChip key={s.k} {...s} />)}
+      </div>
+    </section>);
+
+};
+
+/* ---------- segmented platform tabs ---------- */
+const PlatformTabs = ({ value, onChange, items }) =>
+<div role="tablist" className="inline-flex items-center gap-1 rounded-md bg-tint p-1 ring-1 ring-inset ring-line">
+    {items.map((it) => {
+    const active = it.id === value;
+    return (
+      <button key={it.id} role="tab" aria-selected={active} onClick={() => onChange(it.id)}
+      className={`mono group flex h-7 items-center gap-1.5 rounded-[5px] px-2.5 text-[11.5px] transition
+            ${active ? 'bg-card text-ink ring-1 ring-inset ring-line' : 'text-mute hover:text-ink'}`}>
+          <Icon name={it.icon} size={12} />
+          <span className="lowercase">{it.label}</span>
+          <span className={`mono text-[10px] ${active ? 'text-mute' : 'text-mute2'}`}>{it.count}</span>
+          {it.badge &&
+        <span className={`mono ml-1 rounded-[4px] px-1 py-[1px] text-[9px] uppercase tracking-wider
+              ${it.badge.tone === 'ok' ? 'bg-oktint text-ok' : it.badge.tone === 'warn' ? 'bg-warntint text-warn' : 'bg-coraltint text-coral2'}`}>
+              {it.badge.label}
+            </span>
+        }
+        </button>);
+
+  })}
+  </div>;
+
+
+/* ---------- voice-fit gauge ---------- */
+const VoiceGauge = ({ value }) => {
+  const w = `${value}%`;
+  const tone = value >= 90 ? 'ok' : value >= 80 ? 'coral' : 'warn';
+  const color = tone === 'ok' ? '#15803D' : tone === 'coral' ? '#F04E23' : '#B45309';
+  return (
+    <div className="flex items-center gap-2">
+      <div className="relative h-1.5 w-[120px] overflow-hidden rounded-full bg-line">
+        <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: w, background: color }} />
+      </div>
+      <span className="mono text-[11px] tabular-nums" style={{ color }}>{value}</span>
+    </div>);
+
+};
+
+/* ---------- content engine card ---------- */
+const ContentEngine = () => {
+  const [platform, setPlatform] = useState('x');
+  const [idx, setIdx] = useState(0);
+  const [toast, setToast] = useState(null);
+  const [regenerating, setRegen] = useState(false);
+  const drafts = DRAFTS[platform];
+  const cur = drafts[idx] || drafts[0];
+
+  useEffect(() => {setIdx(0);}, [platform]);
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 1800);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const tabs = [
+  { id: 'x', icon: 'Twitter', label: 'x', count: `(${DRAFTS.x.length})` },
+  { id: 'linkedin', icon: 'Linkedin', label: 'linkedin', count: `(${DRAFTS.linkedin.length})` },
+  { id: 'reddit', icon: 'MessageCircle', label: 'reddit', count: `(${DRAFTS.reddit.length})`, badge: { label: 'rate-safe', tone: 'ok' } }];
+
+
+  const handleCopy = () => {navigator.clipboard?.writeText(cur.text);setToast(`copied draft ${String(idx + 1).padStart(2, '0')} to clipboard`);};
+  const handleRegen = () => {setRegen(true);setTimeout(() => setRegen(false), 1500);};
+
+  return (
+    <article className="relative flex flex-col overflow-hidden rounded-lg border border-line bg-card">
+      {/* header */}
+      <div className="flex items-start justify-between gap-4 border-b border-line bg-paper/60 px-5 py-4">
+        <div>
+          <div className="mono mb-1 flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.12em] text-mute">
+            <span>card 01</span><span className="text-mute2">·</span><span className="text-coral2">CONTENT ENGINE</span>
+          </div>
+          <h2 className="text-[20px] font-semibold tracking-tight">today's content engine</h2>
+          <p className="mono mt-1 text-[11px] text-mute">8 drafts across 3 channels</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={handleRegen} className="mono flex h-7 items-center gap-1.5 rounded-md bg-white px-2.5 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+            <Icon name="RotateCw" size={12} className={regenerating ? 'animate-spin' : ''} /> regenerate all
+          </button>
+          <button className="mono flex h-7 items-center gap-1.5 rounded-md bg-white px-2.5 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+            <Icon name="MoreHorizontal" size={14} />
+          </button>
+        </div>
+      </div>
+
+      {/* platform tabs row */}
+      <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
+        <PlatformTabs value={platform} onChange={setPlatform} items={tabs} />
+        <div className="mono hidden items-center gap-3 text-[10.5px] text-mute md:flex">
+          <span>account safety:</span>
+          <span className="flex items-center gap-1 text-ok"><span className="h-1.5 w-1.5 rounded-full bg-ok" /> within limits</span>
+          <span className="text-mute2">·</span>
+          <span>posts/day · 4 of 8</span>
+        </div>
+      </div>
+
+      {/* draft cycler */}
+      <div className="flex items-center gap-2 border-b border-line bg-tint/40 px-5 py-2.5">
+        {drafts.map((d, i) =>
+        <button key={i} onClick={() => setIdx(i)}
+        className={`mono flex h-7 items-center gap-1.5 rounded-[5px] px-2 text-[11px] transition
+              ${i === idx ? 'bg-ink text-white' : 'bg-white text-mute ring-1 ring-inset ring-line hover:text-ink'}`}>
+            <span>draft {String(i + 1).padStart(2, '0')}</span>
+          </button>
+        )}
+        <button onClick={() => setIdx((idx - 1 + drafts.length) % drafts.length)} className="mono flex h-7 items-center gap-1.5 rounded-[5px] px-2 text-[11px] text-mute hover:text-ink">
+          <Icon name="ArrowLeft" size={12} /> prev
+        </button>
+        <button onClick={() => setIdx((idx + 1) % drafts.length)} className="mono flex h-7 items-center gap-1.5 rounded-[5px] px-2 text-[11px] text-mute hover:text-ink">
+          next <Icon name="ArrowRight" size={12} />
+        </button>
+        <div className="ml-auto mono text-[10.5px] text-mute"></div>
+      </div>
+
+      {/* draft body */}
+      <div className="flex flex-col gap-4 px-5 py-5">
+        {/* meta row */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Tag tone="ink" className="mono">{String(idx + 1).padStart(2, '0')} / {String(drafts.length).padStart(2, '0')}</Tag>
+            <span className="mono text-[11px] text-mute"></span>
+            <span className="mono text-[11px] text-ink">\n</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="mono text-[10.5px] uppercase tracking-[0.1em] text-mute">voice-fit</span>
+            <VoiceGauge value={cur.voice} />
+          </div>
+        </div>
+
+        {/* hermes rationale block */}
+        <details open className="rounded-md border border-line bg-tint/60">
+          <summary className="flex items-center justify-between gap-2 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span className="mono text-[10.5px] uppercase tracking-[0.12em] text-coral2">↳ hermes rationale</span>
+              <span className="mono text-[10.5px] text-mute">why this draft, in 3 lines</span>
+            </div>
+            <Icon name="ChevronDown" size={14} className="text-mute" />
+          </summary>
+          <div className="border-t border-line px-3 py-2.5">
+            <pre className="mono whitespace-pre-wrap text-[11.5px] leading-[1.65] text-ink2">{cur.rationale}</pre>
+            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+              {cur.tags.map((t) => <Tag key={t} tone="mute">{t}</Tag>)}
+            </div>
+          </div>
+        </details>
+
+        {/* draft text */}
+        <div className="relative rounded-md border border-line bg-white">
+          <div className="flex items-center justify-between border-b border-line px-3 py-1.5">
+            <span className="mono text-[10.5px] text-mute">{String(idx + 1).padStart(2, '0')} of {String(drafts.length).padStart(2, '0')}</span>
+            <span className="mono text-[10.5px] tabular-nums text-mute">
+              <span className={cur.length > cur.max * 0.9 ? 'text-warn' : 'text-mute'}>{cur.length}</span>
+              <span className="text-mute2"> / {cur.max}</span>
+            </span>
+          </div>
+          <div className="px-4 py-4">
+            <pre className="font-sans whitespace-pre-wrap text-[14px] leading-[1.6] text-ink">{cur.text}</pre>
+          </div>
+          <div className="flex items-center justify-between gap-2 border-t border-line bg-paper/60 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <button className="mono flex h-7 items-center gap-1.5 rounded-md bg-white px-2.5 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+                <Icon name="Pencil" size={12} /> edit
+              </button>
+              <button onClick={handleRegen} className="mono flex h-7 items-center gap-1.5 rounded-md bg-white px-2.5 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+                <Icon name="RotateCw" size={12} className={regenerating ? 'animate-spin' : ''} /> regenerate
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={handleCopy} className="mono flex h-8 items-center gap-1.5 rounded-md bg-coral px-3 text-[12px] font-medium text-white ring-1 ring-inset ring-coral2 hover:bg-coral2">
+                <Icon name="Copy" size={13} /> copy <Kbd>C</Kbd>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* footer micro-log */}
+        <div className="mono flex flex-wrap items-center gap-x-3 gap-y-1 text-[10.5px] text-mute">
+          <span className="text-mute2"></span>
+          <span>09:14 · hermes · drafted 3 · model: hermes-v2.4</span>
+          <span className="text-mute2">·</span>
+          <span></span>
+          <span className="text-mute2"></span>
+          <span> {platform === 'reddit' ? 'rate-limited mode · 1 reply / 6 min' : 'within posting window'}</span>
+        </div>
+      </div>
+
+      {/* toast */}
+      {toast &&
+      <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-md bg-ink px-3 py-1.5 mono text-[11px] text-white shadow-none">
+          {toast}
+        </div>
+      }
+    </article>);
+
+};
+
+/* ---------- warm leads card ---------- */
+const HeatPill = ({ heat }) => {
+  if (heat === 'hot') return <Tag tone="coral"><Icon name="Flame" size={10} stroke={2} /> hot</Tag>;
+  if (heat === 'warm') return <Tag tone="warn">↳ warm</Tag>;
+  return <Tag tone="mute">cold</Tag>;
+};
+
+const LeadCard = ({ lead, platform }) => {
+  const [copied, setCopied] = useState(false);
+  const [deployed, setDeployed] = useState(false);
+  const copy = () => {navigator.clipboard?.writeText(lead.reply);setCopied(true);setTimeout(() => setCopied(false), 1400);};
+  return (
+    <div className="border-b border-line px-5 py-4 last:border-0">
+      {/* lead head */}
+      <div className="flex items-start gap-3">
+        <div className="mono flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-[11px] font-medium text-white">{lead.avatar}</div>
+        <div className="flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[13.5px] font-medium tracking-tight">{lead.name}</span>
+            <span className="mono text-[11px] text-mute">{platform === 'reddit' ? lead.handle : '@' + lead.handle}</span>
+            <HeatPill heat={lead.heat} />
+            <span className="mono text-[10.5px] text-mute2">· {lead.when}</span>
+          </div>
+          <div className="mono mt-0.5 flex items-center gap-2 text-[10.5px] text-mute">
+            {platform === 'reddit' ? lead.sub : lead.ctx}
+            <span className="text-mute2">·</span>
+            <span>signal score</span>
+            <span className="tabular-nums text-ink2">{lead.score}</span>
+          </div>
+        </div>
+        <button className="flex h-7 w-7 items-center justify-center rounded-md text-mute hover:bg-tint hover:text-ink"><Icon name="MoreHorizontal" size={14} /></button>
+      </div>
+
+      {/* their post */}
+      <div className="mt-3 rounded-md border border-line bg-white px-3.5 py-3">
+        <div className="mono mb-1.5 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-mute">
+          <Icon name="Quote" size={10} /> their post
+        </div>
+        <p className="text-[13px] leading-[1.55] text-ink2">{lead.post}</p>
+      </div>
+
+      {/* suggested reply — inset card */}
+      <div className="relative mt-2 ml-6 rounded-md border border-line bg-tint/70">
+        {/* connector line */}
+        <span className="absolute -left-3 top-4 h-px w-3 bg-line" />
+        <span className="absolute -left-3 -top-1 h-5 w-3 border-l border-b border-line" />
+        <div className="flex items-center justify-between gap-2 border-b border-line px-3 py-2">
+          <div className="mono flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.12em] text-coral2">
+            <Icon name="Sparkle" size={11} /> hermes suggested reply
+          </div>
+          <div className="mono flex items-center gap-2 text-[10px] text-mute">
+            <span>tone · founder-honest</span>
+            <span className="text-mute2">·</span>
+            <span>length · medium</span>
+          </div>
+        </div>
+        <div className="px-3.5 py-3">
+          <pre className="font-sans whitespace-pre-wrap text-[12.5px] leading-[1.55] text-ink">{lead.reply}</pre>
+        </div>
+        <div className="flex items-center justify-between gap-2 border-t border-line bg-paper/40 px-3 py-2">
+          <div className="mono text-[10.5px] text-mute">{lead.reason}</div>
+          <div className="flex items-center gap-1.5">
+            <button className="mono flex h-7 items-center gap-1.5 rounded-md bg-white px-2.5 text-[11px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+              <Icon name="ArrowUpRight" size={11} /> open profile
+            </button>
+            {platform === 'reddit' && (
+              <button className="mono flex h-7 items-center gap-1.5 rounded-md bg-white px-2.5 text-[11px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+                <Icon name="FilePlus" size={11} /> post
+              </button>
+            )}
+            <button className="mono flex h-7 items-center gap-1.5 rounded-md bg-ink px-2.5 text-[11px] text-white ring-1 ring-inset ring-ink hover:bg-ink2">
+              <Icon name="Send" size={11} /> dm
+            </button>
+            {platform === 'reddit' && (
+              <button className="mono flex h-7 items-center gap-1.5 rounded-md bg-white px-2.5 text-[11px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+                <Icon name="MessageSquare" size={11} /> comment
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>);
+
+};
+
+const WarmLeads = () => {
+  const [platform, setPlatform] = useState('x');
+  const list = LEADS[platform];
+  const tabs = [
+  { id: 'x', icon: 'Twitter', label: 'x', count: `(${LEADS.x.length})` },
+  { id: 'linkedin', icon: 'Linkedin', label: 'linkedin', count: `(${LEADS.linkedin.length})` },
+  { id: 'reddit', icon: 'MessageCircle', label: 'reddit', count: `(${LEADS.reddit.length})`, badge: { label: 'rate-safe', tone: 'ok' } }];
+
+  return (
+    <article className="flex flex-col overflow-hidden rounded-lg border border-line bg-card">
+      <div className="flex items-start justify-between gap-4 border-b border-line bg-paper/60 px-5 py-4">
+        <div>
+          <div className="mono mb-1 flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.12em] text-mute">
+            <span>card 02</span><span className="text-mute2">·</span>
+            <span className="flex items-center gap-1 text-ok"><span className="live-dot h-1.5 w-1.5 rounded-full bg-ok" /> live · inbound signals</span>
+          </div>
+          <h2 className="text-[20px] font-semibold tracking-tight">warm-lead inbox</h2>
+          <p className="mono mt-1 text-[11px] text-mute">scoring 2.4k posts/hr · 7 leads scored ≥70 today · 2 hot, 5 warm</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="mono flex h-7 items-center gap-1.5 rounded-md bg-white px-2.5 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+            <Icon name="Filter" size={12} /> filter
+          </button>
+          <button className="mono flex h-7 items-center gap-1.5 rounded-md bg-white px-2.5 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+            <Icon name="RotateCw" size={12} /> refresh
+          </button>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
+        <PlatformTabs value={platform} onChange={setPlatform} items={tabs} />
+        <span className="mono text-[10.5px] text-mute">top 5 per platform · auto-refresh 60s</span>
+      </div>
+
+      <div className="flex flex-col">
+        {list.map((l) => <LeadCard key={l.handle} lead={l} platform={platform} />)}
+      </div>
+
+      <div className="flex items-center justify-between border-t border-line bg-paper/60 px-5 py-3">
+        <span className="mono text-[10.5px] text-mute">showing {list.length} of {list.length} for {platform}</span>
+        <button className="mono flex items-center gap-1.5 text-[11.5px] text-coral2 hover:text-coral">view all leads <Icon name="ArrowRight" size={12} /></button>
+      </div>
+    </article>);
+
+};
+
+/* ---------- bottom row: growth hack + daily log ---------- */
+const HackCard = () =>
+<article className="flex flex-col overflow-hidden rounded-lg border border-line bg-card">
+    <div className="flex items-start justify-between gap-4 border-b border-line bg-paper/60 px-5 py-4">
+      <div>
+        <div className="mono mb-1 flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.12em] text-mute">
+          <span>card 03</span><span className="text-mute2">·</span><span className="text-ink2">growth hack of the day</span>
+        </div>
+        <h2 className="text-[20px] font-semibold tracking-tight">the rauchg compound</h2>
+        <p className="mono mt-1 text-[11px] text-mute">randomized daily · refreshes 00:00 PT · 1 of 22 in queue</p>
+      </div>
+      <Tag tone="coral">est. lift · 2.4x</Tag>
+    </div>
+    <div className="grid grid-cols-1 gap-0 md:grid-cols-3">
+      <div className="border-r border-line p-5">
+        <div className="mono mb-1.5 text-[10.5px] uppercase tracking-[0.12em] text-mute">the play</div>
+        <p className="text-[13px] leading-[1.55] text-ink2">reply first under 3 posts from a tier-1 author within 8 minutes of their tweet. you get free distribution off their audience graph for ~36 hours.</p>
+      </div>
+      <div className="border-r border-line p-5">
+        <div className="mono mb-1.5 text-[10.5px] uppercase tracking-[0.12em] text-mute">why it works</div>
+        <pre className="mono whitespace-pre-wrap text-[11.5px] leading-[1.6] text-ink2">↳ algorithm surfaces early replies disproportionately (first 90s carry 38% of all impressions on quote-replies in our 2026 sample, n=11,402).</pre>
+      </div>
+      <div className="p-5">
+        <div className="mono mb-1.5 text-[10.5px] uppercase tracking-[0.12em] text-mute">today's targets</div>
+        <ul className="mono flex flex-col gap-1.5 text-[11.5px] text-ink2">
+          <li className="flex items-center justify-between"><span>@rauchg</span><span className="text-mute2">posts ~14:20 PT</span></li>
+          <li className="flex items-center justify-between"><span>@swyx</span><span className="text-mute2">posts ~16:05 PT</span></li>
+          <li className="flex items-center justify-between"><span>@levelsio</span><span className="text-mute2">posts ~22:40 PT</span></li>
+        </ul>
+        <button className="mono mt-3 flex h-7 items-center gap-1.5 rounded-md bg-ink px-2.5 text-[11.5px] text-white hover:bg-ink2">
+          <Icon name="Bell" size={11} /> alert me when they post
+        </button>
+      </div>
+    </div>
+  </article>;
+
+
+const LogCard = () => {
+  const [val, setVal] = useState('');
+  return (
+    <article className="flex flex-col overflow-hidden rounded-lg border border-line bg-card">
+      <div className="flex items-start justify-between gap-4 border-b border-line bg-paper/60 px-5 py-4">
+        <div>
+          <div className="mono mb-1 flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.12em] text-mute">
+            <span>card 04</span><span className="text-mute2">·</span><span className="text-ink2">personalization loop</span>
+          </div>
+          <h2 className="text-[20px] font-semibold tracking-tight">the daily log</h2>
+          <p className="mono mt-1 max-w-[520px] text-[11px] text-mute">
+            wins, losses, key learnings — anything from today. hermes reads this overnight and personalizes tomorrow's voice + angles.
+          </p>
+        </div>
+        <Tag tone="ok"><Icon name="Lock" size={10} /> private · model-only</Tag>
+      </div>
+      <div className="grid grid-cols-1 gap-0 md:grid-cols-[1fr_300px]">
+        <div className="border-r border-line p-5">
+          <textarea
+            value={val}
+            onChange={(e) => setVal(e.target.value)}
+            placeholder="today i shipped scoring v2 · talked to 3 prospects · realized our pricing page is too cluttered…"
+            className="mono h-32 w-full resize-none rounded-md border border-line bg-paper/60 p-3 text-[12.5px] leading-[1.55] text-ink placeholder:text-mute2 focus:border-coral/50 focus:outline-none focus:ring-2 focus:ring-coral/20" />
+          
+          <div className="mt-3 flex items-center justify-between">
+            <div className="mono flex items-center gap-2 text-[10.5px] text-mute">
+              <span>{val.length} chars</span>
+              <span className="text-mute2">·</span>
+              <span>last log · yesterday, 11:42pm</span>
+            </div>
+            <button className="mono flex h-7 items-center gap-1.5 rounded-md bg-coral px-2.5 text-[11.5px] text-white ring-1 ring-inset ring-coral2 hover:bg-coral2">
+              <Icon name="ArrowUp" size={11} /> save to hermes
+            </button>
+          </div>
+        </div>
+        <div className="bg-tint/40 p-5">
+          <div className="mono mb-2 flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.12em] text-coral2">
+            <Icon name="Sparkle" size={11} /> tomorrow's adjustment
+          </div>
+          <pre className="mono whitespace-pre-wrap text-[11.5px] leading-[1.65] text-ink2">{`based on last 7 logs · hermes will:
+
+→ lean into "operator > tool" framing
+→ drop 2 cold-outbound drafts (low voice-fit)
+→ pull more analogies from your shipping log
+→ retry rauchg-compound at 14:20 PT`}</pre>
+        </div>
+      </div>
+    </article>);
+
+};
+
+/* ---------- bottom status bar ---------- */
+const StatusBar = () =>
+<footer className="sticky bottom-0 z-20 flex h-9 items-center justify-between border-t border-line bg-paper/95 px-8 mono text-[10.5px] text-mute backdrop-blur">
+    <div className="flex items-center gap-4">
+      <span className="flex items-center gap-1.5"><span className="live-dot h-1.5 w-1.5 rounded-full bg-ok" /> </span>
+      <span className="text-mute2">·</span>
+      <span>extension · connected · v 1.8.2</span>
+      <span className="text-mute2"></span>
+      <span>session · 47m</span>
+    </div>
+    <div className="flex items-center gap-3">
+      <span>↑ approve all <Kbd>A</Kbd></span>
+      <span className="text-mute2">·</span>
+      <span>↻ regenerate <Kbd>R</Kbd></span>
+      <span className="text-mute2">·</span>
+      <span>⌘ command <Kbd>⌘</Kbd><Kbd>K</Kbd></span>
+    </div>
+  </footer>;
+
+
+/* ---------- generic page header for non-dashboard sections ---------- */
+const PageHeader = ({ eyebrow, title, sub, actions }) =>
+<section className="flex flex-col gap-4 px-8 pb-8 pt-8 lg:flex-row lg:items-end lg:justify-between">
+    <div className="max-w-[820px]">
+      <div className="mono mb-3 flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-mute">
+        <span className="h-1.5 w-1.5 rounded-full bg-coral live-dot" />
+        {eyebrow}
+      </div>
+      <h1 className="text-[34px] font-semibold leading-[1.1] tracking-[-0.02em]">{title}</h1>
+      {sub && <p className="mono mt-3 max-w-[640px] text-[12px] leading-relaxed text-mute">{sub}</p>}
+    </div>
+    {actions && <div className="flex items-center gap-2">{actions}</div>}
+  </section>;
+
+
+/* ---------- growth playbook view ---------- */
+
+const ICP_METRICS = [
+  { key: 'primary_icp',     label: 'Primary ICP',       value: 'Solo Technical Founder', icon: 'Users',     tint: 'bg-blue-50 border-blue-100',     iconTint: 'text-blue-600' },
+  { key: 'channels_mapped', label: 'Channels Mapped',   value: '10',                     icon: 'Target',    tint: 'bg-[#FEF1EC] border-[#FBD6C7]',  iconTint: 'text-coral2' },
+  { key: 'templates',       label: 'Content Templates', value: '150',                    icon: 'BarChart2', tint: 'bg-emerald-50 border-emerald-100', iconTint: 'text-emerald-700' },
+  { key: 'trend',           label: 'Market Trend',      value: 'Growing',                icon: 'TrendingUp',tint: 'bg-emerald-50 border-emerald-100', iconTint: 'text-emerald-700', accent: true },
+];
+
+const MARKET_SIZING = [
+  { code: 'TAM (TOTAL)',       tone: 'text-sky-700',    tint: 'bg-sky-50 border-sky-100',
+    body: '$2.5B globally — Based on ~5M solo technical founders and micro-SaaS operators worldwide, assuming a $50 average monthly spend on growth and marketing tools (Statista, GitHub developer trends, and SaaS ecosystem reports).' },
+  { code: 'SAM (SERVICEABLE)', tone: 'text-purple-700', tint: 'bg-purple-50 border-purple-100',
+    body: '$375M — Focused on the 750,000 solo technical founders in US, Europe, and India (accounting for 95% of target market), with a $50 average monthly spend.' },
+  { code: 'SOM (OBTAINABLE)',  tone: 'text-emerald-700',tint: 'bg-emerald-50 border-emerald-100',
+    body: '$15M — Capturing 50,000 paying users globally (1% of SAM) within 3 years at an average price point of $29 per month.' },
+];
+
+const DEMOGRAPHICS = [
+  { k: 'Age Range',  v: '27-34' },
+  { k: 'Gender',     v: '80% Male, 20% Female' },
+  { k: 'Location',   v: 'US (60%), Europe (25%), India (10%), Other (5%)' },
+  { k: 'Income',     v: '$75K-$150K annually' },
+  { k: 'Education',  v: "Bachelor's or higher, typically in CS, Engineering, or related technical fields" },
+];
+
+const JOB_TITLES   = ['Solo Founder', 'Technical Co-Founder', 'Indie Hacker'];
+const CORE_VALUES  = ['Efficiency', 'Autonomy', 'Analytical', 'Results-driven', 'Introverted'];
+const SPENDING = [
+  'Willing to pay for tools that save time',
+  'Prefers predictable, flat-rate pricing',
+  'Avoids expensive agency services or long-term contracts',
+];
+const FRUSTRATIONS = [
+  'Burnout from managing social media daily',
+  'Difficulty gaining early users without constant outreach',
+  'Time wasted switching between development and marketing tasks',
+];
+
+const PlaybookView = () =>
+<>
+    <PageHeader
+    eyebrow="strategy doc · tuesday, may 19"
+    title={<>your growth playbook. <span className="text-mute">your audience, your market, your edge.</span></>}
+    sub="executive summary and audience profile generated from your icp interviews, channel data, and market signals. updated weekly; export to share with co-founders or investors."
+    actions={<>
+        <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[12.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint"><Icon name="Download" size={13} /> export pdf</button>
+        <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-ink px-3 text-[12.5px] text-white hover:bg-ink2"><Icon name="RotateCw" size={13} /> regenerate</button>
+      </>} />
+
+    <main className="flex flex-col gap-8 px-8 pb-16">
+      {/* ============= PART A · EXECUTIVE SUMMARY ============= */}
+      <section className="rounded-xl border border-line bg-card p-6 md:p-8">
+        {/* exec summary banner */}
+        <div className="rounded-lg border border-[#FBD6C7] bg-[#FFF4EE] p-5 md:p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-coral text-white">
+              <Icon name="Sparkles" size={18} stroke={2} />
+            </div>
+            <div>
+              <h2 className="text-[18px] font-semibold tracking-tight text-ink">Executive Summary</h2>
+              <p className="mt-0.5 text-[12.5px] text-mute">Your playbook at a glance</p>
+              <p className="mt-3 text-[13.5px] leading-[1.65] text-ink2">
+                Farcast has identified your ideal customer as <span className="font-medium text-ink">"Solo Technical Founder, 27-34, Building Micro-SaaS"</span> and mapped <span className="font-medium text-ink">10 distribution channels</span> with expert-level strategy for each. Your top channel is <span className="font-medium text-ink">Reddit</span>, followed by <span className="font-medium text-ink">LinkedIn</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* metric grid */}
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {ICP_METRICS.map((m) => (
+            <div key={m.key} className={`flex flex-col items-center justify-center rounded-lg border px-4 py-6 text-center ${m.tint}`}>
+              <div className={`mb-2 ${m.iconTint}`}><Icon name={m.icon} size={20} stroke={1.75} /></div>
+              <div className={`text-[20px] font-semibold tracking-tight ${m.accent ? 'text-emerald-700' : 'text-ink'}`}>{m.value}</div>
+              <div className="mt-1 text-[12px] text-mute">{m.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* market sizing */}
+        <div className="mt-8">
+          <h3 className="text-[14px] font-semibold tracking-tight text-ink">Market Sizing Estimation</h3>
+          <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            {MARKET_SIZING.map((m) => (
+              <div key={m.code} className={`rounded-lg border p-5 ${m.tint}`}>
+                <div className={`mono mb-2 text-[10.5px] font-semibold uppercase tracking-[0.12em] ${m.tone}`}>{m.code}</div>
+                <p className="text-[12.5px] leading-[1.6] text-ink2">{m.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* growing trend bar */}
+        <div className="mt-5 flex items-start gap-3 rounded-lg border border-line bg-paper/60 px-4 py-3">
+          <span className="mt-0.5 text-emerald-700"><Icon name="TrendingUp" size={14} stroke={2} /></span>
+          <p className="text-[12.5px] leading-[1.55] text-ink2">
+            <span className="font-semibold text-emerald-700">Growing</span>
+            <span className="text-mute"> — </span>
+            The rise of solo entrepreneurship, micro-SaaS, and AI adoption is driving demand for tools that streamline growth tasks. Founders increasingly seek time-saving, AI-driven solutions for marketing and engagement.
+          </p>
+        </div>
+      </section>
+
+      {/* ============= PART B · AUDIENCE PROFILING ============= */}
+      <section className="rounded-xl border border-line bg-card p-6 md:p-8">
+        {/* ICP profile header */}
+        <div className="rounded-lg border border-blue-100 bg-blue-50 p-5 md:p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-500 text-white">
+              <Icon name="Users" size={20} stroke={2} />
+            </div>
+            <div>
+              <h2 className="text-[18px] font-semibold tracking-tight text-ink">Solo Technical Founder, 27-34, Building Micro-SaaS</h2>
+              <p className="mt-2 text-[13.5px] leading-[1.65] text-ink2">
+                Farcast is ideal for solo technical founders aged 27-34 who are building their first Micro-SaaS product and struggling with the grind of manual marketing tasks like community engagement and social media management. They want to focus on shipping features but need to grow their user base efficiently.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* demographics + psychographics */}
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
+          {/* DEMOGRAPHICS */}
+          <div className="rounded-lg border border-line bg-card p-5">
+            <div className="mb-4 flex items-center gap-2">
+              <Icon name="Briefcase" size={14} className="text-blue-600" />
+              <span className="mono text-[11px] font-semibold uppercase tracking-[0.12em] text-ink">Demographics</span>
+            </div>
+            <dl className="flex flex-col divide-y divide-line">
+              {DEMOGRAPHICS.map((r) => (
+                <div key={r.k} className="grid grid-cols-[140px_1fr] items-baseline gap-3 py-3.5">
+                  <dt className="text-[12.5px] text-mute">{r.k}</dt>
+                  <dd className="text-right text-[13px] font-medium leading-[1.5] text-ink">{r.v}</dd>
+                </div>
+              ))}
+              <div className="pt-4">
+                <dt className="mb-2 text-[12.5px] text-mute">Likely Job Titles</dt>
+                <dd className="flex flex-wrap gap-2">
+                  {JOB_TITLES.map((t) => (
+                    <span key={t} className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11.5px] font-medium text-blue-700">{t}</span>
+                  ))}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* PSYCHOGRAPHICS */}
+          <div className="rounded-lg border border-line bg-card p-5">
+            <div className="mb-4 flex items-center gap-2">
+              <Icon name="Heart" size={14} className="text-rose-500" />
+              <span className="mono text-[11px] font-semibold uppercase tracking-[0.12em] text-ink">Psychographics</span>
+            </div>
+
+            <div className="mb-4">
+              <div className="mb-2 text-[12.5px] text-mute">Core Values &amp; Traits</div>
+              <div className="flex flex-wrap gap-2">
+                {CORE_VALUES.map((t) => (
+                  <span key={t} className="rounded-full border border-line bg-paper px-3 py-1 text-[11.5px] font-medium text-ink2">{t}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* spending habits — green tint */}
+            <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+              <div className="mono mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+                <span>$</span> Spending Habits
+              </div>
+              <ul className="flex flex-col gap-1.5">
+                {SPENDING.map((s) => (
+                  <li key={s} className="flex items-start gap-2 text-[12.5px] leading-[1.55] text-emerald-900">
+                    <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-emerald-600" />
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* frustrations */}
+            <div className="mt-4">
+              <div className="mb-2 text-[12.5px] text-mute">Key Frustrations</div>
+              <div className="flex flex-col gap-2">
+                {FRUSTRATIONS.map((f) => (
+                  <div key={f} className="flex items-start gap-2.5 rounded-md border border-rose-100 bg-rose-50 px-3 py-2.5">
+                    <Icon name="TriangleAlert" size={14} className="text-rose-500" />
+                    <span className="text-[12.5px] leading-[1.5] text-rose-900">{f}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* DISC profile */}
+        <div className="mt-6 rounded-lg border border-line bg-card p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Icon name="Brain" size={14} className="text-purple-600" />
+            <span className="mono text-[11px] font-semibold uppercase tracking-[0.12em] text-ink">Psychological Profile (DISC)</span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="rounded-lg border border-blue-100 bg-blue-50 p-5">
+              <div className="mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-mute">Primary Motivation</div>
+              <div className="mt-2 text-[22px] font-semibold tracking-tight text-blue-700">C — Conscientiousness</div>
+            </div>
+            <div className="rounded-lg border border-[#FBD6C7] bg-[#FFF4EE] p-5">
+              <div className="mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-mute">Secondary Motivation</div>
+              <div className="mt-2 text-[22px] font-semibold tracking-tight text-coral2">D — Dominance</div>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-lg border border-line bg-paper/60 p-5">
+            <div className="text-[13px] font-semibold text-ink">How they think</div>
+            <p className="mt-1 text-[12.5px] leading-[1.6] text-ink2">Analytical thinkers who prioritize efficiency and results. They make decisions based on logic, data, and ROI.</p>
+            <div className="mt-4 text-[13px] font-semibold text-ink">How to communicate with them</div>
+            <p className="mt-1 text-[12.5px] leading-[1.6] text-ink2">Speak in clear, concise language. Focus on time savings, measurable results, and reducing burnout.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </>;
+
+
+/* ---------- warm leads (full page) ---------- */
+/* ---------- warm leads (full page) ---------- */
+const WL_SIGNALS = [
+  'Spending hours daily on Reddit, X, and LinkedIn engagement',
+  'Feeling stuck between building the product and growing it',
+  'Unable to afford or justify hiring a marketing team',
+  'Overwhelmed by manual social media outreach',
+  'Struggling to grow their user base despite consistent shipping',
+];
+
+const WL_LEADS = [
+  {
+    id: 'WL-01', platform: 'reddit', icon: 'MessageCircle', platformTone: 'bg-[#FFF1EC] text-coral2 border-[#FBD6C7]',
+    score: 92, heat: 'hot', username: 'u/ship_or_die', sub: 'r/SaaS',
+    time: '12m', tags: ['solo founder', 'marketing burnout'],
+    title: 'is there any tool that doesn\u2019t make growth feel like a second full-time job?',
+    body: '"i\u2019m a solo founder with $0 marketing budget and i keep getting told \u201cjust do content.\u201d cool. who\u2019s doing the content? me, at 11pm, badly, after shipping all day. is there literally any tool that makes this not awful?"',
+    suggestionType: 'COMMENT', via: 'reddit',
+    suggestion: 'Solo founder here too \u2014 went through exactly this last year.\n\nThe thing that broke the loop for me wasn\u2019t a content tool, it was separating two jobs: (1) deciding what to say (still me, 10 min/day reading my own log), (2) drafting + queuing it (offloaded \u2014 anything that captures your voice works).\n\nIf you want, DM me and I\u2019ll share the daily 10-min ritual we run. No paid tools required to start.',
+    reason: 'Pain match 0.91 \u00b7 Voice fit 89 \u00b7 Subreddit-safe',
+  },
+  {
+    id: 'WL-02', platform: 'linkedin', icon: 'Linkedin', platformTone: 'bg-blue-50 text-blue-700 border-blue-100',
+    score: 88, heat: 'hot', username: 'Sarah Okafor', sub: 'Head of Growth, Acme',
+    time: '23m', tags: ['voice cloning', 'decision maker'],
+    title: 'Is "AI in my voice" actually an unsolved problem?',
+    body: '"Spent the morning trying to find a tool that drafts LinkedIn posts in my actual voice \u2014 every demo sounded like ChatGPT in a blazer. Is this just an unsolved problem?"',
+    suggestionType: 'DM', via: 'linkedin',
+    suggestion: 'Not unsolved \u2014 but most tools learn from your last 5 posts, which is far too small a sample to capture voice.\n\nThe approach that worked for us: train on your full archive PLUS your "anti-examples" (posts you\u2019d never write). The negative space is where voice actually lives.\n\nHappy to send a sample drafted from your last 90 days if useful \u2014 takes ~10 minutes to set up.',
+    reason: 'Pain match 0.96 \u00b7 Voice fit 87 \u00b7 Decision maker',
+  },
+  {
+    id: 'WL-03', platform: 'x', icon: 'Twitter', platformTone: 'bg-ink text-white border-ink',
+    score: 84, heat: 'hot', username: '@maya.builds', sub: 'replied to @swyx',
+    time: '46m', tags: ['growth operator', 'fatigue'],
+    title: 'is anyone shipping a real growth operator yet?',
+    body: '"honest q \u2014 is there anyone shipping a real \u201cgrowth operator\u201d yet or is it all just GPT-wrapped scheduling tools? i have founder-led growth fatigue and i can\u2019t keep doing this manually."',
+    suggestionType: 'DM', via: 'x',
+    suggestion: 'oof i feel this \u2014 i spent most of feb being the "growth operator" for our own thing.\n\nthe shape we ended up building was: it watches your channels, drafts in your voice, queues the replies, and you press send. the bottleneck moved from doing it to approving it, which is roughly a 10x trade.\n\nhappy to send you the loom if useful \u2014 no pitch, just the workflow.',
+    reason: 'Pain match 0.93 \u00b7 Voice fit 91 \u00b7 No prior contact',
+  },
+  {
+    id: 'WL-04', platform: 'reddit', icon: 'MessageCircle', platformTone: 'bg-[#FFF1EC] text-coral2 border-[#FBD6C7]',
+    score: 78, heat: 'warm', username: 'u/cold_brew_dev', sub: 'r/Entrepreneur',
+    time: '1h 41m', tags: ['reddit acquisition', 'distribution'],
+    title: 'is anyone actually getting customers from reddit?',
+    body: '"is anyone actually getting customers from reddit or is it all just karma farming with extra steps"',
+    suggestionType: 'COMMENT', via: 'reddit',
+    suggestion: 'Got our first 60 paying customers from r/SaaS and r/Entrepreneur \u2014 but not from posting. From answering questions in comments for 6 weeks before ever linking out.\n\nThe heuristic: if your comment would be valuable even with the link removed, it\u2019s safe to post. If it isn\u2019t, mods will (correctly) eat you.',
+    reason: 'Pain match 0.74 \u00b7 Voice fit 85 \u00b7 Karma OK',
+  },
+  {
+    id: 'WL-05', platform: 'linkedin', icon: 'Linkedin', platformTone: 'bg-blue-50 text-blue-700 border-blue-100',
+    score: 74, heat: 'warm', username: 'Tomasz W.', sub: 'Founder, Stagehand',
+    time: '58m', tags: ['reply filtering', 'time tax'],
+    title: 'Spending 3 hours/day on LinkedIn \u2014 there has to be a filter.',
+    body: '"Spending 3 hours a day on LinkedIn engagement. There has to be a better way to identify which posts are worth my reply."',
+    suggestionType: 'DM', via: 'linkedin',
+    suggestion: 'Three hours is the tax \u2014 and it gets worse as your network grows.\n\nWe scope the reply candidates by (a) author tier, (b) early-momentum signal in first 30 min, (c) topical match to your last quarter. Cuts the daily pool from ~300 to ~12.\n\nWant the filter logic? Happy to share the doc.',
+    reason: 'Pain match 0.82 \u00b7 Voice fit 80 \u00b7 1st-degree',
+  },
+  {
+    id: 'WL-06', platform: 'x', icon: 'Twitter', platformTone: 'bg-ink text-white border-ink',
+    score: 71, heat: 'warm', username: '@indie_priya', sub: 'replied to @levelsio',
+    time: '2h 14m', tags: ['thread-finding', 'icp ask'],
+    title: 'help me find the right threads to be in.',
+    body: '"looking for a tool that doesn\u2019t try to write for me but helps me find the right threads to be in. anyone?"',
+    suggestionType: 'DM', via: 'x',
+    suggestion: 'we built one of these (and i\u2019ll admit, we do also draft \u2014 but it\u2019s optional). the "find the right thread" part runs on ICP embeddings + intent signals, not just keywords.\n\nwant me to point it at your account and DM you the top 10 threads from this week? takes about 4 min.',
+    reason: 'Explicit ask \u00b7 Voice fit 84 \u00b7 Tier-1 ICP',
+  },
+];
+
+const ScoreBadge = ({ score, heat }) => {
+  const tone = heat === 'hot'
+    ? 'bg-[#FFF1EC] text-coral2 border-[#FBD6C7]'
+    : heat === 'warm'
+      ? 'bg-amber-50 text-amber-700 border-amber-200'
+      : 'bg-tint text-mute ring-line';
+  return (
+    <span className={`mono inline-flex items-center gap-1.5 rounded-md border px-2 py-[3px] text-[11px] font-semibold ${tone}`}>
+      {heat === 'hot' && <Icon name="Flame" size={11} stroke={2} />}
+      <span className="tabular-nums">{score}</span>
+      <span className="uppercase tracking-[0.08em]">{heat}</span>
+    </span>
+  );
+};
+
+const PlatformBadge = ({ lead }) => (
+  <span className={`mono inline-flex items-center gap-1.5 rounded-md border px-2 py-[3px] text-[11px] font-medium ${lead.platformTone}`}>
+    <Icon name={lead.icon} size={11} stroke={2} />
+    {lead.platform === 'x' ? 'X' : lead.platform === 'linkedin' ? 'LinkedIn' : 'Reddit'}
+  </span>
+);
+
+const HermesSuggestion = ({ lead, type, onChangeType }) => {
+  const canSwitch = lead.platform === 'reddit';
+  return (
+    <div className="mt-3 rounded-md border border-line bg-tint/70">
+      <div className="flex items-center justify-between gap-2 border-b border-line px-3.5 py-2">
+        <div className="mono flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-coral2">
+          <Icon name="Sparkles" size={11} stroke={2} /> ↳ hermes suggested [{type}]:
+        </div>
+        <div className="flex items-center gap-2">
+          {canSwitch && (
+            <div className="mono inline-flex items-center gap-0.5 rounded-md bg-white p-0.5 ring-1 ring-inset ring-line">
+              {['COMMENT','DM'].map((t) => (
+                <button key={t} onClick={() => onChangeType(t)}
+                  className={`rounded-[4px] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.06em] ${t === type ? 'bg-ink text-white' : 'text-mute hover:text-ink'}`}>{t}</button>
+              ))}
+            </div>
+          )}
+          <span className="mono text-[10px] text-mute">tone · founder-honest</span>
+        </div>
+      </div>
+      <pre className="font-sans whitespace-pre-wrap px-3.5 py-3 text-[12.5px] leading-[1.6] text-ink2">{lead.suggestion}</pre>
+      <div className="mono flex items-center justify-between gap-2 border-t border-line bg-paper/40 px-3.5 py-2 text-[10.5px] text-mute">
+        <span>{lead.reason}</span>
+        <span>{lead.suggestion.length} chars</span>
+      </div>
+    </div>
+  );
+};
+
+const LeadRow = ({ lead }) => {
+  const [type, setType] = useState(lead.suggestionType);
+  const [deployed, setDeployed] = useState(false);
+  return (
+    <article className="rounded-lg border border-line bg-card p-5 transition hover:border-mute2/50">
+      {/* header */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <PlatformBadge lead={lead} />
+          <ScoreBadge score={lead.score} heat={lead.heat} />
+          <span className="text-[13.5px] font-semibold tracking-tight text-ink">{lead.username}</span>
+          <span className="mono text-[11px] text-mute">{lead.sub}</span>
+          <span className="mono text-[11px] text-mute2">· {lead.time} ago</span>
+        </div>
+        <button className="flex h-7 w-7 items-center justify-center rounded-md text-mute hover:bg-tint hover:text-ink">
+          <Icon name="MoreHorizontal" size={14} />
+        </button>
+      </div>
+
+      {/* tags */}
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {lead.tags.map((t) => (
+          <span key={t} className="mono rounded-[4px] bg-tint px-1.5 py-[2px] text-[10px] lowercase tracking-[0.04em] text-ink2">{t}</span>
+        ))}
+      </div>
+
+      {/* title */}
+      <h3 className="mt-3 text-[14.5px] font-semibold leading-snug tracking-tight text-ink">{lead.title}</h3>
+
+      {/* context */}
+      <blockquote className="mt-2 border-l-2 border-line pl-3 text-[13px] italic leading-[1.6] text-mute">
+        {lead.body}
+      </blockquote>
+
+      {/* hermes inline suggestion */}
+      <HermesSuggestion lead={lead} type={type} onChangeType={setType} />
+
+      {/* action row */}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="mono flex items-center gap-3 text-[10.5px] text-mute">
+          <span className="flex items-center gap-1"><Icon name="ShieldCheck" size={11} className="text-emerald-700" /> rate-safe</span>
+          <span>·</span>
+          <span className="flex items-center gap-1"><Icon name="Clock" size={11} /> window closes in {lead.heat === 'hot' ? '22m' : '1h 40m'}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+            <Icon name="UserRound" size={12} /> view profile
+          </button>
+          <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+            <Icon name="ArrowUpRight" size={12} /> view post
+          </button>
+          <button onClick={() => setDeployed(true)} disabled={deployed}
+            className={`mono flex h-8 items-center gap-1.5 rounded-md px-3 text-[11.5px] font-medium ring-1 ring-inset transition
+              ${deployed ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-coral text-white ring-coral2 hover:bg-coral2'}`}>
+            <Icon name={deployed ? 'Check' : 'Plug'} size={12} stroke={2} />
+            {deployed ? `deployed via extension` : `deploy via extension`}
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+};
+
+const IntentSearchBlock = ({ selected, toggle, query, setQuery, onFind }) => (
+  <section className="rounded-xl border border-line bg-card p-5 md:p-6">
+    <div className="flex items-start justify-between gap-3">
+      <div>
+        <div className="mono mb-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink">
+          <Icon name="Search" size={12} stroke={2} /> search conversations
+        </div>
+        <p className="text-[12.5px] text-mute">Pick signals from your ICP or type your own — we’ll find posts and threads where people are expressing these problems.</p>
+      </div>
+      <span className="mono shrink-0 rounded-md border border-line bg-paper px-2 py-[3px] text-[10.5px] text-mute">live since 06:00 PT</span>
+    </div>
+
+    <div className="mt-4 flex flex-wrap gap-2">
+      {WL_SIGNALS.map((s) => {
+        const active = selected.includes(s);
+        return (
+          <button key={s} onClick={() => toggle(s)}
+            className={`mono rounded-full border px-3 py-1.5 text-[11.5px] transition
+              ${active ? 'border-coral2 bg-coral text-white' : 'border-line bg-white text-ink2 hover:bg-tint'}`}>
+            {active && <span className="mr-1">✓</span>}{s}
+          </button>
+        );
+      })}
+    </div>
+
+    <div className="mt-4 flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2.5 focus-within:border-coral/40 focus-within:ring-2 focus-within:ring-coral/15">
+      <Icon name="MessageSquareText" size={14} className="text-mute" />
+      <input value={query} onChange={(e) => setQuery(e.target.value)}
+        placeholder="or describe a problem your ICP talks about…"
+        className="flex-1 bg-transparent text-[13px] text-ink placeholder:text-mute2 focus:outline-none" />
+      <span className="mono text-[10.5px] text-mute">{selected.length + (query ? 1 : 0)} signals</span>
+    </div>
+
+    <div className="mt-4 flex items-center justify-between gap-2">
+      <div className="mono flex items-center gap-3 text-[10.5px] text-mute">
+        <span className="flex items-center gap-1"><Icon name="Filter" size={11} /> scope:</span>
+        {['Reddit', 'X', 'LinkedIn', 'All channels'].map((s, i) => (
+          <button key={s} className={`rounded-md px-2 py-1 ${i === 3 ? 'bg-ink text-white' : 'text-ink2 hover:bg-tint'}`}>{s}</button>
+        ))}
+      </div>
+      <button onClick={onFind}
+        className="mono flex h-9 items-center gap-2 rounded-md bg-coral px-4 text-[12.5px] font-medium text-white ring-1 ring-inset ring-coral2 hover:bg-coral2">
+        <Icon name="Search" size={13} stroke={2} /> find conversations
+      </button>
+    </div>
+  </section>
+);
+
+const CRMFilterBar = ({ platform, setPlatform, counts, sort, setSort }) => {
+  const [open, setOpen] = useState(false);
+  const tabs = [
+    { id: 'all',      label: 'All',      icon: 'LayoutGrid' },
+    { id: 'x',        label: 'X',        icon: 'Twitter' },
+    { id: 'linkedin', label: 'LinkedIn', icon: 'Linkedin' },
+    { id: 'reddit',   label: 'Reddit',   icon: 'MessageCircle' },
+  ];
+  const sortOptions = [
+    { id: 'hot',    label: 'Hot first',     hint: 'Intent score \u2265 80' },
+    { id: 'warm',   label: 'Warm first',    hint: 'Intent score 70\u201379' },
+    { id: 'recent', label: 'Most recent',   hint: 'Last 24h' },
+    { id: 'fit',    label: 'Best voice fit', hint: 'Tuned to your archive' },
+  ];
+  const current = sortOptions.find((s) => s.id === sort);
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2">
+      <div className="inline-flex items-center gap-1 rounded-md bg-tint p-1 ring-1 ring-inset ring-line">
+        {tabs.map((t) => {
+          const active = platform === t.id;
+          return (
+            <button key={t.id} onClick={() => setPlatform(t.id)}
+              className={`mono flex h-7 items-center gap-1.5 rounded-[5px] px-2.5 text-[11.5px] transition
+                ${active ? 'bg-card text-ink ring-1 ring-inset ring-line' : 'text-mute hover:text-ink'}`}>
+              <Icon name={t.icon} size={12} stroke={1.75} />
+              <span>{t.label}</span>
+              <span className={`mono ml-0.5 ${active ? 'text-mute' : 'text-mute2'}`}>({counts[t.id]})</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="mono text-[10.5px] uppercase tracking-[0.1em] text-mute">Intent score</span>
+        <div className="relative">
+          <button onClick={() => setOpen(!open)}
+            className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+            <Icon name="ArrowDownNarrowWide" size={12} /> Sort: {current.label}
+            <Icon name="ChevronDown" size={12} className="text-mute" />
+          </button>
+          {open && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+              <div className="absolute right-0 top-9 z-20 w-[220px] overflow-hidden rounded-md border border-line bg-card">
+                {sortOptions.map((o) => (
+                  <button key={o.id} onClick={() => { setSort(o.id); setOpen(false); }}
+                    className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-[12px] hover:bg-tint
+                      ${sort === o.id ? 'bg-tint' : ''}`}>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-ink">{o.label}</span>
+                      <span className="mono text-[10.5px] text-mute">{o.hint}</span>
+                    </div>
+                    {sort === o.id && <Icon name="Check" size={12} className="text-coral2" />}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+        <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+          <Icon name="SlidersHorizontal" size={12} /> Filters
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const WarmLeadsView = () => {
+  const [selected, setSelected] = useState([WL_SIGNALS[0], WL_SIGNALS[3]]);
+  const [query, setQuery] = useState('');
+  const [platform, setPlatform] = useState('all');
+  const [sort, setSort] = useState('hot');
+
+  const toggle = (s) => setSelected((cur) => cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]);
+
+  const counts = {
+    all:      WL_LEADS.length,
+    x:        WL_LEADS.filter((l) => l.platform === 'x').length,
+    linkedin: WL_LEADS.filter((l) => l.platform === 'linkedin').length,
+    reddit:   WL_LEADS.filter((l) => l.platform === 'reddit').length,
+  };
+
+  let visible = platform === 'all' ? WL_LEADS : WL_LEADS.filter((l) => l.platform === platform);
+  if (sort === 'hot')    visible = [...visible].sort((a, b) => b.score - a.score);
+  if (sort === 'warm')   visible = [...visible].filter((l) => l.heat === 'warm').concat(visible.filter((l) => l.heat !== 'warm'));
+  if (sort === 'recent') visible = [...visible];
+
+  return (
+    <>
+      <PageHeader
+        eyebrow="warm leads · cohort · today"
+        title={<>warm-lead inbox. <span className="text-mute">people asking for what you sell, right now.</span></>}
+        sub="hermes scans x, linkedin, and reddit against your icp keywords. every match is scored, drafted in your voice, and one click from deployed."
+        actions={<>
+          <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[12.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint"><Icon name="Download" size={13} /> export csv</button>
+          <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-ink px-3 text-[12.5px] text-white hover:bg-ink2"><Icon name="RotateCw" size={13} /> refresh</button>
+        </>}
+      />
+      <main className="flex flex-col gap-6 px-8 pb-16">
+        {/* PART A — intent search */}
+        <IntentSearchBlock selected={selected} toggle={toggle} query={query} setQuery={setQuery} onFind={() => {}} />
+
+        {/* PART B — filter bar */}
+        <CRMFilterBar platform={platform} setPlatform={setPlatform} counts={counts} sort={sort} setSort={setSort} />
+
+        {/* PART C — leads */}
+        <div className="flex items-center justify-between">
+          <span className="mono text-[11px] text-mute">{visible.length} of {WL_LEADS.length} conversations · updated 14s ago</span>
+          <div className="mono flex items-center gap-3 text-[11px] text-mute">
+            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-coral" /> Hot ≥ 80</span>
+            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Warm 70–79</span>
+            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-mute2" /> Cool &lt; 70</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-3">
+          {visible.map((l) => <LeadRow key={l.id} lead={l} />)}
+        </div>
+      </main>
+    </>
+  );
+};
+
+
+/* ---------- growth hacks ---------- */
+const HACKS = [
+{ id: 'H-01', title: 'the rauchg compound', lift: '2.4x', tag: 'distribution', state: 'today', desc: 'first-reply under 8m on tier-1 authors. surf their early-impression curve.' },
+{ id: 'H-02', title: 'the saved-search ambush', lift: '1.9x', tag: 'inbound', state: 'queued', desc: 'set 4-5 saved searches for your icp pain — reply in 30s with a story, not a pitch.' },
+{ id: 'H-03', title: 'the cold-quote intro', lift: '1.7x', tag: 'outbound', state: 'queued', desc: 'open a cold dm by quoting their own line back at them with a 1-sentence counterpoint.' },
+{ id: 'H-04', title: 'the friday recap thread', lift: '1.5x', tag: 'content', state: 'queued', desc: 'thread every friday: 3 things shipped, 1 lesson, 1 unfinished. compounds week over week.' },
+{ id: 'H-05', title: 'the karma-first reddit play', lift: '1.4x', tag: 'community', state: 'paused', desc: 'spend 2 weeks answering before linking. doubles top-comment rate. resume at karma 500.' },
+{ id: 'H-06', title: 'the deep-link demo dm', lift: '1.3x', tag: 'sales', state: 'queued', desc: 'send a 90-second loom personalized to their account, not a calendly link.' }];
+
+
+const HacksView = () =>
+<>
+    <PageHeader
+    eyebrow="randomized daily · queue of 22"
+    title={<>growth hacks. <span className="text-mute">one a day, executed for you.</span></>}
+    sub="a curated, ranked queue of distribution plays scraped from public founders + your private wins. hermes picks one each morning and threads it into today's plan."
+    actions={<>
+        <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[12.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint"><Icon name="Shuffle" size={13} /> shuffle queue</button>
+        <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-ink px-3 text-[12.5px] text-white hover:bg-ink2"><Icon name="Plus" size={13} /> add hack</button>
+      </>} />
+  
+    <main className="flex flex-col gap-6 px-8 pb-12">
+      <article className="overflow-hidden rounded-lg border border-line bg-card">
+        <div className="flex items-center justify-between border-b border-line bg-paper/60 px-5 py-4">
+          <div>
+            <div className="mono mb-1 text-[10.5px] uppercase tracking-[0.12em] text-mute">card 01 · today's pick</div>
+            <h2 className="text-[20px] font-semibold tracking-tight">the rauchg compound</h2>
+            <p className="mono mt-1 text-[11px] text-mute">queued for 14:20 PT · 3 targets identified · auto-pause if reply rate drops below 1.2x baseline</p>
+          </div>
+          <Tag tone="coral">est. lift · 2.4x</Tag>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3">
+          <div className="border-r border-line p-5">
+            <div className="mono mb-1.5 text-[10.5px] uppercase tracking-[0.12em] text-mute">the play</div>
+            <p className="text-[13px] leading-[1.55] text-ink2">reply first under 3 posts from a tier-1 author within 8 minutes of their tweet. you get free distribution off their audience graph for ~36 hours.</p>
+          </div>
+          <div className="border-r border-line p-5">
+            <div className="mono mb-1.5 text-[10.5px] uppercase tracking-[0.12em] text-mute">why it works</div>
+            <pre className="mono whitespace-pre-wrap text-[11.5px] leading-[1.6] text-ink2">↳ algorithm surfaces early replies disproportionately. first 90s carry 38% of all impressions on quote-replies (n=11,402).</pre>
+          </div>
+          <div className="p-5">
+            <div className="mono mb-1.5 text-[10.5px] uppercase tracking-[0.12em] text-mute">today's targets</div>
+            <ul className="mono flex flex-col gap-1.5 text-[11.5px] text-ink2">
+              <li className="flex items-center justify-between"><span>@rauchg</span><span className="text-mute2">~14:20 PT</span></li>
+              <li className="flex items-center justify-between"><span>@swyx</span><span className="text-mute2">~16:05 PT</span></li>
+              <li className="flex items-center justify-between"><span>@levelsio</span><span className="text-mute2">~22:40 PT</span></li>
+            </ul>
+            <button className="mono mt-3 flex h-7 items-center gap-1.5 rounded-md bg-ink px-2.5 text-[11.5px] text-white hover:bg-ink2"><Icon name="Bell" size={11} /> alert me</button>
+          </div>
+        </div>
+      </article>
+
+      <article className="overflow-hidden rounded-lg border border-line bg-card">
+        <div className="flex items-center justify-between border-b border-line bg-paper/60 px-5 py-4">
+          <div>
+            <div className="mono mb-1 text-[10.5px] uppercase tracking-[0.12em] text-mute">card 02 · the queue</div>
+            <h2 className="text-[20px] font-semibold tracking-tight">22 hacks · ranked by lift</h2>
+          </div>
+          <button className="mono flex h-7 items-center gap-1.5 rounded-md bg-white px-2.5 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint"><Icon name="Filter" size={12} /> filter</button>
+        </div>
+        <div className="mono grid grid-cols-[60px_1fr_100px_100px_100px_60px] items-center gap-3 border-b border-line bg-tint/40 px-5 py-2 text-[10.5px] uppercase tracking-[0.1em] text-mute">
+          <span>id</span><span>hack</span><span>tag</span><span>est lift</span><span>state</span><span></span>
+        </div>
+        {HACKS.map((h, i) =>
+      <div key={h.id} className={`grid grid-cols-[60px_1fr_100px_100px_100px_60px] items-center gap-3 px-5 py-3.5 ${i !== HACKS.length - 1 ? 'border-b border-line' : ''}`}>
+            <span className="mono text-[11.5px] text-mute">{h.id}</span>
+            <div className="flex flex-col">
+              <span className="text-[13.5px] font-medium">{h.title}</span>
+              <span className="mono text-[10.5px] text-mute">{h.desc}</span>
+            </div>
+            <span className="mono text-[11px] lowercase text-ink2">{h.tag}</span>
+            <span className="mono text-[11.5px] font-medium tabular-nums text-coral2">{h.lift}</span>
+            <Tag tone={h.state === 'today' ? 'coral' : h.state === 'queued' ? 'mute' : 'warn'}>{h.state}</Tag>
+            <button className="flex h-7 w-7 items-center justify-center rounded-md text-mute hover:bg-tint hover:text-ink"><Icon name="ChevronRight" size={14} /></button>
+          </div>
+      )}
+      </article>
+    </main>
+  </>;
+
+
+/* ---------- distribution channels ---------- */
+const CHANNELS = [
+{ id: 'x', name: 'X (twitter)', icon: 'Twitter', handle: '@alex_builds', status: 'connected', posts: 127, replies: 842, lastSync: '14s', limit: '4 of 8 posts today', safety: 'safe' },
+{ id: 'linkedin', name: 'LinkedIn', icon: 'Linkedin', handle: 'in/alexkurzweil', status: 'connected', posts: 34, replies: 212, lastSync: '48s', limit: '1 of 3 posts today', safety: 'safe' },
+{ id: 'reddit', name: 'Reddit', icon: 'MessageCircle', handle: 'u/alex_builds', status: 'connected', posts: 18, replies: 96, lastSync: '1m', limit: 'rate-limited · 6m', safety: 'safe' },
+{ id: 'mastodon', name: 'Mastodon', icon: 'AtSign', handle: '', status: 'available', posts: 0, replies: 0, lastSync: '—', limit: '—', safety: '—' },
+{ id: 'bluesky', name: 'Bluesky', icon: 'Cloud', handle: '', status: 'available', posts: 0, replies: 0, lastSync: '—', limit: '—', safety: '—' },
+{ id: 'hn', name: 'Hacker News', icon: 'Newspaper', handle: '', status: 'available', posts: 0, replies: 0, lastSync: '—', limit: 'read-only mode', safety: '—' },
+{ id: 'email', name: 'Email · Founders', icon: 'Mail', handle: 'newsletter', status: 'planned', posts: 0, replies: 0, lastSync: '—', limit: 'q3 · 2026', safety: '—' },
+{ id: 'yt', name: 'YouTube · Shorts', icon: 'Video', handle: '', status: 'planned', posts: 0, replies: 0, lastSync: '—', limit: 'q4 · 2026', safety: '—' }];
+
+
+const ChannelStatus = ({ s }) => {
+  const map = {
+    connected: { tone: 'ok', label: 'connected', dot: 'bg-ok' },
+    available: { tone: 'mute', label: 'available', dot: 'bg-mute2' },
+    planned: { tone: 'warn', label: 'planned', dot: 'bg-warn' }
+  };
+  const m = map[s];
+  return <Tag tone={m.tone}><span className={`h-1.5 w-1.5 rounded-full ${m.dot}`} /> {m.label}</Tag>;
+};
+
+const ChannelsView = () =>
+<>
+    <PageHeader
+    eyebrow="3 connected · 3 available · 2 planned"
+    title={<>distribution channels. <span className="text-mute">where hermes ships your signal.</span></>}
+    sub="every channel has its own rate-safety profile, posting cadence, and reply throttles. you set the ceiling — hermes never pushes past it."
+    actions={<>
+        <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[12.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint"><Icon name="ShieldCheck" size={13} /> safety profile</button>
+        <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-ink px-3 text-[12.5px] text-white hover:bg-ink2"><Icon name="Plus" size={13} /> connect channel</button>
+      </>} />
+  
+    <main className="flex flex-col gap-6 px-8 pb-12">
+      <article className="overflow-hidden rounded-lg border border-line bg-card">
+        <div className="flex items-center justify-between border-b border-line bg-paper/60 px-5 py-4">
+          <div>
+            <div className="mono mb-1 text-[10.5px] uppercase tracking-[0.12em] text-mute">card 01 · channels</div>
+            <h2 className="text-[20px] font-semibold tracking-tight">8 surfaces · 1 operator</h2>
+          </div>
+          <Tag tone="ok"><span className="live-dot h-1.5 w-1.5 rounded-full bg-ok" /> all healthy</Tag>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          {CHANNELS.map((c, i) =>
+        <div key={c.id} className={`p-5 ${i % 2 === 0 ? 'md:border-r' : ''} border-b border-line last:border-b-0 md:[&:nth-last-child(-n+2)]:border-b-0`}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-tint text-ink2"><Icon name={c.icon} size={18} stroke={1.6} /></div>
+                  <div>
+                    <div className="text-[14px] font-medium tracking-tight">{c.name}</div>
+                    <div className="mono text-[10.5px] text-mute">{c.handle || 'not connected'}</div>
+                  </div>
+                </div>
+                <ChannelStatus s={c.status} />
+              </div>
+              <div className="mono mt-4 grid grid-cols-3 gap-3 text-[10.5px]">
+                <div className="flex flex-col gap-0.5"><span className="uppercase tracking-[0.1em] text-mute2">posts</span><span className="text-[14px] font-medium tabular-nums text-ink">{c.posts}</span></div>
+                <div className="flex flex-col gap-0.5"><span className="uppercase tracking-[0.1em] text-mute2">replies</span><span className="text-[14px] font-medium tabular-nums text-ink">{c.replies}</span></div>
+                <div className="flex flex-col gap-0.5"><span className="uppercase tracking-[0.1em] text-mute2">last sync</span><span className="text-[14px] font-medium tabular-nums text-ink">{c.lastSync}</span></div>
+              </div>
+              <div className="mono mt-3 flex items-center justify-between text-[10.5px] text-mute">
+                <span>{c.limit}</span>
+                {c.status === 'connected' ?
+            <button className="flex items-center gap-1 text-ink2 hover:text-ink">configure <Icon name="ChevronRight" size={11} /></button> :
+            c.status === 'available' ?
+            <button className="flex items-center gap-1 text-coral2 hover:text-coral">connect <Icon name="ArrowRight" size={11} /></button> :
+
+            <span className="text-mute2">on roadmap</span>
+            }
+              </div>
+            </div>
+        )}
+        </div>
+      </article>
+
+      <article className="overflow-hidden rounded-lg border border-line bg-card">
+        <div className="flex items-center justify-between border-b border-line bg-paper/60 px-5 py-4">
+          <div>
+            <div className="mono mb-1 text-[10.5px] uppercase tracking-[0.12em] text-mute">card 02 · safety profile</div>
+            <h2 className="text-[20px] font-semibold tracking-tight">how we protect your accounts</h2>
+            <p className="mono mt-1 text-[11px] text-mute">hermes runs every action through a safety check. you set ceilings; we never push past them.</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3">
+          {[
+        { k: 'posts per day · max', v: '8', detail: 'auto-throttles to 4 if engagement drops 30% wow' },
+        { k: 'replies per hour · max', v: '12', detail: 'reddit gates to 1 per 6 minutes per subreddit' },
+        { k: 'cooldown after flag', v: '24h', detail: 'pauses channel automatically · pings you on slack' }].
+        map((s) =>
+        <div key={s.k} className="border-r border-line p-5 last:border-r-0">
+              <div className="mono mb-1 text-[10.5px] uppercase tracking-[0.1em] text-mute">{s.k}</div>
+              <div className="text-[28px] font-semibold tabular-nums tracking-tight">{s.v}</div>
+              <div className="mono mt-1 text-[11px] text-mute">{s.detail}</div>
+            </div>
+        )}
+        </div>
+      </article>
+    </main>
+  </>;
+
+
+/* ---------- settings ---------- */
+const SettingsView = () => {
+  const [ctx, setCtx] = useState({
+    productUrl:  'https://getfarcast.com',
+    productName: 'Farcast',
+    productDesc: 'An autonomous AI growth co-founder for solo technical founders. Farcast scans X, LinkedIn, and Reddit for high-intent conversations, drafts replies in your voice, and queues outreach via a Chrome extension.',
+    painPoint:   'Solo founders waste 2-4 hours/day on manual marketing — finding the right threads, writing replies, and pasting DMs. Farcast collapses that loop into approve-and-send.',
+  });
+  const [saved, setSaved] = useState(false);
+  const [competitors, setCompetitors] = useState([
+    { id: 1, handle: '@hypefury',     platform: 'x' },
+    { id: 2, handle: '@taplio',       platform: 'linkedin' },
+    { id: 3, handle: '@typefully',    platform: 'x' },
+    { id: 4, handle: '@buffer',       platform: 'x' },
+    { id: 5, handle: 'in/lavingia',   platform: 'linkedin' },
+  ]);
+  const [newHandle, setNewHandle] = useState('');
+  const [newPlatform, setNewPlatform] = useState('x');
+  const [slackConnected, setSlackConnected] = useState(true);
+  const [xConnected, setXConnected] = useState(false);
+
+  const setField = (k) => (e) => { setCtx({ ...ctx, [k]: e.target.value }); setSaved(false); };
+  const saveCtx = () => { setSaved(true); setTimeout(() => setSaved(false), 1800); };
+  const addCompetitor = () => {
+    const h = newHandle.trim();
+    if (!h) return;
+    setCompetitors([...competitors, { id: Date.now(), handle: h.startsWith('@') || h.startsWith('in/') ? h : '@' + h, platform: newPlatform }]);
+    setNewHandle('');
+  };
+  const removeCompetitor = (id) => setCompetitors(competitors.filter((c) => c.id !== id));
+
+  const Label = ({ children, hint }) => (
+    <div className="mb-2 flex items-baseline justify-between">
+      <label className="mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-ink">{children}</label>
+      {hint && <span className="mono text-[10.5px] text-mute">{hint}</span>}
+    </div>
+  );
+  const inputCls = 'w-full rounded-md border border-line bg-white px-3 py-2 text-[13px] leading-[1.5] text-ink placeholder:text-mute2 focus:border-coral/50 focus:outline-none focus:ring-2 focus:ring-coral/15';
+
+  return (
+    <>
+      <PageHeader
+        eyebrow="workspace · farcast"
+        title={<>settings.</>}
+        sub="Manage your Farcast engine, context, and integrations."
+        actions={null}
+      />
+      <main className="flex flex-col gap-6 px-8 pb-16">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+
+          {/* CARD 1 · CORE APP CONTEXT */}
+          <article className="overflow-hidden rounded-lg border border-line bg-card">
+            <div className="flex items-start justify-between gap-3 border-b border-line bg-paper/60 px-5 py-4">
+              <div>
+                <div className="mono mb-1 text-[10.5px] uppercase tracking-[0.12em] text-mute">card 01 · agent context</div>
+                <h2 className="text-[18px] font-semibold tracking-tight text-ink">Core app context</h2>
+                <p className="mt-1 text-[12.5px] text-mute">The source-of-truth Hermes reads from every time it drafts a post, reply, or DM. Keep this tight.</p>
+              </div>
+              <span className="mono shrink-0 rounded-md border border-line bg-paper px-2 py-[3px] text-[10.5px] text-mute">read by hermes · live</span>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 p-5 md:grid-cols-2">
+              <div>
+                <Label hint="https://">Product URL</Label>
+                <input type="url" value={ctx.productUrl} onChange={setField('productUrl')}
+                  placeholder="https://your-product.com" className={inputCls} />
+              </div>
+              <div>
+                <Label>Product name</Label>
+                <input type="text" value={ctx.productName} onChange={setField('productName')}
+                  placeholder="e.g. Farcast" className={inputCls} />
+              </div>
+              <div className="md:col-span-2">
+                <Label hint={`${ctx.productDesc.length} / 600`}>Product description</Label>
+                <textarea rows={4} value={ctx.productDesc} onChange={setField('productDesc')}
+                  placeholder="One paragraph that explains what your product is and who it is for."
+                  className={`${inputCls} resize-y`} />
+              </div>
+              <div className="md:col-span-2">
+                <Label hint="One specific problem · in your customer's words">Core pain point solved</Label>
+                <textarea rows={3} value={ctx.painPoint} onChange={setField('painPoint')}
+                  placeholder="The exact frustration your buyer types into Reddit at 11pm."
+                  className={`${inputCls} resize-y`} />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 border-t border-line bg-paper/60 px-5 py-3">
+              <span className="mono text-[10.5px] text-mute">last saved · today, 09:14am</span>
+              <div className="flex items-center gap-2">
+                {saved && <span className="mono flex items-center gap-1 text-[11px] text-emerald-700"><Icon name="Check" size={12} stroke={2} /> saved</span>}
+                <button onClick={saveCtx}
+                  className="mono flex h-8 items-center gap-1.5 rounded-md bg-coral px-3.5 text-[12.5px] font-medium text-white ring-1 ring-inset ring-coral2 hover:bg-coral2">
+                  <Icon name="Save" size={13} stroke={2} /> Save context
+                </button>
+              </div>
+            </div>
+          </article>
+
+          {/* CARD 2 · RIVAL SPYING / COMPETITORS */}
+          <article className="overflow-hidden rounded-lg border border-line bg-card">
+            <div className="flex items-start justify-between gap-3 border-b border-line bg-paper/60 px-5 py-4">
+              <div>
+                <div className="mono mb-1 text-[10.5px] uppercase tracking-[0.12em] text-mute">card 02 · rival spying</div>
+                <h2 className="text-[18px] font-semibold tracking-tight text-ink">Competitors monitored</h2>
+                <p className="mt-1 text-[12.5px] text-mute">Hermes watches what these accounts post and who engages with them. Their replies become your warm-lead candidates.</p>
+              </div>
+              <span className="mono shrink-0 rounded-md border border-line bg-paper px-2 py-[3px] text-[10.5px] text-mute">{competitors.length} of 20</span>
+            </div>
+
+            <ul className="divide-y divide-line">
+              {competitors.length === 0 && (
+                <li className="mono px-5 py-6 text-center text-[12px] text-mute">no competitors tracked yet · add one below to start spying.</li>
+              )}
+              {competitors.map((c) => (
+                <li key={c.id} className="flex items-center justify-between gap-3 px-5 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-md border ${c.platform === 'linkedin' ? 'border-blue-100 bg-blue-50 text-blue-700' : 'border-line bg-ink text-white'}`}>
+                      <Icon name={c.platform === 'linkedin' ? 'Linkedin' : 'Twitter'} size={13} stroke={2} />
+                    </div>
+                    <div className="flex flex-col leading-tight">
+                      <span className="mono text-[13px] font-medium text-ink">{c.handle}</span>
+                      <span className="mono text-[10.5px] uppercase tracking-[0.1em] text-mute">{c.platform === 'linkedin' ? 'linkedin' : 'x · twitter'}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="mono text-[10.5px] text-mute">last sync · 4m ago</span>
+                    <button onClick={() => removeCompetitor(c.id)}
+                      className="flex h-8 w-8 items-center justify-center rounded-md text-mute hover:bg-rose-50 hover:text-rose-600"
+                      aria-label={`remove ${c.handle}`}>
+                      <Icon name="Trash2" size={14} />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex flex-col gap-2 border-t border-line bg-paper/60 px-5 py-4 sm:flex-row sm:items-center">
+              <div className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-white p-0.5 ring-1 ring-inset ring-line">
+                {[
+                  { id: 'x', label: 'X', icon: 'Twitter' },
+                  { id: 'linkedin', label: 'LinkedIn', icon: 'Linkedin' },
+                ].map((p) => (
+                  <button key={p.id} onClick={() => setNewPlatform(p.id)}
+                    className={`mono flex h-7 items-center gap-1.5 rounded-[5px] px-2 text-[11px] ${newPlatform === p.id ? 'bg-ink text-white' : 'text-mute hover:text-ink'}`}>
+                    <Icon name={p.icon} size={11} /> {p.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-1 items-center gap-2 rounded-md border border-line bg-white px-3 py-1.5 focus-within:border-coral/40 focus-within:ring-2 focus-within:ring-coral/15">
+                <span className="mono text-[12px] text-mute2">{newPlatform === 'linkedin' ? 'in/' : '@'}</span>
+                <input value={newHandle} onChange={(e) => setNewHandle(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') addCompetitor(); }}
+                  placeholder={`add new ${newPlatform === 'linkedin' ? 'linkedin' : 'x'} handle`}
+                  className="flex-1 bg-transparent text-[13px] text-ink placeholder:text-mute2 focus:outline-none" />
+              </div>
+              <button onClick={addCompetitor} disabled={!newHandle.trim()}
+                className="mono flex h-9 shrink-0 items-center gap-1.5 rounded-md bg-ink px-3.5 text-[12.5px] font-medium text-white hover:bg-ink2 disabled:cursor-not-allowed disabled:bg-mute2">
+                <Icon name="Plus" size={13} stroke={2} /> Add
+              </button>
+            </div>
+          </article>
+
+          {/* CARD 3 · INTEGRATIONS */}
+          <article className="overflow-hidden rounded-lg border border-line bg-card">
+            <div className="flex items-start justify-between gap-3 border-b border-line bg-paper/60 px-5 py-4">
+              <div>
+                <div className="mono mb-1 text-[10.5px] uppercase tracking-[0.12em] text-mute">card 03 · integrations</div>
+                <h2 className="text-[18px] font-semibold tracking-tight text-ink">Connected channels &amp; tools</h2>
+                <p className="mt-1 text-[12.5px] text-mute">Hermes plugs into your stack. Notifications, posting accounts, and deploy targets live here.</p>
+              </div>
+              <span className="mono shrink-0 rounded-md border border-line bg-paper px-2 py-[3px] text-[10.5px] text-mute">{slackConnected + xConnected} of 2 connected</span>
+            </div>
+
+            {/* SLACK */}
+            <div className="flex flex-col gap-3 border-b border-line px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-line bg-paper">
+                  <Icon name="Hash" size={20} stroke={2} className="text-[#611f69]" />
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[14px] font-semibold tracking-tight text-ink">Slack Lead Routing</span>
+                    <span className={`mono inline-flex items-center gap-1.5 rounded-md border px-2 py-[3px] text-[10.5px] font-semibold uppercase tracking-[0.08em] ${slackConnected ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-line bg-paper text-mute'}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${slackConnected ? 'bg-emerald-600' : 'bg-mute2'}`} />
+                      {slackConnected ? 'connected' : 'not connected'}
+                    </span>
+                  </div>
+                  <p className="mt-1 max-w-[460px] text-[12.5px] leading-[1.55] text-mute">Push high-intent warm leads directly to a Slack channel as soon as Hermes finds them.</p>
+                  {slackConnected && (
+                    <div className="mono mt-2 flex flex-wrap items-center gap-3 text-[10.5px] text-mute">
+                      <span className="flex items-center gap-1"><Icon name="Hash" size={10} /> workspace · farcast-team</span>
+                      <span>·</span>
+                      <span className="flex items-center gap-1"><Icon name="Hash" size={10} /> channel · #warm-leads</span>
+                      <span>·</span>
+                      <span>routes hot leads only</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 sm:shrink-0">
+                {slackConnected ? (
+                  <>
+                    <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[11.5px] text-ink2 ring-1 ring-inset ring-line hover:bg-tint">
+                      <Icon name="Settings2" size={12} /> Configure channel
+                    </button>
+                    <button onClick={() => setSlackConnected(false)}
+                      className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[11.5px] text-rose-600 ring-1 ring-inset ring-rose-200 hover:bg-rose-50">
+                      <Icon name="Unplug" size={12} /> Disconnect
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => setSlackConnected(true)}
+                    className="mono flex h-9 items-center gap-1.5 rounded-md bg-coral px-3.5 text-[12.5px] font-medium text-white ring-1 ring-inset ring-coral2 hover:bg-coral2">
+                    <Icon name="Plug" size={13} stroke={2} /> Connect Slack
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* X / TWITTER */}
+            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-line bg-ink">
+                  <Icon name="Twitter" size={18} stroke={2} className="text-white" />
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[14px] font-semibold tracking-tight text-ink">X Account Connection</span>
+                    <span className={`mono inline-flex items-center gap-1.5 rounded-md border px-2 py-[3px] text-[10.5px] font-semibold uppercase tracking-[0.08em] ${xConnected ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-line bg-paper text-mute'}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${xConnected ? 'bg-emerald-600' : 'bg-mute2'}`} />
+                      {xConnected ? 'connected' : 'not connected'}
+                    </span>
+                  </div>
+                  <p className="mt-1 max-w-[460px] text-[12.5px] leading-[1.55] text-mute">Connect your primary founder account so the Chrome Extension can draft, queue, and deploy posts and DMs on your behalf.</p>
+                  {!xConnected && (
+                    <div className="mono mt-2 flex flex-wrap items-center gap-2 text-[10.5px] text-amber-700">
+                      <Icon name="TriangleAlert" size={11} className="text-amber-600" />
+                      <span>not connected · the extension will run in read-only mode until you authorize an account</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 sm:shrink-0">
+                <button onClick={() => setXConnected(!xConnected)}
+                  className={`mono flex h-9 items-center gap-1.5 rounded-md px-3.5 text-[12.5px] font-medium ring-1 ring-inset ${xConnected ? 'bg-white text-rose-600 ring-rose-200 hover:bg-rose-50' : 'bg-coral text-white ring-coral2 hover:bg-coral2'}`}>
+                  <Icon name={xConnected ? 'Unplug' : 'Plug'} size={13} stroke={2} /> {xConnected ? 'Disconnect' : 'Connect Account'}
+                </button>
+              </div>
+            </div>
+
+            <div className="border-t border-line bg-paper/60 px-5 py-3">
+              <div className="mono flex flex-wrap items-center gap-2 text-[10.5px] text-mute">
+                <span>oauth scopes · read · post · dm</span>
+                <span className="text-mute2">·</span>
+                <span>tokens stored encrypted (AES-256)</span>
+                <span className="text-mute2">·</span>
+                <a href="#" className="text-coral2 hover:text-coral">view integration logs →</a>
+              </div>
+            </div>
+          </article>
+
+          {/* DANGER ZONE — small footer */}
+          <article className="flex flex-col items-start justify-between gap-3 rounded-lg border border-line bg-card px-5 py-4 sm:flex-row sm:items-center">
+            <div>
+              <div className="text-[13.5px] font-semibold text-ink">Danger zone</div>
+              <div className="mono text-[11px] text-mute">disconnects all channels · purges voice profile · cancels billing.</div>
+            </div>
+            <button className="mono flex h-8 items-center gap-1.5 rounded-md bg-white px-3 text-[12px] text-rose-600 ring-1 ring-inset ring-rose-200 hover:bg-rose-50">
+              <Icon name="Trash2" size={12} /> Delete workspace
+            </button>
+          </article>
+
+        </div>
+      </main>
+    </>
+  );
+};
+
+/* ---------- dashboard view (existing) ---------- */
+const DashboardView = () =>
+<>
+    <Greeting />
+    <main className="flex flex-col gap-6 px-8 pb-12">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.05fr_1fr]">
+        <ContentEngine />
+        <WarmLeads />
+      </div>
+    </main>
+  </>;
+
+
+/* ---------- root ---------- */
+const SECTION_LABEL = {
+  dashboard: 'dashboard',
+  playbook: 'growth playbook',
+  leads: 'warm leads',
+  hacks: 'growth hacks',
+  channels: 'distribution channels',
+  settings: 'settings'
+};
+
+const App = () => {
+  const [section, setSection] = useState('dashboard');
+  const views = {
+    dashboard: <DashboardView />,
+    playbook: <PlaybookView />,
+    leads: <WarmLeadsView />,
+    hacks: <HacksView />,
+    channels: <ChannelsView />,
+    settings: <SettingsView />
+  };
+  return (
+    <div data-screen-label={SECTION_LABEL[section]} className="flex min-h-screen bg-paper text-ink">
+      <Sidebar active={section} onChange={setSection} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar section={SECTION_LABEL[section]} />
+        {views[section]}
+        <StatusBar />
+      </div>
+    </div>);
+
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
