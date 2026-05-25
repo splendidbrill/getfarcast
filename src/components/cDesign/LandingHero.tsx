@@ -14,9 +14,16 @@ const PHRASES = [
 export function LandingHero() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [heroUrl, setHeroUrl] = useState("");
   const typedRef = useRef<HTMLDivElement>(null);
   const stopRef = useRef(false);
   const router = useRouter();
+
+  const handleHeroCTA = () => {
+    if (isLoggedIn) { router.push("/dashboard"); return; }
+    const encoded = heroUrl.trim() ? `?url=${encodeURIComponent(heroUrl.trim())}` : "";
+    router.push(`/onboarding${encoded}`);
+  };
 
   useEffect(() => {
     const supabase = createClient();
@@ -75,15 +82,41 @@ export function LandingHero() {
             Stop staring at a blank screen. Farcast is the AI Growth co-founder that finds your ICP, handles your daily growth execution on Reddit, X and Linkedin and ghostwrites your replies for engagement natively in your browser.
           </p>
           <div className="ld-cta-row">
-            <button
-              className="ld-btn-primary"
-              onClick={() => isLoggedIn ? router.push("/dashboard") : setLoginOpen(true)}
-            >
-              {isLoggedIn ? "Go To Dashboard" : "Start your 7-day free trial"}
-              <svg className="arrow" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M3 7h8m-3-3l3 3-3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
+            {isLoggedIn ? (
+              <button className="ld-btn-primary" onClick={() => router.push("/dashboard")}>
+                Go To Dashboard
+                <svg className="arrow" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M3 7h8m-3-3l3 3-3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", maxWidth: "480px" }}>
+                <input
+                  type="url"
+                  value={heroUrl}
+                  onChange={(e) => setHeroUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleHeroCTA()}
+                  placeholder="https://your-saas.com"
+                  style={{
+                    flex: 1,
+                    height: "44px",
+                    padding: "0 14px",
+                    borderRadius: "10px",
+                    border: "1.5px solid #e7e5e0",
+                    fontSize: "14px",
+                    outline: "none",
+                    background: "#fff",
+                    color: "#1c1917",
+                  }}
+                />
+                <button className="ld-btn-primary" onClick={handleHeroCTA} style={{ whiteSpace: "nowrap", flexShrink: 0 }}>
+                  Analyze my product
+                  <svg className="arrow" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M3 7h8m-3-3l3 3-3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            )}
             <span className="ld-sub-link">Still at Zero Users? <a href="#">Click here for a free 1-month builder&apos;s pass.</a></span>
           </div>
           {/* <div className="ld-trust-row">

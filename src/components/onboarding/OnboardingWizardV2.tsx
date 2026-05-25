@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -858,6 +858,15 @@ export function OnboardingWizardV2() {
     problem: "",
     who: "",
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const url = params.get("url");
+    if (url) {
+      setProductState((prev) => ({ ...prev, url }));
+      setStep(1);
+    }
+  }, []);
   const [rivals, setRivals] = useState<string[]>(["", "", ""]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
