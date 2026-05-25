@@ -1,0 +1,5 @@
+f = open('/tmp/mycron.txt', 'w')
+f.write('0 4 * * * curl -s -X POST https://getfarcast.com/api/background/hermes-scan -H "Authorization: Bearer jaishreeram" >> /var/log/hermes-scan.log 2>&1\n')
+f.write('0 5 * * * curl -s -X POST https://getfarcast.com/api/background/hermes-daily -H "Authorization: Bearer jaishreeram" >> /var/log/hermes-daily.log 2>&1\n')
+f.close()
+print("done")

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
+import { OnboardingWizardV2 } from "@/components/onboarding/OnboardingWizardV2";
 
 export const metadata: Metadata = {
   title: "Get Your Growth Playbook — GetFarcast",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function OnboardingPage() {
-  return <OnboardingWizard />;
+  return <OnboardingWizardV2 />;
 }

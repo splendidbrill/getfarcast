@@ -21,6 +21,7 @@ import { PlaybookPrintView } from "./PlaybookPrintView";
 import { WarmLeads } from "./WarmLeads";
 import { GrowthHacks } from "./GrowthHacks";
 import { QueueManager } from "./QueueManager";
+import { HermesDailyQueueCard } from "./HermesDailyQueueCard";
 import Link from "next/link";
 
 type MainTab = "dashboard" | "overview" | "icp" | "channels" | "rivals" | "posts" | "leads" | "growth-hacks" | "queue";
@@ -953,7 +954,7 @@ function DashboardView({ playbook, playbookId, onNavigate }: {
 
         {/* Card 01 + Card 02 */}
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.05fr_1fr]">
-          <DashboardContentEngineCard playbook={playbook} playbookId={playbookId} />
+          <HermesDailyQueueCard playbookId={playbookId} />
           <DashboardWarmLeadsCard playbookId={playbookId} playbook={playbook} onNavigate={onNavigate} />
         </div>
       </main>

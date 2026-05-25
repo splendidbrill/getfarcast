@@ -27,6 +27,9 @@ export interface WizardFormData {
   // Step 4: Goal
   primaryGoal: GoalType;
   timeline: Timeline;
+
+  // Optional: competitor URLs/handles from new onboarding flow
+  competitors?: string[];
 }
 
 // --- AI-Generated Playbook ---

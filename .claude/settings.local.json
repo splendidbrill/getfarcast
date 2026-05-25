@@ -27,7 +27,13 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\src\\\\app\\\\api\" -Recurse -Force 2>$null | Select-Object FullName | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\\", \"\"\\) })",
       "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\" -Depth 1 | Where-Object { $_.PSIsContainer } | Select-Object Name)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\src\\\\lib\" -Recurse | Select-Object FullName | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Code\\\\getfarcast\\\\getfarcast\\\\\", \"\"\\) })",
-      "WebFetch(domain:api.pullpush.io)"
+      "WebFetch(domain:api.pullpush.io)",
+      "WebFetch(domain:api.anthropic.com)",
+      "Read(//tmp/**)",
+      "Read(//c/tmp/**)",
+      "Read(//c/Users/splen/AppData/Local/Temp/farcast_design/**)",
+      "Bash(find \"/mnt/c/Users/splen/AppData/Local/Temp/farcast_landing\" -type f 2>/dev/null)",
+      "Read(//mnt/c/Users/splen/AppData/Local/Temp/**)"
     ]
   }
 }
