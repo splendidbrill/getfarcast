@@ -299,14 +299,41 @@ function StepProduct({
   setState: React.Dispatch<React.SetStateAction<ProductState>>;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [scanError, setScanError] = useState<string>("");
   const { url, scanStatus, does, problem, who } = state;
 
-  const runAutoFill = () => {
+  const runAutoFill = async () => {
     if (!url || scanStatus === "scanning") return;
+    setScanError("");
     setState((s) => ({ ...s, scanStatus: "scanning" }));
-    setTimeout(() => {
-      setState((s) => ({ ...s, scanStatus: "done" }));
-    }, 1800);
+    try {
+      const res = await fetch("/api/auto-fill-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const data = (await res.json()) as {
+        does?: string;
+        problem?: string;
+        who?: string;
+        error?: string;
+      };
+      if (!res.ok) throw new Error(data.error || "Auto-fill failed");
+      setState((s) => ({
+        ...s,
+        scanStatus: "done",
+        does: data.does || s.does,
+        problem: data.problem || s.problem,
+        who: data.who || s.who,
+      }));
+    } catch (err) {
+      setScanError(
+        err instanceof Error
+          ? err.message
+          : "Couldn't auto-fill from that URL."
+      );
+      setState((s) => ({ ...s, scanStatus: "idle" }));
+    }
   };
 
   const fields: {
@@ -388,13 +415,14 @@ function StepProduct({
               ref={inputRef}
               type="url"
               value={url}
-              onChange={(e) =>
+              onChange={(e) => {
+                setScanError("");
                 setState((s) => ({
                   ...s,
                   url: e.target.value,
                   scanStatus: "idle",
-                }))
-              }
+                }));
+              }}
               placeholder="https://yourstartup.com"
               className="w-full rounded-lg border border-stone-200 bg-white pl-9 pr-3 py-2.5 text-[14px] placeholder:text-stone-400 transition-all focus:outline-none"
               style={{ color: INK }}
@@ -434,10 +462,16 @@ function StepProduct({
         </div>
         {/* Status line */}
         <div className="mt-2 h-5 text-[12px] font-mono text-stone-500">
-          {scanStatus === "idle" && (
+          {scanStatus === "idle" && !scanError && (
             <span>
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-stone-300 mr-2 align-middle" />
               Awaiting URL…
+            </span>
+          )}
+          {scanStatus === "idle" && scanError && (
+            <span style={{ color: ACCENT }}>
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-2 align-middle" />
+              {scanError}
             </span>
           )}
           {scanStatus === "scanning" && (
