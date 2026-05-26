@@ -249,34 +249,47 @@ function RedditPostCard({ post }: { post: Post }) {
 }
 
 function ChannelSection({
-  content, onRegenerate, regenerating, readOnly, playbookId,
+  content, onRegenerate, regenerating, readOnly, playbookId, regenerateError,
 }: {
   content: ChannelContent;
   onRegenerate: (channelName: string) => void;
   regenerating: boolean;
   readOnly: boolean;
   playbookId?: string;
+  regenerateError?: string;
 }) {
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-base font-bold text-[#1a1a2e]">{content.channelName}</h3>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h3 className="text-base font-bold text-[#1a1a2e]">
+          {content.channelName} <span className="text-xs font-medium text-gray-400">({content.posts.length} {content.posts.length === 1 ? "post" : "posts"})</span>
+        </h3>
         {!readOnly && (
-          <button
-            onClick={() => onRegenerate(content.channelName)}
-            disabled={regenerating}
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-[#ff6b4e] transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${regenerating ? "animate-spin" : ""}`} />
-            Regenerate
-          </button>
+          <div className="flex flex-col items-end gap-1">
+            <button
+              onClick={() => onRegenerate(content.channelName)}
+              disabled={regenerating}
+              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-[#ff6b4e] transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${regenerating ? "animate-spin" : ""}`} />
+              {regenerating ? "Regenerating…" : "Regenerate"}
+            </button>
+            {regenerateError && (
+              <p className="text-xs text-red-500 font-medium">{regenerateError}</p>
+            )}
+          </div>
         )}
       </div>
-      <div className="space-y-3">
+      <div className={`space-y-3 relative transition-opacity duration-200 ${regenerating ? "opacity-40 pointer-events-none" : ""}`}>
+        {regenerating && (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <Loader2 className="w-6 h-6 animate-spin text-[#ff6b4e]" />
+          </div>
+        )}
         {content.posts.map((post, idx) =>
           post.type === "reddit_subreddit"
             ? <RedditPostCard key={idx} post={post} />
-            : <PostCard key={post.type} post={post} playbookId={playbookId} channelName={content.channelName} />
+            : <PostCard key={idx} post={post} playbookId={playbookId} channelName={content.channelName} />
         )}
       </div>
     </div>
@@ -425,10 +438,12 @@ export function WeeklyContentEngine({ playbook }: Props) {
 
   const [selectedChannels, setSelectedChannels] = useState<string[]>([...tier1Channels]);
   const [generatedContent, setGeneratedContent] = useState<ChannelContent[]>([]);
+  const generatedContentRef = useRef<ChannelContent[]>([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [regeneratingChannel, setRegeneratingChannel] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [channelError, setChannelError] = useState<{ channel: string; message: string } | null>(null);
   const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Load dates that have content
@@ -481,8 +496,9 @@ export function WeeklyContentEngine({ playbook }: Props) {
   const handleSelectDate = (date: string) => {
     setSelectedDate(date);
     setError("");
-    const saved = localStorage.getItem(storageKey(playbook.id, date));
-    setGeneratedContent(saved ? JSON.parse(saved) : []);
+    const parsed: ChannelContent[] = JSON.parse(localStorage.getItem(storageKey(playbook.id, date)) ?? "null") ?? [];
+    generatedContentRef.current = parsed;
+    setGeneratedContent(parsed);
     setView("content");
   };
 
@@ -516,13 +532,18 @@ export function WeeklyContentEngine({ playbook }: Props) {
     setDatesWithContent((prev) => new Set([...prev, date]));
   };
 
+  const setContent = (next: ChannelContent[]) => {
+    generatedContentRef.current = next;
+    setGeneratedContent(next);
+  };
+
   const handleGenerate = async () => {
     if (!selectedChannels.length) return;
     setLoading(true);
     setError("");
     try {
       const newContent = await callAPI(selectedChannels);
-      setGeneratedContent(newContent);
+      setContent(newContent);
       saveContent(selectedDate, newContent);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -533,18 +554,45 @@ export function WeeklyContentEngine({ playbook }: Props) {
 
   const handleRegenerate = async (channelName: string) => {
     setRegeneratingChannel(channelName);
-    setError("");
+    setChannelError(null);
     try {
       const fresh = await callAPI([channelName]);
-      const updated = generatedContent.map((c) => c.channelName === channelName ? fresh[0] : c);
-      if (!updated.find((c) => c.channelName === channelName)) updated.push(fresh[0]);
-      setGeneratedContent(updated);
+      if (!fresh?.length || !fresh[0]) {
+        throw new Error("No content returned from API.");
+      }
+      // Force the channel name to match what was requested — defends against any API mismatch
+      const freshChannel: ChannelContent = { ...fresh[0], channelName };
+
+      // Filter out ALL existing entries for this channel (dedupes any accumulated duplicates),
+      // then append exactly one fresh entry. This guarantees no accumulation regardless of prior state corruption.
+      const current = generatedContentRef.current;
+      const otherChannels = current.filter((c) => c.channelName !== channelName);
+      // Preserve the original ordering: find where this channel was, put it back there
+      const originalIndex = current.findIndex((c) => c.channelName === channelName);
+      const updated = originalIndex >= 0
+        ? [...otherChannels.slice(0, originalIndex), freshChannel, ...otherChannels.slice(originalIndex)]
+        : [...otherChannels, freshChannel];
+
+      setContent(updated);
       saveContent(selectedDate, updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Regeneration failed.");
+      setChannelError({ channel: channelName, message: err instanceof Error ? err.message : "Regeneration failed." });
     } finally {
       setRegeneratingChannel(null);
     }
+  };
+
+  const handleResetDay = () => {
+    if (!selectedDate) return;
+    localStorage.removeItem(storageKey(playbook.id, selectedDate));
+    setContent([]);
+    setChannelError(null);
+    setError("");
+    setDatesWithContent((prev) => {
+      const next = new Set(prev);
+      next.delete(selectedDate);
+      return next;
+    });
   };
 
   const today = todayStr();
@@ -640,6 +688,18 @@ export function WeeklyContentEngine({ playbook }: Props) {
         </div>
       )}
 
+      {/* Reset day — only if there's content and we're on today */}
+      {!readOnly && generatedContent.length > 0 && (
+        <div>
+          <button
+            onClick={handleResetDay}
+            className="text-xs text-gray-400 hover:text-red-500 transition-colors underline"
+          >
+            Clear today's content and start fresh
+          </button>
+        </div>
+      )}
+
       {/* Generate button + progress — only for today */}
       {!readOnly && (
         <div className="space-y-3">
@@ -684,6 +744,7 @@ export function WeeklyContentEngine({ playbook }: Props) {
               regenerating={regeneratingChannel === content.channelName}
               readOnly={readOnly}
               playbookId={playbook.id}
+              regenerateError={channelError?.channel === content.channelName ? channelError.message : undefined}
             />
           ))}
         </div>

@@ -1,7 +1,5 @@
 import { API_ENDPOINTS } from './constants';
 import type {
-    ContentPerformancePayload,
-    EngagerLeadsPayload,
     ExtensionConfig,
     IntentLeadsPayload
 } from './types';
@@ -45,26 +43,6 @@ async function authorizedFetch<T>(
 
 export async function fetchExtensionConfig(input: AuthorizedRequest): Promise<ExtensionConfig> {
     return authorizedFetch<ExtensionConfig>(API_ENDPOINTS.CONFIG, input);
-}
-
-export async function submitContentPerformance(
-    input: AuthorizedRequest & { payload: ContentPerformancePayload }
-) {
-    return authorizedFetch<{ ok: boolean }>(API_ENDPOINTS.CONTENT_PERFORMANCE, {
-        ...input,
-        method: 'POST',
-        body: input.payload
-    });
-}
-
-export async function submitEngagerLeads(
-    input: AuthorizedRequest & { payload: EngagerLeadsPayload }
-) {
-    return authorizedFetch<{ ok: boolean }>(API_ENDPOINTS.ENGAGER_LEADS, {
-        ...input,
-        method: 'POST',
-        body: input.payload
-    });
 }
 
 export async function submitIntentLeads(

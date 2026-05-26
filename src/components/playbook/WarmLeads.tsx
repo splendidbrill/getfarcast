@@ -103,6 +103,7 @@ export function WarmLeads({
     type ProfileFetchState = "idle" | "fetching" | "done";
     const [profileFetch, setProfileFetch] = useState<Record<"linkedin" | "twitter_x", ProfileFetchState>>({ linkedin: "idle", twitter_x: "idle" });
     const [profileCounts, setProfileCounts] = useState<Record<"linkedin" | "twitter_x", number>>({ linkedin: 0, twitter_x: 0 });
+    const [profileErrors, setProfileErrors] = useState<Record<"linkedin" | "twitter_x", string | null>>({ linkedin: null, twitter_x: null });
 
     const extensionInstalled = useExtensionDetected();
     const [extModalDismissed, setExtModalDismissedState] = useState(false);
@@ -219,6 +220,10 @@ export function WarmLeads({
         try { localStorage.setItem(`farcast_profile_${p}_${playbookId}`, Date.now().toString()); } catch {}
     };
 
+    const clearProfileRefreshCache = (p: "linkedin" | "twitter_x") => {
+        try { localStorage.removeItem(`farcast_profile_${p}_${playbookId}`); } catch {}
+    };
+
     const handleFindLeads = async () => {
         const queries: string[] = [
             ...Array.from(selectedKeywords).map((i) => suggestedKeywords[i]).filter((q): q is string => Boolean(q)),
@@ -291,6 +296,7 @@ export function WarmLeads({
                     }),
                 });
                 const data = await res.json();
+                console.log(`[WarmLeads] xray-search ${p} "${icpQuery}":`, { status: res.status, leadsCount: data.leadsCount, error: data.error });
                 if (res.ok) {
                     totalLeads += data.leadsCount ?? 0;
                 } else {
@@ -302,9 +308,11 @@ export function WarmLeads({
             }
         }
 
-        setProfileCounts((prev) => ({ ...prev, [p]: discoverError && totalLeads === 0 ? -1 : totalLeads }));
-        markProfilesRefreshed(p);
-        setProfileFetch((prev) => ({ ...prev, [p]: discoverError && totalLeads === 0 ? "error" as any : "done" }));
+        const failed = Boolean(discoverError) && totalLeads === 0;
+        setProfileCounts((prev) => ({ ...prev, [p]: failed ? -1 : totalLeads }));
+        setProfileErrors((prev) => ({ ...prev, [p]: failed ? (discoverError ?? "Unknown error") : null }));
+        if (!failed) markProfilesRefreshed(p); else clearProfileRefreshCache(p);
+        setProfileFetch((prev) => ({ ...prev, [p]: failed ? "error" as any : "done" }));
     };
 
     const fetchLeads = async () => {
@@ -339,14 +347,16 @@ export function WarmLeads({
     const autoDiscoveredRef = useRef("");
 
     useEffect(() => {
-        if (suggestedKeywords.length === 0) return;
+        console.log("[WarmLeads] auto-discover effect", { kwLen: suggestedKeywords.length, ref: autoDiscoveredRef.current });
+        if (suggestedKeywords.length === 0) { console.log("[WarmLeads] bail: no keywords"); return; }
         const key = `${playbookId}:${suggestedKeywords.length}`;
-        if (autoDiscoveredRef.current === key) return;
+        if (autoDiscoveredRef.current === key) { console.log("[WarmLeads] bail: ref already set to", key); return; }
 
         const platforms: Array<"linkedin" | "twitter_x"> = ["linkedin", "twitter_x"];
         const stale = platforms.filter(shouldRefreshProfiles);
+        console.log("[WarmLeads] stale platforms:", stale, "localStorage keys:", Object.keys(localStorage).filter(k => k.startsWith("farcast_profile")));
         autoDiscoveredRef.current = key;
-        if (stale.length === 0) return;
+        if (stale.length === 0) { console.log("[WarmLeads] bail: all platforms fresh"); return; }
 
         (async () => {
             for (const p of stale) await triggerAutoDiscover(p);
@@ -399,7 +409,7 @@ export function WarmLeads({
                                 {state === "fetching" ? (
                                     <><Loader2 className="w-3 h-3 animate-spin text-[#ff6b4e]" /> Discovering {label} leads…</>
                                 ) : (state as string) === "error" ? (
-                                    <span className="text-red-500 font-semibold">{label}: search failed — check console</span>
+                                    <span className="text-red-500 font-semibold" title={profileErrors[p] ?? undefined}>{label}: {profileErrors[p] ?? "search failed"}</span>
                                 ) : (
                                     <span className={count > 0 ? "text-green-600 font-semibold" : "text-gray-400"}>
                                         {label}: {count > 0 ? `+${count} new leads` : "no new leads"}

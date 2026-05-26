@@ -73,23 +73,16 @@ export async function POST(request: Request) {
     let query = "";
     if (platform === "linkedin") {
       const primaryTitle = icpJobTitles[0];
-      // Keep LinkedIn query short — Google handles exact phrases better than long free-text
       const shortQuery = cleanQuery.split(/\s+/).slice(0, 5).join(' ');
       query = primaryTitle
-        ? `site:linkedin.com/posts/ "${primaryTitle}" ${shortQuery}`
-        : `site:linkedin.com/posts/ ${shortQuery}`;
+        ? `linkedin ${primaryTitle} ${shortQuery}`
+        : `linkedin ${shortQuery}`;
     } else if (platform === "reddit") {
-      query = `site:reddit.com ${cleanQuery}`;
+      query = `reddit.com ${cleanQuery}`;
     } else if (platform === "twitter_x") {
-      query = `site:twitter.com ${cleanQuery}`;
+      query = `twitter.com ${cleanQuery}`;
     } else {
       return NextResponse.json({ error: "Invalid platform" }, { status: 400 });
-    }
-
-    // Check usage limit without pre-consuming — we'll count actual leads found below
-    const usageCheck = await checkAndIncrementUsage(user.id, "leads", 1, user.email ?? undefined);
-    if (!usageCheck.allowed) {
-      return NextResponse.json({ error: usageCheck.error }, { status: 403 });
     }
 
     console.log("[xray-search] query:", JSON.stringify(query));
@@ -109,6 +102,7 @@ export async function POST(request: Request) {
     }
 
     const serperData = await serperRes.json();
+    console.log("[xray-search] Serper returned", serperData.organic?.length ?? 0, "results for platform:", platform);
 
     // Keep only results from the last 30 days; results with no date pass through
     const organicResults = (serperData.organic || []).filter((result: any) => {
@@ -224,6 +218,11 @@ export async function POST(request: Request) {
       if (newRows.length > 0) {
         const { error: insertError } = await admin.from("intent_leads").upsert(newRows, { onConflict: "user_id,lead_fingerprint", ignoreDuplicates: true });
         if (insertError) console.error("[xray-search] insert error", insertError);
+
+        const usageCheck = await checkAndIncrementUsage(user.id, "leads", newRows.length, user.email ?? undefined);
+        if (!usageCheck.allowed) {
+          console.warn("[xray-search] usage limit hit after insert:", usageCheck.error);
+        }
       }
 
       for (const row of repeatRows) {

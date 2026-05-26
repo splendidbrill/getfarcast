@@ -1,7 +1,5 @@
 import {
     fetchExtensionConfig,
-    submitContentPerformance,
-    submitEngagerLeads,
     submitIntentLeads
 } from '../shared/api'
 import { API_ENDPOINTS, DEFAULT_API_BASE_URL, REDDIT_SEARCH_THROTTLE_MS, STORAGE_KEYS, STORAGE_KEYS_EXTRA } from '../shared/constants'
@@ -218,39 +216,6 @@ async function handleRuntimeMessage(message: RuntimeMessage) {
             const result = await syncRemoteConfig(true)
             const response: SyncNowResponse = result
             return response
-        }
-
-        case MessageType.REPORT_PAGE_CONTEXT:
-            console.info('[Farcast][Background] Passive page context report', message.payload)
-            return { ok: true }
-
-        case MessageType.SUBMIT_CONTENT_PERFORMANCE: {
-            const authToken = await getFromStorage<string>(STORAGE_KEYS.FARCAST_AUTH_TOKEN)
-            const apiBaseUrl =
-                (await getFromStorage<string>(STORAGE_KEYS.API_BASE_URL)) ?? DEFAULT_API_BASE_URL
-
-            if (!authToken) {
-                return { ok: false, error: 'Missing auth token' }
-            }
-
-            await submitContentPerformance({ apiBaseUrl, authToken, payload: message.payload })
-            return { ok: true }
-        }
-
-        case MessageType.SUBMIT_ENGAGER_LEADS: {
-            const authToken = await getFromStorage<string>(STORAGE_KEYS.FARCAST_AUTH_TOKEN)
-            const apiBaseUrl =
-                (await getFromStorage<string>(STORAGE_KEYS.API_BASE_URL)) ?? DEFAULT_API_BASE_URL
-
-            if (!authToken) {
-                return { ok: false, error: 'Missing auth token' }
-            }
-
-            await submitEngagerLeads({ apiBaseUrl, authToken, payload: message.payload })
-            await mergeCapturedLeadIds(
-                message.payload.leads.map((lead: { profile_url: string }) => lead.profile_url)
-            )
-            return { ok: true }
         }
 
         case MessageType.SUBMIT_INTENT_LEADS: {

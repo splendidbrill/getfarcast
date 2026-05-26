@@ -48,16 +48,20 @@ If a sentence could appear verbatim in a LinkedIn lunchtime motivational post, d
 export function scrubAITells(text: string): string {
   if (!text) return text;
   return text
+    // Markdown headers (## Heading, ### Heading, etc.) → plain text
+    .replace(/^#{1,6}\s+/gm, "")
+    // Markdown-style bullet points at line start → strip the marker, keep the text
+    .replace(/^(\s*)[*-]\s+/gm, "$1")
     // Em and en dashes → commas or regular hyphens in context
     .replace(/\s+—\s+/g, ", ")
     .replace(/\s+–\s+/g, ", ")
     .replace(/—/g, ",")
     .replace(/–/g, "-")
     // Smart quotes → straight quotes
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
     // Remove sparkles/fire emoji bullet openers common in LLM output
-    .replace(/^[\s\u2728\ud83d\udd25\ud83d\udca1\ud83d\ude80\ud83c\udfaf]+/gm, "")
+    .replace(/^[\s✨🔥💡🚀🎯]+/gm, "")
     .trim();
 }
 

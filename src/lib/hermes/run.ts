@@ -71,10 +71,23 @@ export interface PlaybookRow {
 export async function runForUser(
   pb: PlaybookRow,
   today: Date,
-  dayIndex: number
+  dayIndex: number,
+  force = false
 ): Promise<number> {
   const { productName, productDescription, industry, subreddits: fallbackSubs } = extractContext(pb.data);
   const times = scheduledTimes(today);
+
+  // On force-regenerate, delete today's existing entries so we don't duplicate
+  if (force) {
+    const startOfDay = new Date(today);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    await admin()
+      .from("daily_queue")
+      .delete()
+      .eq("user_id", pb.user_id)
+      .eq("playbook_id", pb.id)
+      .gte("created_at", startOfDay.toISOString());
+  }
 
   const userSubs = await getUserSubreddits(pb.user_id, pb.id);
   const subreddits = userSubs.length > 0 ? userSubs : fallbackSubs;
@@ -90,7 +103,7 @@ export async function runForUser(
   }. Anchor: "${anchor.text.slice(0, 120)}"`;
 
   const directive = getLinkedInDirective(dayIndex);
-  const skipReddit = await hasRedditPostThisWeek(pb.user_id, pb.id);
+  const skipReddit = force ? false : await hasRedditPostThisWeek(pb.user_id, pb.id);
 
   const [linkedinResult, xResult, redditResult] = await Promise.all([
     generateLinkedIn(anchor, productName, productDescription, dayIndex),

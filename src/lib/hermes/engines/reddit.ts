@@ -124,8 +124,10 @@ ${topPostsText}
 CONTENT RULES:
 - 90% of the post = step-by-step workflow the reader can execute WITHOUT ${productName}
 - Final 10% = one casual mention: "I automated this part with ${productName}" or equivalent. Not a pitch. Not a CTA.
-- Reddit native markdown only (## headers, - bullet points)
-- No bolded colons anywhere
+- Write in plain prose — no ## headers, no em-dashes (—), no bolded colons
+- Use numbered steps (1. 2. 3.) or short paragraphs instead of headers
+- Bullet points are fine for brief lists but keep them tight (3 items max)
+- Sound like a person typing, not a document being formatted
 - First paragraph: no native vocabulary, no product name
 - Sound like you learned this by losing money or time
 
@@ -149,5 +151,12 @@ Write the post now.`,
   const raw = completion.choices[0]?.message?.content ?? "{}";
   const result = parseJSON<{ title: string; body: string }>(raw);
   if (!result.title || !result.body) return null;
+
+  // Strip markdown headers and em-dashes that make posts look AI-written
+  result.body = result.body
+    .replace(/^#{1,3}\s+/gm, "")   // ## Step 1 → Step 1
+    .replace(/—/g, "-")             // em-dash → hyphen
+    .replace(/\*\*(.+?)\*\*/g, "$1"); // **bold** → plain
+
   return result;
 }

@@ -30,9 +30,10 @@ const ANTI_AI_SLOP = `CRITICAL "ANTI-AI SLOP" RULES:
 1. NO transition words ("Moreover", "Furthermore", "Additionally", "Importantly").
 2. NO corporate jargon ("Delve", "Unpack", "Synergies", "Leverage", "Holistic", "Navigate").
 3. NO "therapist voice" ("powerful opportunity", "lean into").
-4. NO formatting crutches (no bold text, no bullet points, no colons).
+4. NO formatting crutches (no bold text, no bullet points, no colons, no ## markdown headers, no numbered "Step 1 / Step 2" frameworks).
 5. NO neat little bows ("Ultimately...", "At the end of the day...").
-6. NO excessive adverbs or fake pleasantries. No exclamation marks unless quoting someone.`;
+6. NO excessive adverbs or fake pleasantries. No exclamation marks unless quoting someone.
+7. NO long dashes (—). Use commas or periods instead.`;
 
 const PLATFORM_PLAYBOOKS: Record<Platform, string> = {
   reddit: `REDDIT PLATFORM PLAYBOOK:
@@ -350,12 +351,12 @@ async function generateSingleRedditPost(
 
 ${ANTI_AI_SLOP}
 
-REDDIT-SPECIFIC RULES:
-- Mirror the EXACT formatting, length, and tone of the top posts provided.
-- Proper sentence capitalization always — sentences start with a capital letter.
-- No direct product URL in the post body — ever.
-- No emojis. Raw, slightly cynical, conversational tone.
-- End abruptly. No call to action.
+REDDIT FORMAT RULES — ABSOLUTE:
+- The body field must be plain prose paragraphs ONLY. This means: no markdown headers, no bullet points, no numbered lists, no bold, no italic, no "Step N:" sections. If your output contains any of these, it is wrong.
+- Write the way a real person tells a story to another person. Not a tutorial. Not a blog post. Not a framework.
+- Sentences start with capital letters. No emojis.
+- No direct product URL anywhere in the body.
+- End mid-thought or on a specific detail. No call to action.
 
 Return valid JSON only.`;
 
@@ -375,33 +376,39 @@ Target Audience: ${icpSummary}`;
 Product Name: ${productName}
 What It Does: ${productDescription}
 
-Strategy: VALUE + SEEDED — The Trojan Horse
-- The post must be 90% raw value: a real insight, story, or data point your audience cares about.
-- Casually insert the product as CONTEXT, not as a pitch. The mention should feel incidental, like you're explaining your situation.
-  GOOD: "I was digging through the user data for ${productName} last week and noticed..."
-  GOOD: "I built ${productName} because I was dealing with exactly this, and what I learned was..."
-  BAD: "If you have this problem, check out ${productName}!"
-- Do NOT include any URL or link in the body. Ever.
-- The product mention should feel like a detail in a story, not the point of the post.
-- Instructions: tell the user how to drop their link ONLY after engagement (e.g., wait for a reply, then comment the link).
+BODY FORMAT — THIS IS NON-NEGOTIABLE:
+Write 2 to 4 plain paragraphs. Nothing else.
+No headers. No bullet points. No numbered steps. No bold text. No "Step 1:", "Step 2:".
+The body must read like a human typed it on their phone after a long day — not a blog post.
 
-Return JSON:
+WHAT TO WRITE:
+Tell a specific personal story. A mistake you made, something you noticed in your data, a conversation that stuck with you, a frustrating pattern you kept hitting. Make it concrete enough that a founder reading it would recognize their own situation.
+
+Weave ${productName} into the story as background detail — like you're giving context about your situation, not pitching it.
+NATURAL: "I was staring at the retention numbers in ${productName} on a Sunday and..."
+NATURAL: "I built ${productName} because I kept running into this exact problem and..."
+UNACCEPTABLE: "If you're dealing with this, ${productName} can help."
+No URL or link in the body, ever.
+
+Return JSON (body must be plain paragraphs only, no markdown):
 {
   "flair": "Discussion",
   "title": "...",
   "body": "...",
-  "instructions": "..."
+  "instructions": "Wait for replies, then drop your link in the comments — not in the post."
 }`
     : `${sharedContext}
 
-Strategy: PURE VALUE — Karma Builder
-- ZERO product mentions. Do not name any app, tool, or brand you built.
-- 100% raw story, insight, or data that stands completely on its own.
-- The reader should get real value with no idea you have a product.
-- Mirror the exact format and tone of the top posts above.
-- Instructions: one short culture tip specific to this subreddit.
+BODY FORMAT — THIS IS NON-NEGOTIABLE:
+Write 2 to 4 plain paragraphs. Nothing else.
+No headers. No bullet points. No numbered steps. No bold text. No "Step 1:", "Step 2:".
+The body must read like a human typed it on their phone — not a tutorial or blog post.
 
-Return JSON:
+WHAT TO WRITE:
+Tell a real story or share a counterintuitive observation. A specific moment, a data point that surprised you, something you tried that flopped, or a pattern you noticed after talking to a lot of people.
+No product mentions of any kind.
+
+Return JSON (body must be plain paragraphs only, no markdown):
 {
   "flair": "Discussion",
   "title": "...",

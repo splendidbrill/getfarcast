@@ -48,12 +48,14 @@ export async function POST(request: Request) {
     const drafts = await runForUser(
       { id: pb.id, user_id: pb.user_id, data: pb.data as Record<string, unknown> },
       today,
-      dayIndex
+      dayIndex,
+      force
     );
 
     return Response.json({ success: true, drafts });
   } catch (err) {
-    console.error("[hermes/generate]", err);
-    return Response.json({ error: "Generation failed" }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[hermes/generate]", msg);
+    return Response.json({ error: msg }, { status: 500 });
   }
 }

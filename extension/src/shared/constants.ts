@@ -19,8 +19,6 @@ export const QUEUE_CHECK_THROTTLE_MS = 60 * 1000; // 1 minute
 
 export const API_ENDPOINTS = {
     CONFIG: '/api/extension/config',
-    CONTENT_PERFORMANCE: '/api/extension/content-performance',
-    ENGAGER_LEADS: '/api/extension/engager-leads',
     INTENT_LEADS: '/api/extension/intent-leads',
     GENERATE_REPLY: '/api/extension/generate-reply',
     QUEUE: '/api/agent/queue',
