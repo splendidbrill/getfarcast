@@ -8,7 +8,7 @@ import {
   Clock, Network, Flame, BarChart2, CalendarDays, Lightbulb,
   X as XIcon, AtSign, MessageCircle, RotateCw, MoreHorizontal,
   ArrowRight, ChevronDown, Copy, Pencil, Quote, ArrowUpRight,
-  Send, Filter, Loader2,
+  Send, Filter, Loader2, Settings,
 } from "lucide-react";
 import type { Playbook } from "@/lib/types";
 import { PlaybookOverview } from "./PlaybookOverview";
@@ -22,9 +22,10 @@ import { WarmLeads } from "./WarmLeads";
 import { GrowthHacks } from "./GrowthHacks";
 import { QueueManager } from "./QueueManager";
 import { HermesDailyQueueCard } from "./HermesDailyQueueCard";
+import { SettingsView } from "./SettingsView";
 import Link from "next/link";
 
-type MainTab = "dashboard" | "overview" | "icp" | "channels" | "rivals" | "posts" | "leads" | "growth-hacks" | "queue";
+type MainTab = "dashboard" | "overview" | "icp" | "channels" | "rivals" | "posts" | "leads" | "growth-hacks" | "queue" | "settings";
 type ContentSubTab = "weekly-engine" | "weekly-ideas";
 type Platform = "x" | "linkedin" | "reddit";
 
@@ -98,6 +99,7 @@ const SECTION_LABEL: Record<MainTab, string> = {
   rivals:         "rival spying",
   queue:          "post queue",
   posts:          "content engine",
+  settings:       "settings",
 };
 
 const NAV_ITEMS: { id: MainTab; icon: React.ElementType; label: string }[] = [
@@ -110,6 +112,7 @@ const NAV_ITEMS: { id: MainTab; icon: React.ElementType; label: string }[] = [
   { id: "rivals",       icon: Eye,             label: "Rival Spying" },
   { id: "queue",        icon: Clock,           label: "Post Queue" },
   { id: "posts",        icon: Sparkles,        label: "Content Engine" },
+  { id: "settings",     icon: Settings,        label: "Settings" },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -1067,16 +1070,16 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
             {activeTab === "dashboard" && (
               <DashboardView playbook={playbook} playbookId={playbookId} onNavigate={setActiveTab} />
             )}
-            {activeTab !== "dashboard" && (
+            {activeTab !== "dashboard" && activeTab !== "settings" && (
               <div className="mx-auto max-w-[1480px] px-8 py-8">
                 <div className="rounded-3xl border border-[#E7E5E0] bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-8">
                   {activeTab === "overview" && <PlaybookOverview playbook={playbook} />}
                   {activeTab === "icp" && <PlaybookICP icp={playbook.icp} />}
                   {activeTab === "channels" && <PlaybookChannels playbookId={playbook.id} channels={playbook.channels} />}
-                  {activeTab === "rivals" && <RivalSpying playbookId={playbookId} productName={playbook.productName} productDescription={playbook.summary} />}
+                  {activeTab === "rivals" && <RivalSpying playbookId={playbookId} productName={playbook.productName} productDescription={playbook.productDescription || playbook.summary} />}
                   {activeTab === "queue" && <QueueManager playbookId={playbookId} />}
-                  {activeTab === "leads" && <WarmLeads playbookId={playbookId} productName={playbook.productName} productDescription={playbook.summary} icp={playbook.icp} />}
-                  {activeTab === "growth-hacks" && <GrowthHacks playbookId={playbookId} productName={playbook.productName} productDescription={playbook.summary} icp={playbook.icp} />}
+                  {activeTab === "leads" && <WarmLeads playbookId={playbookId} productName={playbook.productName} productDescription={playbook.productDescription || playbook.summary} icp={playbook.icp} />}
+                  {activeTab === "growth-hacks" && <GrowthHacks playbookId={playbookId} productName={playbook.productName} productDescription={playbook.productDescription || playbook.summary} icp={playbook.icp} />}
                   {activeTab === "posts" && (
                     <>
                       <ContentSubTabs active={contentSubTab} onChange={setContentSubTab} />
@@ -1086,6 +1089,13 @@ export function PlaybookDashboard({ playbookId }: { playbookId: string }) {
                   )}
                 </div>
               </div>
+            )}
+            {activeTab === "settings" && (
+              <SettingsView
+                playbook={playbook}
+                playbookId={playbookId}
+                onPlaybookChange={setPlaybook}
+              />
             )}
           </div>
           <StatusBar />

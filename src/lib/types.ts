@@ -125,11 +125,20 @@ export interface OutreachSequence {
   dmTemplates: DMTemplate[];
 }
 
+export interface CompetitorHandle {
+  handle: string;
+  platform: "x" | "linkedin";
+}
+
 export interface Playbook {
   id: string;
   createdAt: string;
   productName: string;
   summary: string;
+  productUrl?: string;
+  productDescription?: string;
+  painPoint?: string;
+  competitors?: CompetitorHandle[];
   icp: ICPProfile;
   marketSizing: MarketSizing;
   channels: ChannelStrategy[];
