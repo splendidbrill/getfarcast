@@ -394,12 +394,17 @@ function DashboardContentEngineCard({
 
           {/* Draft cycler */}
           {drafts.length > 1 && (
-            <div className="flex items-center gap-2 border-b border-[#E7E5E0] bg-[#F6F4EF]/40 px-5 py-2.5">
-              {drafts.map((_, i) => (
+            <div className="flex flex-wrap items-center gap-2 border-b border-[#E7E5E0] bg-[#F6F4EF]/40 px-5 py-2.5">
+              {drafts.map((draft, i) => (
                 <button key={i} onClick={() => setIdx(i)}
                   className={`flex h-7 items-center gap-1.5 rounded-[5px] px-2 font-mono text-[11px] transition
                     ${i === idx ? "bg-[#171717] text-white" : "border border-[#E7E5E0] bg-white text-[#737373] hover:text-[#171717]"}`}>
                   draft {String(i + 1).padStart(2, "0")}
+                  {draft.type === "reddit_subreddit" && draft.subreddit && (
+                    <span className={`ml-0.5 ${i === idx ? "text-[#F04E23]" : "text-[#A3A3A3]"}`}>
+                      · r/{draft.subreddit}
+                    </span>
+                  )}
                 </button>
               ))}
               <button onClick={() => setIdx((idx - 1 + drafts.length) % drafts.length)}
@@ -418,11 +423,16 @@ function DashboardContentEngineCard({
             <div className="flex flex-col gap-4 px-5 py-5">
               {/* Meta row */}
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1 rounded-[5px] bg-[#171717] px-1.5 py-[2px] font-mono text-[10.5px] uppercase tracking-[0.08em] text-white">
                     {String(idx + 1).padStart(2, "0")} / {String(drafts.length).padStart(2, "0")}
                   </span>
                   <span className="font-mono text-[11px] text-[#737373]">{POST_ANGLE[cur.type] ?? cur.type}</span>
+                  {cur.type === "reddit_subreddit" && cur.subreddit && (
+                    <span className="inline-flex items-center gap-1 rounded-[5px] border border-[#F04E23]/25 bg-[#FFF1EC] px-1.5 py-[2px] font-mono text-[10.5px] text-[#D84111]">
+                      → r/{cur.subreddit}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-[10.5px] uppercase tracking-[0.1em] text-[#737373]">voice-fit</span>
@@ -469,7 +479,7 @@ function DashboardContentEngineCard({
               </div>
 
               {/* Draft text */}
-              <DraftTextBlock cur={cur} idx={idx} total={drafts.length} charLimit={charLimit} onCopyToast={setToast} />
+              <DraftTextBlock cur={cur} idx={idx} total={drafts.length} charLimit={charLimit} onCopyToast={setToast} subreddit={cur.type === "reddit_subreddit" ? cur.subreddit : undefined} />
 
               {/* Footer log */}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10.5px] text-[#737373]">
@@ -498,12 +508,13 @@ function DashboardContentEngineCard({
   );
 }
 
-function DraftTextBlock({ cur, idx, total, charLimit, onCopyToast }: {
+function DraftTextBlock({ cur, idx, total, charLimit, onCopyToast, subreddit }: {
   cur: DashPost;
   idx: number;
   total: number;
   charLimit: number;
   onCopyToast: (msg: string) => void;
+  subreddit?: string;
 }) {
   const raw = cur.title ? `${cur.title}\n\n${cur.content}` : cur.content;
   const [text, setText] = useState(raw);
@@ -511,13 +522,18 @@ function DraftTextBlock({ cur, idx, total, charLimit, onCopyToast }: {
 
   const handleCopy = () => {
     navigator.clipboard?.writeText(text);
-    onCopyToast(`copied draft ${String(idx + 1).padStart(2, "0")} to clipboard`);
+    onCopyToast(subreddit ? `copied · post to r/${subreddit}` : `copied draft ${String(idx + 1).padStart(2, "0")} to clipboard`);
   };
 
   return (
     <div className="relative rounded-md border border-[#E7E5E0] bg-white">
       <div className="flex items-center justify-between border-b border-[#E7E5E0] px-3 py-1.5">
-        <span className="font-mono text-[10.5px] text-[#737373]">{String(idx + 1).padStart(2, "0")} of {String(total).padStart(2, "0")}</span>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[10.5px] text-[#737373]">{String(idx + 1).padStart(2, "0")} of {String(total).padStart(2, "0")}</span>
+          {subreddit && (
+            <span className="font-mono text-[10.5px] text-[#D84111]">→ post to r/{subreddit}</span>
+          )}
+        </div>
         <span className="font-mono text-[10.5px] tabular-nums">
           <span className={text.length > charLimit * 0.9 ? "text-[#B45309]" : "text-[#737373]"}>{text.length}</span>
           <span className="text-[#A3A3A3]"> / {charLimit}</span>
@@ -808,36 +824,51 @@ function DashboardWarmLeadsCard({
 
 function Sidebar({ active, onChange }: { active: MainTab; onChange: (t: MainTab) => void }) {
   return (
-    <aside className="sticky top-0 flex h-screen w-[60px] shrink-0 flex-col items-center border-r border-[#E7E5E0] bg-[#FAFAF7]">
-      <div className="flex h-14 w-full items-center justify-center border-b border-[#E7E5E0]">
-        <Link href="/dashboard" className="flex h-8 w-8 items-center justify-center rounded-md bg-[#171717]">
-          <Zap className="h-4 w-4 text-white" strokeWidth={2} />
-        </Link>
-      </div>
-      <nav className="flex flex-1 flex-col items-center gap-1 py-4">
-        {NAV_ITEMS.map(({ id, icon: Icon, label }) => {
-          const isActive = active === id;
-          return (
-            <button key={id} title={label} onClick={() => onChange(id)}
-              className={`group relative flex h-9 w-9 items-center justify-center rounded-md transition-colors
-                ${isActive ? "bg-[#171717] text-white" : "text-[#737373] hover:bg-[#F6F4EF] hover:text-[#171717]"}`}>
-              <Icon className="h-4 w-4" strokeWidth={1.75} />
-              {isActive && <span className="absolute -left-[1px] top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-r-full bg-[#F04E23]" />}
-              <span className="pointer-events-none absolute left-[52px] z-50 hidden whitespace-nowrap rounded-md bg-[#171717] px-2 py-1 font-mono text-[10.5px] text-white group-hover:block">
-                {label.toLowerCase()}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
-      <div className="flex flex-col items-center gap-2 pb-4">
-        <Link href="/dashboard" title="All Playbooks"
-          className="group relative flex h-9 w-9 items-center justify-center rounded-md text-[#737373] transition-colors hover:bg-[#F6F4EF] hover:text-[#171717]">
-          <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
-          <span className="pointer-events-none absolute left-[52px] z-50 hidden whitespace-nowrap rounded-md bg-[#171717] px-2 py-1 font-mono text-[10.5px] text-white group-hover:block">
-            all playbooks
+    /* Outer reserves 60px in the flex layout; inner expands as an overlay */
+    <aside className="group relative sticky top-0 h-screen w-[60px] shrink-0 z-40">
+      <div className="absolute left-0 top-0 h-full w-[60px] group-hover:w-[200px] transition-[width] duration-200 ease-out flex flex-col border-r border-[#E7E5E0] bg-[#FAFAF7] overflow-hidden group-hover:shadow-[2px_0_12px_rgba(0,0,0,0.06)]">
+
+        {/* Logo row */}
+        <div className="flex h-14 shrink-0 items-center border-b border-[#E7E5E0] px-[14px]">
+          <Link href="/dashboard" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#171717]">
+            <Zap className="h-4 w-4 text-white" strokeWidth={2} />
+          </Link>
+          <span className="ml-3 overflow-hidden whitespace-nowrap font-semibold text-[14px] tracking-tight text-[#171717] opacity-0 transition-opacity duration-150 delay-75 group-hover:opacity-100">
+            farcast
           </span>
-        </Link>
+        </div>
+
+        {/* Nav items */}
+        <nav className="flex flex-1 flex-col gap-0.5 py-3 px-[10px]">
+          {NAV_ITEMS.map(({ id, icon: Icon, label }) => {
+            const isActive = active === id;
+            return (
+              <button key={id} onClick={() => onChange(id)}
+                className={`relative flex h-9 w-full items-center gap-3 rounded-md px-[10px] transition-colors
+                  ${isActive ? "bg-[#171717] text-white" : "text-[#737373] hover:bg-[#F6F4EF] hover:text-[#171717]"}`}>
+                {isActive && (
+                  <span className="absolute -left-[1px] top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-r-full bg-[#F04E23]" />
+                )}
+                <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+                <span className="overflow-hidden whitespace-nowrap font-mono text-[11px] opacity-0 transition-opacity duration-150 delay-75 group-hover:opacity-100">
+                  {label.toLowerCase()}
+                </span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Bottom: back to all playbooks */}
+        <div className="shrink-0 pb-4 px-[10px]">
+          <Link href="/dashboard"
+            className="flex h-9 w-full items-center gap-3 rounded-md px-[10px] text-[#737373] transition-colors hover:bg-[#F6F4EF] hover:text-[#171717]">
+            <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+            <span className="overflow-hidden whitespace-nowrap font-mono text-[11px] opacity-0 transition-opacity duration-150 delay-75 group-hover:opacity-100">
+              all playbooks
+            </span>
+          </Link>
+        </div>
+
       </div>
     </aside>
   );
