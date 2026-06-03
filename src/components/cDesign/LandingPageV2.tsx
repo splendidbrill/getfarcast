@@ -1,7 +1,7 @@
 "use client";
 
 import "./landing.css";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LandingNav } from "./LandingNav";
@@ -9,7 +9,7 @@ import { LandingFAQ } from "./LandingFAQ";
 import { LandingFooter } from "./LandingFooter";
 import { PricingCTA } from "./PricingCTA";
 
-// ─── Inline SVG icons ─────────────────────────────────────────────────────────
+// ─── Icons ────────────────────────────────────────────────────────────────────
 const ArrowIcon = ({ size = 15 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
     <path d="M5 12h14" /><path d="m13 6 6 6-6 6" />
@@ -69,6 +69,250 @@ const LinkedInIcon = () => (
   </svg>
 );
 
+// ─── NeoStream ────────────────────────────────────────────────────────────────
+const NEO_SNIPPETS = [
+  "scrape(reddit/r/SaaS)", '{ icp: "solo-founder" }', "intent=0.94", "frame.extract()",
+  "[ thread ] hook→cta", "voice.clone(184)", "</post>", "tokens: 2,048", "GET /pricing 200",
+  "cluster(17 frameworks)", "rival.index(40)", "{ triggers: [...] }", "0x4F9A · queued",
+  "draft.compose()", "lead.score(0.88)", "cadence: 2+1/wk", "embed(1536d)", "match=96%",
+  "POST /icp.infer", "warm_leads: 38", '{ tone: "dry" }', "rank(viral)", "schedule.lint()",
+  "subreddit.wiki()", "</thread>", "karma_floor: 200", "parse(changelog)", "0.90/0.10",
+];
+
+function NeoColumn({ lines, dur, delay, leftPct }: { lines: string[]; dur: number; delay: number; leftPct: number }) {
+  const doubled = [...lines, ...lines];
+  return (
+    <div
+      className="absolute top-0"
+      style={{ left: `${leftPct}%`, animation: `neo-fall ${dur}s linear ${delay}s infinite` }}
+    >
+      {doubled.map((s, i) => (
+        <div
+          key={i}
+          className="whitespace-nowrap leading-[2.2] font-mono"
+          style={{ fontSize: "12px", color: i % 7 === 3 ? "rgba(28,25,23,0.18)" : "rgba(28,25,23,0.10)" }}
+        >
+          {s}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function NeoStream() {
+  const cols = useMemo(() => {
+    const pick = () => Array.from({ length: 18 }, () => NEO_SNIPPETS[Math.floor(Math.random() * NEO_SNIPPETS.length)]);
+    return [
+      { lines: pick(), dur: 30, delay: 0,   leftPct: 2 },
+      { lines: pick(), dur: 38, delay: -12, leftPct: 38 },
+      { lines: pick(), dur: 25, delay: -6,  leftPct: 70 },
+    ];
+  }, []);
+
+  return (
+    <div
+      className="absolute inset-y-0 left-0 w-[42%] overflow-hidden"
+      style={{
+        WebkitMaskImage: "linear-gradient(to right, black 50%, transparent 100%), linear-gradient(to bottom, transparent, black 14%, black 82%, transparent)",
+        maskImage: "linear-gradient(to right, black 50%, transparent 100%), linear-gradient(to bottom, transparent, black 14%, black 82%, transparent)",
+        WebkitMaskComposite: "source-in",
+        maskComposite: "intersect",
+      }}
+    >
+      {cols.map((c, i) => <NeoColumn key={i} {...c} />)}
+    </div>
+  );
+}
+
+// ─── Radar ────────────────────────────────────────────────────────────────────
+function Radar() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let w = 0, h = 0, cx = 0, cy = 0, maxR = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const leads: { a: number; r: number; lit: number }[] = [
+      [0.6, 0.42], [1.5, 0.74], [2.3, 0.55], [3.1, 0.86], [3.9, 0.34],
+      [4.6, 0.68], [5.3, 0.5],  [5.9, 0.82], [0.2, 0.9],  [2.9, 0.28],
+    ].map(([a, r]) => ({ a, r, lit: -999 }));
+
+    const pings: { x: number; y: number; t: number }[] = [];
+    let sweep = -Math.PI / 2;
+    let prev = sweep;
+
+    const build = () => {
+      const rect = canvas.getBoundingClientRect();
+      w = rect.width; h = rect.height;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cx = w * 0.66; cy = h * 0.44;
+      maxR = Math.min(w, h) * 0.62;
+    };
+
+    const norm = (a: number) => { a %= Math.PI * 2; return a < 0 ? a + Math.PI * 2 : a; };
+
+    const draw = (now: number) => {
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = "rgba(28,25,23,0.08)";
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 4; i++) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, (maxR * i) / 4, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.moveTo(cx - maxR, cy); ctx.lineTo(cx + maxR, cy);
+      ctx.moveTo(cx, cy - maxR); ctx.lineTo(cx, cy + maxR);
+      ctx.stroke();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, maxR, sweep - 0.62, sweep);
+      ctx.closePath();
+      const lg = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+      lg.addColorStop(0, "rgba(28,25,23,0.10)");
+      lg.addColorStop(1, "rgba(28,25,23,0)");
+      ctx.fillStyle = lg;
+      ctx.fill();
+      ctx.restore();
+
+      ctx.strokeStyle = "rgba(28,25,23,0.14)";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(sweep) * maxR, cy + Math.sin(sweep) * maxR);
+      ctx.stroke();
+
+      const a0 = norm(prev), a1 = norm(sweep);
+      for (const L of leads) {
+        const la = norm(L.a);
+        const crossed = a0 <= a1 ? (la > a0 && la <= a1) : (la > a0 || la <= a1);
+        if (crossed) {
+          L.lit = now;
+          pings.push({ x: cx + Math.cos(L.a) * L.r * maxR, y: cy + Math.sin(L.a) * L.r * maxR, t: 0 });
+        }
+      }
+
+      for (const L of leads) {
+        const x = cx + Math.cos(L.a) * L.r * maxR;
+        const y = cy + Math.sin(L.a) * L.r * maxR;
+        const since = (now - L.lit) / 1000;
+        if (since < 2.2) {
+          const k = 1 - since / 2.2;
+          ctx.fillStyle = `rgba(255,90,77,${0.5 + 0.5 * k})`;
+          ctx.shadowColor = "rgba(255,90,77,0.7)";
+          ctx.shadowBlur = 10 * k;
+          ctx.beginPath();
+          ctx.arc(x, y, 2.4 + 1.6 * k, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        } else {
+          ctx.fillStyle = "rgba(28,25,23,0.18)";
+          ctx.beginPath();
+          ctx.arc(x, y, 1.9, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      for (let i = pings.length - 1; i >= 0; i--) {
+        const p = pings[i];
+        p.t += 0.02;
+        if (p.t >= 1) { pings.splice(i, 1); continue; }
+        ctx.strokeStyle = `rgba(255,90,77,${0.45 * (1 - p.t)})`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.t * 26, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      prev = sweep;
+      sweep += 0.0075;
+      rafRef.current = requestAnimationFrame(draw);
+    };
+
+    build();
+    if (reduce) {
+      sweep = 0.6; prev = 0.4;
+      draw(performance.now());
+      cancelAnimationFrame(rafRef.current);
+    } else {
+      rafRef.current = requestAnimationFrame(draw);
+    }
+
+    let rt: ReturnType<typeof setTimeout>;
+    const onResize = () => {
+      clearTimeout(rt);
+      rt = setTimeout(() => {
+        cancelAnimationFrame(rafRef.current);
+        build();
+        if (!reduce) rafRef.current = requestAnimationFrame(draw);
+      }, 200);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      clearTimeout(rt);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  return (
+    <div
+      className="absolute inset-y-0 right-0 w-[46%] overflow-hidden"
+      style={{
+        WebkitMaskImage: "linear-gradient(to left, black 60%, transparent 100%)",
+        maskImage: "linear-gradient(to left, black 60%, transparent 100%)",
+      }}
+    >
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+    </div>
+  );
+}
+
+// ─── Trust strip ──────────────────────────────────────────────────────────────
+const TRUST_NAMES = ["Bramble","Quirly","Northbeam Jr","Heron","Pagestate","Anchorline","Salt & Co","Mentora","Strata","Drift.ly","Postmark","Linear Dot","Outpost"];
+
+function Trust() {
+  return (
+    <section className="relative">
+      <div className="max-w-[1240px] mx-auto px-6 lg:px-10 pt-6 pb-8">
+        <p className="text-center font-mono text-[11.5px] tracking-wider uppercase text-stone-500">
+          Trusted by 240+ indie founders to replace their{" "}
+          <span style={{ color: "#1C1917" }}>$7,500/mo growth agencies</span>
+        </p>
+        <div
+          className="mt-5 relative overflow-hidden"
+          style={{
+            WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+            maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+          }}
+        >
+          <div className="flex items-center gap-10 ticker-track">
+            {[0, 1].map((k) => (
+              <div key={k} className="flex items-center gap-10 shrink-0 pr-10">
+                {TRUST_NAMES.map((n, i) => (
+                  <span key={i} className="text-[15px] tracking-[-0.02em] text-stone-400 whitespace-nowrap">{n}</span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Dashboard mock ───────────────────────────────────────────────────────────
 const DRAFTS = [
   { p: "x",  tag: "thread", title: "The boring growth loop nobody talks about",        body: "Shipping isn't a launch, it's a beat. Last week we shipped twice and posted twice. The compounding looks like nothing for six weeks and then…", intent: 94, len: "6 posts" },
@@ -94,7 +338,6 @@ function PlatformChip({ p }: { p: string }) {
 function DashboardMock() {
   return (
     <div className="text-left font-sans" style={{ color: "#1C1917" }}>
-      {/* App chrome */}
       <div className="flex items-center justify-between px-5 py-3 border-b bg-stone-50/40" style={{ borderColor: "#E7E5E4" }}>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
@@ -115,13 +358,12 @@ function DashboardMock() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-12 divide-x" style={{ divideColor: "#E7E5E4" }}>
-        {/* Drafts */}
+      <div className="grid lg:grid-cols-12 divide-x divide-stone-200">
         <div className="lg:col-span-7 bg-white p-5 lg:p-7">
           <div className="flex items-center justify-between mb-4">
             <div>
               <div className="font-mono text-[11px] tracking-wider uppercase text-stone-500">Today&apos;s drafts</div>
-              <h4 className="text-[22px] font-semibold mt-1" style={{ letterSpacing: "-0.055em" }}>4 ready · approve to ship</h4>
+              <h4 className="display text-[22px] font-semibold mt-1">4 ready · approve to ship</h4>
             </div>
             <button className="text-[12.5px] font-mono text-stone-500 hover:text-[#1C1917] flex items-center gap-1.5">
               <SparkIcon /> Regenerate
@@ -151,12 +393,11 @@ function DashboardMock() {
           </div>
         </div>
 
-        {/* Leads */}
         <div className="lg:col-span-5 bg-white p-5 lg:p-7">
           <div className="flex items-center justify-between mb-4">
             <div>
               <div className="font-mono text-[11px] tracking-wider uppercase text-stone-500">Warm leads · scored natively</div>
-              <h4 className="text-[22px] font-semibold mt-1" style={{ letterSpacing: "-0.055em" }}>12 in your zone</h4>
+              <h4 className="display text-[22px] font-semibold mt-1">12 in your zone</h4>
             </div>
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[11px] font-medium" style={{ color: "#FF5A4D", borderColor: "rgba(255,90,77,0.2)", background: "rgba(255,90,77,0.08)" }}>
               <span className="w-1.5 h-1.5 rounded-full bg-[#FF5A4D] block" /> 3 hot
@@ -193,7 +434,7 @@ function DashboardMock() {
             ].map(([k, v, sub], i) => (
               <div key={i} className="rounded-lg border p-3" style={{ borderColor: "#E7E5E4" }}>
                 <div className="font-mono text-[10px] uppercase tracking-wider text-stone-500">{k}</div>
-                <div className="text-[20px] font-semibold mt-1" style={{ letterSpacing: "-0.055em" }}>{v}</div>
+                <div className="display text-[20px] font-semibold mt-1">{v}</div>
                 <div className="font-mono text-[10.5px] text-stone-400 mt-0.5">{sub}</div>
               </div>
             ))}
@@ -217,17 +458,21 @@ function Hero() {
     setStage("running");
     timers.current.forEach(clearTimeout);
     timers.current = [setTimeout(() => setStage("done"), 1400)];
-    router.push(`/onboarding`);
+    router.push("/onboarding");
   };
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   return (
-    <section className="relative overflow-hidden min-h-[calc(100vh-64px)] flex flex-col">
-      <div className="absolute inset-0 landing-grid-bg pointer-events-none" />
+    <section className="relative overflow-hidden" style={{ minHeight: "520px" }}>
+      {/* NeoStream (left) + Radar (right) as decorative background */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <NeoStream />
+        <Radar />
+      </div>
 
-      {/* Upper half — eyebrow centered between nav and headline */}
-      <div className="relative flex-1 flex items-center justify-center">
+      <div className="relative z-20 max-w-[920px] mx-auto px-6 pt-20 lg:pt-28 pb-16 text-center">
+        {/* Status eyebrow */}
         <div className="inline-flex items-center gap-2 pl-2 pr-3 py-1 rounded-full border bg-white shadow-sm" style={{ borderColor: "#E7E5E4" }}>
           <span className="inline-flex items-center justify-center w-[18px] h-[18px] rounded-full" style={{ background: "rgba(255,90,77,0.10)", color: "#FF5A4D" }}>
             <SparkIcon />
@@ -238,47 +483,62 @@ function Hero() {
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot" /> ONLINE
           </span>
         </div>
-      </div>
 
-      {/* Lower half — headline, subhead, form */}
-      <div className="relative flex-1 w-full max-w-[920px] mx-auto px-6 pb-16 text-center">
-        <h1 className="display-xl font-semibold leading-[0.92] text-[44px] sm:text-[60px] lg:text-[80px]" style={{ color: "#1C1917" }}>
-          Building is easy.<br />
-          <span className="text-stone-400">Distribution isn&apos;t.</span>
-        </h1>
+        {/* Frosted glass content card */}
+        <div
+          className="mt-8 lg:mt-10 rounded-[28px] border px-5 sm:px-10 lg:px-14 py-10 lg:py-14"
+          style={{
+            borderColor: "rgba(255,255,255,0.70)",
+            background: "rgba(255,255,255,0.72)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            boxShadow: "0 1px 0 rgba(255,255,255,0.8) inset, 0 30px 70px -40px rgba(28,25,23,0.32)",
+          }}
+        >
+          <h1
+            className="display-xl font-semibold leading-[0.92] text-[64px] sm:text-[88px] lg:text-[120px]"
+            style={{ color: "#1C1917" }}
+          >
+            Building is easy.<br />
+            <span className="text-stone-400">Distribution isn&apos;t.</span>
+          </h1>
 
-        <p className="mt-4 lg:mt-5 mx-auto max-w-[680px] text-[15px] lg:text-[17px] leading-[1.5] text-stone-600">
-          The autonomous AI growth co-founder that maps your ICP, clones your voice, and drops ready-to-publish posts and warm leads into your dashboard every morning.
-        </p>
+          <p className="mt-7 lg:mt-8 mx-auto max-w-[680px] text-[17px] lg:text-[19px] leading-[1.5] text-stone-600">
+            The autonomous AI growth co-founder that maps your ICP, clones your voice, and drops ready-to-publish posts and warm leads into your inbox every morning.
+          </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 mx-auto max-w-[640px]">
-          <div className="flex items-center gap-1.5 p-1.5 rounded-2xl border bg-white" style={{ borderColor: "#E7E5E4", boxShadow: "0 1px 0 rgba(28,25,23,0.04), 0 8px 24px -12px rgba(28,25,23,0.18)" }}>
-            <div className="pl-3 pr-1 text-stone-400 shrink-0"><GlobeIcon /></div>
-            <input
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              onFocus={(e) => { if (url === "https://your-saas.com") e.target.select(); }}
-              className="flex-1 min-w-0 bg-transparent py-3 text-[15.5px] focus:outline-none"
-              spellCheck="false"
-              style={{ color: "#1C1917" }}
-            />
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 text-white text-[14px] font-medium pl-4 pr-3.5 py-3 rounded-xl hover:brightness-95 transition shrink-0"
-              style={{ backgroundColor: "#FF5A4D" }}
+          <form onSubmit={handleSubmit} className="mt-9 mx-auto max-w-[640px]">
+            <div
+              className="flex items-center gap-1.5 p-1.5 rounded-2xl border bg-white"
+              style={{ borderColor: "#E7E5E4", boxShadow: "0 1px 0 rgba(28,25,23,0.04), 0 8px 24px -12px rgba(28,25,23,0.18)" }}
             >
-              {stage === "running" ? "Reading site…" : stage === "done" ? "Playbook ready" : "Get Started"}
-              <ArrowIcon />
-            </button>
-          </div>
-          <div className="mt-3 flex items-center justify-center gap-3 font-mono text-[11.5px] text-stone-500">
-            <span className="flex items-center gap-1.5"><LockIcon /> Free to start</span>
-            <span className="text-stone-300">·</span>
-            <span>No credit card required</span>
-            <span className="text-stone-300">·</span>
-            <span>First agent live in ~90s</span>
-          </div>
-        </form>
+              <div className="pl-3 pr-1 text-stone-400 shrink-0"><GlobeIcon /></div>
+              <input
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                onFocus={(e) => { if (url === "https://your-saas.com") e.target.select(); }}
+                className="flex-1 min-w-0 bg-transparent py-3 text-[15.5px] focus:outline-none"
+                spellCheck="false"
+                style={{ color: "#1C1917" }}
+              />
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 text-white text-[14px] font-medium pl-4 pr-3.5 py-3 rounded-xl hover:brightness-95 transition shrink-0"
+                style={{ backgroundColor: "#FF5A4D" }}
+              >
+                {stage === "running" ? "Reading site…" : stage === "done" ? "Playbook ready" : "Get Started"}
+                <ArrowIcon />
+              </button>
+            </div>
+            <div className="mt-3 flex items-center justify-center gap-3 font-mono text-[11.5px] text-stone-500">
+              <span className="flex items-center gap-1.5"><LockIcon /> Free to start</span>
+              <span className="text-stone-300">·</span>
+              <span>No credit card required</span>
+              <span className="text-stone-300">·</span>
+              <span>First agent live in ~90s</span>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
   );
@@ -300,7 +560,6 @@ function DashboardPeek() {
           >
             <DashboardMock />
           </div>
-          {/* Floating CTA on the seam */}
           <div className="absolute left-1/2 -translate-x-1/2 -bottom-5 z-10">
             <Link
               href="/dashboard"
@@ -320,21 +579,9 @@ function DashboardPeek() {
 
 // ─── Features ─────────────────────────────────────────────────────────────────
 const FEATURES = [
-  {
-    Icon: BotIcon,
-    title: "Autonomous Hermes Agent",
-    body: "Scrapes subreddits, clones your voice, and extracts the viral frameworks your competitors are quietly running.",
-  },
-  {
-    Icon: ShieldIcon,
-    title: "Hardcoded anti-ban",
-    body: "Platform-safe velocity limits — 1 Reddit post/week, 90/10 value ratio, links never in the hook. Zero bans in 14 months.",
-  },
-  {
-    Icon: ReplyIcon,
-    title: '"Reply Guy" extension',
-    body: "Ghostwrites contextual, upvote-optimised replies natively inside X and Reddit. Two-click Chrome install.",
-  },
+  { Icon: BotIcon,    title: "Autonomous Hermes Agent", body: "Scrapes subreddits, clones your voice, and extracts the viral frameworks your competitors are quietly running." },
+  { Icon: ShieldIcon, title: "Hardcoded anti-ban",      body: "Platform-safe velocity limits — 1 Reddit post/week, 90/10 value ratio, links never in the hook. Zero bans in 14 months." },
+  { Icon: ReplyIcon,  title: '"Reply Guy" extension',   body: "Ghostwrites contextual, upvote-optimised replies natively inside X and Reddit. Two-click Chrome install." },
 ];
 
 function Features() {
@@ -351,7 +598,7 @@ function Features() {
                   <f.Icon />
                 </span>
               </div>
-              <h3 className="text-[20px] font-semibold leading-[1.15] mb-2" style={{ letterSpacing: "-0.02em", color: "#1C1917" }}>{f.title}</h3>
+              <h3 className="display text-[20px] font-semibold leading-[1.15] mb-2" style={{ color: "#1C1917" }}>{f.title}</h3>
               <p className="text-[14px] text-stone-600 leading-[1.55]">{f.body}</p>
             </div>
           ))}
@@ -388,13 +635,11 @@ function TheMath() {
 
       <div className="max-w-[920px] mx-auto px-6 lg:px-10 mt-8">
         <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "#E7E5E4", boxShadow: "0 30px 60px -40px rgba(28,25,23,0.15)" }}>
-          {/* Header */}
           <div className="grid grid-cols-[1.6fr_1fr_1fr] px-6 py-3.5 text-[13.5px] font-medium text-white" style={{ backgroundColor: "#1C1917" }}>
             <span>What you need</span>
             <span className="text-center font-normal" style={{ color: "rgba(255,255,255,0.55)" }}>Without Farcast</span>
             <span className="text-center font-normal" style={{ color: "rgba(255,255,255,0.55)" }}>With Farcast</span>
           </div>
-          {/* Rows */}
           {MATH_ROWS.map(([k, v], i) => (
             <div key={i} className="grid grid-cols-[1.6fr_1fr_1fr] items-center px-6 py-3.5 border-t" style={{ borderColor: "#E7E5E4" }}>
               <span className="text-[14px]" style={{ color: "#1C1917" }}>{k}</span>
@@ -406,7 +651,6 @@ function TheMath() {
               </span>
             </div>
           ))}
-          {/* Total row */}
           <div className="grid grid-cols-[1.6fr_1fr_1fr] items-center px-6 py-4 border-t" style={{ borderColor: "#E7E5E4", background: "rgba(255,90,77,0.06)" }}>
             <span className="text-[14px] font-semibold" style={{ color: "#1C1917" }}>Every month</span>
             <span className="text-center text-[14px] text-stone-400 line-through">$7,500+</span>
@@ -441,7 +685,7 @@ function Pricing() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#FF5A4D] block" /> Pro
             </div>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="display text-[64px] font-semibold leading-none" style={{ letterSpacing: "-0.045em", color: "#1C1917" }}>$50</span>
+              <span className="display text-[64px] font-semibold leading-none" style={{ color: "#1C1917" }}>$50</span>
               <span className="text-stone-500 text-[14px]">/month</span>
               <span className="ml-auto font-mono text-[11px] text-stone-500">cancel anytime</span>
             </div>
@@ -471,6 +715,7 @@ export function LandingPageV2() {
     <div className="ld-root" style={{ background: "#FFFCF8" }}>
       <LandingNav />
       <Hero />
+      <Trust />
       <DashboardPeek />
       <Features />
       <TheMath />

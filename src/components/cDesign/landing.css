@@ -436,6 +436,24 @@
 .ld-math-table .total-row td.strike { text-decoration: line-through; color: var(--muted); }
 .ld-math-table .total-row td.highlight { color: var(--coral); }
 
+/* LP19 hero utilities */
+.display { letter-spacing: -0.055em; }
+.display-xl { letter-spacing: -0.07em; }
+.pulse-dot { animation: lp-pulse-dot 1.4s ease-in-out infinite; }
+@keyframes lp-pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+@keyframes neo-fall {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+@keyframes lp-ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ticker-track { animation: lp-ticker 55s linear infinite; }
+
 /* Responsive */
 @media (max-width: 980px) {
   .ld-hero { padding: 32px 0 64px; }

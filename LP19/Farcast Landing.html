@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Farcast — AI growth co-founder for micro-SaaS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          mono: ['"Geist Mono"', 'ui-monospace', 'monospace'],
+        },
+        colors: {
+          cream: '#FFFCF8',
+          ink:   '#1C1917',
+          coral: '#FF5A4D',
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html, body { background: #FFFCF8; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #1C1917; -webkit-font-smoothing: antialiased; }
+  .display { letter-spacing: -0.055em; }
+  .display-xl { letter-spacing: -0.07em; }
+  .eyebrow { font-family: 'Geist Mono', ui-monospace, monospace; letter-spacing: 0.04em; font-size: 11px; text-transform: uppercase; }
+  .mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  .hairline { border-color: #E7E5E4; }
+  @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+  @keyframes neo-fall { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .ticker-track { animation: ticker 55s linear infinite; }
+  .focus-ring:focus { outline: none; box-shadow: 0 0 0 3px rgba(255,90,77,0.22); }
+  ::selection { background: #FF5A4D; color: #fff; }
+
+  /* Soft cream-to-cream fade so the dashboard "peeks" up */
+  .peek-mask {
+    -webkit-mask-image: linear-gradient(to bottom, black 78%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 78%, transparent 100%);
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(28,25,23,0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(28,25,23,0.045) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+            mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+  }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+
+
+
+const { useState, useEffect, useRef } = React;
+
+/* ---------- Icons ---------- */
+const Icon = {
+  Arrow: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>),
+  Check: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M20 6 9 17l-5-5"/></svg>),
+  Dot:   (p) => (<svg viewBox="0 0 8 8" {...p}><circle cx="4" cy="4" r="3" fill="currentColor"/></svg>),
+  Globe: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>),
+  Spark: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>),
+  Shield:(p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/></svg>),
+  Reply: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 12c0-4 3-7 7-7h7a4 4 0 0 1 4 4v3a4 4 0 0 1-4 4h-7l-4 4v-4H6a3 3 0 0 1-3-3Z"/></svg>),
+  Bot:   (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="4" y="7" width="16" height="13" rx="3"/><path d="M12 3v4M8 12v2M16 12v2"/></svg>),
+  Lock:  (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>),
+  X:     (p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M18.244 2H21l-6.49 7.41L22 22h-6.99l-4.74-6.16L4.8 22H2.04l6.96-7.95L2 2h7.16l4.27 5.65L18.244 2Zm-1.22 18.39h1.66L7.06 3.5H5.3l11.724 16.89Z"/></svg>),
+  Reddit:(p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><circle cx="12" cy="12" r="10"/><circle cx="9" cy="13" r="1.1" fill="#fff"/><circle cx="15" cy="13" r="1.1" fill="#fff"/><path d="M8.5 15.6c1 .9 2.2 1.3 3.5 1.3s2.5-.4 3.5-1.3" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" fill="none"/></svg>),
+  Linked:(p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.06c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.4c0-1.29-.02-2.94-1.79-2.94-1.8 0-2.07 1.4-2.07 2.85V21h-4V9Z"/></svg>),
+};
+
+/* ---------- Atoms ---------- */
+const Logo = () => (
+  <div className="flex items-center gap-2.5">
+    <img src="assets/farcast-logo.png" alt="" className="h-7 w-auto rounded-md" style={{objectFit:'cover', objectPosition:'left', width:'30px'}}/>
+    <span className="text-[18px] font-semibold tracking-[-0.02em]">Farcast</span>
+  </div>
+);
+
+const Pill = ({children, tone="neutral"}) => {
+  const map = {
+    neutral: "bg-white text-stone-700 border-stone-200",
+    coral:   "bg-coral/10 text-coral border-coral/20",
+  };
+  return <span className={"inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[11px] font-medium " + map[tone]}>{children}</span>;
+};
+
+const PlatformChip = ({p}) => {
+  const map = {
+    x:  { I: Icon.X,      bg: "bg-ink text-cream" },
+    li: { I: Icon.Linked, bg: "bg-[#0a66c2] text-white" },
+    rd: { I: Icon.Reddit, bg: "bg-[#ff4500] text-white" },
+  };
+  const { I, bg } = map[p];
+  return <span className={`inline-flex items-center justify-center w-5 h-5 rounded ${bg}`}><I width="11" height="11"/></span>;
+};
+
+/* ---------- NAV (slim, like Okara) ---------- */
+const Nav = () => (
+  <div className="relative z-30">
+    <div className="max-w-[1240px] mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+      <Logo />
+      <div className="flex items-center gap-3">
+        <a href="https://calendly.com/shobit-getfarcast/30min" target="_blank" rel="noopener" className="hidden sm:inline-block text-[13px] text-stone-600 underline underline-offset-4 decoration-stone-300 hover:text-ink">Looking for a demo?</a>
+        <span className="hidden sm:inline-block w-px h-5 bg-stone-200"></span>
+        <button className="text-[13px] font-medium bg-white border hairline px-3.5 py-1.5 rounded-md hover:bg-stone-50">Try for free</button>
+      </div>
+    </div>
+  </div>
+);
+
+/* ---------- NEO DATA STREAM (left) ---------- */
+const NEO_SNIPPETS = [
+  "scrape(reddit/r/SaaS)", "{ icp: \"solo-founder\" }", "intent=0.94", "frame.extract()",
+  "[ thread ] hook→cta", "voice.clone(184)", "</post>", "tokens: 2,048", "GET /pricing 200",
+  "cluster(17 frameworks)", "rival.index(40)", "{ triggers: [...] }", "0x4F9A · queued",
+  "draft.compose()", "lead.score(0.88)", "cadence: 2+1/wk", "embed(1536d)", "match=96%",
+  "POST /icp.infer", "warm_leads: 38", "{ tone: \"dry\" }", "rank(viral)", "schedule.lint()",
+  "subreddit.wiki()", "</thread>", "karma_floor: 200", "parse(changelog)", "0.90/0.10",
+];
+
+const NeoColumn = ({ lines, dur, delay, leftPct }) => (
+  <div className="absolute top-0" style={{ left: leftPct + "%", animation: `neo-fall ${dur}s linear ${delay}s infinite` }}>
+    {lines.concat(lines).map((s, i) => (
+      <div key={i} className={"mono whitespace-nowrap leading-[2.2] " + (i % 7 === 3 ? "text-stone-300" : "text-stone-200")}
+           style={{ fontSize: "12px" }}>
+        {s}
+      </div>
+    ))}
+  </div>
+);
+
+const NeoStream = () => {
+  const cols = React.useMemo(() => {
+    const pick = () => Array.from({ length: 18 }, () => NEO_SNIPPETS[(Math.random() * NEO_SNIPPETS.length) | 0]);
+    return [
+      { lines: pick(), dur: 30, delay: 0,   leftPct: 2 },
+      { lines: pick(), dur: 38, delay: -12, leftPct: 38 },
+      { lines: pick(), dur: 25, delay: -6,  leftPct: 70 },
+    ];
+  }, []);
+  return (
+    <div className="absolute inset-y-0 left-0 w-[42%] overflow-hidden"
+         style={{ WebkitMaskImage: "linear-gradient(to right, black 50%, transparent 100%), linear-gradient(to bottom, transparent, black 14%, black 82%, transparent)",
+                          maskImage: "linear-gradient(to right, black 50%, transparent 100%), linear-gradient(to bottom, transparent, black 14%, black 82%, transparent)",
+                  WebkitMaskComposite: "source-in", maskComposite: "intersect" }}>
+      {cols.map((c, i) => <NeoColumn key={i} {...c} />)}
+    </div>
+  );
+};
+
+/* ---------- RADAR SCANNER (right) ---------- */
+const Radar = () => {
+  const canvasRef = useRef(null);
+  const raf = useRef(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let w = 0, h = 0, cx = 0, cy = 0, maxR = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // warm leads at fixed polar positions (angle, radiusFraction)
+    const leads = [
+      [0.6, 0.42], [1.5, 0.74], [2.3, 0.55], [3.1, 0.86], [3.9, 0.34],
+      [4.6, 0.68], [5.3, 0.5], [5.9, 0.82], [0.2, 0.9], [2.9, 0.28],
+    ].map(([a, r]) => ({ a, r, lit: -999 }));
+
+    let pings = []; // expanding coral rings on freshly-found leads
+    let sweep = -Math.PI / 2;
+    let prev = sweep;
+
+    const build = () => {
+      const rect = canvas.getBoundingClientRect();
+      w = rect.width; h = rect.height;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cx = w * 0.66; cy = h * 0.44;
+      maxR = Math.min(w, h) * 0.62;
+    };
+
+    const norm = (a) => { a %= Math.PI * 2; return a < 0 ? a + Math.PI * 2 : a; };
+
+    const draw = (now) => {
+      ctx.clearRect(0, 0, w, h);
+
+      // concentric rings + crosshairs
+      ctx.strokeStyle = "rgba(28,25,23,0.08)";
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 4; i++) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, (maxR * i) / 4, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.moveTo(cx - maxR, cy); ctx.lineTo(cx + maxR, cy);
+      ctx.moveTo(cx, cy - maxR); ctx.lineTo(cx, cy + maxR);
+      ctx.stroke();
+
+      // sweep wedge (trailing gradient)
+      const trail = 0.62;
+      const grad = ctx.createConicGradient ? null : null;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, maxR, sweep - trail, sweep);
+      ctx.closePath();
+      const lg = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+      lg.addColorStop(0, "rgba(28,25,23,0.10)");
+      lg.addColorStop(1, "rgba(28,25,23,0)");
+      ctx.fillStyle = lg;
+      ctx.fill();
+      ctx.restore();
+
+      // leading sweep line
+      ctx.strokeStyle = "rgba(28,25,23,0.14)";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(sweep) * maxR, cy + Math.sin(sweep) * maxR);
+      ctx.stroke();
+
+      // detect leads the sweep just crossed
+      const a0 = norm(prev), a1 = norm(sweep);
+      for (const L of leads) {
+        const la = norm(L.a);
+        const crossed = a0 <= a1 ? (la > a0 && la <= a1) : (la > a0 || la <= a1);
+        if (crossed) {
+          L.lit = now;
+          pings.push({ x: cx + Math.cos(L.a) * L.r * maxR, y: cy + Math.sin(L.a) * L.r * maxR, t: 0 });
+        }
+      }
+
+      // draw leads
+      for (const L of leads) {
+        const x = cx + Math.cos(L.a) * L.r * maxR;
+        const y = cy + Math.sin(L.a) * L.r * maxR;
+        const since = (now - L.lit) / 1000;
+        const hot = since < 2.2;
+        if (hot) {
+          const k = 1 - since / 2.2; // decay 1→0
+          ctx.fillStyle = `rgba(255,90,77,${0.5 + 0.5 * k})`;
+          ctx.shadowColor = "rgba(255,90,77,0.7)";
+          ctx.shadowBlur = 10 * k;
+          ctx.beginPath();
+          ctx.arc(x, y, 2.4 + 1.6 * k, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        } else {
+          ctx.fillStyle = "rgba(28,25,23,0.18)";
+          ctx.beginPath();
+          ctx.arc(x, y, 1.9, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // expanding coral pings
+      for (let i = pings.length - 1; i >= 0; i--) {
+        const p = pings[i];
+        p.t += 0.02;
+        if (p.t >= 1) { pings.splice(i, 1); continue; }
+        ctx.strokeStyle = `rgba(255,90,77,${0.45 * (1 - p.t)})`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.t * 26, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      prev = sweep;
+      sweep += 0.0075; // slow, deliberate
+      raf.current = requestAnimationFrame(draw);
+    };
+
+    build();
+    if (reduce) {
+      // single static frame with a couple leads lit
+      sweep = 0.6; prev = 0.4;
+      draw(performance.now());
+      cancelAnimationFrame(raf.current);
+    } else {
+      raf.current = requestAnimationFrame(draw);
+    }
+
+    let rt;
+    const onResize = () => { clearTimeout(rt); rt = setTimeout(() => { cancelAnimationFrame(raf.current); build(); if (!reduce) raf.current = requestAnimationFrame(draw); }, 200); };
+    window.addEventListener("resize", onResize);
+    return () => { cancelAnimationFrame(raf.current); clearTimeout(rt); window.removeEventListener("resize", onResize); };
+  }, []);
+
+  return (
+    <div className="absolute inset-y-0 right-0 w-[46%] overflow-hidden"
+         style={{ WebkitMaskImage: "linear-gradient(to left, black 60%, transparent 100%)",
+                          maskImage: "linear-gradient(to left, black 60%, transparent 100%)" }}>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+    </div>
+  );
+};
+
+/* ---------- HERO ---------- */
+const Hero = () => {
+  const [url, setUrl] = useState("https://your-saas.com");
+  const [stage, setStage] = useState("idle"); // idle | running | done
+  const timers = useRef([]);
+
+  const run = () => {
+    if (stage === "running") return;
+    setStage("running");
+    timers.current.forEach(clearTimeout);
+    timers.current = [
+      setTimeout(() => setStage("done"), 1400),
+    ];
+  };
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
+  return (
+    <section className="relative overflow-hidden">
+      {/* Neo data stream (left) + Radar scanner (right), behind the glass (z-0) */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <NeoStream />
+        <Radar />
+      </div>
+
+      <div className="relative z-20 max-w-[920px] mx-auto px-6 pt-20 lg:pt-28 pb-16 text-center">
+        {/* Eyebrow */}
+        <div className="inline-flex items-center gap-2 pl-2 pr-3 py-1 rounded-full border hairline bg-white shadow-sm">
+          <span className="inline-flex items-center justify-center w-4.5 h-4.5 rounded-full bg-coral/10 text-coral">
+            <Icon.Spark width="11" height="11"/>
+          </span>
+          <span className="mono text-[11px] tracking-wider text-stone-700">HERMES AGENT v1.4</span>
+          <span className="w-px h-3 bg-stone-200"></span>
+          <span className="mono text-[11px] text-emerald-600 inline-flex items-center gap-1">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot"></span> ONLINE
+          </span>
+        </div>
+
+        {/* Frosted legibility panel (z-20) keeps headline + wedge the focal point */}
+        <div className="mt-8 lg:mt-10 rounded-[28px] border border-white/70 bg-white/70 backdrop-blur-md shadow-[0_1px_0_rgba(255,255,255,0.8)_inset,0_30px_70px_-40px_rgba(28,25,23,0.32)] px-5 sm:px-10 lg:px-14 py-10 lg:py-14">
+          {/* Massive headline */}
+          <h1 className="display-xl font-semibold leading-[0.92] text-[64px] sm:text-[88px] lg:text-[120px]">
+            Building is easy.<br/>
+            <span className="text-stone-400">Distribution isn't.</span>
+          </h1>
+
+          {/* Subhead */}
+          <p className="mt-7 lg:mt-8 mx-auto max-w-[680px] text-[17px] lg:text-[19px] leading-[1.5] text-stone-600">
+            The autonomous AI growth co-founder that maps your ICP, clones your voice, and drops ready-to-publish posts and warm leads into your inbox every morning.
+          </p>
+
+          {/* Wedge */}
+          <form onSubmit={(e)=>{ e.preventDefault(); run(); }} className="mt-9 mx-auto max-w-[640px]">
+            <div className="flex items-center gap-1.5 p-1.5 rounded-2xl border hairline bg-white shadow-[0_1px_0_rgba(28,25,23,0.04),0_8px_24px_-12px_rgba(28,25,23,0.18)]">
+              <div className="pl-3 pr-1 text-stone-400 shrink-0"><Icon.Globe width="18" height="18"/></div>
+              <input
+                value={url}
+                onChange={(e)=>setUrl(e.target.value)}
+                onFocus={(e)=>{ if(url==="https://your-saas.com") e.target.select(); }}
+                className="flex-1 min-w-0 bg-transparent py-3 text-[15.5px] focus-ring rounded-md"
+                spellCheck="false"
+              />
+              <button type="submit"
+                className="inline-flex items-center gap-2 whitespace-nowrap bg-coral text-white text-[14px] font-medium pl-4 pr-3.5 py-3 rounded-xl hover:brightness-95 transition focus-ring shrink-0">
+                {stage === "running" ? "Reading site…" : stage === "done" ? "Playbook ready" : "Get Started"}
+                <Icon.Arrow width="15" height="15"/>
+              </button>
+            </div>
+            <div className="mt-3 flex items-center justify-center gap-3 mono text-[11.5px] text-stone-500">
+              <span className="inline-flex items-center gap-1.5"><Icon.Lock width="12" height="12"/> Free to start</span>
+              <span className="text-stone-300">·</span>
+              <span>No credit card required</span>
+              <span className="text-stone-300">·</span>
+              <span>First agent live in ~90s</span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ---------- TRUST STRIP ---------- */
+const Trust = () => (
+  <section className="relative">
+    <div className="max-w-[1240px] mx-auto px-6 lg:px-10 pb-8">
+      <p className="text-center mono text-[11.5px] tracking-wider uppercase text-stone-500">
+        Trusted by 240+ indie founders to replace their <span className="text-ink">$7,500/mo growth agencies</span>
+      </p>
+      <div className="mt-5 relative overflow-hidden"
+           style={{WebkitMaskImage:'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
+                           maskImage:'linear-gradient(to right, transparent, black 8%, black 92%, transparent)'}}>
+        <div className="flex items-center gap-10 ticker-track">
+          {[...Array(2)].map((_,k)=>(
+            <div key={k} className="flex items-center gap-10 shrink-0 pr-10">
+              {["Bramble","Quirly","Northbeam Jr","Heron","Pagestate","Anchorline","Salt&Co","Mentora","Strata","Drift.ly","Postmark","Linear Dot","Outpost"].map((n,i)=>(
+                <span key={i} className="text-[15px] tracking-[-0.02em] text-stone-400 whitespace-nowrap">{n}</span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+/* ---------- DASHBOARD PEEK ---------- */
+const DashboardPeek = () => (
+  <section className="relative">
+    <div className="max-w-[1240px] mx-auto px-6 lg:px-10">
+      <div className="relative">
+        <div className="rounded-t-2xl border-x border-t hairline bg-white shadow-[0_-1px_0_rgba(255,255,255,0.6),0_30px_60px_-30px_rgba(28,25,23,0.18)] overflow-hidden peek-mask"
+             style={{height: 'min(72vh, 720px)'}}>
+          <DashboardMock />
+        </div>
+        {/* "Open the full app" CTA hovering below the peek */}
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-5 z-10">
+          <button className="inline-flex items-center gap-2 bg-ink text-cream text-[13px] font-medium pl-3.5 pr-3 py-2 rounded-full shadow-lg hover:bg-stone-800">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-coral pulse-dot"></span>
+            See today's playbook
+            <Icon.Arrow width="13" height="13"/>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const DashboardMock = () => {
+  const drafts = [
+    { p:"x",  tag:"thread", title:"The boring growth loop nobody talks about", body:"Shipping isn't a launch, it's a beat. Last week we shipped twice and posted twice. The compounding looks like nothing for six weeks and then…", intent:94, len:"6 posts" },
+    { p:"li", tag:"post",   title:"What I'd do differently if I started today", body:"Spent four months posting twice. Here's the post cadence I should've run from day one — and the one I'd skip entirely.", intent:71, len:"212 words" },
+    { p:"rd", tag:"reply",  title:"r/SaaS · weekly self-promo thread",         body:"OP — I ran a similar playbook last quarter. The 90/10 rule is real, but the part nobody mentions is that the 10% has to be earned in a specific shape:", intent:58, len:"148 words" },
+    { p:"x",  tag:"single", title:"Hook · pricing objection",                  body:"$40/mo for an AI co-founder sounds steep until you remember the alternative is a $7,500 retainer and three slack channels.", intent:66, len:"1 post" },
+  ];
+  const leads = [
+    { n:"@mira_builds",  bio:"building billing API · 2 mo in",            sig:"replied to @stripe",              s:94, hot:true },
+    { n:"@otto.dev",     bio:"ex-Stripe · scoping crm tool",              sig:"posted: 'what crm should i use'", s:88, hot:true },
+    { n:"@hellofelix",   bio:"indie · stuck at $4k MRR",                  sig:"following 6 competitors",         s:81, hot:true },
+    { n:"@dana_runs",    bio:"agency owner · 12 clients",                 sig:"liked 3 of your posts",           s:74 },
+    { n:"@solomon.codes",bio:"shipping a feedback tool",                  sig:"asked 'how to launch?'",          s:69 },
+  ];
+
+  return (
+    <div className="text-left">
+      {/* App chrome */}
+      <div className="flex items-center justify-between px-5 py-3 border-b hairline bg-stone-50/40">
+        <div className="flex items-center gap-3">
+          <Logo />
+          <span className="text-stone-300">/</span>
+          <span className="text-[13.5px] text-stone-700">bramble.dev</span>
+        </div>
+        <div className="hidden md:flex items-center gap-1 p-0.5 rounded-lg border hairline bg-white">
+          {["today","queue","leads","analytics"].map((t,i)=>(
+            <button key={t} className={`text-[12.5px] px-2.5 py-1 rounded-md capitalize ${i===0?"bg-ink text-cream":"text-stone-600 hover:text-ink"}`}>{t}</button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="mono text-[11px] text-stone-500">Day 14 / 30</span>
+          <span className="w-7 h-7 rounded-full bg-gradient-to-br from-stone-300 to-stone-400"></span>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-12 gap-px bg-stone-100">
+        {/* Drafts column */}
+        <div className="lg:col-span-7 bg-white p-5 lg:p-7">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div className="eyebrow text-stone-500">Today's drafts</div>
+              <h4 className="display text-[22px] font-semibold mt-1">4 ready · approve to ship</h4>
+            </div>
+            <button className="text-[12.5px] mono text-stone-500 hover:text-ink inline-flex items-center gap-1.5">
+              <Icon.Spark width="13" height="13"/> Regenerate
+            </button>
+          </div>
+          <div className="space-y-2.5">
+            {drafts.map((d,i)=>(
+              <div key={i} className="rounded-xl border hairline bg-white p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <PlatformChip p={d.p}/>
+                  <span className="eyebrow text-stone-500">{d.tag}</span>
+                  <span className="mono text-[11px] text-stone-400">· {d.len}</span>
+                  <span className="ml-auto inline-flex items-center gap-1.5 mono text-[11px] text-coral">
+                    <span className="inline-block w-1 h-1 rounded-full bg-coral"></span> intent {d.intent}
+                  </span>
+                </div>
+                <h5 className="text-[14.5px] font-medium tracking-[-0.01em] mb-1">{d.title}</h5>
+                <p className="text-[13px] text-stone-600 leading-[1.55] line-clamp-2">{d.body}</p>
+                <div className="mt-3 pt-3 border-t hairline flex items-center gap-2">
+                  <button className="text-[12px] font-medium bg-ink text-cream px-2.5 py-1 rounded-md">Approve & post</button>
+                  <button className="text-[12px] text-stone-600 px-2 py-1 rounded-md">Edit</button>
+                  <button className="text-[12px] text-stone-500 px-2 py-1 rounded-md">Regenerate</button>
+                  <span className="ml-auto mono text-[11px] text-stone-400">queued · 9:14am</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Leads column */}
+        <div className="lg:col-span-5 bg-white p-5 lg:p-7 border-l hairline">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div className="eyebrow text-stone-500">Warm leads · scored natively</div>
+              <h4 className="display text-[22px] font-semibold mt-1">12 in your zone</h4>
+            </div>
+            <Pill tone="coral"><Icon.Dot className="w-1.5 h-1.5"/> 3 hot</Pill>
+          </div>
+          <div className="rounded-xl border hairline divide-y hairline bg-white">
+            {leads.map((l,i)=>(
+              <div key={i} className="flex items-center gap-3 px-3.5 py-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-200 to-stone-300 shrink-0"></div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-medium truncate">{l.n}</span>
+                    {l.hot && <Pill tone="coral"><Icon.Dot className="w-1.5 h-1.5"/>Hot</Pill>}
+                  </div>
+                  <div className="text-[11.5px] text-stone-500 truncate">{l.bio} · <span className="text-stone-400">{l.sig}</span></div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="mono text-[12px] text-stone-700">{l.s}</div>
+                  <div className="mono text-[10px] text-stone-400">score</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 grid grid-cols-3 gap-3">
+            {[
+              ["Drafts shipped","38","this month"],
+              ["Impressions","412k","+38% wow"],
+              ["Reply rate","11.4%","vs 2.1% baseline"],
+            ].map(([k,v,sub],i)=>(
+              <div key={i} className="rounded-lg border hairline p-3">
+                <div className="eyebrow text-stone-500">{k}</div>
+                <div className="display text-[20px] font-semibold mt-1">{v}</div>
+                <div className="mono text-[10.5px] text-stone-400 mt-0.5">{sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ---------- THE MATH (agency comparison) ---------- */
+const TheMath = () => {
+  const rows = [
+    ["ICP research with DISC profiling",        "$1,500/mo"],
+    ["Channel strategy across 27 platforms",    "$1,000/mo"],
+    ["Weekly content — X, LinkedIn, Reddit",    "$2,000/mo"],
+    ["Video content ideas (YT, Insta, TikTok)", "$1,500/mo"],
+    ["Launch posts for 20+ platforms",          "$2,500 one-time"],
+    ["Cold outreach sequences + DMs",           "$500/mo"],
+    ["Warm lead sourcing (high intent)",        "$1,000/mo"],
+  ];
+  return (
+    <section className="relative">
+      <div className="max-w-[920px] mx-auto px-6 lg:px-10 pt-4 lg:pt-8 pb-4 text-center">
+        <span className="eyebrow text-coral">THE MATH</span>
+        <h2 className="display-xl mt-3 text-[44px] sm:text-[60px] lg:text-[72px] font-semibold leading-[0.98]">
+          A $7,500/month<br/>
+          agency, <span className="text-coral">automated.</span>
+        </h2>
+        <p className="mt-6 mx-auto max-w-[560px] text-[16px] leading-[1.55] text-stone-600">
+          Farcast replaces every job a growth team does for a fraction of the cost. Here's exactly what you're getting.
+        </p>
+      </div>
+
+      <div className="max-w-[920px] mx-auto px-6 lg:px-10 mt-8">
+        <div className="rounded-2xl border hairline bg-white overflow-hidden shadow-[0_30px_60px_-40px_rgba(28,25,23,0.15)]">
+          {/* header */}
+          <div className="grid grid-cols-[1.6fr_1fr_1fr] bg-ink text-cream px-6 py-3.5 text-[13.5px] font-medium">
+            <span>What you need</span>
+            <span className="text-center text-stone-300 font-normal">Without Farcast</span>
+            <span className="text-center text-stone-300 font-normal">With Farcast</span>
+          </div>
+          {/* rows */}
+          {rows.map(([k, v], i)=>(
+            <div key={i} className="grid grid-cols-[1.6fr_1fr_1fr] items-center px-6 py-3.5 border-t hairline">
+              <span className="text-[14px] text-ink">{k}</span>
+              <span className="text-center text-[13.5px] text-stone-500">{v}</span>
+              <span className="flex justify-center">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-coral/10 text-coral">
+                  <Icon.Check width="13" height="13"/>
+                </span>
+              </span>
+            </div>
+          ))}
+          {/* totals */}
+          <div className="grid grid-cols-[1.6fr_1fr_1fr] items-center px-6 py-4 border-t hairline bg-coral/[0.06]">
+            <span className="text-[14px] font-semibold">Every month</span>
+            <span className="text-center text-[14px] text-stone-500 line-through">$7,500+</span>
+            <span className="text-center text-[16px] font-semibold text-coral">$40</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ---------- FEATURES (3-col) ---------- */
+const Features = () => {
+  const features = [
+    {
+      I: Icon.Bot,
+      k: "Autonomous Hermes Agent",
+      b: "Scrapes subreddits, clones your voice, and extracts the viral frameworks your competitors are quietly running.",
+    },
+    {
+      I: Icon.Shield,
+      k: "Hardcoded anti-ban",
+      b: "Platform-safe velocity limits — 1 Reddit post/week, 90/10 value ratio, links never in the hook. Zero bans in 14 months.",
+    },
+    {
+      I: Icon.Reply,
+      k: "“Reply Guy” extension",
+      b: "Ghostwrites contextual, upvote-optimised replies natively inside X and Reddit. Two-click Chrome install.",
+    },
+  ];
+
+  return (
+    <section className="relative">
+      <div className="max-w-[1240px] mx-auto px-6 lg:px-10 pt-32 lg:pt-40 pb-4">
+        <div className="grid md:grid-cols-3 gap-px bg-stone-200 border hairline rounded-2xl overflow-hidden">
+          {features.map((f, i) => (
+            <div key={i} className="bg-cream p-6 lg:p-7">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="mono text-[12px] text-coral">0{i+1}</span>
+                <span className="flex-1 h-px bg-stone-200"></span>
+                <span className="w-8 h-8 rounded-md border hairline bg-white flex items-center justify-center"><f.I width="15" height="15"/></span>
+              </div>
+              <h3 className="display text-[20px] font-semibold tracking-[-0.02em] leading-[1.15] mb-2">{f.k}</h3>
+              <p className="text-[14px] text-stone-600 leading-[1.55]">{f.b}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ---------- PRICING ---------- */
+const Pricing = () => {
+  const caps = [
+    "Hermes Growth Strategy & Voice Cloning",
+    "Autonomous Content Engine (X, LinkedIn)",
+    "Deep Reddit Recon & Publishing",
+    "“Reply Guy” Chrome Extension",
+    "Warm Lead Radar (Reddit, Linkedin)",
+    "Anti-Ban Protection across all socials",
+  ];
+  return (
+    <section className="relative">
+      <div className="max-w-[1240px] mx-auto px-6 lg:px-10 pt-20 lg:pt-28 pb-24">
+        {/* Header */}
+        <div className="text-center max-w-[640px] mx-auto">
+          <h2 className="display text-[40px] sm:text-[52px] font-semibold leading-[1.02]">Simple, transparent pricing</h2>
+          <p className="mt-4 text-[17px] leading-[1.55] text-stone-600">
+            Start free and upgrade when you're ready. No hidden fees.
+          </p>
+        </div>
+
+        {/* Card */}
+        <div className="mt-14 mx-auto max-w-[460px]">
+          <div className="rounded-2xl border border-stone-200 bg-white p-8 lg:p-10 shadow-[0_1px_0_rgba(28,25,23,0.04),0_30px_60px_-40px_rgba(28,25,23,0.22)]">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-stone-200 text-[11px] font-medium text-stone-700">
+                <Icon.Dot className="w-1.5 h-1.5 text-coral"/> Pro
+              </span>
+            </div>
+
+            <div className="mt-5 flex items-baseline gap-2">
+              <span className="display text-[64px] font-semibold tracking-[-0.045em] leading-none">$40</span>
+              <span className="text-stone-500 text-[15px]">/month</span>
+            </div>
+            <p className="mt-3 text-[14.5px] text-stone-600 leading-[1.5]">
+              Cancel anytime. The complete autonomous growth team.
+            </p>
+
+            <div className="my-7 h-px bg-stone-100"></div>
+
+            <ul className="space-y-3.5">
+              {caps.map((c, i) => (
+                <li key={i} className="flex items-start gap-3 text-[15px] text-ink">
+                  <span className="mt-0.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-coral/10 text-coral shrink-0">
+                    <Icon.Check width="12" height="12"/>
+                  </span>
+                  <span className="leading-[1.4]">{c}</span>
+                </li>
+              ))}
+            </ul>
+
+            <button className="mt-8 w-full bg-coral text-white text-[15px] font-medium py-3.5 rounded-xl hover:brightness-95 transition">
+              Start Pro • 7 days free
+            </button>
+            <p className="mt-3.5 text-[12.5px] text-stone-500 text-center">No credit card required • 2-click cancel</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ---------- FOOTER ---------- */
+
+const Footer = () => (
+  <footer className="border-t hairline">
+    <div className="max-w-[1240px] mx-auto px-6 lg:px-10 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="flex items-center gap-3">
+        <Logo/>
+        <span className="text-stone-300">·</span>
+        <span className="mono text-[11px] text-stone-500"></span>
+      </div>
+      <div className="flex items-center gap-5 text-[12.5px] text-stone-500">
+        <a className="hover:text-ink" href="#">Manifesto</a>
+        <a className="hover:text-ink" href="#">Docs</a>
+        <a className="hover:text-ink" href="#">Status</a>
+        <a className="hover:text-ink" href="#">Privacy</a>
+        <a className="hover:text-ink" href="#">Terms</a>
+      </div>
+      <p className="mono text-[11px] text-stone-400"></p>
+    </div>
+  </footer>
+);
+
+/* ---------- APP ---------- */
+const App = () => (
+  <div className="min-h-screen bg-cream text-ink">
+    <Nav />
+    <Hero />
+    <DashboardPeek />
+    <Features />
+    <TheMath />
+    <Pricing />
+    <Footer />
+  </div>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+
+
+</script>
+</body>
+</html>

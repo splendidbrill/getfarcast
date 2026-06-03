@@ -73,6 +73,15 @@ export function LandingNav() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <a
+              href="https://calendly.com/shobit-getfarcast/30min"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-block text-[13px] text-stone-500 underline underline-offset-4 decoration-stone-300 hover:text-[#1C1917] transition-colors"
+            >
+              Looking for a demo?
+            </a>
+            <span className="hidden sm:inline-block w-px h-5 bg-stone-200" />
             {userInitial ? (
               <div style={{ position: "relative" }} ref={dropdownRef}>
                 <button

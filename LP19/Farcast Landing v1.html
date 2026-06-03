@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Farcast — AI growth co-founder for micro-SaaS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          mono: ['"Geist Mono"', 'ui-monospace', 'monospace'],
+        },
+        colors: {
+          cream: '#FFFCF8',
+          ink: '#1C1917',
+          coral: '#FF5A4D',
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html, body { background: #FFFCF8; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #1C1917; -webkit-font-smoothing: antialiased; }
+  .display { letter-spacing: -0.05em; }
+  .display-xl { letter-spacing: -0.055em; }
+  .eyebrow { font-family: 'Geist Mono', ui-monospace, monospace; letter-spacing: 0.04em; font-size: 11px; text-transform: uppercase; }
+  .mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  .hairline { border-color: #E7E5E4; }
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(28,25,23,0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(28,25,23,0.045) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  .fade-mask {
+    -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 75%);
+            mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 75%);
+  }
+  @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .ticker-track { animation: ticker 40s linear infinite; }
+  .focus-ring:focus { outline: none; box-shadow: 0 0 0 3px rgba(255,90,77,0.25); }
+  ::selection { background: #FF5A4D; color: #fff; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useMemo } = React;
+
+/* ---------- Inline icons (no external dep needed) ---------- */
+const Icon = {
+  Arrow: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>),
+  Check: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M20 6 9 17l-5-5"/></svg>),
+  Dot:   (p) => (<svg viewBox="0 0 8 8" {...p}><circle cx="4" cy="4" r="3" fill="currentColor"/></svg>),
+  Spark: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>),
+  Globe: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>),
+  Mic:   (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>),
+  Eye:   (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>),
+  Bolt:  (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>),
+  Chart: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 3v18h18"/><path d="m7 14 3-3 3 3 5-6"/></svg>),
+  Shield:(p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/></svg>),
+  Reply: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 12c0-4 3-7 7-7h7a4 4 0 0 1 4 4v3a4 4 0 0 1-4 4h-7l-4 4v-4H6a3 3 0 0 1-3-3Z"/></svg>),
+  Lock:  (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>),
+  Plug:  (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8ZM12 17v5"/></svg>),
+  Cursor:(p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="m4 4 7 17 2.5-7L21 11 4 4Z"/></svg>),
+  X:     (p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M18.244 2H21l-6.49 7.41L22 22h-6.99l-4.74-6.16L4.8 22H2.04l6.96-7.95L2 2h7.16l4.27 5.65L18.244 2Zm-1.22 18.39h1.66L7.06 3.5H5.3l11.724 16.89Z"/></svg>),
+  Reddit:(p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><circle cx="12" cy="12" r="10"/><circle cx="9" cy="13" r="1.1" fill="#fff"/><circle cx="15" cy="13" r="1.1" fill="#fff"/><path d="M8.5 15.6c1 .9 2.2 1.3 3.5 1.3s2.5-.4 3.5-1.3" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" fill="none"/></svg>),
+  Linked:(p) => (<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.06c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.4c0-1.29-.02-2.94-1.79-2.94-1.8 0-2.07 1.4-2.07 2.85V21h-4V9Z"/></svg>),
+};
+
+/* ---------- Reusable bits ---------- */
+const Logo = () => (
+  <div className="flex items-center gap-2.5">
+    <img src="assets/farcast-logo.png" alt="" className="h-8 w-auto rounded-md" style={{objectFit:'cover', objectPosition:'left', width:'34px'}}/>
+    <span className="text-[19px] font-semibold tracking-[-0.02em]">Farcast</span>
+  </div>
+);
+
+const Eyebrow = ({children, className=""}) => (
+  <span className={"eyebrow text-stone-500 " + className}>{children}</span>
+);
+
+const Pill = ({children, tone="neutral"}) => {
+  const map = {
+    neutral: "bg-stone-100 text-stone-700 border-stone-200",
+    coral:   "bg-coral/10 text-coral border-coral/20",
+    green:   "bg-emerald-50 text-emerald-700 border-emerald-200",
+    amber:   "bg-amber-50 text-amber-800 border-amber-200",
+    ink:     "bg-ink text-cream border-ink",
+  };
+  return <span className={"inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[11px] font-medium " + map[tone]}>{children}</span>;
+};
+
+const Section = ({eyebrow, title, lede, children, id}) => (
+  <section id={id} className="border-t hairline">
+    <div className="max-w-[1240px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
+      <div className="grid lg:grid-cols-12 gap-10 mb-14">
+        <div className="lg:col-span-4">
+          <Eyebrow>{eyebrow}</Eyebrow>
+        </div>
+        <div className="lg:col-span-8">
+          <h2 className="display text-[44px] lg:text-[56px] leading-[1.02] font-semibold max-w-[20ch]">{title}</h2>
+          {lede && <p className="mt-5 text-stone-600 text-[17px] leading-[1.55] max-w-[58ch]">{lede}</p>}
+        </div>
+      </div>
+      {children}
+    </div>
+  </section>
+);
+
+/* ---------- NAV ---------- */
+const Nav = () => (
+  <div className="sticky top-0 z-40 backdrop-blur-md bg-cream/80 border-b hairline">
+    <div className="max-w-[1240px] mx-auto px-6 lg:px-10 h-14 flex items-center justify-between">
+      <Logo />
+      <nav className="hidden md:flex items-center gap-8 text-[13.5px] text-stone-600">
+        <a href="#engine" className="hover:text-ink">Engine</a>
+        <a href="#dashboard" className="hover:text-ink">Dashboard</a>
+        <a href="#extension" className="hover:text-ink">Extension</a>
+        <a href="#safety" className="hover:text-ink">Safety</a>
+        <a href="#pricing" className="hover:text-ink">Pricing</a>
+      </nav>
+      <div className="flex items-center gap-2">
+        <button className="hidden sm:inline-flex text-[13.5px] text-stone-700 px-3 py-1.5 rounded-md hover:bg-stone-100">Sign in</button>
+        <button className="text-[13.5px] font-medium bg-ink text-cream px-3.5 py-1.5 rounded-md hover:bg-stone-800">Start free</button>
+      </div>
+    </div>
+  </div>
+);
+
+/* ---------- HERO ---------- */
+const Hero = () => {
+  const [url, setUrl] = useState("https://your-saas.com");
+  const [stage, setStage] = useState("idle"); // idle | running | done
+  const [steps, setSteps] = useState([0,0,0]); // 0 pending, 1 active, 2 done
+  const timers = useRef([]);
+
+  const run = () => {
+    if (stage === "running") return;
+    setStage("running");
+    setSteps([1,0,0]);
+    timers.current.forEach(clearTimeout);
+    timers.current = [
+      setTimeout(() => setSteps([2,1,0]), 900),
+      setTimeout(() => setSteps([2,2,1]), 1800),
+      setTimeout(() => { setSteps([2,2,2]); setStage("done"); }, 2700),
+    ];
+  };
+
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
+  return (
+    <section className="relative border-b hairline">
+      <div className="absolute inset-0 grid-bg fade-mask pointer-events-none"></div>
+      <div className="relative max-w-[1240px] mx-auto px-6 lg:px-10 pt-20 lg:pt-28 pb-24 lg:pb-32">
+        <div className="grid lg:grid-cols-12 gap-12 items-start">
+          <div className="lg:col-span-7">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border hairline bg-white/70 mb-7">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-coral pulse-dot"></span>
+              <span className="eyebrow text-stone-700">Now in private beta · v0.4</span>
+            </div>
+            <h1 className="display-xl text-[56px] sm:text-[72px] lg:text-[88px] leading-[0.96] font-semibold">
+              Building is easy.<br/>
+              <span className="text-stone-400">Distribution isn't.</span>
+            </h1>
+            <p className="mt-7 text-[18px] lg:text-[19px] leading-[1.5] text-stone-600 max-w-[58ch]">
+              You shipped the product. Now you're four months in, posting twice, watching your launch drift off the front page. Farcast runs the boring half of growth on autopilot.
+            </p>
+
+            {/* URL Wedge */}
+            <form onSubmit={(e)=>{e.preventDefault(); run();}} className="mt-9">
+              <div className="flex items-center gap-2 p-1.5 rounded-xl border hairline bg-white shadow-sm max-w-[620px]">
+                <div className="pl-3 pr-1 text-stone-400"><Icon.Globe width="18" height="18"/></div>
+                <input
+                  value={url}
+                  onChange={(e)=>setUrl(e.target.value)}
+                  onFocus={(e)=>{ if(url==="https://your-saas.com") e.target.select(); }}
+                  className="flex-1 bg-transparent py-2.5 text-[15.5px] focus-ring rounded-md"
+                  spellCheck="false"
+                />
+                <button type="submit"
+                  className="inline-flex items-center gap-2 bg-coral text-white text-[14px] font-medium pl-4 pr-3.5 py-2.5 rounded-lg hover:brightness-95 transition focus-ring">
+                  {stage === "running" ? "Reading site…" : stage === "done" ? "Playbook ready" : "Generate Growth Playbook"}
+                  <Icon.Arrow width="16" height="16"/>
+                </button>
+              </div>
+              <div className="mt-3 flex items-center gap-4 text-[12.5px] text-stone-500">
+                <span className="inline-flex items-center gap-1.5"><Icon.Lock width="13" height="13"/> No card. 7-day full access.</span>
+                <span className="hidden sm:inline-flex items-center gap-1.5"><Icon.Bolt width="13" height="13"/> First draft in ~90 seconds.</span>
+              </div>
+            </form>
+
+            {/* Live run readout */}
+            <div className="mt-9 max-w-[620px] rounded-xl border hairline bg-white overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 border-b hairline bg-stone-50/60">
+                <span className="eyebrow text-stone-600">hermes · agent log</span>
+                <span className="mono text-[11px] text-stone-500">{stage === "done" ? "completed" : stage === "running" ? "running" : "idle"}</span>
+              </div>
+              <div className="px-4 py-3 mono text-[12.5px] leading-[1.85] text-stone-700">
+                <LogLine state={steps[0]} label="GET /scrape" detail={`→ ${url.replace(/^https?:\/\//,'')}`}/>
+                <LogLine state={steps[1]} label="POST /icp.infer" detail="→ buyers · triggers · objections"/>
+                <LogLine state={steps[2]} label="POST /voice.clone" detail="→ tone · cadence · post shape"/>
+              </div>
+              {stage === "done" && (
+                <div className="px-4 py-3 border-t hairline bg-coral/[0.04] flex items-center justify-between">
+                  <span className="text-[13px] text-stone-700">Playbook drafted · 12 posts · 38 warm leads queued</span>
+                  <button className="text-[12.5px] font-medium text-coral inline-flex items-center gap-1">Open dashboard <Icon.Arrow width="13" height="13"/></button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right column — preview card */}
+          <div className="lg:col-span-5">
+            <HeroPreview />
+          </div>
+        </div>
+
+        {/* Logo strip */}
+        <div className="mt-20 pt-8 border-t hairline">
+          <div className="flex items-center gap-6 flex-wrap">
+            <span className="eyebrow text-stone-500">Trusted by 240+ indie founders shipping {"<"}$2M ARR SaaS</span>
+            <div className="flex-1 min-w-[280px] overflow-hidden">
+              <div className="flex items-center gap-10 ticker-track">
+                {[...Array(2)].map((_,k)=>(
+                  <div key={k} className="flex items-center gap-10 shrink-0 pr-10">
+                    {["Bramble","Quirly","Northbeam Jr","Heron","Pagestate","Anchorline","Salt&Co","Mentora","Strata","Drift.ly"].map((n,i)=>(
+                      <span key={i} className="text-[15px] tracking-[-0.02em] text-stone-400 whitespace-nowrap">{n}</span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const LogLine = ({state, label, detail}) => {
+  const color = state===2 ? "text-emerald-600" : state===1 ? "text-coral" : "text-stone-300";
+  const mark  = state===2 ? "✓" : state===1 ? "▸" : "·";
+  return (
+    <div className="flex items-baseline gap-3">
+      <span className={`w-3 text-center ${color}`}>{mark}</span>
+      <span className="text-stone-500">{label}</span>
+      <span className={state===1 ? "text-coral" : "text-stone-600"}>{detail}{state===1 && <span className="ml-1 pulse-dot">▌</span>}</span>
+    </div>
+  );
+};
+
+/* ---------- HERO PREVIEW (mini dashboard) ---------- */
+const HeroPreview = () => (
+  <div className="rounded-2xl border hairline bg-white shadow-sm overflow-hidden">
+    <div className="flex items-center justify-between px-4 py-2.5 border-b hairline">
+      <div className="flex items-center gap-1.5">
+        <span className="w-2.5 h-2.5 rounded-full bg-stone-200"></span>
+        <span className="w-2.5 h-2.5 rounded-full bg-stone-200"></span>
+        <span className="w-2.5 h-2.5 rounded-full bg-stone-200"></span>
+      </div>
+      <span className="mono text-[11px] text-stone-400">farcast.app/today</span>
+      <span className="eyebrow text-stone-400">Tue · May 19</span>
+    </div>
+    <div className="p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <div className="eyebrow text-stone-500">Today's playbook</div>
+          <h3 className="text-[20px] tracking-[-0.02em] font-semibold mt-1">7 drafts ready · 3 leads hot</h3>
+        </div>
+        <Pill tone="coral"><Icon.Dot className="w-1.5 h-1.5"/> Live</Pill>
+      </div>
+
+      <div className="space-y-2.5">
+        <DraftRow platform="x"   tag="thread"  text="The boring growth loop nobody talks about: shipping isn't a launch, it's a beat. Last week we…" intent={94}/>
+        <DraftRow platform="li"  tag="post"    text="I spent four months posting twice. Here's what I'd do differently if I started today →" intent={71}/>
+        <DraftRow platform="rd"  tag="reply"   text="OP — I ran the same playbook on r/SaaS last quarter. The 90/10 rule is real, but…" intent={58}/>
+      </div>
+
+      <div className="mt-5 pt-4 border-t hairline">
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="eyebrow text-stone-500">Warm leads · 38 queued</div>
+          <span className="mono text-[11px] text-stone-400">native intent score</span>
+        </div>
+        <div className="space-y-1.5">
+          <LeadRow name="@mira_builds"  bio="building a billing API · 2 mo" score={92} hot/>
+          <LeadRow name="@otto.dev"     bio="ex-Stripe · scoping crm tool" score={84}/>
+          <LeadRow name="@hellofelix"   bio="indie · stuck at $4k MRR"     score={77}/>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const PlatformChip = ({p}) => {
+  const map = {
+    x:  { Icon: Icon.X,      bg: "bg-ink text-cream" },
+    li: { Icon: Icon.Linked, bg: "bg-[#0a66c2] text-white" },
+    rd: { Icon: Icon.Reddit, bg: "bg-[#ff4500] text-white" },
+  };
+  const { Icon: I, bg } = map[p];
+  return <span className={`inline-flex items-center justify-center w-5 h-5 rounded ${bg}`}><I width="11" height="11"/></span>;
+};
+
+const DraftRow = ({platform, tag, text, intent}) => (
+  <div className="group rounded-lg border hairline bg-white hover:border-stone-300 transition px-3 py-2.5">
+    <div className="flex items-center gap-2 mb-1">
+      <PlatformChip p={platform}/>
+      <span className="eyebrow text-stone-500">{tag}</span>
+      <span className="ml-auto mono text-[10.5px] text-stone-400">intent {intent}</span>
+    </div>
+    <p className="text-[13px] leading-[1.45] text-stone-700 line-clamp-2">{text}</p>
+  </div>
+);
+
+const LeadRow = ({name, bio, score, hot}) => (
+  <div className="flex items-center gap-3 py-1.5">
+    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-stone-200 to-stone-300 shrink-0"></div>
+    <div className="flex-1 min-w-0">
+      <div className="text-[13px] font-medium truncate">{name}</div>
+      <div className="text-[11.5px] text-stone-500 truncate">{bio}</div>
+    </div>
+    <div className="flex items-center gap-2 shrink-0">
+      {hot && <Pill tone="coral"><Icon.Dot className="w-1.5 h-1.5"/>Hot lead</Pill>}
+      <span className="mono text-[11.5px] text-stone-600 w-7 text-right">{score}</span>
+    </div>
+  </div>
+);
+
+/* ---------- SECTION 2 · STRATEGY ENGINE ---------- */
+const StrategyEngine = () => {
+  const steps = [
+    {
+      n: "01", k: "URL Scraped", icon: Icon.Globe,
+      title: "Hermes maps your exact ICP and buying triggers.",
+      body: "Crawls your site, docs, changelog, and pricing — then reverse-engineers who actually buys and what makes them open the email.",
+      log: [
+        ["scan", "/pricing → 3 plans · $40 ceiling"],
+        ["scan", "/changelog → 12 weekly notes"],
+        ["infer", "ICP: solo · post-MVP · pre-PMF"],
+        ["infer", "triggers: failed launch · $0 MRR · churn"],
+      ],
+    },
+    {
+      n: "02", k: "Voice Cloned", icon: Icon.Mic,
+      title: "Procedural memory matches your formatting and tone.",
+      body: "Reads your past 200 posts on X, LinkedIn, and Reddit. Learns line breaks, em-dash habits, the exact way you open a thread.",
+      log: [
+        ["read", "x.com/@you → 184 posts"],
+        ["read", "linkedin → 41 posts"],
+        ["fit",  "cadence: 2 short + 1 long / wk"],
+        ["fit",  "voice: dry · concrete · self-deprecating"],
+      ],
+    },
+    {
+      n: "03", k: "Rivals Spied", icon: Icon.Eye,
+      title: "Viral frameworks pulled from competitors in your niche.",
+      body: "Quietly indexes the top 40 accounts in your category. Surfaces the post structures, hooks, and CTAs that actually moved the needle.",
+      log: [
+        ["index", "40 rival accounts · 12k posts"],
+        ["cluster","17 viral frameworks isolated"],
+        ["score", "top 3 ready to remix"],
+        ["queue", "draft → today's playbook"],
+      ],
+    },
+  ];
+
+  return (
+    <Section
+      id="engine"
+      eyebrow="02 · The strategy engine"
+      title="What happens after you hit enter."
+      lede="Three agents run in parallel for about ninety seconds. By the time your coffee's cold, the playbook is sitting in your inbox."
+    >
+      <div className="grid lg:grid-cols-3 gap-px bg-stone-200 border hairline rounded-2xl overflow-hidden">
+        {steps.map((s, i) => (
+          <div key={i} className="bg-white p-7 lg:p-8 flex flex-col gap-5 min-h-[420px]">
+            <div className="flex items-center justify-between">
+              <span className="mono text-[12px] text-coral">{s.n}</span>
+              <span className="eyebrow text-stone-500">{s.k}</span>
+            </div>
+            <div className="w-10 h-10 rounded-lg border hairline flex items-center justify-center text-ink bg-stone-50">
+              <s.icon width="18" height="18"/>
+            </div>
+            <h3 className="display text-[22px] font-semibold leading-[1.15]">{s.title}</h3>
+            <p className="text-[14.5px] text-stone-600 leading-[1.55]">{s.body}</p>
+            <div className="mt-auto rounded-lg bg-stone-50 border hairline p-3 mono text-[11.5px] leading-[1.9] text-stone-600">
+              {s.log.map(([k,v], j) => (
+                <div key={j} className="flex gap-3">
+                  <span className="text-stone-400 w-10 shrink-0">{k}</span>
+                  <span className="text-stone-700">{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* connecting trace */}
+      <div className="hidden lg:flex justify-center -mt-px">
+        <div className="mono text-[11px] text-stone-400 mt-6 inline-flex items-center gap-2">
+          <span className="w-1 h-1 rounded-full bg-coral"></span> agents run in parallel · ~90s wall time
+        </div>
+      </div>
+    </Section>
+  );
+};
+
+/* ---------- SECTION 3 · DAILY DASHBOARD ---------- */
+const Dashboard = () => {
+  const [tab, setTab] = useState("today");
+  const drafts = [
+    { p:"x",  tag:"thread", title:"The boring growth loop nobody talks about", body:"Shipping isn't a launch, it's a beat. Last week we shipped twice and posted twice. The compounding looks like nothing for six weeks and then…", intent:94, len:"6 posts" },
+    { p:"li", tag:"post",   title:"What I'd do differently if I started today", body:"Spent four months posting twice. Here's the post cadence I should've run from day one — and the one I'd skip entirely.", intent:71, len:"212 words" },
+    { p:"rd", tag:"reply",  title:"r/SaaS · weekly self-promo thread",         body:"OP — I ran a similar playbook last quarter. The 90/10 rule is real, but the part nobody mentions is that the 10% has to be earned in a specific shape:", intent:58, len:"148 words" },
+    { p:"x",  tag:"single", title:"Hook · pricing objection",                  body:"$40/mo for an AI co-founder sounds steep until you remember the alternative is a $7,500 retainer and three slack channels.", intent:66, len:"1 post" },
+  ];
+
+  return (
+    <Section
+      id="dashboard"
+      eyebrow="03 · The daily dashboard"
+      title="One screen. Drafts on the left, warm leads on the right."
+      lede="No dashboards to learn. Open it once a day, approve what's good, kill what isn't. Closes itself when the work is done."
+    >
+      <div className="rounded-2xl border hairline bg-white shadow-sm overflow-hidden">
+        {/* App chrome */}
+        <div className="flex items-center justify-between px-5 py-3 border-b hairline bg-stone-50/40">
+          <div className="flex items-center gap-3">
+            <Logo />
+            <span className="text-stone-300">/</span>
+            <span className="text-[13.5px] text-stone-700">bramble.dev</span>
+          </div>
+          <div className="hidden md:flex items-center gap-1 p-0.5 rounded-lg border hairline bg-white">
+            {["today","queue","leads","analytics"].map(t=>(
+              <button key={t} onClick={()=>setTab(t)}
+                className={`text-[12.5px] px-2.5 py-1 rounded-md capitalize ${tab===t?"bg-ink text-cream":"text-stone-600 hover:text-ink"}`}>{t}</button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="mono text-[11px] text-stone-500">Day 14 / 30</span>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-stone-300 to-stone-400"></span>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-12 gap-px bg-stone-100">
+          {/* Drafts column */}
+          <div className="lg:col-span-7 bg-white p-5 lg:p-7">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <div className="eyebrow text-stone-500">Today's drafts</div>
+                <h4 className="display text-[22px] font-semibold mt-1">4 ready · approve to ship</h4>
+              </div>
+              <button className="text-[12.5px] mono text-stone-500 hover:text-ink inline-flex items-center gap-1.5">
+                <Icon.Spark width="13" height="13"/> Regenerate all
+              </button>
+            </div>
+            <div className="space-y-2.5">
+              {drafts.map((d,i)=>(
+                <DraftCard key={i} {...d}/>
+              ))}
+            </div>
+          </div>
+
+          {/* Leads column */}
+          <div className="lg:col-span-5 bg-white p-5 lg:p-7 border-l hairline">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <div className="eyebrow text-stone-500">Warm leads · scored natively</div>
+                <h4 className="display text-[22px] font-semibold mt-1">12 in your zone</h4>
+              </div>
+              <Pill tone="coral"><Icon.Dot className="w-1.5 h-1.5"/> 3 hot</Pill>
+            </div>
+
+            <div className="rounded-xl border hairline divide-y hairline bg-white">
+              {[
+                { n:"@mira_builds",  bio:"building billing API · 2 mo in",            sig:"replied to @stripe", s:94, hot:true },
+                { n:"@otto.dev",     bio:"ex-Stripe · scoping crm tool",              sig:"posted: 'what crm should i use'", s:88, hot:true },
+                { n:"@hellofelix",   bio:"indie · stuck at $4k MRR",                  sig:"following 6 competitors", s:81, hot:true },
+                { n:"@dana_runs",    bio:"agency owner · 12 clients",                 sig:"liked 3 of your posts", s:74 },
+                { n:"@solomon.codes",bio:"shipping a feedback tool",                  sig:"asked 'how to launch?'", s:69 },
+                { n:"@ay.notes",     bio:"writing in public · 1.2k followers",        sig:"quoted competitor", s:62 },
+              ].map((l,i)=> <LeadCard key={i} {...l}/>)}
+            </div>
+
+            <div className="mt-5 grid grid-cols-3 gap-3">
+              <Stat label="Drafts shipped" v="38" sub="this month"/>
+              <Stat label="Impressions"    v="412k" sub="+38% wow"/>
+              <Stat label="Reply rate"     v="11.4%" sub="vs 2.1% baseline"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+};
+
+const DraftCard = ({p, tag, title, body, intent, len}) => (
+  <div className="rounded-xl border hairline bg-white p-4 hover:border-stone-300 transition">
+    <div className="flex items-center gap-2 mb-2">
+      <PlatformChip p={p}/>
+      <span className="eyebrow text-stone-500">{tag}</span>
+      <span className="mono text-[11px] text-stone-400">· {len}</span>
+      <span className="ml-auto mono text-[11px] text-stone-500">intent {intent}</span>
+    </div>
+    <h5 className="text-[14.5px] font-medium tracking-[-0.01em] mb-1">{title}</h5>
+    <p className="text-[13px] text-stone-600 leading-[1.55] line-clamp-2">{body}</p>
+    <div className="mt-3 pt-3 border-t hairline flex items-center gap-2">
+      <button className="text-[12px] font-medium bg-ink text-cream px-2.5 py-1 rounded-md hover:bg-stone-800">Approve & post</button>
+      <button className="text-[12px] text-stone-600 px-2 py-1 rounded-md hover:bg-stone-100">Edit</button>
+      <button className="text-[12px] text-stone-500 px-2 py-1 rounded-md hover:bg-stone-100">Regenerate</button>
+      <span className="ml-auto mono text-[11px] text-stone-400">queued · 9:14am</span>
+    </div>
+  </div>
+);
+
+const LeadCard = ({n, bio, sig, s, hot}) => (
+  <div className="flex items-center gap-3 px-3.5 py-3">
+    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-200 to-stone-300 shrink-0"></div>
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-2">
+        <span className="text-[13px] font-medium truncate">{n}</span>
+        {hot && <Pill tone="coral"><Icon.Dot className="w-1.5 h-1.5"/>Hot</Pill>}
+      </div>
+      <div className="text-[11.5px] text-stone-500 truncate">{bio} · <span className="text-stone-400">{sig}</span></div>
+    </div>
+    <div className="text-right shrink-0">
+      <div className="mono text-[12px] text-stone-700">{s}</div>
+      <div className="mono text-[10px] text-stone-400">score</div>
+    </div>
+  </div>
+);
+
+const Stat = ({label, v, sub}) => (
+  <div className="rounded-lg border hairline p-3">
+    <div className="eyebrow text-stone-500">{label}</div>
+    <div className="display text-[22px] font-semibold mt-1">{v}</div>
+    <div className="mono text-[10.5px] text-stone-400 mt-0.5">{sub}</div>
+  </div>
+);
+
+/* ---------- SECTION 4 · REPLY GUY EXTENSION ---------- */
+const Extension = () => {
+  return (
+    <Section
+      id="extension"
+      eyebrow="04 · The 'Reply Guy' extension"
+      title="A ghostwriter that lives inside X and Reddit."
+      lede="Sits natively in the compose box. Reads the thread, picks up the room, drafts a reply that sounds like you wrote it. Farms upvotes. Poaches competitor audiences."
+    >
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
+        {/* Browser mock */}
+        <div className="lg:col-span-7">
+          <div className="rounded-2xl border hairline bg-white shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 px-3 py-2 border-b hairline bg-stone-50/50">
+              <div className="flex gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-stone-200"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-stone-200"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-stone-200"></span>
+              </div>
+              <div className="flex-1 mx-3 px-3 py-1 rounded-md bg-white border hairline mono text-[11px] text-stone-500 truncate">x.com/notification/replies</div>
+              <div className="flex items-center gap-1.5 mono text-[11px] text-stone-600 px-2 py-1 rounded-md border hairline bg-white">
+                <span className="w-1.5 h-1.5 rounded-full bg-coral pulse-dot"></span> farcast
+              </div>
+            </div>
+
+            <div className="grid grid-cols-12">
+              {/* Tweet thread */}
+              <div className="col-span-12 md:col-span-7 p-5 border-r hairline">
+                <div className="flex items-start gap-3 pb-4 border-b hairline">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-stone-200 to-stone-300 shrink-0"></div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[13.5px] font-semibold">Mira Patel</span>
+                      <span className="text-[12.5px] text-stone-400">@mira_builds · 24m</span>
+                    </div>
+                    <p className="text-[14px] leading-[1.5] mt-1">
+                      ok hot take: stripe billing for usage-based pricing is still a nightmare in 2026. what are people actually using? not paying for chargebee.
+                    </p>
+                    <div className="flex items-center gap-5 mt-3 text-stone-500 text-[12px]">
+                      <span>14 replies</span><span>2 quotes</span><span>87 likes</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Compose box w/ extension overlay */}
+                <div className="mt-4 rounded-xl border hairline p-3 bg-white relative">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-200 to-stone-300 shrink-0"></div>
+                    <div className="flex-1">
+                      <p className="text-[14px] leading-[1.55] text-ink">
+                        Been there — usage billing is the bug-on-bug episode of every SaaS. We just rolled our own meter on top of Stripe products + scheduled invoice items. Took a week, but the math finally matches the dashboard.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t hairline">
+                    <div className="flex items-center gap-2">
+                      <Pill tone="coral"><Icon.Spark width="11" height="11"/> Farcast drafted</Pill>
+                      <span className="mono text-[11px] text-stone-500">match · 96%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button className="text-[12px] text-stone-600 px-2 py-1 rounded-md hover:bg-stone-100">Regenerate</button>
+                      <button className="text-[12px] font-medium bg-ink text-cream px-2.5 py-1 rounded-md">Reply</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Extension panel */}
+              <div className="col-span-12 md:col-span-5 p-5 bg-stone-50/30">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="eyebrow text-stone-600">Farcast · context</span>
+                  <span className="mono text-[11px] text-coral">reading room…</span>
+                </div>
+                <ul className="space-y-2.5 mono text-[12px] text-stone-700">
+                  <li className="flex gap-2"><span className="text-stone-400 shrink-0 w-14">topic</span><span>usage-based billing · stripe</span></li>
+                  <li className="flex gap-2"><span className="text-stone-400 shrink-0 w-14">tone</span><span>frustrated · technical</span></li>
+                  <li className="flex gap-2"><span className="text-stone-400 shrink-0 w-14">audience</span><span>seed-stage founders · 24 watching</span></li>
+                  <li className="flex gap-2"><span className="text-stone-400 shrink-0 w-14">match</span><span className="text-coral">you · 96% icp · hot lead</span></li>
+                  <li className="flex gap-2"><span className="text-stone-400 shrink-0 w-14">angle</span><span>share concrete solution · no pitch</span></li>
+                </ul>
+
+                <div className="mt-5 pt-5 border-t hairline">
+                  <div className="eyebrow text-stone-600 mb-2">3 reply angles</div>
+                  <div className="space-y-2">
+                    {[
+                      ["concrete", "Roll-your-own meter on Stripe products"],
+                      ["empathy",  "Yeah, billing is the bug-on-bug episode"],
+                      ["question", "What broke first — proration or webhooks?"],
+                    ].map(([k,v], i)=>(
+                      <div key={i} className={`flex items-center gap-2 px-2.5 py-2 rounded-md border ${i===0 ? "border-coral/30 bg-coral/[0.04]" : "hairline bg-white"}`}>
+                        <span className={`mono text-[10.5px] ${i===0 ? "text-coral" : "text-stone-500"} w-16`}>{k}</span>
+                        <span className="text-[12.5px] text-stone-700 truncate">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right column copy */}
+        <div className="lg:col-span-5">
+          <div className="space-y-6">
+            {[
+              {Icon: Icon.Reply,  k:"Reads the room",   b:"Parses the thread, the OP's history, and the audience watching. Drafts the angle that fits — concrete, empathetic, or question-led."},
+              {Icon: Icon.Eye,    k:"Poaches audiences", b:"Sits on top of competitor threads. Surfaces replies that pull their warm leads into your orbit without sounding like an ad."},
+              {Icon: Icon.Mic,    k:"Sounds like you",   b:"Pulls from your voice model. Same line breaks, same em-dashes, same self-deprecating opener you've been using for two years."},
+              {Icon: Icon.Plug,   k:"Native install",    b:"Chrome + Arc. Two clicks. Sits inside the existing compose box — no popups, no separate tab, no behavioural giveaways."},
+            ].map((f,i)=>(
+              <div key={i} className="flex gap-4">
+                <div className="w-9 h-9 rounded-lg border hairline flex items-center justify-center bg-white shrink-0">
+                  <f.Icon width="16" height="16"/>
+                </div>
+                <div>
+                  <h4 className="text-[15.5px] font-semibold tracking-[-0.01em]">{f.k}</h4>
+                  <p className="text-[14px] text-stone-600 leading-[1.55] mt-1">{f.b}</p>
+                </div>
+              </div>
+            ))}
+            <div className="pt-4 border-t hairline flex items-center gap-3">
+              <button className="text-[13.5px] font-medium bg-ink text-cream px-3.5 py-2 rounded-md hover:bg-stone-800 inline-flex items-center gap-2">Add to Chrome <Icon.Arrow width="14" height="14"/></button>
+              <span className="mono text-[11px] text-stone-500">v0.4 · 312kb · MV3</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+};
+
+/* ---------- SECTION 5 · PLATFORM SAFETY ---------- */
+const Safety = () => (
+  <Section
+    id="safety"
+    eyebrow="05 · Platform safety"
+    title="Hardcoded anti-ban rules. Not negotiable."
+    lede="Most growth tools treat platform limits as a suggestion. Farcast treats them as a compile error. The agent literally can't break them — they're in the system prompt and the rate limiter."
+  >
+    <div className="rounded-2xl border hairline bg-ink text-cream overflow-hidden">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-stone-700/60">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span className="mono text-[12px] text-stone-300">farcast/safety/rules.yaml</span>
+        </div>
+        <span className="mono text-[11px] text-stone-500">enforced at agent · scheduler · api</span>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-px bg-stone-700/60">
+        <RulesPanel
+          platform="reddit"
+          Icon={Icon.Reddit}
+          color="#ff4500"
+          rules={[
+            ["max_posts_per_week",       "1"],
+            ["value_to_pitch_ratio",     "90/10"],
+            ["self_promo_thread_only",   "true"],
+            ["link_in_post_body",        "false"],
+            ["account_age_min",          "60d"],
+            ["karma_floor",              "200"],
+          ]}
+          note="If a subreddit's wiki tightens limits, we tighten. Never the other way."
+        />
+        <RulesPanel
+          platform="x (twitter)"
+          Icon={Icon.X}
+          color="#1C1917"
+          rules={[
+            ["max_posts_per_day",        "3"],
+            ["max_replies_per_hour",     "12"],
+            ["links_in_main_tweet",      "false"],
+            ["identical_text_threshold", "0.82 jaccard"],
+            ["mention_strangers_max",    "2 / 24h"],
+            ["cooldown_after_warning",   "auto · 72h"],
+          ]}
+          note="Links go in the reply, never the hook. Stops the algorithm from quietly deboosting you."
+        />
+      </div>
+
+      <div className="px-5 py-4 border-t border-stone-700/60 flex flex-col md:flex-row items-start md:items-center gap-3 justify-between">
+        <div className="mono text-[12px] text-stone-300">
+          <span className="text-emerald-400">$</span> farcast lint --schedule next-7d
+        </div>
+        <div className="mono text-[12px] text-stone-400">
+          7d preview ok · 18 posts · 0 violations · 0 near-misses
+        </div>
+      </div>
+    </div>
+
+    {/* Trust strip */}
+    <div className="mt-6 grid md:grid-cols-3 gap-4">
+      {[
+        {Icon: Icon.Shield, k:"Zero bans · 14 months", v:"Across 240 accounts in beta."},
+        {Icon: Icon.Lock,   k:"BYO tokens",            v:"OAuth scoped. Revoke any time."},
+        {Icon: Icon.Bolt,   k:"Soft-pause on signal",  v:"Drops cadence if engagement dips."},
+      ].map((c,i)=>(
+        <div key={i} className="rounded-xl border hairline bg-white p-4 flex gap-3">
+          <div className="w-8 h-8 rounded-md border hairline flex items-center justify-center bg-stone-50 shrink-0">
+            <c.Icon width="15" height="15"/>
+          </div>
+          <div>
+            <div className="text-[14px] font-semibold tracking-[-0.01em]">{c.k}</div>
+            <div className="text-[13px] text-stone-600 mt-0.5 leading-[1.5]">{c.v}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </Section>
+);
+
+const RulesPanel = ({platform, Icon: I, color, rules, note}) => (
+  <div className="bg-ink p-5 lg:p-7">
+    <div className="flex items-center gap-2 mb-4">
+      <span className="inline-flex w-6 h-6 rounded items-center justify-center" style={{background: color}}>
+        <I width="13" height="13" style={{color: platform==="reddit" ? "#fff" : "#FFFCF8"}}/>
+      </span>
+      <span className="mono text-[12px] text-stone-300 uppercase tracking-wider">{platform}</span>
+    </div>
+    <div className="space-y-1.5 mono text-[12.5px]">
+      {rules.map(([k, v], i)=>(
+        <div key={i} className="flex items-baseline gap-3 py-1 border-b border-stone-800/60 last:border-0">
+          <span className="text-stone-400 flex-1 truncate">{k}</span>
+          <span className="text-cream">: {v}</span>
+        </div>
+      ))}
+    </div>
+    <p className="mt-4 text-[12.5px] text-stone-400 italic leading-[1.55]">{note}</p>
+  </div>
+);
+
+/* ---------- SECTION 6 · MATH + PRICING ---------- */
+const Pricing = () => {
+  const [bill, setBill] = useState("monthly");
+  const price = bill === "monthly" ? 40 : 32;
+
+  return (
+    <Section
+      id="pricing"
+      eyebrow="06 · The math"
+      title="One $40 bill. Three job descriptions retired."
+      lede="The old GTM stack: a fractional growth advisor, a social manager on Upwork, and an SDR contract you keep meaning to cancel. Roughly $7,500 a month."
+    >
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
+        {/* Compare card */}
+        <div className="lg:col-span-7">
+          <div className="rounded-2xl border hairline bg-white p-6 lg:p-8">
+            <div className="eyebrow text-stone-500 mb-4">Replaces</div>
+            <div className="space-y-2.5">
+              {[
+                ["GTM consultant",            "$3,500/mo", "Strategy, ICP, positioning."],
+                ["Social media manager",      "$2,400/mo", "Drafts, scheduling, replies."],
+                ["SDR (part-time / Upwork)",  "$1,600/mo", "Inbox warm-up, lead lists, DMs."],
+              ].map(([k, v, b], i)=>(
+                <div key={i} className="flex items-center gap-4 py-3 border-b hairline last:border-0">
+                  <div className="flex-1">
+                    <div className="text-[15px] font-medium">{k}</div>
+                    <div className="text-[13px] text-stone-500 mt-0.5">{b}</div>
+                  </div>
+                  <div className="mono text-[13.5px] text-stone-400 line-through">{v}</div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 pt-5 border-t hairline flex items-center justify-between">
+              <div>
+                <div className="eyebrow text-stone-500">Old stack total</div>
+                <div className="display text-[28px] font-semibold mt-1 line-through text-stone-400">$7,500/mo</div>
+              </div>
+              <Icon.Arrow width="22" height="22" className="text-stone-400"/>
+              <div className="text-right">
+                <div className="eyebrow text-stone-500">Farcast Pro</div>
+                <div className="display text-[28px] font-semibold mt-1 text-coral">$40/mo</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Pricing card */}
+        <div className="lg:col-span-5">
+          <div className="rounded-2xl border-2 border-ink bg-white p-7 relative">
+            <div className="absolute -top-3 left-7 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-ink text-cream text-[11px] font-medium">
+              <Icon.Dot className="w-1.5 h-1.5 text-coral"/> Founder plan
+            </div>
+            <div className="flex items-center justify-between mb-4 mt-1">
+              <h3 className="display text-[24px] font-semibold">Pro</h3>
+              <div className="inline-flex p-0.5 border hairline rounded-md mono text-[11px]">
+                <button onClick={()=>setBill("monthly")} className={`px-2 py-0.5 rounded ${bill==="monthly"?"bg-stone-100 text-ink":"text-stone-500"}`}>monthly</button>
+                <button onClick={()=>setBill("annual")} className={`px-2 py-0.5 rounded ${bill==="annual"?"bg-stone-100 text-ink":"text-stone-500"}`}>annual –20%</button>
+              </div>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="display text-[64px] font-semibold tracking-[-0.04em] leading-none">${price}</span>
+              <span className="text-stone-500 text-[14px]">/month</span>
+            </div>
+            <p className="text-[13.5px] text-stone-500 mt-2">{bill === "annual" ? "Billed $384/yr. Cancel anytime." : "Month-to-month. Cancel anytime."}</p>
+
+            <ul className="mt-6 space-y-2.5">
+              {[
+                ["10",   "Playbooks"],
+                ["30",   "Content days · 150 regenerations"],
+                ["2,000","Post replies"],
+                ["2,000","DMs"],
+                ["900",  "Warm leads"],
+                ["full", "Hermes agent + rival spying"],
+                ["full", "Chrome extension access"],
+              ].map(([n, k], i)=>(
+                <li key={i} className="flex items-baseline gap-3 text-[13.5px]">
+                  <Icon.Check width="14" height="14" className="text-coral mt-0.5 shrink-0"/>
+                  <span className="mono text-stone-500 w-12 shrink-0">{n}</span>
+                  <span className="text-stone-700">{k}</span>
+                </li>
+              ))}
+            </ul>
+
+            <button className="mt-7 w-full bg-coral text-white text-[14px] font-medium py-3 rounded-lg hover:brightness-95 transition inline-flex items-center justify-center gap-2">
+              Start Pro · 7 days free <Icon.Arrow width="15" height="15"/>
+            </button>
+            <p className="mt-3 mono text-[11px] text-stone-500 text-center">no card required · 2-click cancel</p>
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+};
+
+/* ---------- FOOTER CTA ---------- */
+const FooterCTA = () => (
+  <section className="border-t hairline">
+    <div className="max-w-[1240px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
+      <div className="grid lg:grid-cols-12 gap-10 items-end">
+        <div className="lg:col-span-8">
+          <Eyebrow>The wedge</Eyebrow>
+          <h2 className="display-xl text-[56px] lg:text-[72px] leading-[0.98] font-semibold mt-4">
+            Stop posting twice a week.<br/>
+            <span className="text-coral">Start shipping a playbook.</span>
+          </h2>
+        </div>
+        <div className="lg:col-span-4">
+          <form onSubmit={(e)=>e.preventDefault()}>
+            <div className="flex items-center gap-2 p-1.5 rounded-xl border hairline bg-white shadow-sm">
+              <div className="pl-3 text-stone-400"><Icon.Globe width="16" height="16"/></div>
+              <input defaultValue="https://your-saas.com" className="flex-1 bg-transparent py-2 text-[14px] focus-ring rounded-md" />
+              <button className="bg-coral text-white text-[13px] font-medium px-3.5 py-2 rounded-lg inline-flex items-center gap-2">
+                Generate <Icon.Arrow width="13" height="13"/>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const Footer = () => (
+  <footer className="border-t hairline bg-cream">
+    <div className="max-w-[1240px] mx-auto px-6 lg:px-10 py-10 grid md:grid-cols-12 gap-8">
+      <div className="md:col-span-5">
+        <Logo/>
+        <p className="text-[13px] text-stone-500 mt-3 max-w-[36ch]">An AI growth co-founder for micro-SaaS teams. Built in Lisbon, shipping weekly.</p>
+        <p className="mono text-[11px] text-stone-400 mt-4">© 2026 Farcast Labs · v0.4.18</p>
+      </div>
+      {[
+        ["Product", ["Engine","Dashboard","Extension","Safety","Pricing","Changelog"]],
+        ["Company", ["Manifesto","Telemetry","Careers","Press kit"]],
+        ["Resources",["Docs","API","Status","Security"]],
+        ["Legal",   ["Privacy","Terms","DPA","Bans (none)"]],
+      ].map(([h, items], i)=>(
+        <div key={i} className="md:col-span-2 md:col-start-auto">
+          <div className="eyebrow text-stone-500 mb-3">{h}</div>
+          <ul className="space-y-2 text-[13px] text-stone-700">
+            {items.map((x, j)=>(<li key={j}><a className="hover:text-coral" href="#">{x}</a></li>))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </footer>
+);
+
+/* ---------- APP ---------- */
+const App = () => (
+  <div className="min-h-screen bg-cream text-ink">
+    <Nav />
+    <Hero />
+    <StrategyEngine />
+    <Dashboard />
+    <Extension />
+    <Safety />
+    <Pricing />
+    <FooterCTA />
+    <Footer />
+  </div>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

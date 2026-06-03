@@ -33,7 +33,9 @@
       "Read(//c/tmp/**)",
       "Read(//c/Users/splen/AppData/Local/Temp/farcast_design/**)",
       "Bash(find \"/mnt/c/Users/splen/AppData/Local/Temp/farcast_landing\" -type f 2>/dev/null)",
-      "Read(//mnt/c/Users/splen/AppData/Local/Temp/**)"
+      "Read(//mnt/c/Users/splen/AppData/Local/Temp/**)",
+      "WebFetch(domain:github.com)",
+      "mcp__plugin_ecc_playwright__browser_navigate"
     ]
   }
 }
