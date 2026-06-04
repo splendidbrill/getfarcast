@@ -92,7 +92,7 @@ export function TheMath() {
               <tr className="border-t-2 border-[#ff6b4e]/20 bg-[#ff6b4e]/5">
                 <td className="px-4 sm:px-6 py-4 sm:py-5 font-bold text-[#1a1a2e] text-sm sm:text-base">Every month</td>
                 <td className="px-3 sm:px-6 py-4 sm:py-5 text-center font-bold text-gray-700 text-sm sm:text-base line-through whitespace-nowrap">$7,500+</td>
-                <td className="px-3 sm:px-6 py-4 sm:py-5 text-center font-bold text-[#ff6b4e] text-sm sm:text-base">$39</td>
+                <td className="px-3 sm:px-6 py-4 sm:py-5 text-center font-bold text-[#ff6b4e] text-sm sm:text-base">$40</td>
               </tr>
             </tbody>
           </table>

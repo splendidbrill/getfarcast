@@ -32,7 +32,7 @@ const plans: {
     cta: "Start Free", highlighted: false, iconColor: "text-gray-500", bgIcon: "bg-gray-100",
   },
   {
-    name: "Starter", price: "$39", period: "/month",
+    name: "Starter", price: "$40", period: "/month",
     description: "Everything Farcast does, with limits built for solo founders.",
     icon: Zap,
     features: [

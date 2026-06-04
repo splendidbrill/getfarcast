@@ -77,7 +77,7 @@ export function LandingPricing() {
               <h3 className="ld-pc-name">For solo/small teams</h3>
               <p className="ld-pc-sub">Everything Farcast does, with limits built for solo/small teams. No hidden fees.</p>
               <div className="ld-pc-price">
-                <span className="num">$39</span>
+                <span className="num">$40</span>
                 <span className="per">/month</span>
               </div>
               <div className="ld-pc-divider"></div>

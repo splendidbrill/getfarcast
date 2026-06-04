@@ -71,7 +71,7 @@ export function LandingMath() {
               <tr className="total-row">
                 <td>Every month</td>
                 <td className="strike">$7,500+</td>
-                <td className="highlight">$39</td>
+                <td className="highlight">$40</td>
               </tr>
             </tbody>
           </table>

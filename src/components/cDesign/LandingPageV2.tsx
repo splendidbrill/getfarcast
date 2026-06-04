@@ -280,45 +280,12 @@ function Radar() {
   );
 }
 
-// ─── Trust strip ──────────────────────────────────────────────────────────────
-const TRUST_NAMES = ["Bramble","Quirly","Northbeam Jr","Heron","Pagestate","Anchorline","Salt & Co","Mentora","Strata","Drift.ly","Postmark","Linear Dot","Outpost"];
-
-function Trust() {
-  return (
-    <section className="relative">
-      <div className="max-w-[1240px] mx-auto px-6 lg:px-10 pt-6 pb-8">
-        <p className="text-center font-mono text-[11.5px] tracking-wider uppercase text-stone-500">
-          Trusted by 240+ indie founders to replace their{" "}
-          <span style={{ color: "#1C1917" }}>$7,500/mo growth agencies</span>
-        </p>
-        <div
-          className="mt-5 relative overflow-hidden"
-          style={{
-            WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
-            maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
-          }}
-        >
-          <div className="flex items-center gap-10 ticker-track">
-            {[0, 1].map((k) => (
-              <div key={k} className="flex items-center gap-10 shrink-0 pr-10">
-                {TRUST_NAMES.map((n, i) => (
-                  <span key={i} className="text-[15px] tracking-[-0.02em] text-stone-400 whitespace-nowrap">{n}</span>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ─── Dashboard mock ───────────────────────────────────────────────────────────
 const DRAFTS = [
   { p: "x",  tag: "thread", title: "The boring growth loop nobody talks about",        body: "Shipping isn't a launch, it's a beat. Last week we shipped twice and posted twice. The compounding looks like nothing for six weeks and then…", intent: 94, len: "6 posts" },
   { p: "li", tag: "post",   title: "What I'd do differently if I started today",        body: "Spent four months posting twice a week. Here's the post cadence I should've run from day one — and the one I'd skip entirely.", intent: 71, len: "212 words" },
   { p: "rd", tag: "reply",  title: "r/SaaS · weekly self-promo thread",                body: "OP — I ran a similar playbook last quarter. The 90/10 rule is real, but the part nobody mentions is that the 10% has to be earned in a specific shape:", intent: 58, len: "148 words" },
-  { p: "x",  tag: "single", title: "Hook · pricing objection",                         body: "$50/mo for an AI co-founder sounds steep until you remember the alternative is a $7,500 retainer and three Slack channels.", intent: 66, len: "1 post" },
+  { p: "x",  tag: "single", title: "Hook · pricing objection",                         body: "$40/mo for an AI co-founder sounds steep until you remember the alternative is a $7,500 retainer and three Slack channels.", intent: 66, len: "1 post" },
 ];
 
 const LEADS = [
@@ -563,8 +530,8 @@ function DashboardPeek() {
           <div className="absolute left-1/2 -translate-x-1/2 -bottom-5 z-10">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 text-white text-[13px] font-medium pl-3.5 pr-3 py-2 rounded-full shadow-lg hover:bg-stone-800 transition-colors"
-              style={{ backgroundColor: "#1C1917" }}
+              className="inline-flex items-center gap-2 text-[13px] font-medium pl-3.5 pr-3 py-2 rounded-full shadow-lg hover:bg-stone-800 transition-colors"
+              style={{ backgroundColor: "#1C1917", color: "white" }}
             >
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#FF5A4D] pulse-dot" />
               See today&apos;s playbook
@@ -654,7 +621,7 @@ function TheMath() {
           <div className="grid grid-cols-[1.6fr_1fr_1fr] items-center px-6 py-4 border-t" style={{ borderColor: "#E7E5E4", background: "rgba(255,90,77,0.06)" }}>
             <span className="text-[14px] font-semibold" style={{ color: "#1C1917" }}>Every month</span>
             <span className="text-center text-[14px] text-stone-400 line-through">$7,500+</span>
-            <span className="text-center text-[16px] font-semibold" style={{ color: "#FF5A4D" }}>$50</span>
+            <span className="text-center text-[16px] font-semibold" style={{ color: "#FF5A4D" }}>$40</span>
           </div>
         </div>
       </div>
@@ -663,45 +630,68 @@ function TheMath() {
 }
 
 // ─── Pricing ──────────────────────────────────────────────────────────────────
-const PRICING_FEATURES: [string, string][] = [
-  ["10 Growth Playbooks", "per month"],
-  ["30 Content Days", "(150 regenerations)"],
-  ["2,000 Post Replies", "per month"],
-  ["2,000 Direct messages", "per month"],
-  ["900 Warm Leads", "per month (30/day)"],
-  ["Full Chrome Extension", "access included"],
+const PRICING_CAPS = [
+  "Hermes Growth Strategy & Voice Cloning",
+  "Autonomous Content Engine (X, LinkedIn)",
+  "Deep Reddit Recon & Publishing",
+  '"Reply Guy" Chrome Extension',
+  "Warm Lead Radar (Reddit, Linkedin)",
+  "Anti-Ban Protection across all socials",
 ];
 
 function Pricing() {
   return (
     <section className="relative">
-      <div className="max-w-[1240px] mx-auto px-6 lg:px-10 pt-12 pb-20">
-        <div className="mx-auto max-w-[520px]">
-          <div className="text-center mb-6">
-            <span className="font-mono text-[11px] uppercase tracking-wider text-stone-500">One plan. The whole product.</span>
-          </div>
-          <div className="rounded-2xl border-2 bg-white p-7 relative" style={{ borderColor: "#1C1917" }}>
-            <div className="absolute -top-3 left-7 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium text-white" style={{ backgroundColor: "#1C1917" }}>
+      <div className="max-w-[1240px] mx-auto px-6 lg:px-10 pt-20 lg:pt-28 pb-24">
+        <div className="text-center max-w-[640px] mx-auto">
+          <h2 className="display text-[40px] sm:text-[52px] font-semibold leading-[1.02]" style={{ color: "#1C1917" }}>
+            Simple, transparent pricing
+          </h2>
+          <p className="mt-4 text-[17px] leading-[1.55] text-stone-600">
+            Start free and upgrade when you&apos;re ready. No hidden fees.
+          </p>
+        </div>
+
+        <div className="mt-14 mx-auto max-w-[460px]">
+          <div
+            className="rounded-2xl border bg-white p-8 lg:p-10"
+            style={{ borderColor: "#E7E5E4", boxShadow: "0 1px 0 rgba(28,25,23,0.04), 0 30px 60px -40px rgba(28,25,23,0.22)" }}
+          >
+            <span
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-medium"
+              style={{ borderColor: "#E7E5E4", color: "#1C1917" }}
+            >
               <span className="w-1.5 h-1.5 rounded-full bg-[#FF5A4D] block" /> Pro
+            </span>
+
+            <div className="mt-5 flex items-baseline gap-2">
+              <span className="display text-[64px] font-semibold leading-none" style={{ letterSpacing: "-0.045em", color: "#1C1917" }}>$40</span>
+              <span className="text-stone-500 text-[15px]">/month</span>
             </div>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="display text-[64px] font-semibold leading-none" style={{ color: "#1C1917" }}>$50</span>
-              <span className="text-stone-500 text-[14px]">/month</span>
-              <span className="ml-auto font-mono text-[11px] text-stone-500">cancel anytime</span>
-            </div>
-            <ul className="mt-6 grid grid-cols-2 gap-x-5 gap-y-2.5">
-              {PRICING_FEATURES.map(([n, k], i) => (
-                <li key={i} className="flex items-baseline gap-3 text-[13.5px]">
-                  <CheckIcon size={13} />
-                  <span className="font-mono text-stone-500 w-12 shrink-0 text-[11px]">{n.split(" ")[0]}</span>
-                  <span className="text-stone-700">{n.split(" ").slice(1).join(" ")} {k}</span>
+            <p className="mt-3 text-[14.5px] text-stone-600 leading-[1.5]">
+              Cancel anytime. The complete autonomous growth team.
+            </p>
+
+            <div className="my-7 h-px bg-stone-100" />
+
+            <ul className="space-y-3.5">
+              {PRICING_CAPS.map((c, i) => (
+                <li key={i} className="flex items-start gap-3 text-[15px]" style={{ color: "#1C1917" }}>
+                  <span
+                    className="mt-0.5 inline-flex items-center justify-center w-5 h-5 rounded-full shrink-0"
+                    style={{ background: "rgba(255,90,77,0.10)", color: "#FF5A4D" }}
+                  >
+                    <CheckIcon size={12} />
+                  </span>
+                  <span className="leading-[1.4]">{c}</span>
                 </li>
               ))}
             </ul>
-            <div className="mt-7">
+
+            <div className="mt-8">
               <PricingCTA />
             </div>
-            <p className="mt-3 font-mono text-[11px] text-stone-500 text-center">no card required · 7 days free · 2-click cancel</p>
+            <p className="mt-3.5 text-[12.5px] text-stone-500 text-center">No credit card required • 2-click cancel</p>
           </div>
         </div>
       </div>
@@ -715,7 +705,6 @@ export function LandingPageV2() {
     <div className="ld-root" style={{ background: "#FFFCF8" }}>
       <LandingNav />
       <Hero />
-      <Trust />
       <DashboardPeek />
       <Features />
       <TheMath />
